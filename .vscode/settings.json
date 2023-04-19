@@ -70,6 +70,20 @@
 		"*.tcc": "cpp",
 		"cinttypes": "cpp",
 		"iostream": "cpp",
-		"cassert": "cpp"
+		"cassert": "cpp",
+		"__memory": "cpp",
+		"charconv": "cpp",
+		"codecvt": "cpp",
+		"condition_variable": "cpp",
+		"map": "cpp",
+		"memory_resource": "cpp",
+		"numeric": "cpp",
+		"fstream": "cpp",
+		"iomanip": "cpp",
+		"numbers": "cpp",
+		"semaphore": "cpp",
+		"stop_token": "cpp",
+		"thread": "cpp",
+		"__tree": "cpp"
 	}
 }

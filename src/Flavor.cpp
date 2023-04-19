@@ -6,6 +6,7 @@
 #include "Utility.cpp"
 
 using FlavorType = int;
+using FlavorVector = std::vector<FlavorType>;
 
 namespace Flavor {
 	static const int Up = 2;
@@ -23,36 +24,10 @@ namespace Flavor {
 	static const int AntiBottom = -5;
 };
 
-// constexpr int flavor_to_int(const FlavorType flavor) {
-// 	return static_cast<int>(flavor);
-// }
-// constexpr std::vector<int> flavors_to_ints(const std::vector<FlavorType> flavors) {
-// 	std::vector<int> flavor_array;
-// 	for (const auto& flavor : flavors) {
-// 		flavor_array.push_back(flavor_to_int(flavor));
-// 	}	
-// 	return flavor_array;
-// }
-// constexpr FlavorType int_to_flavor(const int flavor) {
-// 	if (flavor == 0 || flavor == 21) {
-// 		return Flavor::Gluon;
-// 	}
-// 	if (flavor < -6 || flavor > 6) {
-// 		throw std::invalid_argument("Invalid flavor number: " + std::to_string(flavor));
-// 	}
-// 	return static_cast<Flavor>(flavor);
-// }
-// constexpr std::vector<Flavor> ints_to_flavors(const std::vector<int> flavors) {
-// 	std::vector<Flavor> flavor_array;
-// 	for (const auto& flavor : flavors) {
-// 		flavor_array.push_back(int_to_flavor(flavor));
-// 	}
-// 	return flavor_array;
-// }
 constexpr FlavorType conjugate_flavor(const FlavorType flavor) {
 	return -flavor;
 }
-constexpr std::vector<FlavorType> conjugate_flavors(const std::vector<FlavorType> flavors) {
+constexpr std::vector<FlavorType> conjugate_flavors(const std::vector<FlavorType> &flavors) {
 	std::vector<FlavorType> conjugated;
 	for (auto const &flavor : flavors) {
 		conjugated.push_back(conjugate_flavor(flavor));
@@ -60,10 +35,10 @@ constexpr std::vector<FlavorType> conjugate_flavors(const std::vector<FlavorType
 	return conjugated;
 }
 
-constexpr std::vector<FlavorType> upper_flavors(const std::vector<FlavorType> flavors) {
+constexpr std::vector<FlavorType> upper_flavors(const std::vector<FlavorType> &flavors) {
 	return vector_intersection<FlavorType>({Flavor::Up, Flavor::Charm, Flavor::Top, Flavor::AntiUp, Flavor::AntiCharm, Flavor::AntiTop}, flavors);
 }
-constexpr std::vector<FlavorType> lower_flavors(const std::vector<FlavorType> flavors) {
+constexpr std::vector<FlavorType> lower_flavors(const std::vector<FlavorType> &flavors) {
 	return vector_intersection<FlavorType>({Flavor::Down, Flavor::Strange, Flavor::Bottom, Flavor::AntiDown, Flavor::AntiStrange, Flavor::AntiBottom}, flavors);
 }
 constexpr bool is_upper_flavor(const FlavorType flavor) {
@@ -88,14 +63,10 @@ constexpr FlavorType reflect_flavor(const FlavorType flavor) {
 	}
 	throw std::runtime_error("Cannot reflect flavor");
 }
-constexpr std::vector<FlavorType> reflect_flavors(const std::vector<FlavorType> flavors) {
-	std::vector<FlavorType> reflected;
-
-	for (auto const &flavor : flavors) {
-		reflected.push_back(reflect_flavor(flavor));
+void reflect_flavors(std::vector<FlavorType> &flavors) {
+	for (int i = 0; i < flavors.size(); i++) {
+		flavors[i] = reflect_flavor(flavors[i]);
 	}
-
-	return reflected;
 }
 
 #endif

@@ -2,6 +2,7 @@
 #define COUPLING_H
 
 #include <cmath>
+#include "Constants.cpp"
 
 struct Coupling {
 	static double alpha_s(const double Q2, const size_t nf, const double lambda_QCD = Constants::lambda_QCD) {

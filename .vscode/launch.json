@@ -21,6 +21,15 @@
 			"args": [],
 			"cwd": "${workspaceFolder}",
 			"preLaunchTask": "buildCrossSection"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "CrossSection (CMake)",
+			"program": "${workspaceFolder}/CrossSection",
+			"args": [],
+			"cwd": "${workspaceFolder}",
+			"preLaunchTask": "cmakeCrossSection"
 		}
 	]
 }

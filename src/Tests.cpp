@@ -3,17 +3,7 @@
 
 #include "DIS.cpp"
 #include <iostream>
-
-void double_comparison(double a, double b, double tolerance = 1e-5) {
-	bool flag = abs(a - b) < tolerance;
-
-	std::cout << "Floating-point comparison between " << a << " and " << b << ": ";
-	if (flag) {
-		std::cout << "PASS" << std::endl;
-	} else {
-		std::cout << "FAIL" << std::endl;
-	}
-}
+#include "Utility.cpp"
 
 double test_integrand_1(double x[], size_t dim, void *params) {
 	return 1.0 / std::sqrt(x[0]);
@@ -78,6 +68,70 @@ void pdf_evaluation_tests() {
 	double_comparison(pdf.xf_evaluate(Flavor::Down, 0.2, 4), 0.369744);
 	double_comparison(pdf.xf_evaluate(Flavor::Down, 0.5, 4), 0.0831107);
 	double_comparison(pdf.xf_evaluate(Flavor::Down, 0.9, 4), 0.000204438);
+}
+
+void pdf_comparison_tests() {
+	PDFEvaluation pdf1("CT18NLO", 0);
+	PDFEvaluation pdf2("CT18NLO", 0);
+
+	const double x = 0.1;
+	const double Q2 = 200;
+	const double tol = 1e-15;
+	pdf1.evaluate(x, Q2);
+
+	double_comparison(pdf1.xf(Flavor::Up), pdf2.xf_evaluate(Flavor::Up, x, Q2), tol);
+	double_comparison(pdf1.xf(Flavor::Down), pdf2.xf_evaluate(Flavor::Down, x, Q2), tol);
+	double_comparison(pdf1.xf(Flavor::Charm), pdf2.xf_evaluate(Flavor::Charm, x, Q2), tol);
+	double_comparison(pdf1.xf(Flavor::Strange), pdf2.xf_evaluate(Flavor::Strange, x, Q2), tol);
+	double_comparison(pdf1.xf(Flavor::Top), pdf2.xf_evaluate(Flavor::Top, x, Q2), tol);
+	double_comparison(pdf1.xf(Flavor::Bottom), pdf2.xf_evaluate(Flavor::Bottom, x, Q2), tol);
+	double_comparison(pdf1.xg(), pdf2.xf_evaluate(Flavor::Gluon, x, Q2), tol);
+}
+
+void ckm_tests() {
+	const double tol = 1e-12;
+
+	double_comparison(CKM::squared(Flavor::Up, Flavor::Down), Constants::V_ud, tol);
+	double_comparison(CKM::squared(Flavor::Down, Flavor::Up), Constants::V_ud, tol);
+	
+	double_comparison(CKM::squared(Flavor::Up, Flavor::Strange), Constants::V_us, tol);
+	double_comparison(CKM::squared(Flavor::Strange, Flavor::Up), Constants::V_us, tol);
+	
+	double_comparison(CKM::squared(Flavor::Up, Flavor::Bottom), Constants::V_ub, tol);
+	double_comparison(CKM::squared(Flavor::Bottom, Flavor::Up), Constants::V_ub, tol);
+
+
+	double_comparison(CKM::squared(Flavor::Charm, Flavor::Down), Constants::V_cd, tol);
+	double_comparison(CKM::squared(Flavor::Down, Flavor::Charm), Constants::V_cd, tol);
+	
+	double_comparison(CKM::squared(Flavor::Charm, Flavor::Strange), Constants::V_cs, tol);
+	double_comparison(CKM::squared(Flavor::Strange, Flavor::Charm), Constants::V_cs, tol);
+	
+	double_comparison(CKM::squared(Flavor::Charm, Flavor::Bottom), Constants::V_cb, tol);
+	double_comparison(CKM::squared(Flavor::Bottom, Flavor::Charm), Constants::V_cb, tol);
+
+
+	double_comparison(CKM::squared(Flavor::Top, Flavor::Down), Constants::V_td, tol);
+	double_comparison(CKM::squared(Flavor::Down, Flavor::Top), Constants::V_td, tol);
+	
+	double_comparison(CKM::squared(Flavor::Top, Flavor::Strange), Constants::V_ts, tol);
+	double_comparison(CKM::squared(Flavor::Strange, Flavor::Top), Constants::V_ts, tol);
+	
+	double_comparison(CKM::squared(Flavor::Top, Flavor::Bottom), Constants::V_tb, tol);
+	double_comparison(CKM::squared(Flavor::Bottom, Flavor::Top), Constants::V_tb, tol);
+
+	const std::vector<FlavorType> upper = {Flavor::Up, Flavor::Charm, Flavor::Top};
+	for (int i = 0; i < upper.size(); i++) {
+		for (int j = 0; j < upper.size(); j++) {
+			double_comparison(CKM::squared(upper[i], upper[j]), 0, tol);
+		}
+	}
+	const std::vector<FlavorType> lower = {Flavor::Down, Flavor::Strange, Flavor::Bottom};
+	for (int i = 0; i < lower.size(); i++) {
+		for (int j = 0; j < lower.size(); j++) {
+			double_comparison(CKM::squared(lower[i], lower[j]), 0, tol);
+		}
+	}
 }
 
 int main(int argc, char const *argv[]) {

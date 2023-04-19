@@ -17,14 +17,28 @@ class Integrator {
 	void *params;
 
 	const size_t points;
-	const double max_chi_squared_deviation = 0.1;
-	const double max_relative_error = 0.1;
-	const int iter_max = 100;
+	const double max_chi_squared_deviation;
+	const double max_relative_error;
+	const unsigned int iter_max;
 
-	Integrator(double (* _integrand)(double [], size_t, void *), std::vector<double> _lower, std::vector<double> _upper, const size_t _points, void *_params = NULL) 
-	: integrand(_integrand), lower(_lower), upper(_upper), points(_points), params(_params) {
+	Integrator(
+		double (* _integrand)(double [], size_t, void *), 
+		std::vector<double> _lower, 
+		std::vector<double> _upper, 
+		const size_t _points, 
+		void *_params, 
+		const double _max_chi_squared_deviation, 
+		const double _max_relative_error,
+		const unsigned int _iter_max
+	) : integrand(_integrand), 
+	lower(_lower), 
+	upper(_upper), 
+	points(_points), 
+	params(_params),
+	max_chi_squared_deviation(_max_chi_squared_deviation),
+	max_relative_error(_max_relative_error),
+	iter_max(_iter_max) {
 		gsl_rng_env_setup();
-
 		rng_type = gsl_rng_default;
 		rng = gsl_rng_alloc(rng_type);
 	}
@@ -58,12 +72,12 @@ class Integrator {
 
 		int iteration = 0;
 		bool iteration_limit_reached = false;
+		double chi_squared = gsl_monte_vegas_chisq(state);
 
-		double best_chi_squared = gsl_monte_vegas_chisq(state);
+		double best_chi_squared = chi_squared;
 		double best_integral = integral;
 		double best_error = error;
-
-		while (true) {
+		while (abs(chi_squared - 1.0) >= max_chi_squared_deviation || abs(error / integral) >= max_relative_error) {
 			iteration++;
 			if (iteration > iter_max) {
 				iteration_limit_reached = true;
@@ -71,15 +85,11 @@ class Integrator {
 			}
 			gsl_monte_vegas_integrate(&function, lower.data(), upper.data(), dim, points, rng, state, &integral, &error);
 
-			const double chi_squared = gsl_monte_vegas_chisq(state);
+			chi_squared = gsl_monte_vegas_chisq(state);
 			if (abs(chi_squared - 1.0) < abs(best_chi_squared - 1.0)) {
 				best_chi_squared = chi_squared;
 				best_integral = integral;
 				best_error = error;
-			}
-
-			if (abs(gsl_monte_vegas_chisq(state) - 1.0) < max_chi_squared_deviation && abs(error / integral) < max_relative_error) {
-				break;
 			}
 		}
 
@@ -92,7 +102,6 @@ class Integrator {
 			final_error = best_error;
 			final_chi_squared = best_chi_squared;
 		}
-
 		return Result {final_integral, final_error, final_chi_squared};
 	}
 };
