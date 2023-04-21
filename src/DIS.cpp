@@ -1,24 +1,24 @@
 #ifndef DIS_EVALUATION_H
 #define DIS_EVALUATION_H
 
-#include "PDFEvaluation.cpp"
+#include "PDFInterface.cpp"
 #include "Row.cpp"
 #include <fstream>
 #include <string>
 #include "DISComputation.cpp"
 
 struct DIS {
-	PDFEvaluation pdf;
+	const double sqrt_s;
+	const double s;
+	double y_max = 1.0;
 
 	const std::vector<FlavorType> active_flavors;
 	const std::vector<FlavorType> active_antiflavors;
 
+	PDFInterface pdf;
+
 	bool parallelize = true;
 	int number_of_threads = 8;
-
-	const double sqrt_s;
-	const double s;
-	double y_max = 1.0;
 
 	const size_t points;
 	double max_chi_squared_deviation = 0.2;
@@ -27,30 +27,30 @@ struct DIS {
 
 	const Process process;
 
-	DIS (const double _sqrt_s, const std::vector<FlavorType> _active_flavors, const std::string pdf_set, const size_t _points, const Process _process)
+	DIS (const double _sqrt_s, const std::vector<FlavorType> _active_flavors, const PDFInterface _pdf, const size_t _points, const Process _process)
 	: sqrt_s(_sqrt_s), s(_sqrt_s * _sqrt_s), 
 	active_flavors(_active_flavors), 
 	active_antiflavors(conjugate_flavors(_active_flavors)), 
-	pdf(pdf_set, 0),
+	pdf(_pdf),
 	points(_points),
 	process(_process)
 	{ }
 
-	PerturbativeResult compute_structure_function(DISComputation::StructureFunction F, const double x, const double Q2) {
-		DISComputation dis(sqrt_s, active_flavors, active_antiflavors, pdf.pdf_set_name, points, max_chi_squared_deviation, max_relative_error, iter_max, process);
+	PerturbativeResult compute_structure_function(StructureFunction F, const double x, const double Q2) {
+		DISComputation dis(sqrt_s, active_flavors, active_antiflavors, pdf, points, max_chi_squared_deviation, max_relative_error, iter_max, process);
 		return dis.structure_function(F, x, Q2);
 	}
 	PerturbativeResult F2(const double x, const double Q2) {
-		return compute_structure_function(DISComputation::StructureFunction::F2, x, Q2);
+		return compute_structure_function(StructureFunction::F2, x, Q2);
 	}
 	PerturbativeResult FL(const double x, const double Q2) {
-		return compute_structure_function(DISComputation::StructureFunction::FL, x, Q2);
+		return compute_structure_function(StructureFunction::FL, x, Q2);
 	}
 	PerturbativeResult xF3(const double x, const double Q2) {
-		return compute_structure_function(DISComputation::StructureFunction::xF3, x, Q2);
+		return compute_structure_function(StructureFunction::xF3, x, Q2);
 	}
 
-	// void compute_structure_function(DISComputation::StructureFunction F, const std::vector<double> x_bins, const double Q2, const std::string filename) {
+	// void compute_structure_function(StructureFunction F, const std::vector<double> x_bins, const double Q2, const std::string filename) {
 	// 	const size_t step_count = x_bins.size();
 	// 	std::vector<Row> result;
 	// 	result.reserve(step_count);
@@ -88,15 +88,15 @@ struct DIS {
 		std::ofstream file(filename);
 
 		#pragma omp parallel for if(parallelize) num_threads(number_of_threads) collapse(2)
-		for (int i = 0; i < x_step_count; i++) {
-			for (int j = 0; j < Q2_step_count; j++) {
-				DISComputation dis(sqrt_s, active_flavors, active_antiflavors, pdf.pdf_set_name, points, max_chi_squared_deviation, max_relative_error, iter_max, process);
+		for (size_t i = 0; i < x_step_count; i++) {
+			for (size_t j = 0; j < Q2_step_count; j++) {
+				DISComputation dis(sqrt_s, active_flavors, active_antiflavors, pdf, points, max_chi_squared_deviation, max_relative_error, iter_max, process);
 				const double x = x_bins[i];
 				const double Q2 = Q2_bins[j];
 				
-				const PerturbativeResult value_F2 = dis.structure_function(DISComputation::StructureFunction::F2, x, Q2);
-				const PerturbativeResult value_FL = dis.structure_function(DISComputation::StructureFunction::FL, x, Q2);
-				const PerturbativeResult value_xF3 = dis.structure_function(DISComputation::StructureFunction::xF3, x, Q2);
+				const PerturbativeResult value_F2 = dis.structure_function(StructureFunction::F2, x, Q2);
+				const PerturbativeResult value_FL = dis.structure_function(StructureFunction::FL, x, Q2);
+				const PerturbativeResult value_xF3 = dis.structure_function(StructureFunction::xF3, x, Q2);
 				const PerturbativeResult value_F1 = (value_F2  - value_FL) / (2 * x);
 				const PerturbativeResult value_F3 = value_xF3 / x;
 
@@ -117,47 +117,47 @@ struct DIS {
 		file.close();
 	}
 	// void F2(const std::vector<double> x_bins, const double Q2, const std::string filename) {
-	// 	return compute_structure_function(DISComputation::StructureFunction::F2, x_bins, Q2, filename);
+	// 	return compute_structure_function(StructureFunction::F2, x_bins, Q2, filename);
 	// }
 	// void FL(const std::vector<double> x_bins, const double Q2, const std::string filename) {
-	// 	return compute_structure_function(DISComputation::StructureFunction::FL, x_bins, Q2, filename);
+	// 	return compute_structure_function(StructureFunction::FL, x_bins, Q2, filename);
 	// }
 	// void xF3(const std::vector<double> x_bins, const double Q2, const std::string filename) {
-	// 	return compute_structure_function(DISComputation::StructureFunction::xF3, x_bins, Q2, filename);
+	// 	return compute_structure_function(StructureFunction::xF3, x_bins, Q2, filename);
 	// }
 
-	void cross_section(const std::vector<double> Q2_bins, const std::string filename) {
-		const size_t step_count = Q2_bins.size();
-		std::vector<Row> result;
-		result.reserve(step_count);
+	// void cross_section(const std::vector<double> Q2_bins, const std::string filename) {
+	// 	const size_t step_count = Q2_bins.size();
+	// 	std::vector<Row> result;
+	// 	result.reserve(step_count);
 
-		int calculated_values = 0;
+	// 	int calculated_values = 0;
 
-		std::ofstream file(filename);
+	// 	std::ofstream file(filename);
 
-		#pragma omp parallel for if(parallelize) num_threads(number_of_threads)
-		for (int i = 0; i < step_count; i++) {
-			const double Q2 = Q2_bins[i];
+	// 	#pragma omp parallel for if(parallelize) num_threads(number_of_threads)
+	// 	for (int i = 0; i < step_count; i++) {
+	// 		const double Q2 = Q2_bins[i];
 			
-			DISComputation dis(sqrt_s, active_flavors, active_antiflavors, pdf.pdf_set_name, points, max_chi_squared_deviation, max_relative_error, iter_max, process);
+	// 		DISComputation dis(sqrt_s, active_flavors, active_antiflavors, pdf.pdf_set_name, points, max_chi_squared_deviation, max_relative_error, iter_max, process);
 
-			const double x_min = Q2 / (s * y_max);
-			const double value = dis.x_integrated_cross_section(Q2, x_min);
-			Row row {Q2, value, 0, 0, 0};
+	// 		const double x_min = Q2 / (s * y_max);
+	// 		const double value = dis.x_integrated_cross_section(Q2, x_min);
+	// 		Row row {Q2, value, 0, 0, 0};
 
-			#pragma omp critical
-			{
-				result.push_back(row);
-				file << row << std::endl;
-				file.flush();
+	// 		#pragma omp critical
+	// 		{
+	// 			result.push_back(row);
+	// 			file << row << std::endl;
+	// 			file.flush();
 
-				calculated_values++;
-				std::cout << "Calculated value " << calculated_values << " / " << step_count << " (index " << i << ", Q2 " << Q2 << ")" << std::endl;
-			}
-		}
+	// 			calculated_values++;
+	// 			std::cout << "Calculated value " << calculated_values << " / " << step_count << " (index " << i << ", Q2 " << Q2 << ")" << std::endl;
+	// 		}
+	// 	}
 
-		file.close();
-	}
+	// 	file.close();
+	// }
 
 	void differential_cross_section(const std::vector<double> x_bins, const std::vector<double> Q2_bins, const std::string filename) {
 		const size_t x_step_count = x_bins.size();
@@ -168,9 +168,9 @@ struct DIS {
 		std::ofstream file(filename);
 
 		#pragma omp parallel for if(parallelize) num_threads(number_of_threads) collapse(2)
-		for (int i = 0; i < x_step_count; i++) {
-			for (int j = 0; j < Q2_step_count; j++) {
-				DISComputation dis(sqrt_s, active_flavors, active_antiflavors, pdf.pdf_set_name, points, max_chi_squared_deviation, max_relative_error, iter_max, process);
+		for (size_t i = 0; i < x_step_count; i++) {
+			for (size_t j = 0; j < Q2_step_count; j++) {
+				DISComputation dis(sqrt_s, active_flavors, active_antiflavors, pdf, points, max_chi_squared_deviation, max_relative_error, iter_max, process);
 				const double x = x_bins[i];
 				const double Q2 = Q2_bins[j];
 				

@@ -103,12 +103,36 @@
         },
 		{
 			"type": "shell",
-			"label": "cmakeCrossSection",
+			"label": "cmakeCrossSectionDebug",
 			"options": {
 
 			},
-			"command": "cmake CMakeLists.txt -B build && make -C build"
-		}
+			"command": "cmake CMakeLists.txt -B build -DCMAKE_BUILD_TYPE=Debug && make -C build"
+		},
+		{
+			"type": "shell",
+			"label": "cmakeCrossSectionRelease",
+			"options": {
+
+			},
+			"command": "cmake CMakeLists.txt -B build -DCMAKE_BUILD_TYPE=Release && make -C build"
+		},
+		{
+			"type": "shell",
+			"label": "cmakeCrossSectionTSAN",
+			"options": {
+
+			},
+			"command": "cmake CMakeLists.txt -B build -DCMAKE_BUILD_TYPE=Debug -DUSE_THREAD_SANITIZER:BOOL=TRUE && make -C build"
+		},
+		{
+			"type": "shell",
+			"label": "cmakeCrossSectionASAN",
+			"options": {
+
+			},
+			"command": "cmake CMakeLists.txt -B build -DCMAKE_BUILD_TYPE=Debug -DUSE_ADDRESS_SANITIZER:BOOL=TRUE && make -C build"
+		},
     ],
     "version": "2.0.0"
 }

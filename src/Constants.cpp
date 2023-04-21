@@ -17,13 +17,13 @@ namespace Constants {
 	const static double V_cs = POW2(0.97349);
 	const static double V_cb = POW2(0.04182);
 
-	const static double V_td = POW2(0);
-	const static double V_ts = POW2(0);
-	const static double V_tb = POW2(0);
+	// const static double V_td = POW2(0);
+	// const static double V_ts = POW2(0);
+	// const static double V_tb = POW2(0);
 
-	// const static double V_td = POW2(0.00857);
-	// const static double V_ts = POW2(0.04110);
-	// const static double V_tb = POW2(0.999112);
+	const static double V_td = POW2(0.00857);
+	const static double V_ts = POW2(0.04110);
+	const static double V_tb = POW2(0.999112);
 
 
 	// constexpr double ckm_squared_matrix_elements[3][3] = {

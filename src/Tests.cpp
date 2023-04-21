@@ -50,7 +50,7 @@ void integration_tests() {
 }
 
 void pdf_evaluation_tests() {
-	PDFEvaluation pdf("CT18NLO", 0);
+	PDFInterface pdf("CT18NLO", 0);
 
 	std::cout << "CT18NLO central PDF test with up at Q^2 = 4 GeV^2:" << std::endl;
 	double_comparison(pdf.xf_evaluate(Flavor::Up, 1e-3, 4), 0.488643);
@@ -71,8 +71,8 @@ void pdf_evaluation_tests() {
 }
 
 void pdf_comparison_tests() {
-	PDFEvaluation pdf1("CT18NLO", 0);
-	PDFEvaluation pdf2("CT18NLO", 0);
+	PDFInterface pdf1("CT18NLO", 0);
+	PDFInterface pdf2("CT18NLO", 0);
 
 	const double x = 0.1;
 	const double Q2 = 200;

@@ -25,11 +25,38 @@
 		{
 			"type": "lldb",
 			"request": "launch",
-			"name": "CrossSection (CMake)",
+			"name": "CrossSection (CMake Debug)",
 			"program": "${workspaceFolder}/CrossSection",
 			"args": [],
 			"cwd": "${workspaceFolder}",
-			"preLaunchTask": "cmakeCrossSection"
+			"preLaunchTask": "cmakeCrossSectionDebug"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "CrossSection (CMake Release)",
+			"program": "${workspaceFolder}/CrossSection",
+			"args": [],
+			"cwd": "${workspaceFolder}",
+			"preLaunchTask": "cmakeCrossSectionRelease"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "CrossSection (CMake TSAN)",
+			"program": "${workspaceFolder}/CrossSection",
+			"args": [],
+			"cwd": "${workspaceFolder}",
+			"preLaunchTask": "cmakeCrossSectionTSAN"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "CrossSection (CMake ASAN)",
+			"program": "${workspaceFolder}/CrossSection",
+			"args": [],
+			"cwd": "${workspaceFolder}",
+			"preLaunchTask": "cmakeCrossSectionASAN"
 		}
 	]
 }

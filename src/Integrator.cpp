@@ -14,9 +14,9 @@ class Integrator {
 	double (* integrand)(double [], size_t, void *);
 	std::vector<double> lower;
 	std::vector<double> upper;
-	void *params;
 
 	const size_t points;
+	void *params;
 	const double max_chi_squared_deviation;
 	const double max_relative_error;
 	const unsigned int iter_max;
