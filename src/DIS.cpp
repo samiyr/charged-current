@@ -1,12 +1,13 @@
 #ifndef DIS_EVALUATION_H
 #define DIS_EVALUATION_H
 
-#include "PDFInterface.cpp"
+// #include "PDFInterface.cpp"
 #include "Row.cpp"
 #include <fstream>
 #include <string>
 #include "DISComputation.cpp"
 
+template <typename PDFInterface>
 struct DIS {
 	const double sqrt_s;
 	const double s;

@@ -20,6 +20,7 @@
 
 // constexpr double delta_contribution(const double x);
 
+template <typename PDFInterface>
 class DISComputation {
 	public:
 	double sqrt_s;
@@ -101,10 +102,10 @@ class DISComputation {
 
 		const double xq = pdf.xq_sum(active_upper_flavors, active_lower_flavors, active_upper_antiflavors, active_lower_antiflavors, false, process);
 
-		DISFunctions::CommonParams common {pdf, active_flavors, active_antiflavors, active_upper_flavors, active_lower_flavors, active_upper_antiflavors, active_lower_antiflavors, Q2, nlo_coefficient, s, y_max, process};
-		DISFunctions::UnintegratedParams params {common, x, xq};
+		DISFunctions::CommonParams<PDFInterface> common {pdf, active_flavors, active_antiflavors, active_upper_flavors, active_lower_flavors, active_upper_antiflavors, active_lower_antiflavors, Q2, nlo_coefficient, s, y_max, process};
+		DISFunctions::UnintegratedParams<PDFInterface> params {common, x, xq};
 
-		Integrator integrator(&DISFunctions::F2_integrand_gsl, {x}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		Integrator integrator(&DISFunctions::F2_integrand_gsl<PDFInterface>, {x}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
 		Integrator::Result integral_result = integrator.integrate();
 		const double integral = integral_result.value;
 
@@ -127,10 +128,10 @@ class DISComputation {
 
 		pdf.evaluate(x, Q2);
 
-		DISFunctions::CommonParams common {pdf, active_flavors, active_antiflavors, active_upper_flavors, active_lower_flavors, active_upper_antiflavors, active_lower_antiflavors, Q2, nlo_coefficient, s, y_max, process};
-		DISFunctions::UnintegratedParams params {common, x, 0};
+		DISFunctions::CommonParams<PDFInterface> common {pdf, active_flavors, active_antiflavors, active_upper_flavors, active_lower_flavors, active_upper_antiflavors, active_lower_antiflavors, Q2, nlo_coefficient, s, y_max, process};
+		DISFunctions::UnintegratedParams<PDFInterface> params {common, x, 0};
 
-		Integrator integrator(&DISFunctions::FL_integrand_gsl, {x}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		Integrator integrator(&DISFunctions::FL_integrand_gsl<PDFInterface>, {x}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
 		Integrator::Result integral_result = integrator.integrate();
 		const double integral = integral_result.value;
 
@@ -151,10 +152,10 @@ class DISComputation {
 
 		const double xq = pdf.xq_sum(active_upper_flavors, active_lower_flavors, active_upper_antiflavors, active_lower_antiflavors, true, process);
 
-		DISFunctions::CommonParams common {pdf, active_flavors, active_antiflavors, active_upper_flavors, active_lower_flavors, active_upper_antiflavors, active_lower_antiflavors, Q2, nlo_coefficient, s, y_max, process};
-		DISFunctions::UnintegratedParams params {common, x, xq};
+		DISFunctions::CommonParams<PDFInterface> common {pdf, active_flavors, active_antiflavors, active_upper_flavors, active_lower_flavors, active_upper_antiflavors, active_lower_antiflavors, Q2, nlo_coefficient, s, y_max, process};
+		DISFunctions::UnintegratedParams<PDFInterface> params {common, x, xq};
 
-		Integrator integrator(&DISFunctions::F3_integrand_gsl, {x}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		Integrator integrator(&DISFunctions::F3_integrand_gsl<PDFInterface>, {x}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
 		Integrator::Result integral_result = integrator.integrate();
 		const double integral = integral_result.value;
 
