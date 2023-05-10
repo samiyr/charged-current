@@ -16,47 +16,47 @@
 		{
 			"type": "lldb",
 			"request": "launch",
-			"name": "CrossSection",
-			"program": "${workspaceFolder}/CrossSection",
+			"name": "ChargedCurrentDIS",
+			"program": "${workspaceFolder}/ChargedCurrentDIS",
 			"args": [],
 			"cwd": "${workspaceFolder}",
-			"preLaunchTask": "buildCrossSection"
+			"preLaunchTask": "buildChargedCurrentDIS"
 		},
 		{
 			"type": "lldb",
 			"request": "launch",
-			"name": "CrossSection (CMake Debug)",
-			"program": "${workspaceFolder}/CrossSection",
+			"name": "ChargedCurrentDIS (CMake Debug)",
+			"program": "${workspaceFolder}/ChargedCurrentDIS",
 			"args": [],
 			"cwd": "${workspaceFolder}",
-			"preLaunchTask": "cmakeCrossSectionDebug"
+			"preLaunchTask": "cmakeChargedCurrentDISDebug"
 		},
 		{
 			"type": "lldb",
 			"request": "launch",
-			"name": "CrossSection (CMake Release)",
-			"program": "${workspaceFolder}/CrossSection",
+			"name": "ChargedCurrentDIS (CMake Release)",
+			"program": "${workspaceFolder}/ChargedCurrentDIS",
 			"args": [],
 			"cwd": "${workspaceFolder}",
-			"preLaunchTask": "cmakeCrossSectionRelease"
+			"preLaunchTask": "cmakeChargedCurrentDISRelease"
 		},
 		{
 			"type": "lldb",
 			"request": "launch",
-			"name": "CrossSection (CMake TSAN)",
-			"program": "${workspaceFolder}/CrossSection",
+			"name": "ChargedCurrentDIS (CMake TSAN)",
+			"program": "${workspaceFolder}/ChargedCurrentDIS",
 			"args": [],
 			"cwd": "${workspaceFolder}",
-			"preLaunchTask": "cmakeCrossSectionTSAN"
+			"preLaunchTask": "cmakeChargedCurrentDISTSAN"
 		},
 		{
 			"type": "lldb",
 			"request": "launch",
-			"name": "CrossSection (CMake ASAN)",
-			"program": "${workspaceFolder}/CrossSection",
+			"name": "ChargedCurrentDIS (CMake ASAN)",
+			"program": "${workspaceFolder}/ChargedCurrentDIS",
 			"args": [],
 			"cwd": "${workspaceFolder}",
-			"preLaunchTask": "cmakeCrossSectionASAN"
+			"preLaunchTask": "cmakeChargedCurrentDISASAN"
 		}
 	]
 }

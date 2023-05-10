@@ -11,6 +11,7 @@
 #include "StructureFunction.cpp"
 #include "DISFunctions.cpp"
 #include "CommonFunctions.cpp"
+#include "PDFCommon.cpp"
 
 // double F2_integrand_gsl(double input[], size_t dim, void *params_in);
 // double FL_integrand_gsl(double input[], size_t dim, void *params_in);
@@ -27,8 +28,7 @@ class DISComputation {
 	double s;
 	double y_max = 1.0;
 
-	FlavorVector active_flavors;
-	FlavorVector active_antiflavors;
+	FlavorInfo flavors;
 
 	PDFInterface pdf;
 
@@ -42,7 +42,6 @@ class DISComputation {
 	DISComputation (
 		const double _sqrt_s, 
 		const FlavorVector _active_flavors, 
-		const FlavorVector _active_antiflavors, 
 		const PDFInterface _pdf, 
 		const size_t _points,
 		const double _max_chi_squared_deviation, 
@@ -51,8 +50,7 @@ class DISComputation {
 		const Process _process
 	) : sqrt_s(_sqrt_s), 
 	s(_sqrt_s * _sqrt_s), 
-	active_flavors(_active_flavors), 
-	active_antiflavors(_active_antiflavors), 
+	flavors(_active_flavors), 
 	pdf(_pdf), 
 	points(_points), 
 	max_chi_squared_deviation(_max_chi_squared_deviation), 
@@ -60,49 +58,15 @@ class DISComputation {
 	iter_max(_iter_max),
 	process(_process) { }
 
-	// struct XIntegratedParams {
-	// 	const CommonParams &common;
-	// };
-
-	// double x_integrated_cross_section(const double Q2, const double x_min) {
-	// 	const double prefactor = cross_section_prefactor(Q2);
-	// 	const FlavorVector active_upper_flavors = upper_flavors(active_flavors);
-	// 	const FlavorVector active_lower_flavors = lower_flavors(active_flavors);
-	// 	const FlavorVector active_upper_antiflavors = upper_flavors(active_antiflavors);
-	// 	const FlavorVector active_lower_antiflavors = lower_flavors(active_antiflavors);
-	
-	// 	double alpha_s = pdf.alpha_s(Q2);
-	// 	double nlo_coefficient = alpha_s / (2 * M_PI);
-
-	// 	CommonParams common {pdf, active_flavors, active_antiflavors, active_upper_flavors, active_lower_flavors, active_upper_antiflavors, active_lower_antiflavors, Q2, nlo_coefficient, s, y_max, process};
-
-	// 	UnintegratedParams unintegrated_params {common, 0, 0};
-	// 	Integrator integrator1(&x_integrated_cross_section_gsl_single_integrand, {x_min}, {1}, points, &unintegrated_params, max_chi_squared_deviation, max_relative_error, iter_max);
-	// 	Integrator::Result integral_result1 = integrator1.integrate();
-	// 	const double integral1 = integral_result1.value;
-
-	// 	XIntegratedParams x_integrated_params {common};
-	// 	Integrator integrator2(&x_integrated_cross_section_gsl_double_integrand, {x_min, 0}, {1, 1}, points, &x_integrated_params, max_chi_squared_deviation, max_relative_error, iter_max);
-	// 	Integrator::Result integral_result2 = integrator2.integrate();
-	// 	const double integral2 = integral_result2.value;
-
-	// 	return prefactor * (integral1 + nlo_coefficient * integral2);
-	// }
-
-	PerturbativeResult F2(const double x, const double Q2) {
-		const FlavorVector active_upper_flavors = upper_flavors(active_flavors);
-		const FlavorVector active_lower_flavors = lower_flavors(active_flavors);
-		const FlavorVector active_upper_antiflavors = upper_flavors(active_antiflavors);
-		const FlavorVector active_lower_antiflavors = lower_flavors(active_antiflavors);
-	
+	PerturbativeResult F2(const double x, const double Q2) {	
 		double alpha_s = pdf.alpha_s(Q2);
 		double nlo_coefficient = alpha_s / (2 * M_PI);
 
 		pdf.evaluate(x, Q2);
 
-		const double xq = pdf.xq_sum(active_upper_flavors, active_lower_flavors, active_upper_antiflavors, active_lower_antiflavors, false, process);
+		const double xq = PDFCommon::xq_sum(pdf, flavors, false, process);
 
-		DISFunctions::CommonParams<PDFInterface> common {pdf, active_flavors, active_antiflavors, active_upper_flavors, active_lower_flavors, active_upper_antiflavors, active_lower_antiflavors, Q2, nlo_coefficient, s, y_max, process};
+		DISFunctions::CommonParams<PDFInterface> common {pdf, flavors, Q2, nlo_coefficient, s, y_max, process};
 		DISFunctions::UnintegratedParams<PDFInterface> params {common, x, xq};
 
 		Integrator integrator(&DISFunctions::F2_integrand_gsl<PDFInterface>, {x}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
@@ -118,17 +82,12 @@ class DISComputation {
 		return PerturbativeResult {lo, lo + nlo};
 	}
 	PerturbativeResult FL(const double x, const double Q2) {
-		const FlavorVector active_upper_flavors = upper_flavors(active_flavors);
-		const FlavorVector active_lower_flavors = lower_flavors(active_flavors);
-		const FlavorVector active_upper_antiflavors = upper_flavors(active_antiflavors);
-		const FlavorVector active_lower_antiflavors = lower_flavors(active_antiflavors);
-	
 		double alpha_s = pdf.alpha_s(Q2);
 		double nlo_coefficient = alpha_s / (2 * M_PI);
 
 		pdf.evaluate(x, Q2);
 
-		DISFunctions::CommonParams<PDFInterface> common {pdf, active_flavors, active_antiflavors, active_upper_flavors, active_lower_flavors, active_upper_antiflavors, active_lower_antiflavors, Q2, nlo_coefficient, s, y_max, process};
+		DISFunctions::CommonParams<PDFInterface> common {pdf, flavors, Q2, nlo_coefficient, s, y_max, process};
 		DISFunctions::UnintegratedParams<PDFInterface> params {common, x, 0};
 
 		Integrator integrator(&DISFunctions::FL_integrand_gsl<PDFInterface>, {x}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
@@ -140,19 +99,14 @@ class DISComputation {
 		return PerturbativeResult {0, nlo};
 	}
 	PerturbativeResult xF3(const double x, const double Q2) {
-		const FlavorVector active_upper_flavors = upper_flavors(active_flavors);
-		const FlavorVector active_lower_flavors = lower_flavors(active_flavors);
-		const FlavorVector active_upper_antiflavors = upper_flavors(active_antiflavors);
-		const FlavorVector active_lower_antiflavors = lower_flavors(active_antiflavors);
-	
 		double alpha_s = pdf.alpha_s(Q2);
 		double nlo_coefficient = alpha_s / (2 * M_PI);
 
 		pdf.evaluate(x, Q2);
 
-		const double xq = pdf.xq_sum(active_upper_flavors, active_lower_flavors, active_upper_antiflavors, active_lower_antiflavors, true, process);
+		const double xq = PDFCommon::xq_sum(pdf, flavors, true, process);
 
-		DISFunctions::CommonParams<PDFInterface> common {pdf, active_flavors, active_antiflavors, active_upper_flavors, active_lower_flavors, active_upper_antiflavors, active_lower_antiflavors, Q2, nlo_coefficient, s, y_max, process};
+		DISFunctions::CommonParams<PDFInterface> common {pdf, flavors, Q2, nlo_coefficient, s, y_max, process};
 		DISFunctions::UnintegratedParams<PDFInterface> params {common, x, xq};
 
 		Integrator integrator(&DISFunctions::F3_integrand_gsl<PDFInterface>, {x}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);

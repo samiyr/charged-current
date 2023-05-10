@@ -5,6 +5,7 @@
 
 namespace Constants {
 	constexpr double C_F = 4.0 / 3.0;
+	constexpr double T_R = 0.5;
 	constexpr double fermi_coupling = 1.1663787e-5;
 	constexpr double mass_W = 80.377;
 	constexpr double lambda_QCD = 0.226;
@@ -24,7 +25,6 @@ namespace Constants {
 	const static double V_td = POW2(0.00857);
 	const static double V_ts = POW2(0.04110);
 	const static double V_tb = POW2(0.999112);
-
 
 	// constexpr double ckm_squared_matrix_elements[3][3] = {
 	// 	/*

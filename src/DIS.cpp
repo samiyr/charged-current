@@ -14,7 +14,6 @@ struct DIS {
 	double y_max = 1.0;
 
 	const std::vector<FlavorType> active_flavors;
-	const std::vector<FlavorType> active_antiflavors;
 
 	PDFInterface pdf;
 
@@ -31,14 +30,13 @@ struct DIS {
 	DIS (const double _sqrt_s, const std::vector<FlavorType> _active_flavors, const PDFInterface _pdf, const size_t _points, const Process _process)
 	: sqrt_s(_sqrt_s), s(_sqrt_s * _sqrt_s), 
 	active_flavors(_active_flavors), 
-	active_antiflavors(conjugate_flavors(_active_flavors)), 
 	pdf(_pdf),
 	points(_points),
 	process(_process)
 	{ }
 
 	PerturbativeResult compute_structure_function(StructureFunction F, const double x, const double Q2) {
-		DISComputation dis(sqrt_s, active_flavors, active_antiflavors, pdf, points, max_chi_squared_deviation, max_relative_error, iter_max, process);
+		DISComputation dis(sqrt_s, active_flavors, pdf, points, max_chi_squared_deviation, max_relative_error, iter_max, process);
 		return dis.structure_function(F, x, Q2);
 	}
 	PerturbativeResult F2(const double x, const double Q2) {
@@ -91,7 +89,7 @@ struct DIS {
 		#pragma omp parallel for if(parallelize) num_threads(number_of_threads) collapse(2)
 		for (size_t i = 0; i < x_step_count; i++) {
 			for (size_t j = 0; j < Q2_step_count; j++) {
-				DISComputation dis(sqrt_s, active_flavors, active_antiflavors, pdf, points, max_chi_squared_deviation, max_relative_error, iter_max, process);
+				DISComputation dis(sqrt_s, active_flavors, pdf, points, max_chi_squared_deviation, max_relative_error, iter_max, process);
 				const double x = x_bins[i];
 				const double Q2 = Q2_bins[j];
 				
@@ -171,7 +169,7 @@ struct DIS {
 		#pragma omp parallel for if(parallelize) num_threads(number_of_threads) collapse(2)
 		for (size_t i = 0; i < x_step_count; i++) {
 			for (size_t j = 0; j < Q2_step_count; j++) {
-				DISComputation dis(sqrt_s, active_flavors, active_antiflavors, pdf, points, max_chi_squared_deviation, max_relative_error, iter_max, process);
+				DISComputation dis(sqrt_s, active_flavors, pdf, points, max_chi_squared_deviation, max_relative_error, iter_max, process);
 				const double x = x_bins[i];
 				const double Q2 = Q2_bins[j];
 				

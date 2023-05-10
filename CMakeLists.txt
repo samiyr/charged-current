@@ -1,6 +1,7 @@
 # Basic definitions
+set(PROJECT_NAME "ChargedCurrentDIS")
 cmake_minimum_required(VERSION 3.26.3..3.26.3)
-project(CrossSection VERSION 1.0 LANGUAGES CXX)
+project(${PROJECT_NAME} VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
@@ -8,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # Source files
-set(SOURCE_FILES src/CrossSection.cpp)
+set(SOURCE_FILES src/ChargedCurrentDIS.cpp)
 
 # Thread sanitizer
 SET(USE_THREAD_SANITIZER FALSE CACHE BOOL "Enable thread sanitizer")
@@ -28,10 +29,10 @@ endif()
 
 # Executable
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-add_executable(CrossSection ${SOURCE_FILES})
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
 # Flags
-target_compile_options(CrossSection PRIVATE -ffast-math -O3 -Wall -Wconversion)
+target_compile_options(${PROJECT_NAME} PRIVATE -ffast-math -O3 -Wall -Wconversion)
 
 # OpenMP
 if (APPLE)
@@ -50,24 +51,31 @@ if (APPLE)
 		set(OpenMP_omp_LIBRARY omp)
 	endif()
 
-	target_link_directories(CrossSection PRIVATE /opt/homebrew/lib /opt/homebrew/opt/llvm/lib)
+	target_link_directories(${PROJECT_NAME} PRIVATE /opt/homebrew/lib /opt/homebrew/opt/llvm/lib)
 endif()
 
 find_package(OpenMP REQUIRED)
 if (OpenMP_CXX_FOUND)
-    target_link_libraries(CrossSection PRIVATE OpenMP::OpenMP_CXX)
+    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
 endif()
 
 # GSL
 find_package(GSL REQUIRED)
 if (GSL_FOUND)
-	target_link_libraries(CrossSection PRIVATE GSL::gsl GSL::gslcblas)
+	target_link_libraries(${PROJECT_NAME} PRIVATE GSL::gsl GSL::gslcblas)
 endif()
 
 # LHAPDF
 find_package(LHAPDF REQUIRED)
 if (LHAPDF_FOUND)
-	target_link_libraries(CrossSection PRIVATE LHAPDF)
+	target_link_libraries(${PROJECT_NAME} PRIVATE LHAPDF)
+endif()
+
+# Pythia
+find_package(Pythia8 REQUIRED)
+if (PYTHIA8_FOUND)
+	target_include_directories(${PROJECT_NAME} PRIVATE ${PYTHIA8_INCLUDE_DIRS})
+	target_link_libraries(${PROJECT_NAME} PRIVATE ${PYTHIA8_LIBRARIES})
 endif()
 
 # Unset cached values

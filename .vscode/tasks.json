@@ -35,7 +35,7 @@
         },
 		{
             "type": "cppbuild",
-            "label": "buildCrossSection",
+            "label": "buildChargedCurrentDIS",
             "command": "/opt/homebrew/Cellar/llvm/16.0.1/bin/clang++",
             "args": [
 				"--std",
@@ -43,9 +43,9 @@
                 "-fcolor-diagnostics",
                 "-fansi-escape-codes",
                 "-g",
-                "${cwd}/CrossSection.cpp",
+                "${cwd}/ChargedCurrentDIS.cpp",
                 "-o",
-                "${fileDirname}/CrossSection",
+                "${fileDirname}/ChargedCurrentDIS",
 				"-I/opt/homebrew/include",
 				"-I/opt/homebrew/opt/llvm/include",
                 "-L/opt/homebrew/lib",
@@ -103,7 +103,7 @@
         },
 		{
 			"type": "shell",
-			"label": "cmakeCrossSectionDebug",
+			"label": "cmakeChargedCurrentDISDebug",
 			"options": {
 
 			},
@@ -111,7 +111,7 @@
 		},
 		{
 			"type": "shell",
-			"label": "cmakeCrossSectionRelease",
+			"label": "cmakeChargedCurrentDISRelease",
 			"options": {
 
 			},
@@ -119,7 +119,7 @@
 		},
 		{
 			"type": "shell",
-			"label": "cmakeCrossSectionTSAN",
+			"label": "cmakeChargedCurrentDISTSAN",
 			"options": {
 
 			},
@@ -127,7 +127,7 @@
 		},
 		{
 			"type": "shell",
-			"label": "cmakeCrossSectionASAN",
+			"label": "cmakeChargedCurrentDISASAN",
 			"options": {
 
 			},

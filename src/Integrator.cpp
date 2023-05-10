@@ -21,6 +21,8 @@ class Integrator {
 	const double max_relative_error;
 	const unsigned int iter_max;
 
+	bool verbose = false;
+
 	Integrator(
 		double (* _integrand)(double [], size_t, void *), 
 		std::vector<double> _lower, 
@@ -68,6 +70,11 @@ class Integrator {
 
 		gsl_monte_vegas_state *state = gsl_monte_vegas_alloc(dim);
 
+		gsl_monte_vegas_params vegas_params;
+		gsl_monte_vegas_params_get(state, &vegas_params);
+		vegas_params.verbose = int(verbose) - 1;
+		gsl_monte_vegas_params_set(state, &vegas_params);
+
 		gsl_monte_vegas_integrate(&function, lower.data(), upper.data(), dim, points, rng, state, &integral, &error);
 
 		int iteration = 0;
@@ -102,6 +109,9 @@ class Integrator {
 			final_error = best_error;
 			final_chi_squared = best_chi_squared;
 		}
+
+		gsl_monte_vegas_free(state);
+
 		return Result {final_integral, final_error, final_chi_squared};
 	}
 };

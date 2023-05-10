@@ -4,22 +4,15 @@
 #include "Constants.cpp"
 #include <cmath>
 #include "Flavor.cpp"
-#include "PDFInterface.cpp"
-#include "FFInterface.cpp"
 #include <functional>
+#include "PDFCommon.cpp"
 
 namespace DISFunctions {
 	template <typename PDFInterface>
 	struct CommonParams {
 		PDFInterface &pdf;
 
-		const FlavorVector &active_flavors;
-		const FlavorVector &active_antiflavors;
-
-		const FlavorVector &active_upper_flavors;
-		const FlavorVector &active_lower_flavors;
-		const FlavorVector &active_upper_antiflavors;
-		const FlavorVector &active_lower_antiflavors;
+		const FlavorInfo &flavors;
 
 		const double Q2;
 		const double nlo_coefficient;
@@ -51,13 +44,10 @@ namespace DISFunctions {
 
 		pdf.evaluate(x_hat, Q2);
 
-		const FlavorVector &active_upper_flavors = common.active_upper_flavors;
-		const FlavorVector &active_lower_flavors = common.active_lower_flavors;
-		const FlavorVector &active_upper_antiflavors = common.active_upper_antiflavors;
-		const FlavorVector &active_lower_antiflavors = common.active_lower_antiflavors;
+		const FlavorInfo &flavors = common.flavors;
 
-		const double xq_hat = pdf.xq_sum(active_upper_flavors, active_lower_flavors, active_upper_antiflavors, active_lower_antiflavors, quark_minus, common.process);
-		const double xg_hat = pdf.xg_sum(active_upper_flavors, active_lower_flavors);
+		const double xq_hat = PDFCommon::xq_sum(pdf, flavors, quark_minus, common.process);
+		const double xg_hat = PDFCommon::xg_sum(pdf, flavors);
 		
 		const double integrand_value = integrand(xi, xq_hat, xq, xg_hat);
 		return integrand_value;
