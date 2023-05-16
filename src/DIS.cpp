@@ -158,6 +158,12 @@ struct DIS {
 	// 	file.close();
 	// }
 
+	PerturbativeResult cross_section(const double x, const double Q2) {
+		DISComputation dis(sqrt_s, active_flavors, pdf, points, max_chi_squared_deviation, max_relative_error, iter_max, process);				
+		const PerturbativeResult differential_cs = dis.differential_cross_section(x, Q2);
+		return differential_cs;
+	}
+
 	void differential_cross_section(const std::vector<double> x_bins, const std::vector<double> Q2_bins, const std::string filename) {
 		const size_t x_step_count = x_bins.size();
 		const size_t Q2_step_count = Q2_bins.size();

@@ -15,7 +15,7 @@ set(SOURCE_FILES src/ChargedCurrentDIS.cpp)
 SET(USE_THREAD_SANITIZER FALSE CACHE BOOL "Enable thread sanitizer")
 if (${USE_THREAD_SANITIZER})
 	add_compile_options(-fPIE -pie -g)
-	add_compile_options(-fsanitize=thread)
+	add_compile_options(-fsanitize=thread -DLIBOMP_TSAN_SUPPORT=TRUE)
 	add_link_options(-fsanitize=thread)
 endif()
 
@@ -32,7 +32,7 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
 # Flags
-target_compile_options(${PROJECT_NAME} PRIVATE -ffast-math -O3 -Wall -Wconversion)
+target_compile_options(${PROJECT_NAME} PRIVATE -ffast-math -Wall -Wconversion $<$<CONFIG:Release>:-O3> $<$<CONFIG:Debug>:-g>)
 
 # OpenMP
 if (APPLE)

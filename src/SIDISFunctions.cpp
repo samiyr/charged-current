@@ -49,6 +49,7 @@ namespace SIDISFunctions {
 		PDFInterface &pdf2 = common.pdf2;
 		FFInterface &ff1 = common.ff1;
 
+		assert(x_hat > 0 && x_hat < 1);
 		pdf2.evaluate(x_hat, Q2);
 
 		const FlavorInfo &flavors = common.flavors;
@@ -78,6 +79,7 @@ namespace SIDISFunctions {
 		PDFInterface &pdf1 = common.pdf1;
 		FFInterface &ff2 = common.ff2;
 
+		assert(z_hat > 0 && z_hat < 1);
 		ff2.evaluate(z_hat, Q2);
 
 		const FlavorInfo &flavors = common.flavors;
@@ -112,6 +114,8 @@ namespace SIDISFunctions {
 		PDFInterface &pdf2 = common.pdf2;
 		FFInterface &ff2 = common.ff2;
 
+		assert(x_hat > 0 && x_hat < 1);
+		assert(z_hat > 0 && z_hat < 1);
 		pdf2.evaluate(x_hat, Q2);
 		ff2.evaluate(z_hat, Q2);
 
@@ -150,6 +154,8 @@ namespace SIDISFunctions {
 		PDFInterface &pdf2 = common.pdf2;
 		FFInterface &ff2 = common.ff2;
 
+		assert(x_hat > 0 && x_hat < 1);
+		assert(z_hat > 0 && z_hat < 1);
 		pdf2.evaluate(x_hat, Q2);
 		ff2.evaluate(z_hat, Q2);
 
@@ -173,14 +179,17 @@ namespace SIDISFunctions {
 		const double xq_zq, 
 		const double xq_hat_zq, 
 		const double xg_hat_zq) {
-		const double term1 = (1 - xi) * (1 + std::log((1 - xi) / xi) + std::log(1 - z)) - (2 * xi * std::log(xi)) / (1 - xi);
-		const double term2 = 2 * (std::log(1 - xi) + std::log(1 - z));
+
+		const double log_term = std::log((1 - xi) / xi);
+
+		const double term1 = (1 - xi) * (1 + log_term + Utility::logm1(z)) - (2 * xi * std::log(xi)) / (1 - xi);
+		const double term2 = 2 * (Utility::logm1(xi) + Utility::logm1(z));
 		const double term3 = (xi * xq_hat_zq - xq_zq)  / (1 - xi);
 
 		const double quark_contribution = Constants::C_F * (xq_hat_zq * term1 + term2 * term3);
 
-		const double term4 = 1 - (std::pow(xi, 2) + std::pow(1 - xi, 2)) * (1 - std::log((1 - xi) / xi));
-		const double term5 = std::log(1 - z) * (1 - 2 * xi * (1 - xi));
+		const double term4 = 1 - (std::pow(xi, 2) + std::pow(1 - xi, 2)) * (1 - log_term);
+		const double term5 = Utility::logm1(z) * (1 - 2 * xi * (1 - xi));
 
 		const double gluon_contribution = Constants::T_R * xg_hat_zq * (term4 + term5);
 
@@ -203,14 +212,17 @@ namespace SIDISFunctions {
 		const double xq_zq, 
 		const double xq_zq_hat, 
 		const double xq_zg_hat) {
-		const double term1 = (1 - xip) * (1 + std::log(xip * (1 - xip)) + std::log(1 - x)) + (2 * xip * std::log(xip)) / (1 - xip);
-		const double term2 = 2 * (std::log(1 - xip) + std::log(1 - x));
+
+		const double log_term = std::log(xip * (1 - xip));
+		
+		const double term1 = (1 - xip) * (1 + log_term + Utility::logm1(x)) + (2 * xip * std::log(xip)) / (1 - xip);
+		const double term2 = 2 * (Utility::logm1(xip) + Utility::logm1(x));
 		const double term3 = (xip * xq_zq_hat - xq_zq)  / (1 - xip);
 
 		const double quark_contribution = Constants::C_F * (xq_zq_hat * term1 + term2 * term3);
 
-		const double term4 = xip + std::log(xip * (1 - xip)) * (1 + std::pow(1 - xip, 2)) / xip;
-		const double term5 = std::log(1 - x) * (xip + 2 * (1 - xip) / xip);
+		const double term4 = xip + log_term * (1 + std::pow(1 - xip, 2)) / xip;
+		const double term5 = Utility::logm1(x) * (xip + 2 * (1 - xip) / xip);
 
 		const double gluon_contribution = Constants::C_F * xq_zg_hat * (term4 + term5);
 

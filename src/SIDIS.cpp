@@ -50,6 +50,12 @@ struct SIDIS {
 		return compute_structure_function(StructureFunction::xF3, x, z, Q2);
 	}
 
+	PerturbativeResult cross_section(const double x, const double z, const double Q2) {
+		SIDISComputation sidis(sqrt_s, active_flavors, pdf, ff, points, max_chi_squared_deviation, max_relative_error, iter_max, process);
+		const PerturbativeResult differential_cs = sidis.differential_cross_section(x, z, Q2);
+		return differential_cs;
+	}
+
 	void differential_cross_section(const std::vector<double> x_bins, const std::vector<double> z_bins, const std::vector<double> Q2_bins, const std::string filename) {
 		const size_t x_step_count = x_bins.size();
 		const size_t z_step_count = z_bins.size();
@@ -63,12 +69,11 @@ struct SIDIS {
 		for (size_t i = 0; i < x_step_count; i++) {
 			for (size_t j = 0; j < Q2_step_count; j++) {
 				for (size_t k = 0; k < z_step_count; k++) {
-					SIDISComputation sidis(sqrt_s, active_flavors, pdf, ff, points, max_chi_squared_deviation, max_relative_error, iter_max, process);
 					const double x = x_bins[i];
 					const double z = z_bins[k];
 					const double Q2 = Q2_bins[j];
 					
-					const PerturbativeResult differential_cs = sidis.differential_cross_section(x, z, Q2);
+					const PerturbativeResult differential_cs = cross_section(x, z, Q2);
 
 					#pragma omp critical
 					{

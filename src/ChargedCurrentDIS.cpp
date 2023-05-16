@@ -12,6 +12,60 @@
 // #include "PythiaSIDIS.cpp"
 
 int main(int argc, char const *argv[]) {
+	// LHAInterface pdf("CT18ANLO");
+	// LHAInterface ff("kkks08_global_d0_mas");
+
+	// const double x = 0.4;
+	// const double z = 0.1;
+	// const double Q2 = 10.0;
+
+	// pdf.evaluate(x, Q2);
+	// ff.evaluate(z, Q2);
+
+	// const double value = PDFCommon::xq_zq_sum(pdf, ff, FlavorInfo({Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom}), false, Process {Process::Type::NeutrinoToLepton});
+	// std::cout << 2 * value / z << std::endl;
+	// const double value3 = PDFCommon::xq_zq_sum(pdf, ff, FlavorInfo({Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom}), true, Process {Process::Type::NeutrinoToLepton});
+	// std::cout << 2 * value3 / z << std::endl;
+
+
+	// LHAInterface pdf2("CT18ANLO");
+	// LHAInterface ff2("kkks08_global_d0_mas");
+
+	// using namespace Constants;
+	// double value_2 = 0.0;
+	// value_2 += V_ud * pdf2.xf_evaluate(Flavor::Down, x, Q2) * ff2.xf_evaluate(Flavor::Up, z, Q2);
+	// value_2 += V_us * pdf2.xf_evaluate(Flavor::Strange, x, Q2) * ff2.xf_evaluate(Flavor::Up, z, Q2);
+	// value_2 += V_ub * pdf2.xf_evaluate(Flavor::Bottom, x, Q2) * ff2.xf_evaluate(Flavor::Up, z, Q2);
+	// value_2 += V_cd * pdf2.xf_evaluate(Flavor::Down, x, Q2) * ff2.xf_evaluate(Flavor::Charm, z, Q2);
+	// value_2 += V_cs * pdf2.xf_evaluate(Flavor::Strange, x, Q2) * ff2.xf_evaluate(Flavor::Charm, z, Q2);
+	// value_2 += V_cb * pdf2.xf_evaluate(Flavor::Bottom, x, Q2) * ff2.xf_evaluate(Flavor::Charm, z, Q2);
+	// value_2 += V_ud * pdf2.xf_evaluate(Flavor::AntiUp, x, Q2) * ff2.xf_evaluate(Flavor::AntiDown, z, Q2);
+	// value_2 += V_us * pdf2.xf_evaluate(Flavor::AntiUp, x, Q2) * ff2.xf_evaluate(Flavor::AntiStrange, z, Q2);
+	// value_2 += V_ub * pdf2.xf_evaluate(Flavor::AntiUp, x, Q2) * ff2.xf_evaluate(Flavor::AntiBottom, z, Q2);
+	// value_2 += V_cd * pdf2.xf_evaluate(Flavor::AntiCharm, x, Q2) * ff2.xf_evaluate(Flavor::AntiDown, z, Q2);
+	// value_2 += V_cs * pdf2.xf_evaluate(Flavor::AntiCharm, x, Q2) * ff2.xf_evaluate(Flavor::AntiStrange, z, Q2);
+	// value_2 += V_cb * pdf2.xf_evaluate(Flavor::AntiCharm, x, Q2) * ff2.xf_evaluate(Flavor::AntiBottom, z, Q2);
+
+	// double value3_2 = V_ud * pdf2.xf_evaluate(Flavor::Down, x, Q2) * ff2.xf_evaluate(Flavor::Up, z, Q2);
+	// value3_2 += V_us * pdf2.xf_evaluate(Flavor::Strange, x, Q2) * ff2.xf_evaluate(Flavor::Up, z, Q2);
+	// value3_2 += V_ub * pdf2.xf_evaluate(Flavor::Bottom, x, Q2) * ff2.xf_evaluate(Flavor::Up, z, Q2);
+	// value3_2 += V_cd * pdf2.xf_evaluate(Flavor::Down, x, Q2) * ff2.xf_evaluate(Flavor::Charm, z, Q2);
+	// value3_2 += V_cs * pdf2.xf_evaluate(Flavor::Strange, x, Q2) * ff2.xf_evaluate(Flavor::Charm, z, Q2);
+	// value3_2 += V_cb * pdf2.xf_evaluate(Flavor::Bottom, x, Q2) * ff2.xf_evaluate(Flavor::Charm, z, Q2);
+	// value3_2 -= V_ud * pdf2.xf_evaluate(Flavor::AntiUp, x, Q2) * ff2.xf_evaluate(Flavor::AntiDown, z, Q2);
+	// value3_2 -= V_us * pdf2.xf_evaluate(Flavor::AntiUp, x, Q2) * ff2.xf_evaluate(Flavor::AntiStrange, z, Q2);
+	// value3_2 -= V_ub * pdf2.xf_evaluate(Flavor::AntiUp, x, Q2) * ff2.xf_evaluate(Flavor::AntiBottom, z, Q2);
+	// value3_2 -= V_cd * pdf2.xf_evaluate(Flavor::AntiCharm, x, Q2) * ff2.xf_evaluate(Flavor::AntiDown, z, Q2);
+	// value3_2 -= V_cs * pdf2.xf_evaluate(Flavor::AntiCharm, x, Q2) * ff2.xf_evaluate(Flavor::AntiStrange, z, Q2);
+	// value3_2 -= V_cb * pdf2.xf_evaluate(Flavor::AntiCharm, x, Q2) * ff2.xf_evaluate(Flavor::AntiBottom, z, Q2);
+
+	// std::cout << 2 * value_2 / z << std::endl;
+	// std::cout << 2 * value3_2 / z << std::endl;
+
+	// Tests::decay_function_tests();
+	// return 0;
+	// Tests::run_tests();
+	// return 0;
 	// const std::vector<double> Q2_list = {2.25, 10, 20, 50, 100, 500, 1000, 10'000, 50'000, 100'000, 1'000'000};
 	// const std::vector<std::string> ff_sets = {
 	// 	"kkks08_alep_d+st_m00",
@@ -44,26 +98,33 @@ int main(int argc, char const *argv[]) {
 
 	// return 0;
 
-	// PythiaSIDIS::cross_section(20'000'000, "pythia_sidis.csv");
+	// PythiaSIDIS::cross_section(200'000'000, "pythia_sidis.csv");
 
-	// SIDIS sidis(
-	// 	318,
-	// 	{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
-	// 	LHAInterface("CT18ANLO"),
-	// 	// LHAInterface("JAM20-SIDIS_FF_pion_nlo"),
-	// 	// LHAInterface("JAM20-SIDIS_FF_kaon_nlo"),
-	// 	// LHAInterface("JAM20-SIDIS_FF_hadron_nlo"),
-	// 	LHAInterface("kkks08_global_d0_mas"),
-	// 	// LHAInterface("kkks08_opal_d0___mas"),
-	// 	// LHAInterface("kkks08_cleo_d0___mas"),
-	// 	// LHAInterface("kkks08_belle_d0__m00"),
-	// 	20'000,
-	// 	Process {Process::Type::NeutrinoToLepton}
-	// );
-	// sidis.max_chi_squared_deviation = 0.2;
-	// sidis.iter_max = 10;
+	// return 0;
 
-	// sidis.differential_cross_section({0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}, {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}, {1000}, "sidis_cross_sections.csv");
+	SIDIS sidis(
+		318,
+		{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+		LHAInterface("CT18ANLO"),
+		// LHAInterface("JAM20-SIDIS_FF_pion_nlo"),
+		// LHAInterface("JAM20-SIDIS_FF_kaon_nlo"),
+		// LHAInterface("JAM20-SIDIS_FF_hadron_nlo"),
+		LHAInterface("kkks08_global_d0_mas"),
+		// LHAInterface("kkks08_opal_d0___mas"),
+		// LHAInterface("kkks08_cleo_d0___mas"),
+		// LHAInterface("kkks08_belle_d0__m00"),
+		20'000,
+		Process {Process::Type::NeutrinoToLepton}
+	);
+	sidis.max_chi_squared_deviation = 0.2;
+	sidis.iter_max = 10;
+
+	// std::cout << sidis.F2(x, z, Q2).lo << std::endl;
+	// std::cout << sidis.FL(x, z, Q2).lo << std::endl;
+	// std::cout << sidis.xF3(x, z, Q2).lo << std::endl;
+	// return 0;
+
+	sidis.differential_cross_section({0.0001, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}, {0.0001, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}, {100}, "sidis_cross_sections.csv");
 	// sidis.differential_cross_section({0.002, 0.1, 0.2}, {0.1, 0.2, 0.3}, {10, 100, 1000}, "sidis_cross_sections.csv");
 
 	// std::cout << sidis.F2(0.2, 0.3, 10).nlo << std::endl;

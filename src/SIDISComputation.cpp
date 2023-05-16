@@ -163,6 +163,7 @@ class SIDISComputation {
 		const PerturbativeResult f2 = F2(x, z, Q2);
 		const PerturbativeResult fL = FL(x, z, Q2);
 		const PerturbativeResult xf3 = xF3(x, z, Q2);
+		// const PerturbativeResult xf3 = PerturbativeResult{0.0, 0.0};
 
 		const std::optional<double> y_opt = CommonFunctions::compute_y(x, Q2, s);
 		if (!y_opt.has_value()) {

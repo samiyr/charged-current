@@ -6,6 +6,8 @@
 #include <iostream>
 #include "Utility.cpp"
 #include "LHAInterface.cpp"
+#include "DecayFunctions.cpp"
+#include "FunctionalFormInterface.cpp"
 
 namespace Tests {
 	bool pdf_evaluation_tests() {
@@ -99,6 +101,50 @@ namespace Tests {
 			}
 		}
 
+		return flag;
+	}
+
+	bool dis_cross_section_tests() {
+		bool flag = true;
+
+		DIS dis(
+			318,
+			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+			LHAInterface("CT18ANLO"),
+			20'000,
+			Process {Process::Type::NeutrinoToLepton}
+		);
+		dis.max_chi_squared_deviation = 0.2;
+		dis.iter_max = 10;
+
+		const std::vector<double> x_values = {0.002, 0.1, 0.2, 0.5};
+		const std::vector<double> Q2_values = {50.0, 500.0, 1000.0, 10'000.0};
+
+		const std::vector<std::vector<double>> comparison_values = {
+			{0.0000000384639, 0, 0, 0}, 
+			{0.000000000240341, 0.000000000203083, 0.000000000171673, 0.0000000000271489}, 
+			{0.0000000000765554, 0.0000000000596697, 0.0000000000500484, 0.00000000000854444}, 
+			{0.00000000000522944, 0.00000000000328736, 0.00000000000262646, 0.000000000000416598}
+		};
+
+		#pragma omp parallel for collapse(2)
+		for (size_t i = 0; i < x_values.size(); i++) {
+			for (size_t j = 0; j < Q2_values.size(); j++) {
+				const double x = x_values[i];
+				const double Q2 = Q2_values[j];
+
+				const double comparison_value = comparison_values[i][j];
+
+				const double computed_value = dis.cross_section(x, Q2).nlo;
+
+				#pragma omp critical 
+				{
+					std::cout << "Running DIS test at x = " << x << ", Q^2 = " << Q2 << std::endl;
+					flag &= double_comparison(computed_value, comparison_value, 1e-1);
+					std::cout << std::endl;
+				}
+			}
+		}
 		return flag;
 	}
 
@@ -423,15 +469,31 @@ namespace Tests {
 		return flag;
 	}
 
+	bool decay_function_tests() {
+		bool flag = true;
+		
+		DecayParametrization param(
+			1.0, 1.4, 2.3, 2.0, 
+			1.8, 1.0, 1.0,
+			5.0
+		);
+
+		flag &= double_comparison(DecayFunctions::decay_function(0.5, 0.6, 10, param), 4.5073e-6);
+
+		return flag;
+	}
+
 	bool run_tests() {
 		bool flag = true;
 		flag &= pdf_evaluation_tests();
 		flag &= pdf_comparison_tests();
 		flag &= ckm_tests();
+		flag &= dis_cross_section_tests();
 		flag &= sidis_structure_function_only_quarks_tests();
 		flag &= sidis_structure_function_only_gluons_tests_1();
 		flag &= sidis_structure_function_only_gluons_tests_2();
 		flag &= sidis_structure_function_quarks_gluons_tests();
+		flag &= decay_function_tests();
 
 		return flag;
 	}

@@ -29,7 +29,7 @@ namespace PythiaSIDIS {
 
 		pythia.init();
 
-		auto hist = make_histogram(axis::regular<>(20, 0.1, 1.0, "x"), axis::regular<>(20, 0.1, 1.0, "z"), axis::regular<>(20, 10.0, 10'000.0, "Q2"));
+		auto hist = make_histogram(axis::regular<>(40, 0.01, 1.0, "x"), axis::regular<>(40, 0.01, 1.0, "z"), axis::regular<>(9, 10.0, 100.0, "Q2"));
 
 		pythia.run(events, [&](Pythia *ptr) {
 			Event &event = ptr->event;
@@ -63,41 +63,6 @@ namespace PythiaSIDIS {
 				hist(x, z, Q2);
 			}
 		});
-
-		// for (size_t i_event = 0; i_event < events; i_event++) {
-		// 	if (!pythia.next()) { continue; }
-
-		// 	Event &event = pythia.event;
-
-		// 	std::vector<Particle> D_mesons;
-
-		// 	for (size_t i_particle = 1; i_particle < event.size(); i_particle++) {
-		// 		const auto particle = event[i_particle];
-
-		// 		if (particle.idAbs() == 421) {
-		// 			D_mesons.push_back(particle);
-		// 		}
-		// 	}
-
-		// 	if (D_mesons.empty()) { continue; }
-
-		// 	const Vec4 hadron_momentum = event[1].p();
-		// 	const Vec4 lepton_in_momentum = event[2].p();
-		// 	const Vec4 lepton_out_momentum = event[6].p();
-		// 	const Vec4 q = lepton_in_momentum - lepton_out_momentum;
-
-		// 	const double Q2 = -q.m2Calc();
-		// 	const double x = Q2 / (2.0 * hadron_momentum * q);
-
-		// 	for (auto const &particle : D_mesons) {
-		// 		const Vec4 D_momentum = particle.p();
-		// 		const double z = (hadron_momentum * D_momentum) / (hadron_momentum * q);
-
-		// 		// std::cout << x << ", " << z << ", " << Q2 << std::endl;
-
-		// 		hist(x, z, Q2);
-		// 	}
-		// }
 
 		const double factor = pythia.sigmaGen() / pythia.weightSum();
 

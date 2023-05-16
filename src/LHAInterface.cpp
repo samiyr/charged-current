@@ -8,6 +8,8 @@
 #include "CKM.cpp"
 #include "Process.cpp"
 
+#define TOTAL_FLAVORS 13
+
 class LHAInterface {
 	public:
 	std::string set_name;
@@ -16,11 +18,10 @@ class LHAInterface {
 	FlavorVector available_flavors;
 
 	LHAInterface(std::string _set_name, int _set_member_number = 0)
-	: set_name(_set_name), set_member_number(_set_member_number) {
+	: set_name(_set_name), set_member_number(_set_member_number), flavor_values(TOTAL_FLAVORS, 0.0) {
 		LHAPDF::Info &cfg = LHAPDF::getConfig();
 		cfg.set_entry("Verbosity", 0);
-		_pdf = LHAPDF::mkPDF(set_name, set_member_number);
-		available_flavors = _pdf->flavors();
+		initialize();
 	}
 
 	void evaluate(const double x, const double Q2) {
@@ -38,7 +39,7 @@ class LHAInterface {
 			// 	flavor_values[i] = std::max(flavor_values[i], 0.0);
 			// }
 		} else {
-			flavor_values.assign(available_flavors.size(), 0.0);
+			std::fill(flavor_values.begin(), flavor_values.end(), 0.0);
 		}
 	}
 	double xf_evaluate(const FlavorType flavor, const double x, const double Q2) {
@@ -53,9 +54,22 @@ class LHAInterface {
 	double alpha_s(const double Q2) const {
 		return _pdf->alphasQ2(Q2);
 	}
+
+	LHAInterface(const LHAInterface &o) {
+		set_name = o.set_name;
+		set_member_number = o.set_member_number;
+		initialize();
+	}
+
 	private:
-	LHAPDF::PDF *_pdf;
+	std::unique_ptr<LHAPDF::PDF> _pdf;
 	std::vector<double> flavor_values;
+	
+	void initialize() {
+		_pdf = std::unique_ptr<LHAPDF::PDF>(LHAPDF::mkPDF(set_name, set_member_number));
+		available_flavors = _pdf->flavors();
+		flavor_values = std::vector<double>(TOTAL_FLAVORS, 0.0);
+	}
 };
 
 #endif

@@ -2,6 +2,7 @@
 #define UTILITY_H
 
 #include <vector>
+#include <gsl/gsl_sf.h>
 
 #define POW2(x) (x) * (x)
 #define POW4(x) (x) * (x) * (x) * (x)
@@ -18,8 +19,8 @@ constexpr std::vector<T> vector_intersection(std::vector<T> &v1, std::vector<T> 
 }
 
 bool double_comparison(double a, double b, double tolerance = 1e-5) {
-	// bool flag = abs(a - b) < tolerance;
-	const bool flag = std::abs(a - b) <= std::max(std::abs(a), std::abs(b)) * tolerance;
+	bool flag = abs(a - b) < tolerance;
+	// const bool flag = std::abs(a - b) <= std::max(std::abs(a), std::abs(b)) * tolerance;
 
 	std::cout << "Floating-point comparison between " << a << " and " << b << ": ";
 	if (flag) {
@@ -51,6 +52,20 @@ bool double_comparison_digits(double a, double b, int digits = 5) {
 
 template <typename T> int sgn(T val) {
     return (T(0) < val) - (val < T(0));
+}
+
+namespace Utility {
+	inline double logm1(const double x) {
+		return std::log1p(-x);
+	}
+
+	inline double gamma(const double z) {
+		return gsl_sf_gamma(z);
+	}
+
+	inline double incomplete_beta(const double z, const double a, const double b) {
+		return gsl_sf_beta_inc(a, b, z);
+	}
 }
 
 #endif
