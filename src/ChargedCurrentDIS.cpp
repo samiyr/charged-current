@@ -62,10 +62,10 @@ int main(int argc, char const *argv[]) {
 	// std::cout << 2 * value_2 / z << std::endl;
 	// std::cout << 2 * value3_2 / z << std::endl;
 
-	// Tests::decay_function_tests();
+	// Tests::decay_function_tests_2();
 	// return 0;
-	// Tests::run_tests();
-	// return 0;
+	Tests::run_tests();
+	return 0;
 	// const std::vector<double> Q2_list = {2.25, 10, 20, 50, 100, 500, 1000, 10'000, 50'000, 100'000, 1'000'000};
 	// const std::vector<std::string> ff_sets = {
 	// 	"kkks08_alep_d+st_m00",

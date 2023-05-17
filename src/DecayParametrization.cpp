@@ -16,7 +16,7 @@ struct DecayParametrization {
 	const double hadron_mass;
 	const double total_decay_width;
 	
-	const double pmin;
+	const double z_min;
 
 	const double reflection;
 
@@ -27,7 +27,7 @@ struct DecayParametrization {
 	const double _resonance_mass,
 	const double _hadron_mass,
 	const double _total_decay_width,
-	const double _pmin)
+	const double _z_min)
 	: N(_N),
 	alpha(_alpha),
 	beta(_beta),
@@ -35,7 +35,7 @@ struct DecayParametrization {
 	resonance_mass(_resonance_mass),
 	hadron_mass(_hadron_mass),
 	total_decay_width(_total_decay_width),
-	pmin(_pmin),
+	z_min(_z_min),
 	reflection(DecayParametrization::decay_reflection(alpha, beta)) { }
 };
 

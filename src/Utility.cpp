@@ -30,6 +30,17 @@ bool double_comparison(double a, double b, double tolerance = 1e-5) {
 	}
 	return flag;
 }
+bool double_comparison_rel(double a, double b, double tolerance = 1e-5) {
+	const bool flag = std::abs(a - b) <= std::max(std::abs(a), std::abs(b)) * tolerance;
+
+	std::cout << "Floating-point comparison between " << a << " and " << b << ": ";
+	if (flag) {
+		std::cout << "PASS" << std::endl;
+	} else {
+		std::cout << "FAIL" << std::endl;
+	}
+	return flag;
+}
 
 double order_of_magnitude(const double x) {
 	return std::log10(std::abs(x));
@@ -63,8 +74,15 @@ namespace Utility {
 		return gsl_sf_gamma(z);
 	}
 
+	inline double beta(const double a, const double b) {
+		return gsl_sf_beta(a, b);
+	}
 	inline double incomplete_beta(const double z, const double a, const double b) {
-		return gsl_sf_beta_inc(a, b, z);
+		return gsl_sf_beta_inc(a, b, z) * gsl_sf_beta(a, b);
+	}
+
+	void non_aborting_gsl_error_handler(const char *reason, const char *file, int line, int gsl_errno) {
+		std::cout << "gsl error " << gsl_errno << " (" << std::string(file) << "): " << std::string(reason) << std::endl;
 	}
 }
 

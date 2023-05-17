@@ -63,23 +63,29 @@ class SIDISComputation {
 
 		const double lo = 2 * xq_zq / z;
 
-		SIDISFunctions::CommonParams<PDFInterface, FFInterface> common {
+		SIDISFunctions::Parameters<PDFInterface, FFInterface> params {
 			pdf1, ff1, pdf2, ff2,
 			flavors,
 			Q2, nlo_coefficient, s,
-			process
+			process,
+			x, z, xq_zq
 		};
-		SIDISFunctions::UnintegratedParams<PDFInterface, FFInterface> params {common, x, z, xq_zq};
 
-		Integrator xi_integrator(&SIDISFunctions::F2_xi_integrand_gsl<PDFInterface, FFInterface>, {x}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		Integrator xi_integrator([](double input[], size_t dim, void *params_in) {
+			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, SIDISFunctions::Integrands::F2_xi_integrand, true, false, false, false);
+		}, {x}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
 		Integrator::Result xi_result = xi_integrator.integrate();
 		const double xi_integral = xi_result.value;
 		
-		Integrator xip_integrator(&SIDISFunctions::F2_xip_integrand_gsl<PDFInterface, FFInterface>, {z}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		Integrator xip_integrator([](double input[], size_t dim, void *params_in) {
+			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, SIDISFunctions::Integrands::F2_xip_integrand, false, true, false, false);
+		}, {z}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
 		Integrator::Result xip_result = xip_integrator.integrate();
 		const double xip_integral = xip_result.value;
 
-		Integrator xi_xip_integrator(&SIDISFunctions::F2_xi_xip_integrand_gsl<PDFInterface, FFInterface>, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		Integrator xi_xip_integrator([](double input[], size_t dim, void *params_in) {
+			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, SIDISFunctions::Integrands::F2_xi_xip_integrand, true, true, false, false);
+		}, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
 		Integrator::Result xi_xip_result = xi_xip_integrator.integrate();
 		const double xi_xip_integral = xi_xip_result.value;
 
@@ -94,15 +100,17 @@ class SIDISComputation {
 		double alpha_s = pdf1.alpha_s(Q2);
 		double nlo_coefficient = alpha_s / (2 * M_PI);
 
-		SIDISFunctions::CommonParams<PDFInterface, FFInterface> common {
+		SIDISFunctions::Parameters<PDFInterface, FFInterface> params {
 			pdf1, ff1, pdf2, ff2,
 			flavors,
 			Q2, nlo_coefficient, s,
-			process
+			process,
+			x, z, 0.0
 		};
-		SIDISFunctions::UnintegratedParams<PDFInterface, FFInterface> params {common, x, z, 0};
 
-		Integrator xi_xip_integrator(&SIDISFunctions::FL_xi_xip_integrand_gsl<PDFInterface, FFInterface>, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		Integrator xi_xip_integrator([](double input[], size_t dim, void *params_in) {
+			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, SIDISFunctions::Integrands::FL_xi_xip_integrand, true, true, false, false);
+		}, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
 		Integrator::Result xi_xip_result = xi_xip_integrator.integrate();
 		const double xi_xip_integral = xi_xip_result.value;
 
@@ -121,23 +129,29 @@ class SIDISComputation {
 
 		const double lo = 2 * xq_zq / z;
 
-		SIDISFunctions::CommonParams<PDFInterface, FFInterface> common {
+		SIDISFunctions::Parameters<PDFInterface, FFInterface> params {
 			pdf1, ff1, pdf2, ff2,
 			flavors,
 			Q2, nlo_coefficient, s,
-			process
+			process,
+			x, z, xq_zq
 		};
-		SIDISFunctions::UnintegratedParams<PDFInterface, FFInterface> params {common, x, z, xq_zq};
 
-		Integrator xi_integrator(&SIDISFunctions::F3_xi_integrand_gsl<PDFInterface, FFInterface>, {x}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		Integrator xi_integrator([](double input[], size_t dim, void *params_in) {
+			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, SIDISFunctions::Integrands::F3_xi_integrand, true, false, false, true);
+		}, {x}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
 		Integrator::Result xi_result = xi_integrator.integrate();
 		const double xi_integral = xi_result.value;
 		
-		Integrator xip_integrator(&SIDISFunctions::F3_xip_integrand_gsl<PDFInterface, FFInterface>, {z}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		Integrator xip_integrator([](double input[], size_t dim, void *params_in) {
+			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, SIDISFunctions::Integrands::F3_xip_integrand, false, true, false, true);
+		}, {z}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
 		Integrator::Result xip_result = xip_integrator.integrate();
 		const double xip_integral = xip_result.value;
 
-		Integrator xi_xip_integrator(&SIDISFunctions::F3_xi_xip_integrand_gsl<PDFInterface, FFInterface>, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		Integrator xi_xip_integrator([](double input[], size_t dim, void *params_in) {
+			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, SIDISFunctions::Integrands::F3_xi_xip_integrand, true, true, false, true);
+		}, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
 		Integrator::Result xi_xip_result = xi_xip_integrator.integrate();
 		const double xi_xip_integral = xi_xip_result.value;
 
@@ -163,7 +177,6 @@ class SIDISComputation {
 		const PerturbativeResult f2 = F2(x, z, Q2);
 		const PerturbativeResult fL = FL(x, z, Q2);
 		const PerturbativeResult xf3 = xF3(x, z, Q2);
-		// const PerturbativeResult xf3 = PerturbativeResult{0.0, 0.0};
 
 		const std::optional<double> y_opt = CommonFunctions::compute_y(x, Q2, s);
 		if (!y_opt.has_value()) {
