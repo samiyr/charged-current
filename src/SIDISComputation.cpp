@@ -68,31 +68,31 @@ class SIDISComputation {
 			flavors,
 			Q2, nlo_coefficient, s,
 			process,
-			x, z, xq_zq
+			x, z, xq_zq, 0.0
 		};
 
 		Integrator xi_integrator([](double input[], size_t dim, void *params_in) {
-			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, SIDISFunctions::Integrands::F2_xi_integrand, true, false, false, false);
+			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, SIDISFunctions::Integrands::F2_xi_integrand, true, false, false);
 		}, {x}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
-		Integrator::Result xi_result = xi_integrator.integrate();
+		auto xi_result = xi_integrator.integrate();
 		const double xi_integral = xi_result.value;
 		
 		Integrator xip_integrator([](double input[], size_t dim, void *params_in) {
-			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, SIDISFunctions::Integrands::F2_xip_integrand, false, true, false, false);
+			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, SIDISFunctions::Integrands::F2_xip_integrand, false, true, false);
 		}, {z}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
-		Integrator::Result xip_result = xip_integrator.integrate();
+		auto xip_result = xip_integrator.integrate();
 		const double xip_integral = xip_result.value;
 
 		Integrator xi_xip_integrator([](double input[], size_t dim, void *params_in) {
-			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, SIDISFunctions::Integrands::F2_xi_xip_integrand, true, true, false, false);
+			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, SIDISFunctions::Integrands::F2_xi_xip_integrand, true, true, false);
 		}, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
-		Integrator::Result xi_xip_result = xi_xip_integrator.integrate();
+		auto xi_xip_result = xi_xip_integrator.integrate();
 		const double xi_xip_integral = xi_xip_result.value;
 
 		const double nlo1 = xq_zq * SIDISFunctions::delta_contribution(x, z);
 		const double nlo2 = xi_integral + xip_integral + xi_xip_integral;
 
-		const double nlo = 2 * nlo_coefficient * (nlo1 + nlo2) / z;
+		const double nlo = nlo_coefficient * (nlo1 + nlo2);
 
 		return PerturbativeResult {lo, lo + nlo};
 	}
@@ -105,16 +105,16 @@ class SIDISComputation {
 			flavors,
 			Q2, nlo_coefficient, s,
 			process,
-			x, z, 0.0
+			x, z, 0.0, 0.0
 		};
 
 		Integrator xi_xip_integrator([](double input[], size_t dim, void *params_in) {
-			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, SIDISFunctions::Integrands::FL_xi_xip_integrand, true, true, false, false);
+			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, SIDISFunctions::Integrands::FL_xi_xip_integrand, true, true, false);
 		}, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
-		Integrator::Result xi_xip_result = xi_xip_integrator.integrate();
+		auto xi_xip_result = xi_xip_integrator.integrate();
 		const double xi_xip_integral = xi_xip_result.value;
 
-		const double nlo = 2 * nlo_coefficient * xi_xip_integral / z;
+		const double nlo = nlo_coefficient * xi_xip_integral;
 
 		return PerturbativeResult {0, nlo};
 	}
@@ -134,31 +134,31 @@ class SIDISComputation {
 			flavors,
 			Q2, nlo_coefficient, s,
 			process,
-			x, z, xq_zq
+			x, z, xq_zq, 0.0
 		};
 
 		Integrator xi_integrator([](double input[], size_t dim, void *params_in) {
-			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, SIDISFunctions::Integrands::F3_xi_integrand, true, false, false, true);
+			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, SIDISFunctions::Integrands::F3_xi_integrand, true, false, true);
 		}, {x}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
-		Integrator::Result xi_result = xi_integrator.integrate();
+		const auto xi_result = xi_integrator.integrate();
 		const double xi_integral = xi_result.value;
 		
 		Integrator xip_integrator([](double input[], size_t dim, void *params_in) {
-			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, SIDISFunctions::Integrands::F3_xip_integrand, false, true, false, true);
+			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, SIDISFunctions::Integrands::F3_xip_integrand, false, true, true);
 		}, {z}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
-		Integrator::Result xip_result = xip_integrator.integrate();
+		const auto xip_result = xip_integrator.integrate();
 		const double xip_integral = xip_result.value;
 
 		Integrator xi_xip_integrator([](double input[], size_t dim, void *params_in) {
-			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, SIDISFunctions::Integrands::F3_xi_xip_integrand, true, true, false, true);
+			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, SIDISFunctions::Integrands::F3_xi_xip_integrand, true, true, true);
 		}, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
-		Integrator::Result xi_xip_result = xi_xip_integrator.integrate();
+		const auto xi_xip_result = xi_xip_integrator.integrate();
 		const double xi_xip_integral = xi_xip_result.value;
 
 		const double nlo1 = xq_zq * SIDISFunctions::delta_contribution(x, z);
 		const double nlo2 = xi_integral + xip_integral + xi_xip_integral;
 
-		const double nlo = 2 * nlo_coefficient * (nlo1 + nlo2) / z;
+		const double nlo = nlo_coefficient * (nlo1 + nlo2);
 
 		return PerturbativeResult {lo, lo + nlo};
 	}
@@ -171,7 +171,7 @@ class SIDISComputation {
 		}
 	}
 
-	PerturbativeResult differential_cross_section(const double x, const double z, const double Q2) {
+	PerturbativeResult differential_cross_section_direct(const double x, const double z, const double Q2) {
 		const double prefactor = CommonFunctions::cross_section_prefactor(Q2);
 
 		const PerturbativeResult f2 = F2(x, z, Q2);
@@ -188,10 +188,137 @@ class SIDISComputation {
 		const double term2 = - 0.5 * y * y;
 		const double term3 = y * (1 - 0.5 * y);
 
-		const PerturbativeResult result = prefactor * (term1 * f2 + term2 * fL + double(process.W_sign()) * term3 * xf3) / x;
-		return result;
+		const PerturbativeResult result = (term1 * f2 + term2 * fL + double(process.W_sign()) * term3 * xf3) / x;
+		return prefactor * result;
+	}
+	PerturbativeResult differential_cross_section_indirect(const double x, const double z, const double Q2) {
+		double alpha_s = pdf1.alpha_s(Q2);
+		double nlo_coefficient = alpha_s / (2 * M_PI);
+
+		pdf1.evaluate(x, Q2);
+		ff1.evaluate(z, Q2);
+
+		const double xq_zq = PDFCommon::xq_zq_sum(pdf1, ff1, flavors, false, process);
+		const double xq_zq_3 = PDFCommon::xq_zq_sum(pdf1, ff1, flavors, true, process);
+
+		const double lo_1 = 2 * xq_zq / z;
+		const double lo_3 = 2 * xq_zq_3 / z;
+		const double lo = CommonFunctions::make_cross_section_variable(x, Q2, s, process, lo_1, 0.0, lo_3);
+
+		SIDISFunctions::Parameters<PDFInterface, FFInterface> params {
+			pdf1, ff1, pdf2, ff2,
+			flavors,
+			Q2, nlo_coefficient, s,
+			process,
+			x, z, xq_zq, xq_zq_3
+		};
+
+		Integrator xi_integrator([](double input[], size_t dim, void *params_in) {
+			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_cross_section_integrand<PDFInterface, FFInterface>(input, dim, params_in, 
+				SIDISFunctions::Integrands::F2_xi_integrand, SIDISFunctions::Integrands::FL_xi_integrand, SIDISFunctions::Integrands::F3_xi_integrand,
+				true, false, false
+			);
+		}, {x}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		const auto xi_result = xi_integrator.integrate();
+		const double xi_integral = xi_result.value;
+		
+		Integrator xip_integrator([](double input[], size_t dim, void *params_in) {
+			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_cross_section_integrand<PDFInterface, FFInterface>(input, dim, params_in, 
+				SIDISFunctions::Integrands::F2_xip_integrand, SIDISFunctions::Integrands::FL_xip_integrand, SIDISFunctions::Integrands::F3_xip_integrand,
+				false, true, false
+			);
+		}, {z}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		const auto xip_result = xip_integrator.integrate();
+		const double xip_integral = xip_result.value;
+
+		Integrator xi_xip_integrator([](double input[], size_t dim, void *params_in) {
+			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_cross_section_integrand<PDFInterface, FFInterface>(input, dim, params_in, 
+				SIDISFunctions::Integrands::F2_xi_xip_integrand, SIDISFunctions::Integrands::FL_xi_xip_integrand, SIDISFunctions::Integrands::F3_xi_xip_integrand,
+				true, true, false
+			);
+		}, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		const auto xi_xip_result = xi_xip_integrator.integrate();
+		const double xi_xip_integral = xi_xip_result.value;
+
+		const double delta_contribution = SIDISFunctions::delta_contribution(x, z);
+		const double delta_1 = xq_zq * delta_contribution;
+		const double delta_3 = xq_zq_3 * delta_contribution;
+		const double nlo1 = CommonFunctions::make_cross_section_variable(x, Q2, s, process, delta_1, 0.0, delta_3);
+		const double nlo2 = xi_integral + xip_integral + xi_xip_integral;
+
+		const double nlo = nlo_coefficient * (nlo1 + nlo2);
+
+		const PerturbativeResult result = PerturbativeResult {lo, lo + nlo};
+		const double prefactor = CommonFunctions::cross_section_prefactor(Q2);
+		return prefactor * result;
 	}
 
+	PerturbativeResult lepton_pair_cross_section(const double x, const double Q2, const double z_min) {
+		double alpha_s = pdf1.alpha_s(Q2);
+		double nlo_coefficient = alpha_s / (2 * M_PI);
+
+		pdf1.evaluate(x, Q2);
+
+		SIDISFunctions::Parameters<PDFInterface, FFInterface> params {
+			pdf1, ff1, pdf2, ff2,
+			flavors,
+			Q2, nlo_coefficient, s,
+			process,
+			x, 0.0, 0.0, 0.0
+		};
+
+		Integrator lo_integrator([](double input[], size_t dim, void* params_in) {
+			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_cross_section_integrand<PDFInterface, FFInterface>(input, dim, params_in, 
+				SIDISFunctions::Integrands::F2_lo_integrand, SIDISFunctions::Integrands::FL_lo_integrand, SIDISFunctions::Integrands::F3_lo_integrand,
+				false, false, true
+			);
+		}, {z_min}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		const auto lo_result = lo_integrator.integrate();
+		const double lo = lo_result.value;
+
+		Integrator xi_integrator([](double input[], size_t dim, void *params_in) {
+			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_cross_section_integrand<PDFInterface, FFInterface>(input, dim, params_in, 
+				SIDISFunctions::Integrands::F2_xi_integrand, SIDISFunctions::Integrands::FL_xi_integrand, SIDISFunctions::Integrands::F3_xi_integrand,
+				true, false, true
+			);
+		}, {x, z_min}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		const auto xi_result = xi_integrator.integrate();
+		const double xi_integral = xi_result.value;
+		
+		Integrator xip_integrator([](double input[], size_t dim, void *params_in) {
+			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_cross_section_integrand<PDFInterface, FFInterface>(input, dim, params_in, 
+				SIDISFunctions::Integrands::F2_xip_integrand, SIDISFunctions::Integrands::FL_xip_integrand, SIDISFunctions::Integrands::F3_xip_integrand,
+				false, true, true
+			);
+		}, {z_min, z_min}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		const auto xip_result = xip_integrator.integrate();
+		const double xip_integral = xip_result.value;
+
+		Integrator xi_xip_integrator([](double input[], size_t dim, void *params_in) {
+			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_cross_section_integrand<PDFInterface, FFInterface>(input, dim, params_in, 
+				SIDISFunctions::Integrands::F2_xi_xip_integrand, SIDISFunctions::Integrands::FL_xi_xip_integrand, SIDISFunctions::Integrands::F3_xi_xip_integrand,
+				true, true, true
+			);
+		}, {x, z_min, z_min}, {1, 1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		const auto xi_xip_result = xi_xip_integrator.integrate();
+		const double xi_xip_integral = xi_xip_result.value;
+
+		// Could combine with z_integrator, but then lose separation between LO and NLO
+		Integrator delta_integrator([](double input[], size_t dim, void* params_in) {
+			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_cross_section_integrand<PDFInterface, FFInterface>(input, dim, params_in, 
+				SIDISFunctions::Integrands::F2_delta_integrand, SIDISFunctions::Integrands::FL_delta_integrand, SIDISFunctions::Integrands::F3_delta_integrand,
+				false, false, true
+			);
+		}, {z_min}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		const auto delta_result = delta_integrator.integrate();
+		const double delta_integral = delta_result.value;
+
+		const double nlo = nlo_coefficient * (xi_integral + xip_integral + xi_xip_integral + delta_integral);
+
+		const PerturbativeResult result = PerturbativeResult {lo, lo + nlo};
+		const double prefactor = CommonFunctions::cross_section_prefactor(Q2);
+		return prefactor * result;
+	}
 };
 
 #endif

@@ -478,13 +478,13 @@ namespace Tests {
 			0.1
 		);
 
-		flag &= double_comparison(DecayFunctions::decay_function(0.1, 0.3, 10, param), 0.00100292);
-		flag &= double_comparison(DecayFunctions::decay_function(0.2, 0.3, 10, param), 0.000995329);
-		flag &= double_comparison(DecayFunctions::decay_function(0.3, 0.3, 10, param), 0.00098196);
-		flag &= double_comparison(DecayFunctions::decay_function(0.4, 0.5, 10, param), 0.00180983);
-		flag &= double_comparison(DecayFunctions::decay_function(0.5, 0.5, 10, param), 0.00181612);
-		flag &= double_comparison(DecayFunctions::decay_function(0.7, 0.9, 10, param), 0.00247266);
-		flag &= double_comparison(DecayFunctions::decay_function(0.99, 0.9, 10, param), 0.00251066);
+		flag &= double_comparison(DecayFunctions::decay_function(0.1, 0.3, 10, param), 0.00100292 / (8 * M_PI * M_PI));
+		flag &= double_comparison(DecayFunctions::decay_function(0.2, 0.3, 10, param), 0.000995329 / (8 * M_PI * M_PI));
+		flag &= double_comparison(DecayFunctions::decay_function(0.3, 0.3, 10, param), 0.00098196 / (8 * M_PI * M_PI));
+		flag &= double_comparison(DecayFunctions::decay_function(0.4, 0.5, 10, param), 0.00180983 / (8 * M_PI * M_PI));
+		flag &= double_comparison(DecayFunctions::decay_function(0.5, 0.5, 10, param), 0.00181612 / (8 * M_PI * M_PI));
+		flag &= double_comparison(DecayFunctions::decay_function(0.7, 0.9, 10, param), 0.00247266 / (8 * M_PI * M_PI));
+		flag &= double_comparison(DecayFunctions::decay_function(0.99, 0.9, 10, param), 0.00251066 / (8 * M_PI * M_PI));
 
 		return flag;
 	}
@@ -509,7 +509,7 @@ namespace Tests {
 				for (const double Q2 : Q2_values) {
 					std::vector<double> params = {x, z, Q2, 1.0, 1.8, 1.0, 1.4, 2.3, 2.0, 1.0};
 					Integrator integrator(&DecayFunctions::decay_function_integrand, {0.1 / params[1], -1}, {1, 1}, 2'000'000, &params, 0.2, 1-3, 10);
-					Integrator::Result result = integrator.integrate();
+					const auto result = integrator.integrate();
 					flag &= double_comparison_rel(DecayFunctions::decay_function(x, z, Q2, param), result.value, 1e-5);
 				}
 			}

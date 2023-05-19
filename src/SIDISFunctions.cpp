@@ -8,6 +8,9 @@
 #include "PDFCommon.cpp"
 
 namespace SIDISFunctions {
+	using Signature = std::function<double(double, double, double, double, double, double, double, double, double, double, double, double)>;
+	// using Signature = double (*)(double, double, double, double, double, double, double, double, double, double, double, double);
+
 	template <typename PDFInterface, typename FFInterface>
 	struct Parameters {
 		PDFInterface &pdf1;
@@ -27,11 +30,17 @@ namespace SIDISFunctions {
 		const double z;
 
 		const double xq_zq;
+		const double xq_zq_3;
 	};
+
+	constexpr double delta_contribution(const double x, const double z) {
+		return 2 * Constants::C_F * (std::pow(std::log(1 - x) + std::log(1 - z), 2) - 8) / z;
+	}
+
 
 	namespace Evaluation {
 		template <typename PDFInterface, typename FFInterface>
-		static double evaluate_gsl_sidis_integrand(double input[], size_t dim, void *params_in, std::function<double(double, double, double, double, double, double, double, double, double, double, double, double)> integrand, bool xi_int, bool xip_int, bool z_int, bool quark_minus) {
+		static double evaluate_gsl_sidis_integrand(double input[], size_t dim, void *params_in, Signature integrand, bool xi_int, bool xip_int, bool quark_minus) {
 			const struct Parameters<PDFInterface, FFInterface> *params = static_cast<Parameters<PDFInterface, FFInterface> *>(params_in);
 
 			const bool xi_xip_int = xi_int && xip_int;
@@ -43,7 +52,7 @@ namespace SIDISFunctions {
 			const double xip = xip_int ? input[xip_index] : 1.0;
 
 			const double x = params->x;
-			const double z = z_int ? input[2] : params->z;
+			const double z = params->z;
 			const double Q2 = params->Q2;
 
 			const double x_hat = x / xi;
@@ -79,9 +88,186 @@ namespace SIDISFunctions {
 			);
 			return integrand_value;
 		}
+
+		template <typename PDFInterface, typename FFInterface>
+		static double evaluate_gsl_sidis_cross_section_integrand(double input[], size_t dim, void *params_in, Signature F2, Signature FL, Signature xF3, bool xi_int, bool xip_int, bool z_int) {
+			const struct Parameters<PDFInterface, FFInterface> *params = static_cast<Parameters<PDFInterface, FFInterface> *>(params_in);
+
+			const bool xi_xip_int = xi_int && xip_int;
+
+			const size_t xi_index = 0;
+			const size_t xip_index = size_t(xi_int);
+			const size_t z_index = size_t(xi_int) + size_t(xip_int);
+
+			const double xi = xi_int ? input[xi_index] : 1.0;
+			const double xip = xip_int ? input[xip_index] : 1.0;
+
+			const double x = params->x;
+			const double z = z_int ? input[z_index] : params->z;
+			const double s = params->s;
+			const double Q2 = params->Q2;
+
+			PDFInterface &pdf1 = params->pdf1;
+			FFInterface &ff1 = params->ff1;
+			PDFInterface &pdf2 = params->pdf2;
+			FFInterface &ff2 = params->ff2;
+
+			const FlavorInfo &flavors = params->flavors;
+
+			const double x_hat = x / xi;
+			const double z_hat = z / xip;
+
+			if (z_int) {
+				if (xip < z) { return 0.0; }
+				ff1.evaluate(z, Q2);
+			}
+			const double xq_zq = z_int ? PDFCommon::xq_zq_sum(pdf1, ff1, flavors, false, params->process) : params->xq_zq;
+			const double xq_zq_3 = z_int ? PDFCommon::xq_zq_sum(pdf1, ff1, flavors, true, params->process) : params->xq_zq;
+
+			if (xi_int && std::abs(xi - 1) < 1e-15) { return 0; }
+			if (xip_int && std::abs(xip - 1) < 1e-15) { return 0; }
+
+			if (xi_int) { pdf2.evaluate(x_hat, Q2); }
+			if (xip_int) { ff2.evaluate(z_hat, Q2); }
+
+			const double xq_hat_zq = xi_int ? PDFCommon::xq_zq_sum(pdf2, ff1, flavors, false, params->process) : 0.0;
+			const double xq_zq_hat = xip_int ? PDFCommon::xq_zq_sum(pdf1, ff2, flavors, false, params->process) : 0.0;
+			const double xq_hat_zq_hat = xi_xip_int ? PDFCommon::xq_zq_sum(pdf2, ff2, flavors, false, params->process) : 0.0;
+
+			const double xq_zg_hat = xip_int ? PDFCommon::xq_zg_sum(pdf1, ff2, flavors, false, params->process) : 0.0;
+			const double xg_hat_zq = xi_int ? PDFCommon::xg_zq_sum(pdf2, ff1, flavors, false, params->process) : 0.0;
+			const double xq_hat_zg_hat = xi_xip_int ? PDFCommon::xq_zg_sum(pdf2, ff2, flavors, false, params->process) : 0.0;
+			const double xg_hat_zq_hat = xi_xip_int ? PDFCommon::xg_zq_sum(pdf2, ff2, flavors, false, params->process) : 0.0;
+
+
+			const double xq_hat_zq_3 = xi_int ? PDFCommon::xq_zq_sum(pdf2, ff1, flavors, true, params->process) : 0.0;
+			const double xq_zq_hat_3 = xip_int ? PDFCommon::xq_zq_sum(pdf1, ff2, flavors, true, params->process) : 0.0;
+			const double xq_hat_zq_hat_3 = xi_xip_int ? PDFCommon::xq_zq_sum(pdf2, ff2, flavors, true, params->process) : 0.0;
+
+			const double xq_zg_hat_3 = xip_int ? PDFCommon::xq_zg_sum(pdf1, ff2, flavors, true, params->process) : 0.0;
+			const double xg_hat_zq_3 = xi_int ? PDFCommon::xg_zq_sum(pdf2, ff1, flavors, true, params->process) : 0.0;
+			const double xq_hat_zg_hat_3 = xi_xip_int ? PDFCommon::xq_zg_sum(pdf2, ff2, flavors, true, params->process) : 0.0;
+			const double xg_hat_zq_hat_3 = xi_xip_int ? PDFCommon::xg_zq_sum(pdf2, ff2, flavors, true, params->process) : 0.0;
+
+			const double f2 = F2(
+				xi, xip, x, z, 
+				xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, 
+				xq_zg_hat, xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat
+			);
+			const double fL = FL(
+				xi, xip, x, z, 
+				xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, 
+				xq_zg_hat, xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat
+			);
+			const double xf3 = xF3(
+				xi, xip, x, z, 
+				xq_zq_3, xq_hat_zq_3, xq_zq_hat_3, xq_hat_zq_hat_3, 
+				xq_zg_hat_3, xg_hat_zq_3, xq_hat_zg_hat_3, xg_hat_zq_hat_3
+			);
+
+			const double integrand_value = CommonFunctions::make_cross_section_variable(x, Q2, s, params->process, f2, fL, xf3);
+
+			return integrand_value;
+		}
 	}
 
 	namespace Integrands {
+		static constexpr double F2_lo_integrand(
+			const double xi, 
+			const double xip, 
+			const double x, 
+			const double z, 
+			const double xq_zq,
+			const double xq_hat_zq, 
+			const double xq_zq_hat,
+			const double xq_hat_zq_hat, 
+			const double xq_zg_hat,
+			const double xg_hat_zq,
+			const double xq_hat_zg_hat,
+			const double xg_hat_zq_hat) {
+
+			return 2 * xq_zq / z;
+		}
+		static constexpr double FL_lo_integrand(
+			const double xi, 
+			const double xip, 
+			const double x, 
+			const double z, 
+			const double xq_zq,
+			const double xq_hat_zq, 
+			const double xq_zq_hat,
+			const double xq_hat_zq_hat, 
+			const double xq_zg_hat,
+			const double xg_hat_zq,
+			const double xq_hat_zg_hat,
+			const double xg_hat_zq_hat) {
+
+			return 0.0;
+		}
+		static constexpr double F3_lo_integrand(
+			const double xi, 
+			const double xip, 
+			const double x, 
+			const double z, 
+			const double xq_zq,
+			const double xq_hat_zq, 
+			const double xq_zq_hat,
+			const double xq_hat_zq_hat, 
+			const double xq_zg_hat,
+			const double xg_hat_zq,
+			const double xq_hat_zg_hat,
+			const double xg_hat_zq_hat) {
+
+			return 2 * xq_zq / z;
+		}
+		static constexpr double F2_delta_integrand(
+			const double xi, 
+			const double xip, 
+			const double x, 
+			const double z, 
+			const double xq_zq,
+			const double xq_hat_zq, 
+			const double xq_zq_hat,
+			const double xq_hat_zq_hat, 
+			const double xq_zg_hat,
+			const double xg_hat_zq,
+			const double xq_hat_zg_hat,
+			const double xg_hat_zq_hat) {
+
+			return SIDISFunctions::delta_contribution(x, z) * xq_zq;
+		}
+		static constexpr double FL_delta_integrand(
+			const double xi, 
+			const double xip, 
+			const double x, 
+			const double z, 
+			const double xq_zq,
+			const double xq_hat_zq, 
+			const double xq_zq_hat,
+			const double xq_hat_zq_hat, 
+			const double xq_zg_hat,
+			const double xg_hat_zq,
+			const double xq_hat_zg_hat,
+			const double xg_hat_zq_hat) {
+
+			return 0.0;
+		}
+		static constexpr double F3_delta_integrand(
+			const double xi, 
+			const double xip, 
+			const double x, 
+			const double z, 
+			const double xq_zq,
+			const double xq_hat_zq, 
+			const double xq_zq_hat,
+			const double xq_hat_zq_hat, 
+			const double xq_zg_hat,
+			const double xg_hat_zq,
+			const double xq_hat_zg_hat,
+			const double xg_hat_zq_hat) {
+
+			return SIDISFunctions::delta_contribution(x, z) * xq_zq;
+		}
 		static constexpr double F2_xi_integrand(
 			const double xi, 
 			const double xip, 
@@ -109,7 +295,7 @@ namespace SIDISFunctions {
 
 			const double gluon_contribution = Constants::T_R * xg_hat_zq * (term4 + term5);
 
-			return quark_contribution + gluon_contribution;
+			return 2 * (quark_contribution + gluon_contribution) / z;
 		}
 		static constexpr double F3_xi_integrand(
 			const double xi, 
@@ -154,7 +340,7 @@ namespace SIDISFunctions {
 
 			const double gluon_contribution = Constants::C_F * xq_zg_hat * (term4 + term5);
 
-			return quark_contribution + gluon_contribution;
+			return 2 * (quark_contribution + gluon_contribution) / z;
 		}
 		static constexpr double F3_xip_integrand(
 			const double xi, 
@@ -200,9 +386,40 @@ namespace SIDISFunctions {
 
 			const double gluon_contribution_2 = Constants::T_R * (term7 + term8);
 
-			return quark_contribution + gluon_contribution_1 + gluon_contribution_2;
+			return 2 * (quark_contribution + gluon_contribution_1 + gluon_contribution_2) / z;
 		}
+		static constexpr double FL_xi_integrand(
+			const double xi, 
+			const double xip, 
+			const double x, 
+			const double z, 
+			const double xq_zq,
+			const double xq_hat_zq, 
+			const double xq_zq_hat,
+			const double xq_hat_zq_hat, 
+			const double xq_zg_hat,
+			const double xg_hat_zq,
+			const double xq_hat_zg_hat,
+			const double xg_hat_zq_hat) {
 
+			return 0.0;
+		}
+		static constexpr double FL_xip_integrand(
+			const double xi, 
+			const double xip, 
+			const double x, 
+			const double z, 
+			const double xq_zq,
+			const double xq_hat_zq, 
+			const double xq_zq_hat,
+			const double xq_hat_zq_hat, 
+			const double xq_zg_hat,
+			const double xg_hat_zq,
+			const double xq_hat_zg_hat,
+			const double xg_hat_zq_hat) {
+
+			return 0.0;
+		}
 		static constexpr double FL_xi_xip_integrand(const double xi, 
 		const double xip, 
 		const double x, 
@@ -220,7 +437,7 @@ namespace SIDISFunctions {
 			const double term3 = xg_hat_zq_hat * Constants::T_R * 8 * xi * (1 - xi);
 			
 			const double value = term1 + term2 + term3;
-			return value;
+			return 2 * value / z;
 		}
 
 		static constexpr double F3_xi_xip_integrand(const double xi, 
@@ -240,44 +457,43 @@ namespace SIDISFunctions {
 			const double term2 = Constants::C_F * xq_hat_zg_hat * (4 * xi * (1 - xip) + 2 * (1 - xi) * xip);
 			const double term3 = Constants::T_R * xg_hat_zq_hat * (12 * xi * (1 - xi) + 2 * (1 - 2 * xi * (1 - xi)) / xip - 2);
 
-			const double value = F2_value - (term1 + term2 + term3);
+			const double value = F2_value - 2 * (term1 + term2 + term3) / z;
 
 			return value;
 		}
 	}
 
-	template <typename PDFInterface, typename FFInterface>
-	static double F2_xi_integrand_gsl(double input[], size_t dim, void *params_in) {
-		return Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, Integrands::F2_xi_integrand, true, false, false);
-	}
-	template <typename PDFInterface, typename FFInterface>
-	static double F2_xip_integrand_gsl(double input[], size_t dim, void *params_in) {
-		return Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, Integrands::F2_xip_integrand, false, true, false);
-	}
-	template <typename PDFInterface, typename FFInterface>
-	static double F2_xi_xip_integrand_gsl(double input[], size_t dim, void *params_in) {
-		return Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, Integrands::F2_xi_xip_integrand, true, true, false);
-	}
-	template <typename PDFInterface, typename FFInterface>
-	static double FL_xi_xip_integrand_gsl(double input[], size_t dim, void *params_in) {
-		return Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, Integrands::FL_xi_xip_integrand, true, true, false);
-	}
-	template <typename PDFInterface, typename FFInterface>
-	static double F3_xi_integrand_gsl(double input[], size_t dim, void *params_in) {
-		return Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, Integrands::F3_xi_integrand, true, false, true);
-	}
-	template <typename PDFInterface, typename FFInterface>
-	static double F3_xip_integrand_gsl(double input[], size_t dim, void *params_in) {
-		return Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, Integrands::F3_xip_integrand, false, true, true);
-	}
-	template <typename PDFInterface, typename FFInterface>
-	static double F3_xi_xip_integrand_gsl(double input[], size_t dim, void *params_in) {
-		return Evaluation::evaluate_gsl_sidis_integrand<PDFInterface, FFInterface>(input, dim, params_in, Integrands::F3_xi_xip_integrand, true, true, true);
-	}
+	// Signature make_cross_section_integrand(const double x, const double Q2, const double s, Process process, Signature F2, Signature FL, Signature xF3) {
+		// const double prefactor = CommonFunctions::cross_section_prefactor(Q2);
+		// const std::optional<double> y = CommonFunctions::compute_y(x, Q2, s);
 
-	constexpr double delta_contribution(const double x, const double z) {
-		return Constants::C_F * (std::pow(std::log(1 - x) + std::log(1 - z), 2) - 8);
-	}
+		// const double term1 = y.has_value() ? 1 - *y + 0.5 * *y * *y : 0.0;
+		// const double term2 = y.has_value() ? - 0.5 * *y * *y : 0.0;
+		// const double term3 = y.has_value() ? *y * (1 - 0.5 * *y) : 0.0;
+
+	// 	Signature integrand = [&](const double xi, 
+	// 	const double xip, 
+	// 	const double x, 
+	// 	const double z, 
+	// 	const double xq_zq,
+	// 	const double xq_hat_zq, 
+	// 	const double xq_zq_hat,
+	// 	const double xq_hat_zq_hat, 
+	// 	const double xq_zg_hat,
+	// 	const double xg_hat_zq,
+	// 	const double xq_hat_zg_hat,
+	// 	const double xg_hat_zq_hat) {
+	// 		const double f2 = F2(xi, xip, x, z, xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat);
+	// 		const double fL = FL(xi, xip, x, z, xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat);
+	// 		const double xf3 = xF3(xi, xip, x, z, xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat);
+
+	// 		const double cs = prefactor * (term1 * f2 + term2 * fL + double(process.W_sign()) * term3 * xf3) / x;
+
+	// 		return cs;
+	// 	};
+
+	// 	return integrand;
+	// }
 }
 
 #endif

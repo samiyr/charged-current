@@ -50,10 +50,16 @@ struct SIDIS {
 		return compute_structure_function(StructureFunction::xF3, x, z, Q2);
 	}
 
-	PerturbativeResult cross_section(const double x, const double z, const double Q2) {
+	PerturbativeResult differential_cross_section(const double x, const double z, const double Q2, const bool use_direct = false) {
 		SIDISComputation sidis(sqrt_s, active_flavors, pdf, ff, points, max_chi_squared_deviation, max_relative_error, iter_max, process);
-		const PerturbativeResult differential_cs = sidis.differential_cross_section(x, z, Q2);
+		const PerturbativeResult differential_cs = use_direct ? sidis.differential_cross_section_direct(x, z, Q2) : sidis.differential_cross_section_indirect(x, z, Q2);
 		return differential_cs;
+	}
+
+	PerturbativeResult lepton_pair_cross_section(const double x, const double Q2, const double z_min) {
+		SIDISComputation sidis(sqrt_s, active_flavors, pdf, ff, points, max_chi_squared_deviation, max_relative_error, iter_max, process);
+		const PerturbativeResult cs = sidis.lepton_pair_cross_section(x, Q2, z_min);
+		return cs;
 	}
 
 	void differential_cross_section(const std::vector<double> x_bins, const std::vector<double> z_bins, const std::vector<double> Q2_bins, const std::string filename) {
@@ -73,7 +79,7 @@ struct SIDIS {
 					const double z = z_bins[k];
 					const double Q2 = Q2_bins[j];
 					
-					const PerturbativeResult differential_cs = cross_section(x, z, Q2);
+					const PerturbativeResult differential_cs = differential_cross_section(x, z, Q2);
 
 					#pragma omp critical
 					{

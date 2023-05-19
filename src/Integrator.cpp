@@ -6,12 +6,24 @@
 #include <cassert>
 #include <iostream>
 
+template <typename Function>
+struct ParametrizedFunctor {
+	Function function;
+	void *params;
+
+	static double invoke(double input[], size_t dim, void *p) {
+		ParametrizedFunctor *functor = static_cast<ParametrizedFunctor *>(p);
+		return functor->function(input, dim, functor->params);
+	}
+};
+
+template <typename Integrand>
 class Integrator {
 	private:
 	const gsl_rng_type *rng_type;
 	gsl_rng *rng;
 	public:
-	double (* integrand)(double [], size_t, void *);
+	Integrand integrand;
 	std::vector<double> lower;
 	std::vector<double> upper;
 
@@ -24,7 +36,7 @@ class Integrator {
 	bool verbose = false;
 
 	Integrator(
-		double (* _integrand)(double [], size_t, void *), 
+		Integrand _integrand, 
 		std::vector<double> _lower, 
 		std::vector<double> _upper, 
 		const size_t _points, 
@@ -64,9 +76,12 @@ class Integrator {
 
 		gsl_monte_function function;
 
-		function.f = integrand;
+		ParametrizedFunctor<Integrand> functor { integrand, params };
+		function.f = &ParametrizedFunctor<Integrand>::invoke;
+		// function.f = integrand;
 		function.dim = dim;
-		function.params = params;
+		function.params = &functor;
+		// function.params = params;
 
 		gsl_monte_vegas_state *state = gsl_monte_vegas_alloc(dim);
 

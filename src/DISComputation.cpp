@@ -70,7 +70,7 @@ class DISComputation {
 		DISFunctions::UnintegratedParams<PDFInterface> params {common, x, xq};
 
 		Integrator integrator(&DISFunctions::F2_integrand_gsl<PDFInterface>, {x}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
-		Integrator::Result integral_result = integrator.integrate();
+		const auto integral_result = integrator.integrate();
 		const double integral = integral_result.value;
 
 		const double lo = 2 * xq;
@@ -91,7 +91,7 @@ class DISComputation {
 		DISFunctions::UnintegratedParams<PDFInterface> params {common, x, 0};
 
 		Integrator integrator(&DISFunctions::FL_integrand_gsl<PDFInterface>, {x}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
-		Integrator::Result integral_result = integrator.integrate();
+		const auto integral_result = integrator.integrate();
 		const double integral = integral_result.value;
 
 		const double nlo = 2 * nlo_coefficient * integral;
@@ -110,7 +110,7 @@ class DISComputation {
 		DISFunctions::UnintegratedParams<PDFInterface> params {common, x, xq};
 
 		Integrator integrator(&DISFunctions::F3_integrand_gsl<PDFInterface>, {x}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
-		Integrator::Result integral_result = integrator.integrate();
+		const auto integral_result = integrator.integrate();
 		const double integral = integral_result.value;
 
 		const double lo = 2 * xq;

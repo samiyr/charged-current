@@ -64,8 +64,8 @@ int main(int argc, char const *argv[]) {
 
 	// Tests::decay_function_tests_2();
 	// return 0;
-	Tests::run_tests();
-	return 0;
+	// Tests::run_tests();
+	// return 0;
 	// const std::vector<double> Q2_list = {2.25, 10, 20, 50, 100, 500, 1000, 10'000, 50'000, 100'000, 1'000'000};
 	// const std::vector<std::string> ff_sets = {
 	// 	"kkks08_alep_d+st_m00",
@@ -119,20 +119,16 @@ int main(int argc, char const *argv[]) {
 	sidis.max_chi_squared_deviation = 0.2;
 	sidis.iter_max = 10;
 
-	// std::cout << sidis.F2(x, z, Q2).lo << std::endl;
-	// std::cout << sidis.FL(x, z, Q2).lo << std::endl;
-	// std::cout << sidis.xF3(x, z, Q2).lo << std::endl;
-	// return 0;
+	std::cout << sidis.lepton_pair_cross_section(0.2, 10.0, 0.8).nlo << std::endl;
+	Integrator integrator([&](double input[], size_t dim, void *params) {
+		return sidis.differential_cross_section(0.2, input[0], 10.0).nlo;
+	}, {0.8}, {1.0}, 100, NULL, 0.2, 1e-5, 10);
+	integrator.verbose = true;
+	auto result = integrator.integrate();
+	std::cout << result.value << " +- " << result.error << " (" << result.chi_squared << ")" << std::endl;
 
-	sidis.differential_cross_section({0.0001, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}, {0.0001, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}, {100}, "sidis_cross_sections.csv");
+	// sidis.differential_cross_section({0.0001, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}, {0.0001, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}, {10}, "sidis_cross_sections.csv");
 	// sidis.differential_cross_section({0.002, 0.1, 0.2}, {0.1, 0.2, 0.3}, {10, 100, 1000}, "sidis_cross_sections.csv");
-
-	// std::cout << sidis.F2(0.2, 0.3, 10).nlo << std::endl;
-	// std::cout << sidis.FL(0.2, 0.3, 10).nlo << std::endl;
-	// std::cout << sidis.xF3(0.2, 0.3, 10).nlo << std::endl;
-	
-	// const PerturbativeResult f2 = sidis.compute_structure_function(StructureFunction::F2, 0.01, 1 - 1e-12, 10);
-	// std::cout << f2.nlo << std::endl;
 
 	// DIS dis(318,
 	// 	{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
