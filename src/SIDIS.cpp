@@ -56,9 +56,11 @@ struct SIDIS {
 		return differential_cs;
 	}
 
-	PerturbativeResult lepton_pair_cross_section(const double x, const double Q2, const double z_min) {
+	template <typename DecayFunction>
+	PerturbativeResult lepton_pair_cross_section(const double x, const double Q2, const DecayParametrization parametrization, const DecayFunction decay_function) {
 		SIDISComputation sidis(sqrt_s, active_flavors, pdf, ff, points, max_chi_squared_deviation, max_relative_error, iter_max, process);
-		const PerturbativeResult cs = sidis.lepton_pair_cross_section(x, Q2, z_min);
+		Decay decay(parametrization, decay_function);
+		const PerturbativeResult cs = sidis.lepton_pair_cross_section(x, Q2, decay);
 		return cs;
 	}
 

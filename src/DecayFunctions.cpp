@@ -20,6 +20,7 @@ namespace DecayFunctions {
 		const double b = h0 * hv / (mD * mD);
 
 		const double beta_arg_min = (a - b) * gamma * rho_min;
+		if (beta_arg_min > 1) { return 0.0; }
 		
 		const double prefactor = (N * mD * std::pow(gamma, -1 - alpha) * h0) / (2 * decay.total_decay_width * hv * 8 * M_PI * M_PI);
 		const double beta_1 = -rho_min * Utility::beta(1 + alpha, 1 + beta);

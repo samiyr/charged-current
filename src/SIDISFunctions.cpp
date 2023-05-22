@@ -6,6 +6,7 @@
 #include "Flavor.cpp"
 #include <functional>
 #include "PDFCommon.cpp"
+#include "Decay.cpp"
 
 namespace SIDISFunctions {
 	using Signature = std::function<double(double, double, double, double, double, double, double, double, double, double, double, double)>;
@@ -168,6 +169,22 @@ namespace SIDISFunctions {
 			const double integrand_value = CommonFunctions::make_cross_section_variable(x, Q2, s, params->process, f2, fL, xf3);
 
 			return integrand_value;
+		}
+		template <typename PDFInterface, typename FFInterface, typename DecayFunction>
+		static double evaluate_gsl_sidis_decay_cross_section_integrand(double input[], size_t dim, void *params_in, Signature F2, Signature FL, Signature xF3, Decay<DecayFunction> decay, bool xi_int, bool xip_int, bool z_int) {
+			const struct Parameters<PDFInterface, FFInterface> *params = static_cast<Parameters<PDFInterface, FFInterface> *>(params_in);
+
+			const size_t z_index = size_t(xi_int) + size_t(xip_int);
+
+			const double x = params->x;
+			const double z = z_int ? input[z_index] : params->z;
+			const double Q2 = params->Q2;
+
+			const double decay_function_value = decay(x, z, Q2);
+			const double integrand_value = evaluate_gsl_sidis_cross_section_integrand<PDFInterface, FFInterface>(input, dim, params_in, F2, FL, xF3, xi_int, xip_int, z_int);
+			const double result = decay_function_value * integrand_value;
+
+			return result;
 		}
 	}
 

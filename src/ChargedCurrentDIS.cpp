@@ -119,13 +119,18 @@ int main(int argc, char const *argv[]) {
 	sidis.max_chi_squared_deviation = 0.2;
 	sidis.iter_max = 10;
 
-	std::cout << sidis.lepton_pair_cross_section(0.2, 10.0, 0.8).nlo << std::endl;
-	Integrator integrator([&](double input[], size_t dim, void *params) {
-		return sidis.differential_cross_section(0.2, input[0], 10.0).nlo;
-	}, {0.8}, {1.0}, 100, NULL, 0.2, 1e-5, 10);
-	integrator.verbose = true;
-	auto result = integrator.integrate();
-	std::cout << result.value << " +- " << result.error << " (" << result.chi_squared << ")" << std::endl;
+	// Tests::decay_function_tests_2();
+
+	DecayParametrization parametrization(7.365 * 6.482e-13, 1.4, 2.276, 2.0, 1.8, 1.0, 6.33e-13, 0.1);
+	std::cout << sidis.lepton_pair_cross_section(0.2, 10.0, parametrization, DecayFunctions::decay_function).nlo << std::endl;
+
+	// std::cout << sidis.lepton_pair_cross_section(0.2, 10.0, 0.8).nlo << std::endl;
+	// Integrator integrator([&](double input[], size_t dim, void *params) {
+	// 	return sidis.differential_cross_section(0.2, input[0], 10.0).nlo;
+	// }, {0.8}, {1.0}, 100, NULL, 0.2, 1e-5, 10);
+	// integrator.verbose = true;
+	// auto result = integrator.integrate();
+	// std::cout << result.value << " +- " << result.error << " (" << result.chi_squared << ")" << std::endl;
 
 	// sidis.differential_cross_section({0.0001, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}, {0.0001, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}, {10}, "sidis_cross_sections.csv");
 	// sidis.differential_cross_section({0.002, 0.1, 0.2}, {0.1, 0.2, 0.3}, {10, 100, 1000}, "sidis_cross_sections.csv");
