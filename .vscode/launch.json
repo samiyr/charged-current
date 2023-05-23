@@ -7,24 +7,6 @@
 		{
 			"type": "lldb",
 			"request": "launch",
-			"name": "Tests",
-			"program": "${workspaceFolder}/Tests",
-			"args": [],
-			"cwd": "${workspaceFolder}",
-			"preLaunchTask": "buildTests"
-		},
-		{
-			"type": "lldb",
-			"request": "launch",
-			"name": "ChargedCurrentDIS",
-			"program": "${workspaceFolder}/ChargedCurrentDIS",
-			"args": [],
-			"cwd": "${workspaceFolder}",
-			"preLaunchTask": "buildChargedCurrentDIS"
-		},
-		{
-			"type": "lldb",
-			"request": "launch",
 			"name": "ChargedCurrentDIS (CMake Debug)",
 			"program": "${workspaceFolder}/ChargedCurrentDIS",
 			"args": [],

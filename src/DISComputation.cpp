@@ -136,7 +136,7 @@ class DISComputation {
 		const PerturbativeResult fL = FL(x, Q2);
 		const PerturbativeResult xf3 = xF3(x, Q2);
 
-		const std::optional<double> y_opt = CommonFunctions::compute_y(x, Q2, s);
+		const std::optional<double> y_opt = CommonFunctions::compute_y(x, Q2, s, process.target_mass, process.projectile_mass);
 		if (!y_opt.has_value()) {
 			return {0, 0};
 		}

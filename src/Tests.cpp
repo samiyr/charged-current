@@ -152,7 +152,6 @@ namespace Tests {
 		bool flag = true;
 
 		SIDIS sidis(
-			318,
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
 			FunctionalFormInterface([](const FlavorType flavor, const double x, const double Q2) {
 				if (Flavor::is_gluon(flavor)) { return 0.0; }
@@ -233,7 +232,6 @@ namespace Tests {
 		bool flag = true;
 
 		SIDIS sidis(
-			318,
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
 			FunctionalFormInterface([](const FlavorType flavor, const double x, const double Q2) {
 				if (Flavor::is_gluon(flavor)) { return x * x * (1 - x); }
@@ -312,7 +310,6 @@ namespace Tests {
 		bool flag = true;
 
 		SIDIS sidis(
-			318,
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
 			FunctionalFormInterface([](const FlavorType flavor, const double x, const double Q2) {
 				if (Flavor::is_gluon(flavor)) { return x * x * (1 - x); }
@@ -392,7 +389,6 @@ namespace Tests {
 		bool flag = true;
 
 		SIDIS sidis(
-			318,
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
 			FunctionalFormInterface([](const FlavorType flavor, const double x, const double Q2) {
 				if (Flavor::is_gluon(flavor)) { return x * x * (1 - x); }
@@ -472,19 +468,20 @@ namespace Tests {
 	bool decay_function_tests_1() {
 		bool flag = true;
 		
+		const double z_min = 0.1;
 		DecayParametrization param(
 			1.0, 1.4, 2.3, 2.0,
 			1.8, 1.0, 1.0,
-			0.1
+			0.0, z_min
 		);
 
-		flag &= double_comparison(DecayFunctions::decay_function(0.1, 0.3, 10, param), 0.00100292 / (8 * M_PI * M_PI));
-		flag &= double_comparison(DecayFunctions::decay_function(0.2, 0.3, 10, param), 0.000995329 / (8 * M_PI * M_PI));
-		flag &= double_comparison(DecayFunctions::decay_function(0.3, 0.3, 10, param), 0.00098196 / (8 * M_PI * M_PI));
-		flag &= double_comparison(DecayFunctions::decay_function(0.4, 0.5, 10, param), 0.00180983 / (8 * M_PI * M_PI));
-		flag &= double_comparison(DecayFunctions::decay_function(0.5, 0.5, 10, param), 0.00181612 / (8 * M_PI * M_PI));
-		flag &= double_comparison(DecayFunctions::decay_function(0.7, 0.9, 10, param), 0.00247266 / (8 * M_PI * M_PI));
-		flag &= double_comparison(DecayFunctions::decay_function(0.99, 0.9, 10, param), 0.00251066 / (8 * M_PI * M_PI));
+		flag &= double_comparison(DecayFunctions::decay_function(0.1, 0.3, 10, z_min, param), 0.00100292 / (8 * M_PI * M_PI));
+		flag &= double_comparison(DecayFunctions::decay_function(0.2, 0.3, 10, z_min, param), 0.000995329 / (8 * M_PI * M_PI));
+		flag &= double_comparison(DecayFunctions::decay_function(0.3, 0.3, 10, z_min, param), 0.00098196 / (8 * M_PI * M_PI));
+		flag &= double_comparison(DecayFunctions::decay_function(0.4, 0.5, 10, z_min, param), 0.00180983 / (8 * M_PI * M_PI));
+		flag &= double_comparison(DecayFunctions::decay_function(0.5, 0.5, 10, z_min, param), 0.00181612 / (8 * M_PI * M_PI));
+		flag &= double_comparison(DecayFunctions::decay_function(0.7, 0.9, 10, z_min, param), 0.00247266 / (8 * M_PI * M_PI));
+		flag &= double_comparison(DecayFunctions::decay_function(0.99, 0.9, 10, z_min, param), 0.00251066 / (8 * M_PI * M_PI));
 
 		return flag;
 	}
@@ -492,30 +489,31 @@ namespace Tests {
 	bool decay_function_tests_2() {
 		bool flag = true;
 		
+		const double z_min = 0.1;
 		DecayParametrization param(
 			1.0, 1.4, 2.3, 2.0,
 			1.8, 1.0, 1.0,
-			0.1
+			0.0, z_min
 		);
 
 		const std::vector<double> xz_values = {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
 		const std::vector<double> Q2_values = {10.0, 20.0, 50.0, 100.0};
-
-		auto old_handler = gsl_set_error_handler(&Utility::non_aborting_gsl_error_handler);
 
 		#pragma omp parallel for collapse(3)
 		for (const double x : xz_values) {
 			for (const double z : xz_values) {
 				for (const double Q2 : Q2_values) {
 					std::vector<double> params = {x, z, Q2, 1.0, 1.8, 1.0, 1.4, 2.3, 2.0, 1.0};
-					Integrator integrator(&DecayFunctions::decay_function_integrand, {0.1 / params[1], -1}, {1, 1}, 2'000'000, &params, 0.2, 1-3, 10);
+					Integrator integrator(&DecayFunctions::decay_function_integrand, {0.1 / params[1], -1}, {1, 1}, 2'000'000, &params, 0.2, 1e-3, 10);
 					const auto result = integrator.integrate();
-					flag &= double_comparison_rel(DecayFunctions::decay_function(x, z, Q2, param), result.value, 1e-5);
+					if (result.value == 0) {
+						std::cout << "Skipping value due to non-applicable region" << std::endl;
+						continue;
+					}
+					flag &= double_comparison_rel(DecayFunctions::decay_function(x, z, Q2, z_min, param), result.value, 1e-5);
 				}
 			}
 		}
-
-		gsl_set_error_handler(old_handler);
 
 		return flag;
 	}

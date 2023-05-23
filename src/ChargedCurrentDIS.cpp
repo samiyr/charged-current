@@ -9,6 +9,7 @@
 #include "DeltaInterface.cpp"
 #include "SIDISComparison.cpp"
 #include "Tests.cpp"
+#include "TRFKinematics.cpp"
 // #include "PythiaSIDIS.cpp"
 
 int main(int argc, char const *argv[]) {
@@ -103,9 +104,9 @@ int main(int argc, char const *argv[]) {
 	// return 0;
 
 	SIDIS sidis(
-		318,
 		{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
-		LHAInterface("CT18ANLO"),
+		// LHAInterface("CT18ANLO"),
+		LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
 		// LHAInterface("JAM20-SIDIS_FF_pion_nlo"),
 		// LHAInterface("JAM20-SIDIS_FF_kaon_nlo"),
 		// LHAInterface("JAM20-SIDIS_FF_hadron_nlo"),
@@ -113,24 +114,31 @@ int main(int argc, char const *argv[]) {
 		// LHAInterface("kkks08_opal_d0___mas"),
 		// LHAInterface("kkks08_cleo_d0___mas"),
 		// LHAInterface("kkks08_belle_d0__m00"),
-		20'000,
-		Process {Process::Type::NeutrinoToLepton}
+		100'000,
+		Process {Process::Type::NeutrinoToLepton, Constants::Proton::Mass, 0.0}
 	);
+	sidis.global_sqrt_s = 318.0;
 	sidis.max_chi_squared_deviation = 0.2;
+	sidis.max_relative_error = 1e-3;
 	sidis.iter_max = 10;
 
 	// Tests::decay_function_tests_2();
 
-	DecayParametrization parametrization(7.365 * 6.482e-13, 1.4, 2.276, 2.0, 1.8, 1.0, 6.33e-13, 0.1);
-	std::cout << sidis.lepton_pair_cross_section(0.2, 10.0, parametrization, DecayFunctions::decay_function).nlo << std::endl;
+	DecayParametrization parametrization(7.365, 1.4, 2.276, 2.0, Constants::D0::Mass, Constants::Proton::Mass, Constants::D0::DecayWidth, 5.0, 0.0);
+	// DecayParametrization parametrization(7.365, 1.4, 2.276, 2.0, 1.8, 1.0, 6.33e-13, 5.0, 0.0);
+
+	sidis.lepton_pair_cross_section({0.001, 0.005, 0.01, 0.015, 0.02, 0.0225, 0.025, 0.0275, 0.03, 0.0325, 0.035, 0.0375, 0.04, 0.0425, 0.045, 0.0475, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.125, 0.15, 0.2, 0.25, 0.3, 0.35}, {0.573}, {90.2}, parametrization, "lepton_pair_data.csv");
+
+	// TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(0.2, 10.0, 318, 1.0, 0.0);
+	// std::cout << sidis.lepton_pair_cross_section(kinematics, parametrization, DecayFunctions::decay_function).nlo << std::endl;
 
 	// std::cout << sidis.lepton_pair_cross_section(0.2, 10.0, 0.8).nlo << std::endl;
 	// Integrator integrator([&](double input[], size_t dim, void *params) {
-	// 	return sidis.differential_cross_section(0.2, input[0], 10.0).nlo;
-	// }, {0.8}, {1.0}, 100, NULL, 0.2, 1e-5, 10);
+	// 	return sidis.differential_cross_section(0.2, input[0], 10.0).nlo * DecayFunctions::decay_function(0.2, input[0], 10.0, 0.1, parametrization);
+	// }, {0.1}, {1.0}, 100, nullptr, 0.2, 1e-5, 10);
 	// integrator.verbose = true;
 	// auto result = integrator.integrate();
-	// std::cout << result.value << " +- " << result.error << " (" << result.chi_squared << ")" << std::endl;
+	// std::cout << result << std::endl;
 
 	// sidis.differential_cross_section({0.0001, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}, {0.0001, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}, {10}, "sidis_cross_sections.csv");
 	// sidis.differential_cross_section({0.002, 0.1, 0.2}, {0.1, 0.2, 0.3}, {10, 100, 1000}, "sidis_cross_sections.csv");
@@ -145,6 +153,8 @@ int main(int argc, char const *argv[]) {
 	// 	100'000,
 	// 	Process {Process::Type::NeutrinoToLepton}
 	// );
+
+	// std::cout << dis.cross_section(0.2, 10.0).nlo << std::endl;
 
 	// std::cout << dis.F2(0.2, 10).nlo << std::endl;
 

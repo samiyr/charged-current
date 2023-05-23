@@ -8,6 +8,7 @@
 #include "SIDISFunctions.cpp"
 #include "Integrator.cpp"
 #include "Decay.cpp"
+#include "TRFKinematics.cpp"
 
 template <typename PDFInterface, typename FFInterface>
 class SIDISComputation {
@@ -179,7 +180,7 @@ class SIDISComputation {
 		const PerturbativeResult fL = FL(x, z, Q2);
 		const PerturbativeResult xf3 = xF3(x, z, Q2);
 
-		const std::optional<double> y_opt = CommonFunctions::compute_y(x, Q2, s);
+		const std::optional<double> y_opt = CommonFunctions::compute_y(x, Q2, s, process.target_mass, process.projectile_mass);
 		if (!y_opt.has_value()) {
 			return {0, 0};
 		}
@@ -255,8 +256,16 @@ class SIDISComputation {
 	}
 
 	template <typename DecayFunction>
-	PerturbativeResult lepton_pair_cross_section(const double x, const double Q2, const Decay<DecayFunction> decay) {
-		const double z_min = decay.parametrization.z_min;
+	PerturbativeResult lepton_pair_cross_section(const TRFKinematics kinematics, const Decay<DecayFunction> decay) {
+		const double x = kinematics.x;
+		const double Q2 = kinematics.Q2;
+
+		const double p_min = decay.parametrization.lepton_momentum_min;
+		const double z_min = std::max({
+			p_min / (kinematics.y * kinematics.E_beam), 
+			2 * x * decay.parametrization.resonance_mass * decay.parametrization.hadron_mass / kinematics.Q2,
+			decay.parametrization.z_min_cutoff
+		});
 
 		const double alpha_s = pdf1.alpha_s(Q2);
 		const double nlo_coefficient = alpha_s / (2 * M_PI);
@@ -266,7 +275,7 @@ class SIDISComputation {
 		SIDISFunctions::Parameters<PDFInterface, FFInterface> params {
 			pdf1, ff1, pdf2, ff2,
 			flavors,
-			Q2, nlo_coefficient, s,
+			Q2, nlo_coefficient, kinematics.s,
 			process,
 			x, 0.0, 0.0, 0.0
 		};
@@ -274,7 +283,7 @@ class SIDISComputation {
 		Integrator lo_integrator([&](double input[], size_t dim, void* params_in) {
 			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_decay_cross_section_integrand<PDFInterface, FFInterface>(input, dim, params_in, 
 				SIDISFunctions::Integrands::F2_lo_integrand, SIDISFunctions::Integrands::FL_lo_integrand, SIDISFunctions::Integrands::F3_lo_integrand,
-				decay,
+				decay, z_min,
 				false, false, true
 			);
 		}, {z_min}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
@@ -284,7 +293,7 @@ class SIDISComputation {
 		Integrator xi_integrator([&](double input[], size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_decay_cross_section_integrand<PDFInterface, FFInterface>(input, dim, params_in, 
 				SIDISFunctions::Integrands::F2_xi_integrand, SIDISFunctions::Integrands::FL_xi_integrand, SIDISFunctions::Integrands::F3_xi_integrand,
-				decay,
+				decay, z_min,
 				true, false, true
 			);
 		}, {x, z_min}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
@@ -294,7 +303,7 @@ class SIDISComputation {
 		Integrator xip_integrator([&](double input[], size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_decay_cross_section_integrand<PDFInterface, FFInterface>(input, dim, params_in, 
 				SIDISFunctions::Integrands::F2_xip_integrand, SIDISFunctions::Integrands::FL_xip_integrand, SIDISFunctions::Integrands::F3_xip_integrand,
-				decay,
+				decay, z_min,
 				false, true, true
 			);
 		}, {z_min, z_min}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
@@ -304,7 +313,7 @@ class SIDISComputation {
 		Integrator xi_xip_integrator([&](double input[], size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_decay_cross_section_integrand<PDFInterface, FFInterface>(input, dim, params_in, 
 				SIDISFunctions::Integrands::F2_xi_xip_integrand, SIDISFunctions::Integrands::FL_xi_xip_integrand, SIDISFunctions::Integrands::F3_xi_xip_integrand,
-				decay,
+				decay, z_min,
 				true, true, true
 			);
 		}, {x, z_min, z_min}, {1, 1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
@@ -315,7 +324,7 @@ class SIDISComputation {
 		Integrator delta_integrator([&](double input[], size_t dim, void* params_in) {
 			return SIDISFunctions::Evaluation::evaluate_gsl_sidis_decay_cross_section_integrand<PDFInterface, FFInterface>(input, dim, params_in, 
 				SIDISFunctions::Integrands::F2_delta_integrand, SIDISFunctions::Integrands::FL_delta_integrand, SIDISFunctions::Integrands::F3_delta_integrand,
-				decay,
+				decay, z_min,
 				false, false, true
 			);
 		}, {z_min}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);

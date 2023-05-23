@@ -4,8 +4,8 @@
 #include "Flavor.cpp"
 #include <functional>
 
+template <typename Signature>
 class FunctionalFormInterface {
-	using Signature = std::function<double(const FlavorType, const double, const double)>;
 	public:
 	const Signature function;
 	const FlavorVector available_flavors;

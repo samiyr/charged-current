@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <gsl/gsl_sf.h>
+#include <boost/math/special_functions/beta.hpp>
 
 #define POW2(x) (x) * (x)
 #define POW4(x) (x) * (x) * (x) * (x)
@@ -75,11 +76,17 @@ namespace Utility {
 	}
 
 	inline double beta(const double a, const double b) {
-		return gsl_sf_beta(a, b);
+		return boost::math::beta(a, b);
 	}
 	inline double incomplete_beta(const double z, const double a, const double b) {
-		return gsl_sf_beta_inc(a, b, z) * gsl_sf_beta(a, b);
+		return boost::math::beta(a, b, z);
 	}
+	// inline double beta(const double a, const double b) {
+	// 	return gsl_sf_beta(a, b);
+	// }
+	// inline double incomplete_beta(const double z, const double a, const double b) {
+	// 	return gsl_sf_beta_inc(a, b, z) * gsl_sf_beta(a, b);
+	// }
 
 	void non_aborting_gsl_error_handler(const char *reason, const char *file, int line, int gsl_errno) {
 		std::cout << "gsl error " << gsl_errno << " (" << std::string(file) << "): " << std::string(reason) << std::endl;

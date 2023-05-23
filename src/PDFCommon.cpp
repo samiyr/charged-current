@@ -12,7 +12,7 @@
 
 namespace PDFCommon {
 	template <typename PDFInterface>
-	double xf_sum(const PDFInterface &pdf, const FlavorVector &flavors, const FlavorVector &reflected) {
+	constexpr double xf_sum(const PDFInterface &pdf, const FlavorVector &flavors, const FlavorVector &reflected) {
 		double sum = 0;
 		for (const auto flavor : flavors) {
 			const double ckm_contribution = CKM::sum_of_squares(reflected, flavor);
@@ -21,7 +21,7 @@ namespace PDFCommon {
 		return sum;
 	}
 	template <typename PDFInterface>
-	double xg_sum(const PDFInterface &pdf, const FlavorInfo &flavors) {
+	constexpr double xg_sum(const PDFInterface &pdf, const FlavorInfo &flavors) {
 		double ckm_sum = 0;
 		for (const auto flavor : flavors.upper_flavors) {
 			const double ckm_contribution = CKM::sum_of_squares(flavors.lower_flavors, flavor);
@@ -30,7 +30,7 @@ namespace PDFCommon {
 		return 2 * ckm_sum * pdf.xg();
 	}
 	template <typename PDFInterface>
-	double xq_sum(const PDFInterface &pdf,
+	constexpr double xq_sum(const PDFInterface &pdf,
 	const FlavorInfo &flavors, 
 	const bool quark_minus, 
 	const Process process,
@@ -47,7 +47,7 @@ namespace PDFCommon {
 	}
 
 	template <typename PDFInterface, typename FFInterface>
-	static double xq_zq_sum(const PDFInterface &pdf, 
+	constexpr static double xq_zq_sum(const PDFInterface &pdf, 
 	const FFInterface &ff, 
 	const FlavorInfo &flavors, 
 	const bool quark_minus, 
@@ -84,7 +84,7 @@ namespace PDFCommon {
 	}
 
 	template <typename PDFInterface, typename FFInterface>
-	static double xq_zg_sum(const PDFInterface &pdf, 
+	constexpr static double xq_zg_sum(const PDFInterface &pdf, 
 	const FFInterface &ff, 
 	const FlavorInfo &flavors, 
 	const bool quark_minus, 
@@ -97,7 +97,7 @@ namespace PDFCommon {
 	}
 
 	template <typename PDFInterface, typename FFInterface>
-	static double xg_zq_sum(const PDFInterface &pdf, 
+	constexpr static double xg_zq_sum(const PDFInterface &pdf, 
 	const FFInterface &ff, 
 	const FlavorInfo &flavors, 
 	const bool quark_minus, 

@@ -34,6 +34,7 @@ class Integrator {
 	const unsigned int iter_max;
 
 	bool verbose = false;
+	bool grid_warmup = true;
 
 	Integrator(
 		Integrand _integrand, 
@@ -72,7 +73,8 @@ class Integrator {
 		assert(lower.size() > 0);
 
 		const auto dim = lower.size();
-		double integral, error;
+		double integral = 0.0;
+		double error = 0.0;
 
 		gsl_monte_function function;
 
@@ -90,7 +92,9 @@ class Integrator {
 		vegas_params.verbose = int(verbose) - 1;
 		gsl_monte_vegas_params_set(state, &vegas_params);
 
-		gsl_monte_vegas_integrate(&function, lower.data(), upper.data(), dim, points, rng, state, &integral, &error);
+		if (grid_warmup) {
+			gsl_monte_vegas_integrate(&function, lower.data(), upper.data(), dim, std::max(points / 1000, size_t(10)), rng, state, &integral, &error);
+		}
 
 		int iteration = 0;
 		bool iteration_limit_reached = false;
