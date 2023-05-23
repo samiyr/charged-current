@@ -11,7 +11,7 @@ struct ParametrizedFunctor {
 	Function function;
 	void *params;
 
-	static double invoke(double input[], size_t dim, void *p) {
+	constexpr static double invoke(double input[], size_t dim, void *p) {
 		ParametrizedFunctor *functor = static_cast<ParametrizedFunctor *>(p);
 		return functor->function(input, dim, functor->params);
 	}

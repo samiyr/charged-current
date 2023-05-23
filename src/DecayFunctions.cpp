@@ -5,7 +5,7 @@
 #include "DecayParametrization.cpp"
 
 namespace DecayFunctions {
-	double decay_function(const double x, const double z, const double Q2, const double z_min, const DecayParametrization &decay) {
+	constexpr double decay_function(const double x, const double z, const double Q2, const double z_min, const DecayParametrization &decay) {
 		const double alpha = decay.alpha;
 		const double beta = decay.beta;
 		const double gamma = decay.gamma;
@@ -34,7 +34,7 @@ namespace DecayFunctions {
 		return result;
 	}
 
-	double decay_function_integrand(double input[], size_t dim, void *params_in) {
+	constexpr double decay_function_integrand(double input[], size_t dim, void *params_in) {
 		const double rho = input[0];
 		const double cos = input[1];
 

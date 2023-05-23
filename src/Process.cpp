@@ -13,11 +13,11 @@ struct Process {
 	double target_mass = 0.0;
 	double projectile_mass = 0.0;
 
-	int W_sign() const {
+	constexpr int W_sign() const {
 		return (type == Type::NeutrinoToLepton || type == Type::AntiLeptonToAntiNeutrino) ? +1 : -1;
 	}
 
-	bool positive_W() const {
+	constexpr bool positive_W() const {
 		return W_sign() == +1;
 	}
 };

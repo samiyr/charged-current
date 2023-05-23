@@ -10,7 +10,7 @@ struct Decay {
 
 	Decay(const DecayParametrization _parametrization, const DecayFunction _decay_function) : parametrization(_parametrization), decay_function(_decay_function) {}
 
-	double operator()(const double x, const double z, const double Q2, const double z_min) {
+	constexpr double operator()(const double x, const double z, const double Q2, const double z_min) {
 		return decay_function(x, z, Q2, z_min, parametrization);
 	}
 };

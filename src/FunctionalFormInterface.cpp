@@ -20,16 +20,16 @@ class FunctionalFormInterface {
 			flavor_values[size_t(flavor + 6)] = function_value;
 		}
 	}
-	double xf_evaluate(const FlavorType flavor, const double x, const double Q2) {
+	constexpr double xf_evaluate(const FlavorType flavor, const double x, const double Q2) {
 		return function(flavor, x, Q2);
 	}
-	double xf(const FlavorType flavor) const {
+	constexpr double xf(const FlavorType flavor) const {
 		return flavor_values[size_t(flavor + 6)];
 	}
-	double xg() const {
+	constexpr double xg() const {
 		return xf(Flavor::Gluon);
 	}
-	double alpha_s(const double Q2) const {
+	constexpr double alpha_s(const double Q2) const {
 		// fix this!
 		return 1;
 	}

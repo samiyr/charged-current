@@ -33,7 +33,7 @@ namespace PDFCommon {
 	constexpr double xq_sum(const PDFInterface &pdf,
 	const FlavorInfo &flavors, 
 	const bool quark_minus, 
-	const Process process,
+	const Process &process,
 	const bool sum_first = true) {
 		const bool positive_W = process.positive_W();
 		
@@ -51,7 +51,7 @@ namespace PDFCommon {
 	const FFInterface &ff, 
 	const FlavorInfo &flavors, 
 	const bool quark_minus, 
-	const Process process) {
+	const Process &process) {
 		const bool positive_W = process.positive_W();
 
 		const FlavorVector &flavors1 = positive_W ? flavors.lower_flavors : flavors.upper_flavors;
@@ -88,7 +88,7 @@ namespace PDFCommon {
 	const FFInterface &ff, 
 	const FlavorInfo &flavors, 
 	const bool quark_minus, 
-	const Process process) {
+	const Process &process) {
 		const double xq_sum = PDFCommon::xq_sum(pdf, flavors, quark_minus, process, true);
 		const double zg_sum = ff.xg();
 		const double sum = xq_sum * zg_sum;
@@ -101,7 +101,7 @@ namespace PDFCommon {
 	const FFInterface &ff, 
 	const FlavorInfo &flavors, 
 	const bool quark_minus, 
-	const Process process) {
+	const Process &process) {
 		const double xg_sum = pdf.xg();
 		const double zq_sum = PDFCommon::xq_sum(ff, flavors, quark_minus, process, false);
 		const double sum = xg_sum * zq_sum;

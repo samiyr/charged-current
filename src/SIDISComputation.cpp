@@ -33,7 +33,7 @@ class SIDISComputation {
 
 	SIDISComputation (
 		const double _sqrt_s, 
-		const std::vector<FlavorType> _active_flavors, 
+		const FlavorVector _active_flavors, 
 		const PDFInterface _pdf,
 		const FFInterface _ff,
 		const size_t _points,

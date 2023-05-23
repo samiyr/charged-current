@@ -47,7 +47,7 @@ struct CKM {
 	// 	const FlavorType f2 = std::abs(flavor2);
 	// 	return _ckm_full_matrix[f1 - 1][f2 - 1];
 	// }
-	constexpr static double sum_of_squares(const std::vector<FlavorType> &flavors, const FlavorType fixed) {
+	constexpr static double sum_of_squares(const FlavorVector &flavors, const FlavorType fixed) {
 		double sum = 0.0;
 		for (auto const &flavor : flavors) {
 			const double square = CKM::squared(flavor, fixed);

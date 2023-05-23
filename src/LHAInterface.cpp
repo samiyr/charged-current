@@ -24,7 +24,7 @@ class LHAInterface {
 		initialize();
 	}
 
-	void evaluate(const double x, const double Q2) {
+	constexpr void evaluate(const double x, const double Q2) {
 		if (_pdf->inRangeXQ2(x, Q2)) {
 			_pdf->xfxQ2(x, Q2, flavor_values);
 
@@ -42,16 +42,16 @@ class LHAInterface {
 			std::fill(flavor_values.begin(), flavor_values.end(), 0.0);
 		}
 	}
-	double xf_evaluate(const FlavorType flavor, const double x, const double Q2) {
+	constexpr double xf_evaluate(const FlavorType flavor, const double x, const double Q2) {
 		return _pdf->xfxQ2(flavor, x, Q2);
 	}
-	double xf(const FlavorType flavor) const {
+	constexpr double xf(const FlavorType flavor) const {
 		return flavor_values[size_t(flavor + 6)];
 	}
-	double xg() const {
+	constexpr double xg() const {
 		return xf(Flavor::Gluon);
 	}
-	double alpha_s(const double Q2) const {
+	constexpr double alpha_s(const double Q2) const {
 		return _pdf->alphasQ2(Q2);
 	}
 

@@ -67,18 +67,18 @@ template <typename T> int sgn(T val) {
 }
 
 namespace Utility {
-	inline double logm1(const double x) {
+	constexpr double logm1(const double x) {
 		return std::log1p(-x);
 	}
 
-	inline double gamma(const double z) {
+	constexpr double gamma(const double z) {
 		return gsl_sf_gamma(z);
 	}
 
-	inline double beta(const double a, const double b) {
+	constexpr double beta(const double a, const double b) {
 		return boost::math::beta(a, b);
 	}
-	inline double incomplete_beta(const double z, const double a, const double b) {
+	constexpr double incomplete_beta(const double z, const double a, const double b) {
 		return boost::math::beta(a, b, z);
 	}
 	// inline double beta(const double a, const double b) {

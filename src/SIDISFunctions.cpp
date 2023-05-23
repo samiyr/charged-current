@@ -34,10 +34,9 @@ namespace SIDISFunctions {
 		return 2 * Constants::C_F * (std::pow(std::log(1 - x) + std::log(1 - z), 2) - 8) / z;
 	}
 
-
 	namespace Evaluation {
 		template <typename PDFInterface, typename FFInterface, typename Signature>
-		static double evaluate_gsl_sidis_integrand(double input[], size_t dim, void *params_in, Signature integrand, bool xi_int, bool xip_int, bool quark_minus) {
+		constexpr static double evaluate_gsl_sidis_integrand(double input[], size_t dim, void *params_in, Signature integrand, bool xi_int, bool xip_int, bool quark_minus) {
 			const struct Parameters<PDFInterface, FFInterface> *params = static_cast<Parameters<PDFInterface, FFInterface> *>(params_in);
 
 			const bool xi_xip_int = xi_int && xip_int;
@@ -61,6 +60,8 @@ namespace SIDISFunctions {
 			PDFInterface &pdf2 = params->pdf2;
 			FFInterface &ff2 = params->ff2;
 
+			const Process &process = params->process;
+
 			if (xi_int && std::abs(xi - 1) < 1e-15) { return 0; }
 			if (xip_int && std::abs(xip - 1) < 1e-15) { return 0; }
 
@@ -69,14 +70,14 @@ namespace SIDISFunctions {
 
 			const FlavorInfo &flavors = params->flavors;
 
-			const double xq_hat_zq = xi_int ? PDFCommon::xq_zq_sum(pdf2, ff1, flavors, quark_minus, params->process) : 0.0;
-			const double xq_zq_hat = xip_int ? PDFCommon::xq_zq_sum(pdf1, ff2, flavors, quark_minus, params->process) : 0.0;
-			const double xq_hat_zq_hat = xi_xip_int ? PDFCommon::xq_zq_sum(pdf2, ff2, flavors, quark_minus, params->process) : 0.0;
+			const double xq_hat_zq = xi_int ? PDFCommon::xq_zq_sum(pdf2, ff1, flavors, quark_minus, process) : 0.0;
+			const double xq_zq_hat = xip_int ? PDFCommon::xq_zq_sum(pdf1, ff2, flavors, quark_minus, process) : 0.0;
+			const double xq_hat_zq_hat = xi_xip_int ? PDFCommon::xq_zq_sum(pdf2, ff2, flavors, quark_minus, process) : 0.0;
 
-			const double xq_zg_hat = xip_int ? PDFCommon::xq_zg_sum(pdf1, ff2, flavors, quark_minus, params->process) : 0.0;
-			const double xg_hat_zq = xi_int ? PDFCommon::xg_zq_sum(pdf2, ff1, flavors, quark_minus, params->process) : 0.0;
-			const double xq_hat_zg_hat = xi_xip_int ? PDFCommon::xq_zg_sum(pdf2, ff2, flavors, quark_minus, params->process) : 0.0;
-			const double xg_hat_zq_hat = xi_xip_int ? PDFCommon::xg_zq_sum(pdf2, ff2, flavors, quark_minus, params->process) : 0.0;
+			const double xq_zg_hat = xip_int ? PDFCommon::xq_zg_sum(pdf1, ff2, flavors, quark_minus, process) : 0.0;
+			const double xg_hat_zq = xi_int ? PDFCommon::xg_zq_sum(pdf2, ff1, flavors, quark_minus, process) : 0.0;
+			const double xq_hat_zg_hat = xi_xip_int ? PDFCommon::xq_zg_sum(pdf2, ff2, flavors, quark_minus, process) : 0.0;
+			const double xg_hat_zq_hat = xi_xip_int ? PDFCommon::xg_zq_sum(pdf2, ff2, flavors, quark_minus, process) : 0.0;
 
 			const double integrand_value = integrand(
 				xi, xip, x, z, 
@@ -87,7 +88,7 @@ namespace SIDISFunctions {
 		}
 
 		template <typename PDFInterface, typename FFInterface, typename Signature>
-		static double evaluate_gsl_sidis_cross_section_integrand(double input[], size_t dim, void *params_in, Signature F2, Signature FL, Signature xF3, bool xi_int, bool xip_int, bool z_int) {
+		constexpr static double evaluate_gsl_sidis_cross_section_integrand(double input[], size_t dim, void *params_in, Signature F2, Signature FL, Signature xF3, bool xi_int, bool xip_int, bool z_int) {
 			const struct Parameters<PDFInterface, FFInterface> *params = static_cast<Parameters<PDFInterface, FFInterface> *>(params_in);
 
 			const bool xi_xip_int = xi_int && xip_int;
@@ -109,6 +110,8 @@ namespace SIDISFunctions {
 			PDFInterface &pdf2 = params->pdf2;
 			FFInterface &ff2 = params->ff2;
 
+			const Process &process = params->process;
+
 			const FlavorInfo &flavors = params->flavors;
 
 			const double x_hat = x / xi;
@@ -118,8 +121,8 @@ namespace SIDISFunctions {
 				if (xip < z) { return 0.0; }
 				ff1.evaluate(z, Q2);
 			}
-			const double xq_zq = z_int ? PDFCommon::xq_zq_sum(pdf1, ff1, flavors, false, params->process) : params->xq_zq;
-			const double xq_zq_3 = z_int ? PDFCommon::xq_zq_sum(pdf1, ff1, flavors, true, params->process) : params->xq_zq;
+			const double xq_zq = z_int ? PDFCommon::xq_zq_sum(pdf1, ff1, flavors, false, process) : params->xq_zq;
+			const double xq_zq_3 = z_int ? PDFCommon::xq_zq_sum(pdf1, ff1, flavors, true, process) : params->xq_zq;
 
 			if (xi_int && std::abs(xi - 1) < 1e-15) { return 0; }
 			if (xip_int && std::abs(xip - 1) < 1e-15) { return 0; }
@@ -127,24 +130,24 @@ namespace SIDISFunctions {
 			if (xi_int) { pdf2.evaluate(x_hat, Q2); }
 			if (xip_int) { ff2.evaluate(z_hat, Q2); }
 
-			const double xq_hat_zq = xi_int ? PDFCommon::xq_zq_sum(pdf2, ff1, flavors, false, params->process) : 0.0;
-			const double xq_zq_hat = xip_int ? PDFCommon::xq_zq_sum(pdf1, ff2, flavors, false, params->process) : 0.0;
-			const double xq_hat_zq_hat = xi_xip_int ? PDFCommon::xq_zq_sum(pdf2, ff2, flavors, false, params->process) : 0.0;
+			const double xq_hat_zq = xi_int ? PDFCommon::xq_zq_sum(pdf2, ff1, flavors, false, process) : 0.0;
+			const double xq_zq_hat = xip_int ? PDFCommon::xq_zq_sum(pdf1, ff2, flavors, false, process) : 0.0;
+			const double xq_hat_zq_hat = xi_xip_int ? PDFCommon::xq_zq_sum(pdf2, ff2, flavors, false, process) : 0.0;
 
-			const double xq_zg_hat = xip_int ? PDFCommon::xq_zg_sum(pdf1, ff2, flavors, false, params->process) : 0.0;
-			const double xg_hat_zq = xi_int ? PDFCommon::xg_zq_sum(pdf2, ff1, flavors, false, params->process) : 0.0;
-			const double xq_hat_zg_hat = xi_xip_int ? PDFCommon::xq_zg_sum(pdf2, ff2, flavors, false, params->process) : 0.0;
-			const double xg_hat_zq_hat = xi_xip_int ? PDFCommon::xg_zq_sum(pdf2, ff2, flavors, false, params->process) : 0.0;
+			const double xq_zg_hat = xip_int ? PDFCommon::xq_zg_sum(pdf1, ff2, flavors, false, process) : 0.0;
+			const double xg_hat_zq = xi_int ? PDFCommon::xg_zq_sum(pdf2, ff1, flavors, false, process) : 0.0;
+			const double xq_hat_zg_hat = xi_xip_int ? PDFCommon::xq_zg_sum(pdf2, ff2, flavors, false, process) : 0.0;
+			const double xg_hat_zq_hat = xi_xip_int ? PDFCommon::xg_zq_sum(pdf2, ff2, flavors, false, process) : 0.0;
 
 
-			const double xq_hat_zq_3 = xi_int ? PDFCommon::xq_zq_sum(pdf2, ff1, flavors, true, params->process) : 0.0;
-			const double xq_zq_hat_3 = xip_int ? PDFCommon::xq_zq_sum(pdf1, ff2, flavors, true, params->process) : 0.0;
-			const double xq_hat_zq_hat_3 = xi_xip_int ? PDFCommon::xq_zq_sum(pdf2, ff2, flavors, true, params->process) : 0.0;
+			const double xq_hat_zq_3 = xi_int ? PDFCommon::xq_zq_sum(pdf2, ff1, flavors, true, process) : 0.0;
+			const double xq_zq_hat_3 = xip_int ? PDFCommon::xq_zq_sum(pdf1, ff2, flavors, true, process) : 0.0;
+			const double xq_hat_zq_hat_3 = xi_xip_int ? PDFCommon::xq_zq_sum(pdf2, ff2, flavors, true, process) : 0.0;
 
-			const double xq_zg_hat_3 = xip_int ? PDFCommon::xq_zg_sum(pdf1, ff2, flavors, true, params->process) : 0.0;
-			const double xg_hat_zq_3 = xi_int ? PDFCommon::xg_zq_sum(pdf2, ff1, flavors, true, params->process) : 0.0;
-			const double xq_hat_zg_hat_3 = xi_xip_int ? PDFCommon::xq_zg_sum(pdf2, ff2, flavors, true, params->process) : 0.0;
-			const double xg_hat_zq_hat_3 = xi_xip_int ? PDFCommon::xg_zq_sum(pdf2, ff2, flavors, true, params->process) : 0.0;
+			const double xq_zg_hat_3 = xip_int ? PDFCommon::xq_zg_sum(pdf1, ff2, flavors, true, process) : 0.0;
+			const double xg_hat_zq_3 = xi_int ? PDFCommon::xg_zq_sum(pdf2, ff1, flavors, true, process) : 0.0;
+			const double xq_hat_zg_hat_3 = xi_xip_int ? PDFCommon::xq_zg_sum(pdf2, ff2, flavors, true, process) : 0.0;
+			const double xg_hat_zq_hat_3 = xi_xip_int ? PDFCommon::xg_zq_sum(pdf2, ff2, flavors, true, process) : 0.0;
 
 			const double f2 = F2(
 				xi, xip, x, z, 
@@ -162,12 +165,12 @@ namespace SIDISFunctions {
 				xq_zg_hat_3, xg_hat_zq_3, xq_hat_zg_hat_3, xg_hat_zq_hat_3
 			);
 
-			const double integrand_value = CommonFunctions::make_cross_section_variable(x, Q2, s, params->process, f2, fL, xf3);
+			const double integrand_value = CommonFunctions::make_cross_section_variable(x, Q2, s, process, f2, fL, xf3);
 
 			return integrand_value;
 		}
 		template <typename PDFInterface, typename FFInterface, typename Signature, typename DecayFunction>
-		static double evaluate_gsl_sidis_decay_cross_section_integrand(double input[], size_t dim, void *params_in, Signature F2, Signature FL, Signature xF3, Decay<DecayFunction> decay, const double z_min, bool xi_int, bool xip_int, bool z_int) {
+		constexpr static double evaluate_gsl_sidis_decay_cross_section_integrand(double input[], size_t dim, void *params_in, Signature F2, Signature FL, Signature xF3, Decay<DecayFunction> decay, const double z_min, bool xi_int, bool xip_int, bool z_int) {
 			const struct Parameters<PDFInterface, FFInterface> *params = static_cast<Parameters<PDFInterface, FFInterface> *>(params_in);
 
 			const size_t z_index = size_t(xi_int) + size_t(xip_int);

@@ -10,19 +10,19 @@ using FlavorType = int;
 using FlavorVector = std::vector<FlavorType>;
 
 namespace Flavor {
-	static const int Up = 2;
-	static const int Down = 1;
-	static const int Charm = 4;
-	static const int Strange = 3;
-	static const int Top = 6;
-	static const int Bottom = 5;
-	static const int Gluon = 0;
-	static const int AntiUp = -2;
-	static const int AntiDown = -1;
-	static const int AntiCharm = -4;
-	static const int AntiStrange = -3;
-	static const int AntiTop = -6;
-	static const int AntiBottom = -5;
+	constexpr static const int Up = 2;
+	constexpr static const int Down = 1;
+	constexpr static const int Charm = 4;
+	constexpr static const int Strange = 3;
+	constexpr static const int Top = 6;
+	constexpr static const int Bottom = 5;
+	constexpr static const int Gluon = 0;
+	constexpr static const int AntiUp = -2;
+	constexpr static const int AntiDown = -1;
+	constexpr static const int AntiCharm = -4;
+	constexpr static const int AntiStrange = -3;
+	constexpr static const int AntiTop = -6;
+	constexpr static const int AntiBottom = -5;
 
 	static FlavorVector all_upper_flavors = {Flavor::Up, Flavor::Charm, Flavor::Top, Flavor::AntiUp, Flavor::AntiCharm, Flavor::AntiTop};
 	static FlavorVector all_lower_flavors = {Flavor::Down, Flavor::Strange, Flavor::Bottom, Flavor::AntiDown, Flavor::AntiStrange, Flavor::AntiBottom};

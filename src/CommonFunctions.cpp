@@ -11,7 +11,7 @@ namespace CommonFunctions {
 		return y;
 	}
 	constexpr double cross_section_prefactor(const double Q2) {
-		const double numerator = POW2(Constants::fermi_coupling) * POW4(Constants::WBoson::Mass);
+		constexpr double numerator = POW2(Constants::fermi_coupling) * POW4(Constants::WBoson::Mass);
 		const double denominator = 2 * M_PI * POW2(Q2 + POW2(Constants::WBoson::Mass));
 
 		return numerator / denominator;

@@ -13,7 +13,7 @@ struct DIS {
 	const double s;
 	double y_max = 1.0;
 
-	const std::vector<FlavorType> active_flavors;
+	const FlavorVector active_flavors;
 
 	PDFInterface pdf;
 
@@ -27,7 +27,7 @@ struct DIS {
 
 	const Process process;
 
-	DIS (const double _sqrt_s, const std::vector<FlavorType> _active_flavors, const PDFInterface _pdf, const size_t _points, const Process _process)
+	DIS (const double _sqrt_s, const FlavorVector _active_flavors, const PDFInterface _pdf, const size_t _points, const Process _process)
 	: sqrt_s(_sqrt_s), s(_sqrt_s * _sqrt_s), 
 	active_flavors(_active_flavors), 
 	pdf(_pdf),
