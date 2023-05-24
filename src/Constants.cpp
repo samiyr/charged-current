@@ -67,6 +67,10 @@ namespace Constants {
 	namespace Fe56 {
 		constexpr static double Mass = 52.1031;
 	}
+
+	namespace Charm {
+		constexpr static double Mass = 1.275;
+	}
 } 
 
 #endif

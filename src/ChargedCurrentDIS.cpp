@@ -127,7 +127,12 @@ int main() {
 	DecayParametrization parametrization(7.365, 1.4, 2.276, 2.0, Constants::D0::Mass, Constants::Proton::Mass, Constants::D0::DecayWidth, 5.0, 0.0);
 	// DecayParametrization parametrization(7.365, 1.4, 2.276, 2.0, 1.8, 1.0, 6.33e-13, 5.0, 0.0);
 
-	sidis.lepton_pair_cross_section({0.001, 0.005, 0.01, 0.015, 0.02, 0.0225, 0.025, 0.0275, 0.03, 0.0325, 0.035, 0.0375, 0.04, 0.0425, 0.045, 0.0475, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.125, 0.15, 0.2, 0.25, 0.3, 0.35}, {0.573}, {90.2}, parametrization, "lepton_pair_data.csv");
+	sidis.lepton_pair_cross_section(
+		{0.001, 0.005, 0.01, 0.015, 0.02, 0.0225, 0.025, 0.0275, 0.03, 0.0325, 0.035, 0.0375, 0.04, 0.0425, 0.045, 0.0475, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.125, 0.15, 0.2, 0.25, 0.3, 0.35}, 
+		{0.334}, 
+		{90.2}, 
+		parametrization, "lepton_pair_data.csv"
+	);
 
 	// TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(0.2, 10.0, 318, 1.0, 0.0);
 	// std::cout << sidis.lepton_pair_cross_section(kinematics, parametrization, DecayFunctions::decay_function).nlo << std::endl;
