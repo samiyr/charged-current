@@ -36,7 +36,7 @@ namespace SIDISFunctions {
 
 	namespace Evaluation {
 		template <typename PDFInterface, typename FFInterface, typename Signature>
-		constexpr static double evaluate_gsl_sidis_integrand(double input[], size_t dim, void *params_in, Signature integrand, bool xi_int, bool xip_int, bool quark_minus) {
+		constexpr static double evaluate_gsl_sidis_integrand(double input[], [[maybe_unused]] size_t dim, void *params_in, Signature integrand, bool xi_int, bool xip_int, bool quark_minus) {
 			const struct Parameters<PDFInterface, FFInterface> *params = static_cast<Parameters<PDFInterface, FFInterface> *>(params_in);
 
 			const bool xi_xip_int = xi_int && xip_int;
@@ -88,7 +88,7 @@ namespace SIDISFunctions {
 		}
 
 		template <typename PDFInterface, typename FFInterface, typename Signature>
-		constexpr static double evaluate_gsl_sidis_cross_section_integrand(double input[], size_t dim, void *params_in, Signature F2, Signature FL, Signature xF3, bool xi_int, bool xip_int, bool z_int) {
+		constexpr static double evaluate_gsl_sidis_cross_section_integrand(double input[], [[maybe_unused]] size_t dim, void *params_in, Signature F2, Signature FL, Signature xF3, bool xi_int, bool xip_int, bool z_int) {
 			const struct Parameters<PDFInterface, FFInterface> *params = static_cast<Parameters<PDFInterface, FFInterface> *>(params_in);
 
 			const bool xi_xip_int = xi_int && xip_int;
@@ -189,114 +189,113 @@ namespace SIDISFunctions {
 
 	namespace Integrands {
 		static constexpr double F2_lo_integrand(
-			const double xi, 
-			const double xip, 
-			const double x, 
+			[[maybe_unused]] const double xi, 
+			[[maybe_unused]] const double xip, 
+			[[maybe_unused]] const double x, 
 			const double z, 
 			const double xq_zq,
-			const double xq_hat_zq, 
-			const double xq_zq_hat,
-			const double xq_hat_zq_hat, 
-			const double xq_zg_hat,
-			const double xg_hat_zq,
-			const double xq_hat_zg_hat,
-			const double xg_hat_zq_hat) {
+			[[maybe_unused]] const double xq_hat_zq, 
+			[[maybe_unused]] const double xq_zq_hat,
+			[[maybe_unused]] const double xq_hat_zq_hat, 
+			[[maybe_unused]] const double xq_zg_hat,
+			[[maybe_unused]] const double xg_hat_zq,
+			[[maybe_unused]] const double xq_hat_zg_hat,
+			[[maybe_unused]] const double xg_hat_zq_hat) {
 
 			return 2 * xq_zq / z;
 		}
 		static constexpr double FL_lo_integrand(
-			const double xi, 
-			const double xip, 
-			const double x, 
-			const double z, 
-			const double xq_zq,
-			const double xq_hat_zq, 
-			const double xq_zq_hat,
-			const double xq_hat_zq_hat, 
-			const double xq_zg_hat,
-			const double xg_hat_zq,
-			const double xq_hat_zg_hat,
-			const double xg_hat_zq_hat) {
+			[[maybe_unused]] const double xi, 
+			[[maybe_unused]] const double xip, 
+			[[maybe_unused]] const double x, 
+			[[maybe_unused]] const double z, 
+			[[maybe_unused]] const double xq_zq,
+			[[maybe_unused]] const double xq_hat_zq, 
+			[[maybe_unused]] const double xq_zq_hat,
+			[[maybe_unused]] const double xq_hat_zq_hat, 
+			[[maybe_unused]] const double xq_zg_hat,
+			[[maybe_unused]] const double xg_hat_zq,
+			[[maybe_unused]] const double xq_hat_zg_hat,
+			[[maybe_unused]] const double xg_hat_zq_hat) {
 
 			return 0.0;
 		}
 		static constexpr double F3_lo_integrand(
-			const double xi, 
-			const double xip, 
-			const double x, 
+			[[maybe_unused]] const double xi, 
+			[[maybe_unused]] const double xip, 
+			[[maybe_unused]] const double x, 
 			const double z, 
-			const double xq_zq,
-			const double xq_hat_zq, 
-			const double xq_zq_hat,
-			const double xq_hat_zq_hat, 
-			const double xq_zg_hat,
-			const double xg_hat_zq,
-			const double xq_hat_zg_hat,
-			const double xg_hat_zq_hat) {
-
+			[[maybe_unused]] const double xq_zq,
+			[[maybe_unused]] const double xq_hat_zq, 
+			[[maybe_unused]] const double xq_zq_hat,
+			[[maybe_unused]] const double xq_hat_zq_hat, 
+			[[maybe_unused]] const double xq_zg_hat,
+			[[maybe_unused]] const double xg_hat_zq,
+			[[maybe_unused]] const double xq_hat_zg_hat,
+			[[maybe_unused]] const double xg_hat_zq_hat) {
 			return 2 * xq_zq / z;
 		}
 		static constexpr double F2_delta_integrand(
-			const double xi, 
-			const double xip, 
+			[[maybe_unused]] const double xi, 
+			[[maybe_unused]] const double xip, 
 			const double x, 
 			const double z, 
 			const double xq_zq,
-			const double xq_hat_zq, 
-			const double xq_zq_hat,
-			const double xq_hat_zq_hat, 
-			const double xq_zg_hat,
-			const double xg_hat_zq,
-			const double xq_hat_zg_hat,
-			const double xg_hat_zq_hat) {
+			[[maybe_unused]] const double xq_hat_zq, 
+			[[maybe_unused]] const double xq_zq_hat,
+			[[maybe_unused]] const double xq_hat_zq_hat, 
+			[[maybe_unused]] const double xq_zg_hat,
+			[[maybe_unused]] const double xg_hat_zq,
+			[[maybe_unused]] const double xq_hat_zg_hat,
+			[[maybe_unused]] const double xg_hat_zq_hat) {
 
 			return SIDISFunctions::delta_contribution(x, z) * xq_zq;
 		}
 		static constexpr double FL_delta_integrand(
-			const double xi, 
-			const double xip, 
-			const double x, 
-			const double z, 
-			const double xq_zq,
-			const double xq_hat_zq, 
-			const double xq_zq_hat,
-			const double xq_hat_zq_hat, 
-			const double xq_zg_hat,
-			const double xg_hat_zq,
-			const double xq_hat_zg_hat,
-			const double xg_hat_zq_hat) {
+			[[maybe_unused]] const double xi, 
+			[[maybe_unused]] const double xip, 
+			[[maybe_unused]] const double x, 
+			[[maybe_unused]] const double z, 
+			[[maybe_unused]] const double xq_zq,
+			[[maybe_unused]] const double xq_hat_zq, 
+			[[maybe_unused]] const double xq_zq_hat,
+			[[maybe_unused]] const double xq_hat_zq_hat, 
+			[[maybe_unused]] const double xq_zg_hat,
+			[[maybe_unused]] const double xg_hat_zq,
+			[[maybe_unused]] const double xq_hat_zg_hat,
+			[[maybe_unused]] const double xg_hat_zq_hat) {
 
 			return 0.0;
 		}
 		static constexpr double F3_delta_integrand(
-			const double xi, 
-			const double xip, 
+			[[maybe_unused]] const double xi, 
+			[[maybe_unused]] const double xip, 
 			const double x, 
 			const double z, 
 			const double xq_zq,
-			const double xq_hat_zq, 
-			const double xq_zq_hat,
-			const double xq_hat_zq_hat, 
-			const double xq_zg_hat,
-			const double xg_hat_zq,
-			const double xq_hat_zg_hat,
-			const double xg_hat_zq_hat) {
+			[[maybe_unused]] const double xq_hat_zq, 
+			[[maybe_unused]] const double xq_zq_hat,
+			[[maybe_unused]] const double xq_hat_zq_hat, 
+			[[maybe_unused]] const double xq_zg_hat,
+			[[maybe_unused]] const double xg_hat_zq,
+			[[maybe_unused]] const double xq_hat_zg_hat,
+			[[maybe_unused]] const double xg_hat_zq_hat) {
 
 			return SIDISFunctions::delta_contribution(x, z) * xq_zq;
 		}
 		static constexpr double F2_xi_integrand(
 			const double xi, 
-			const double xip, 
-			const double x, 
+			[[maybe_unused]] const double xip, 
+			[[maybe_unused]] const double x, 
 			const double z, 
 			const double xq_zq,
 			const double xq_hat_zq, 
-			const double xq_zq_hat,
-			const double xq_hat_zq_hat, 
-			const double xq_zg_hat,
+			[[maybe_unused]] const double xq_zq_hat,
+			[[maybe_unused]] const double xq_hat_zq_hat, 
+			[[maybe_unused]] const double xq_zg_hat,
 			const double xg_hat_zq,
-			const double xq_hat_zg_hat,
-			const double xg_hat_zq_hat) {
+			[[maybe_unused]] const double xq_hat_zg_hat,
+			[[maybe_unused]] const double xg_hat_zq_hat) {
 
 			const double log_term = std::log((1 - xi) / xi);
 
@@ -330,18 +329,18 @@ namespace SIDISFunctions {
 		}
 
 		static constexpr double F2_xip_integrand(
-			const double xi, 
+			[[maybe_unused]] const double xi, 
 			const double xip, 
 			const double x, 
 			const double z, 
 			const double xq_zq,
-			const double xq_hat_zq, 
+			[[maybe_unused]] const double xq_hat_zq, 
 			const double xq_zq_hat,
-			const double xq_hat_zq_hat, 
+			[[maybe_unused]] const double xq_hat_zq_hat, 
 			const double xq_zg_hat,
-			const double xg_hat_zq,
-			const double xq_hat_zg_hat,
-			const double xg_hat_zq_hat) {
+			[[maybe_unused]] const double xg_hat_zq,
+			[[maybe_unused]] const double xq_hat_zg_hat,
+			[[maybe_unused]] const double xg_hat_zq_hat) {
 
 			const double log_term = std::log(xip * (1 - xip));
 			
@@ -376,7 +375,7 @@ namespace SIDISFunctions {
 
 		static constexpr double F2_xi_xip_integrand(const double xi, 
 		const double xip, 
-		const double x, 
+		[[maybe_unused]] const double x, 
 		const double z, 
 		const double xq_zq,
 		const double xq_hat_zq, 
@@ -405,47 +404,47 @@ namespace SIDISFunctions {
 			return 2 * (quark_contribution + gluon_contribution_1 + gluon_contribution_2) / z;
 		}
 		static constexpr double FL_xi_integrand(
-			const double xi, 
-			const double xip, 
-			const double x, 
-			const double z, 
-			const double xq_zq,
-			const double xq_hat_zq, 
-			const double xq_zq_hat,
-			const double xq_hat_zq_hat, 
-			const double xq_zg_hat,
-			const double xg_hat_zq,
-			const double xq_hat_zg_hat,
-			const double xg_hat_zq_hat) {
+			[[maybe_unused]] const double xi, 
+			[[maybe_unused]] const double xip, 
+			[[maybe_unused]] const double x, 
+			[[maybe_unused]] const double z, 
+			[[maybe_unused]] const double xq_zq,
+			[[maybe_unused]] const double xq_hat_zq, 
+			[[maybe_unused]] const double xq_zq_hat,
+			[[maybe_unused]] const double xq_hat_zq_hat, 
+			[[maybe_unused]] const double xq_zg_hat,
+			[[maybe_unused]] const double xg_hat_zq,
+			[[maybe_unused]] const double xq_hat_zg_hat,
+			[[maybe_unused]] const double xg_hat_zq_hat) {
 
 			return 0.0;
 		}
 		static constexpr double FL_xip_integrand(
-			const double xi, 
-			const double xip, 
-			const double x, 
-			const double z, 
-			const double xq_zq,
-			const double xq_hat_zq, 
-			const double xq_zq_hat,
-			const double xq_hat_zq_hat, 
-			const double xq_zg_hat,
-			const double xg_hat_zq,
-			const double xq_hat_zg_hat,
-			const double xg_hat_zq_hat) {
+			[[maybe_unused]] const double xi, 
+			[[maybe_unused]] const double xip, 
+			[[maybe_unused]] const double x, 
+			[[maybe_unused]] const double z, 
+			[[maybe_unused]] const double xq_zq,
+			[[maybe_unused]] const double xq_hat_zq, 
+			[[maybe_unused]] const double xq_zq_hat,
+			[[maybe_unused]] const double xq_hat_zq_hat, 
+			[[maybe_unused]] const double xq_zg_hat,
+			[[maybe_unused]] const double xg_hat_zq,
+			[[maybe_unused]] const double xq_hat_zg_hat,
+			[[maybe_unused]] const double xg_hat_zq_hat) {
 
 			return 0.0;
 		}
 		static constexpr double FL_xi_xip_integrand(const double xi, 
 		const double xip, 
-		const double x, 
+		[[maybe_unused]] const double x, 
 		const double z, 
-		const double xq_zq,
-		const double xq_hat_zq, 
-		const double xq_zq_hat,
+		[[maybe_unused]] const double xq_zq,
+		[[maybe_unused]] const double xq_hat_zq, 
+		[[maybe_unused]] const double xq_zq_hat,
 		const double xq_hat_zq_hat, 
-		const double xq_zg_hat,
-		const double xg_hat_zq,
+		[[maybe_unused]] const double xq_zg_hat,
+		[[maybe_unused]] const double xg_hat_zq,
 		const double xq_hat_zg_hat,
 		const double xg_hat_zq_hat) {
 			const double term1 = xq_hat_zq_hat * Constants::C_F * 4 * xi * xip;

@@ -96,7 +96,7 @@ class Integrator {
 			gsl_monte_vegas_integrate(&function, lower.data(), upper.data(), dim, std::max(points / 1000, size_t(10)), rng, state, &integral, &error);
 		}
 
-		int iteration = 0;
+		unsigned int iteration = 0;
 		bool iteration_limit_reached = false;
 		double chi_squared = gsl_monte_vegas_chisq(state);
 

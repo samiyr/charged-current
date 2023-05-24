@@ -12,7 +12,7 @@
 #include "TRFKinematics.cpp"
 // #include "PythiaSIDIS.cpp"
 
-int main(int argc, char const *argv[]) {
+int main() {
 	// LHAInterface pdf("CT18ANLO");
 	// LHAInterface ff("kkks08_global_d0_mas");
 

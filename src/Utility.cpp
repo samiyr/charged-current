@@ -1,6 +1,7 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
+#include <iostream>
 #include <vector>
 #include <gsl/gsl_sf.h>
 #include <boost/math/special_functions/beta.hpp>
@@ -71,14 +72,14 @@ namespace Utility {
 		return std::log1p(-x);
 	}
 
-	constexpr double gamma(const double z) {
+	inline double gamma(const double z) {
 		return gsl_sf_gamma(z);
 	}
 
-	constexpr double beta(const double a, const double b) {
+	inline double beta(const double a, const double b) {
 		return boost::math::beta(a, b);
 	}
-	constexpr double incomplete_beta(const double z, const double a, const double b) {
+	inline double incomplete_beta(const double z, const double a, const double b) {
 		return boost::math::beta(a, b, z);
 	}
 	// inline double beta(const double a, const double b) {
@@ -89,7 +90,7 @@ namespace Utility {
 	// }
 
 	void non_aborting_gsl_error_handler(const char *reason, const char *file, int line, int gsl_errno) {
-		std::cout << "gsl error " << gsl_errno << " (" << std::string(file) << "): " << std::string(reason) << std::endl;
+		std::cout << "gsl error " << gsl_errno << " (" << std::string(file) << ", " << line << "): " << std::string(reason) << std::endl;
 	}
 }
 

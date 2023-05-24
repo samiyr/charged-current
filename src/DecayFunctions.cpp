@@ -34,7 +34,7 @@ namespace DecayFunctions {
 		return result;
 	}
 
-	constexpr double decay_function_integrand(double input[], size_t dim, void *params_in) {
+	constexpr double decay_function_integrand(double input[], [[maybe_unused]] size_t dim, void *params_in) {
 		const double rho = input[0];
 		const double cos = input[1];
 

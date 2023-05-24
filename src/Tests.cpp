@@ -153,12 +153,12 @@ namespace Tests {
 
 		SIDIS sidis(
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
-			FunctionalFormInterface([](const FlavorType flavor, const double x, const double Q2) {
+			FunctionalFormInterface([](const FlavorType flavor, const double x, [[maybe_unused]] const double Q2) {
 				if (Flavor::is_gluon(flavor)) { return 0.0; }
 				const double f = double(flavor);
 				return (2.0 * f * f - f + 1.0) * x * (1 - x);
 			}),
-			FunctionalFormInterface([](const FlavorType flavor, const double x, const double Q2) {
+			FunctionalFormInterface([](const FlavorType flavor, const double x, [[maybe_unused]] const double Q2) {
 				if (Flavor::is_gluon(flavor)) { return 0.0; }
 				const double f = double(flavor);
 				return (2.0 * f * f + f + 1.0) * x * x * (1 - x) * (1 - x);
@@ -233,11 +233,11 @@ namespace Tests {
 
 		SIDIS sidis(
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
-			FunctionalFormInterface([](const FlavorType flavor, const double x, const double Q2) {
+			FunctionalFormInterface([](const FlavorType flavor, const double x, [[maybe_unused]] const double Q2) {
 				if (Flavor::is_gluon(flavor)) { return x * x * (1 - x); }
 				return 0.0;
 			}),
-			FunctionalFormInterface([](const FlavorType flavor, const double x, const double Q2) {
+			FunctionalFormInterface([](const FlavorType flavor, const double x, [[maybe_unused]] const double Q2) {
 				if (Flavor::is_gluon(flavor)) { return x * x * (1 - x) * (1 - x); }
 				const double f = double(flavor);
 				return (2.0 * f * f + f + 1.0) * x * (1 - x) * (1 - x);
@@ -311,12 +311,12 @@ namespace Tests {
 
 		SIDIS sidis(
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
-			FunctionalFormInterface([](const FlavorType flavor, const double x, const double Q2) {
+			FunctionalFormInterface([](const FlavorType flavor, const double x, [[maybe_unused]] const double Q2) {
 				if (Flavor::is_gluon(flavor)) { return x * x * (1 - x); }
 				const double f = double(flavor);
 				return (2.0 * f * f - f + 1.0) * x * (1 - x);
 			}),
-			FunctionalFormInterface([](const FlavorType flavor, const double x, const double Q2) {
+			FunctionalFormInterface([](const FlavorType flavor, const double x, [[maybe_unused]] const double Q2) {
 				if (Flavor::is_gluon(flavor)) { return x * x * (1 - x) * (1 - x); }
 				return 0.0;
 			}),
@@ -390,12 +390,12 @@ namespace Tests {
 
 		SIDIS sidis(
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
-			FunctionalFormInterface([](const FlavorType flavor, const double x, const double Q2) {
+			FunctionalFormInterface([](const FlavorType flavor, const double x, [[maybe_unused]] const double Q2) {
 				if (Flavor::is_gluon(flavor)) { return x * x * (1 - x); }
 				const double f = double(flavor);
 				return (2.0 * f * f - f + 1.0) * x * (1 - x);
 			}),
-			FunctionalFormInterface([](const FlavorType flavor, const double x, const double Q2) {
+			FunctionalFormInterface([](const FlavorType flavor, const double x, [[maybe_unused]] const double Q2) {
 				if (Flavor::is_gluon(flavor)) { return x * x * (1 - x) * (1 - x); }
 				const double f = double(flavor);
 				return (2.0 * f * f + f + 1.0) * x * (1 - x) * (1 - x);

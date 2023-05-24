@@ -10,7 +10,7 @@ class FunctionalFormInterface {
 	const Signature function;
 	const FlavorVector available_flavors;
 
-	FunctionalFormInterface(const Signature _function, const FlavorVector _available_flavors = Flavor::all_flavors) : function(_function), available_flavors(_available_flavors), flavor_values(available_flavors.size(), 0) {
+	constexpr FunctionalFormInterface(const Signature _function, const FlavorVector _available_flavors = Flavor::all_flavors) : function(_function), available_flavors(_available_flavors), flavor_values(available_flavors.size(), 0) {
 
 	}
 
@@ -29,7 +29,7 @@ class FunctionalFormInterface {
 	constexpr double xg() const {
 		return xf(Flavor::Gluon);
 	}
-	constexpr double alpha_s(const double Q2) const {
+	constexpr double alpha_s([[maybe_unused]] const double Q2) const {
 		// fix this!
 		return 1;
 	}

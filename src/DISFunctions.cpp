@@ -31,7 +31,7 @@ namespace DISFunctions {
 	};
 
 	template <typename PDFInterface>
-	static double evaluate_gsl_xi_integrand(double input[], size_t dim, void *params_in, std::function<double(double, double, double, double)> integrand, bool quark_minus = false) {
+	static double evaluate_gsl_xi_integrand(double input[], [[maybe_unused]] size_t dim, void *params_in, std::function<double(double, double, double, double)> integrand, bool quark_minus = false) {
 		const struct UnintegratedParams<PDFInterface> *params = (struct UnintegratedParams<PDFInterface> *)params_in;
 		const double xi = input[0];
 		if (std::abs(xi - 1) < 1e-15) { return 0; }
@@ -72,7 +72,7 @@ namespace DISFunctions {
 		return evaluate_gsl_xi_integrand<PDFInterface>(input, dim, params_in, F2_integrand);
 	}
 
-	static constexpr double FL_integrand(const double xi, const double xq_hat, const double xq, const double xg_hat) {
+	static constexpr double FL_integrand(const double xi, const double xq_hat, [[maybe_unused]] const double xq, const double xg_hat) {
 		const double quark_contribution = Constants::C_F * xq_hat * 2 * xi;
 		const double gluon_contribution = 2 * xi * (1 - xi) * xg_hat;
 
@@ -83,7 +83,7 @@ namespace DISFunctions {
 		return evaluate_gsl_xi_integrand<PDFInterface>(input, dim, params_in, FL_integrand);
 	}
 
-	static constexpr double F3_integrand(const double xi, const double xq_hat, const double xq, const double xg_hat) {
+	static constexpr double F3_integrand(const double xi, const double xq_hat, [[maybe_unused]] const double xq, [[maybe_unused]] const double xg_hat) {
 		const double term1 = std::log(1 - xi) * ((1 + xi * xi) * xq_hat - 2 * xq) / (1 - xi);
 		const double term2 = (xq_hat - xq) / (1 - xi);
 		const double term3 = xq_hat * (- (1 + xi * xi) * std::log(xi) / (1 - xi) + 2 + xi);
