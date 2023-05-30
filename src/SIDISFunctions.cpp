@@ -6,14 +6,17 @@
 #include "Flavor.cpp"
 #include "PDFCommon.cpp"
 #include "Decay.cpp"
+#include "FragmentationConfiguration.cpp"
+#include "TRFKinematics.cpp"
+#include "DecayFunctions.cpp"
 
 namespace SIDISFunctions {
 	template <typename PDFInterface, typename FFInterface>
 	struct Parameters {
 		PDFInterface &pdf1;
-		FFInterface &ff1;
+		FragmentationConfiguration<FFInterface> &ff1;
 		PDFInterface &pdf2;
-		FFInterface &ff2;
+		FragmentationConfiguration<FFInterface> &ff2;
 
 		const FlavorInfo &flavors;
 
@@ -32,6 +35,15 @@ namespace SIDISFunctions {
 
 	constexpr double delta_contribution(const double x, const double z) {
 		return 2 * Constants::C_F * (std::pow(std::log(1 - x) + std::log(1 - z), 2) - 8) / z;
+	}
+
+	template <typename DecayFunction>
+	constexpr double compute_z_min(const TRFKinematics kinematics, const Decay<DecayFunction> &decay) {
+		return std::max({
+			decay.parametrization.lepton_momentum_min / (kinematics.y * kinematics.E_beam), 
+			2 * kinematics.x * decay.parametrization.resonance_mass * decay.parametrization.hadron_mass / kinematics.Q2,
+			decay.parametrization.z_min_cutoff
+		});
 	}
 
 	namespace Evaluation {
@@ -56,9 +68,9 @@ namespace SIDISFunctions {
 			const double xq_zq = params->xq_zq;
 
 			PDFInterface &pdf1 = params->pdf1;
-			FFInterface &ff1 = params->ff1;
+			FragmentationConfiguration<FFInterface> &ff1 = params->ff1;
 			PDFInterface &pdf2 = params->pdf2;
-			FFInterface &ff2 = params->ff2;
+			FragmentationConfiguration<FFInterface> &ff2 = params->ff2;
 
 			const Process &process = params->process;
 
@@ -87,8 +99,8 @@ namespace SIDISFunctions {
 			return integrand_value;
 		}
 
-		template <typename PDFInterface, typename FFInterface, typename Signature>
-		constexpr static double evaluate_gsl_sidis_cross_section_integrand(double input[], [[maybe_unused]] size_t dim, void *params_in, Signature F2, Signature FL, Signature xF3, bool xi_int, bool xip_int, bool z_int) {
+		template <typename PDFInterface, typename FFInterface, typename Signature, typename DecayFunction>
+		constexpr static double evaluate_gsl_sidis_decay_cross_section_integrand_ff(const double input[], [[maybe_unused]] const size_t dim, void *params_in, const Signature F2, const Signature FL, const Signature xF3, const Decay<DecayFunction> decay, const double z_min, const bool xi_int, const bool xip_int, const bool z_int, FFInterface &ff1, FFInterface &ff2) {
 			const struct Parameters<PDFInterface, FFInterface> *params = static_cast<Parameters<PDFInterface, FFInterface> *>(params_in);
 
 			const bool xi_xip_int = xi_int && xip_int;
@@ -106,9 +118,7 @@ namespace SIDISFunctions {
 			const double Q2 = params->Q2;
 
 			PDFInterface &pdf1 = params->pdf1;
-			FFInterface &ff1 = params->ff1;
 			PDFInterface &pdf2 = params->pdf2;
-			FFInterface &ff2 = params->ff2;
 
 			const Process &process = params->process;
 
@@ -166,24 +176,34 @@ namespace SIDISFunctions {
 			);
 
 			const double integrand_value = CommonFunctions::make_cross_section_variable(x, Q2, s, process, f2, fL, xf3);
+			const double decay_function_value = decay(x, z, Q2, z_min);
+			const double final_value = decay_function_value * integrand_value;
 
-			return integrand_value;
+			return final_value;
 		}
 		template <typename PDFInterface, typename FFInterface, typename Signature, typename DecayFunction>
-		constexpr static double evaluate_gsl_sidis_decay_cross_section_integrand(double input[], size_t dim, void *params_in, Signature F2, Signature FL, Signature xF3, Decay<DecayFunction> decay, const double z_min, bool xi_int, bool xip_int, bool z_int) {
+		constexpr static double evaluate_gsl_sidis_decay_cross_section_integrand(const double input[], [[maybe_unused]] const size_t dim, void *params_in, const Signature F2, const Signature FL, const Signature xF3, const Decay<DecayFunction> decay, const double z_min, const bool xi_int, const bool xip_int, const bool z_int) {
 			const struct Parameters<PDFInterface, FFInterface> *params = static_cast<Parameters<PDFInterface, FFInterface> *>(params_in);
+			FragmentationConfiguration<FFInterface> &ffs1 = params->ff1;
+			FragmentationConfiguration<FFInterface> &ffs2 = params->ff2;
 
-			const size_t z_index = size_t(xi_int) + size_t(xip_int);
+			double sum = 0.0;
+			for (size_t i = 0; i < ffs1.size(); i++) {
+				FFInterface &ff1 = ffs1[i];
+				FFInterface &ff2 = ffs2[i];
 
-			const double x = params->x;
-			const double z = z_int ? input[z_index] : params->z;
-			const double Q2 = params->Q2;
+				const double value = evaluate_gsl_sidis_decay_cross_section_integrand_ff<PDFInterface, FFInterface>(input, dim, params_in, F2, FL, xF3, decay, z_min, xi_int, xip_int, z_int, ff1, ff2);
+				const double coefficient = ffs1.coefficients[i];
 
-			const double decay_function_value = decay(x, z, Q2, z_min);
-			const double integrand_value = evaluate_gsl_sidis_cross_section_integrand<PDFInterface, FFInterface>(input, dim, params_in, F2, FL, xF3, xi_int, xip_int, z_int);
-			const double result = decay_function_value * integrand_value;
+				sum += coefficient * value;
+			}
 
-			return result;
+			return sum;
+		}
+		template <typename PDFInterface, typename FFInterface, typename Signature>
+		static double evaluate_gsl_sidis_cross_section_integrand(double input[], size_t dim, void *params_in, Signature F2, Signature FL, Signature xF3, bool xi_int, bool xip_int, bool z_int) {
+			const Decay decay = Decay(DecayFunctions::trivial);
+			return evaluate_gsl_sidis_decay_cross_section_integrand<PDFInterface, FFInterface>(input, dim, params_in, F2, FL, xF3, decay, 0.0, xi_int, xip_int, z_int);
 		}
 	}
 

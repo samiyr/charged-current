@@ -9,6 +9,7 @@
 #include "Integrator.cpp"
 #include "Decay.cpp"
 #include "TRFKinematics.cpp"
+#include "FragmentationConfiguration.cpp"
 
 template <typename PDFInterface, typename FFInterface>
 class SIDISComputation {
@@ -19,10 +20,10 @@ class SIDISComputation {
 	FlavorInfo flavors;
 
 	PDFInterface pdf1;
-	FFInterface ff1;
+	FragmentationConfiguration<FFInterface> ff1;
 
 	PDFInterface pdf2;
-	FFInterface ff2;
+	FragmentationConfiguration<FFInterface> ff2;
 
 	const size_t points;
 	const double max_chi_squared_deviation;
@@ -35,13 +36,13 @@ class SIDISComputation {
 		const double _sqrt_s, 
 		const FlavorVector _active_flavors, 
 		const PDFInterface _pdf,
-		const FFInterface _ff,
+		const FragmentationConfiguration<FFInterface> _ff,
 		const size_t _points,
 		const double _max_chi_squared_deviation, 
 		const double _max_relative_error,
 		const unsigned int _iter_max,
 		const Process _process
-	) : sqrt_s(_sqrt_s), 
+	) : sqrt_s(_sqrt_s),
 	s(_sqrt_s * _sqrt_s), 
 	flavors(_active_flavors),
 	pdf1(_pdf), 
@@ -260,12 +261,7 @@ class SIDISComputation {
 		const double x = kinematics.x;
 		const double Q2 = kinematics.Q2;
 
-		const double p_min = decay.parametrization.lepton_momentum_min;
-		const double z_min = std::max({
-			p_min / (kinematics.y * kinematics.E_beam), 
-			2 * x * decay.parametrization.resonance_mass * decay.parametrization.hadron_mass / kinematics.Q2,
-			decay.parametrization.z_min_cutoff
-		});
+		const double z_min = SIDISFunctions::compute_z_min(kinematics, decay);
 
 		const double alpha_s = pdf1.alpha_s(Q2);
 		const double nlo_coefficient = alpha_s / (2 * M_PI);

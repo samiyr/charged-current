@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <numeric>
 #include <gsl/gsl_sf.h>
 #include <boost/math/special_functions/beta.hpp>
 
@@ -91,6 +92,11 @@ namespace Utility {
 
 	void non_aborting_gsl_error_handler(const char *reason, const char *file, int line, int gsl_errno) {
 		std::cout << "gsl error " << gsl_errno << " (" << std::string(file) << ", " << line << "): " << std::string(reason) << std::endl;
+	}
+
+	template <typename Iterator1, typename Iterator2>
+	constexpr double dot_product(const Iterator1 &iter1, const Iterator2 &iter2) {
+		return std::inner_product(std::begin(iter1), std::end(iter1), std::begin(iter2), 0.0);
 	}
 }
 

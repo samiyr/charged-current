@@ -48,12 +48,19 @@ namespace Constants {
 
 	namespace D0 {
 		constexpr static double Mass = 1.86484;
-		constexpr static double DecayWidth = 1.605e-12;
+		// constexpr static double DecayWidth = 1.605e-12;
+		constexpr static double Lifetime = 0.4101;
 	}
 
-	namespace Dpm {
+	namespace Dp {
 		constexpr static double Mass = 1.86962;
-		constexpr static double DecayWidth = 6.32896e-13;
+		// constexpr static double DecayWidth = 6.32896e-13;
+		constexpr static double Lifetime = 1.04;
+	}
+	namespace Ds {
+		constexpr static double Mass = 1.96847;
+		// constexpr static double DecayWidth = 1.3164e-12;
+		constexpr static double Lifetime = 0.5;
 	}
 
 	namespace Proton {
@@ -69,7 +76,7 @@ namespace Constants {
 	}
 
 	namespace Charm {
-		constexpr static double Mass = 1.275;
+		constexpr static double Mass = 1.5;
 	}
 } 
 

@@ -6,6 +6,7 @@
 #include "Process.cpp"
 #include "TRFKinematics.cpp"
 #include "DecayFunctions.cpp"
+#include "FragmentationConfiguration.cpp"
 
 template <typename PDFInterface, typename FFInterface>
 struct SIDIS {
@@ -13,7 +14,7 @@ struct SIDIS {
 	const FlavorVector active_antiflavors;
 
 	PDFInterface pdf;
-	FFInterface ff;
+	FragmentationConfiguration<FFInterface> ff;
 
 	bool parallelize = true;
 	int number_of_threads = 8;
@@ -30,6 +31,13 @@ struct SIDIS {
 	SIDIS (const FlavorVector _active_flavors, const PDFInterface _pdf, const FFInterface _ff, const size_t _points, const Process _process)
 	: active_flavors(_active_flavors), 
 	pdf(_pdf),
+	ff({_ff}),
+	points(_points),
+	process(_process)
+	{ }
+	SIDIS (const FlavorVector _active_flavors, const PDFInterface _pdf, const std::vector<FFInterface> _ff, const size_t _points, const Process _process)
+	: active_flavors(_active_flavors), 
+	pdf(_pdf),
 	ff(_ff),
 	points(_points),
 	process(_process)
@@ -44,6 +52,11 @@ struct SIDIS {
 	}
 	PerturbativeResult FL(const double x, const double z, const double Q2) {
 		return compute_structure_function(StructureFunction::FL, x, z, Q2);
+	}
+	PerturbativeResult F1(const double x, const double z, const double Q2) {
+		const PerturbativeResult f2 = compute_structure_function(StructureFunction::F2, x, z, Q2);
+		const PerturbativeResult fL = compute_structure_function(StructureFunction::FL, x, z, Q2);
+		return (f2 - fL) / (2 * x);
 	}
 	PerturbativeResult xF3(const double x, const double z, const double Q2) {
 		return compute_structure_function(StructureFunction::xF3, x, z, Q2);
@@ -96,6 +109,23 @@ struct SIDIS {
 
 		file.close();
 	}
+	template <typename DecayFunction>
+	PerturbativeResult lepton_pair_cross_section_Q2_sqrt_s(const double x, const double Q2, const double sqrt_s, const Decay<DecayFunction> decay) {
+		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, process.target_mass, process.projectile_mass);
+		const PerturbativeResult cs_xQ2 = lepton_pair_cross_section(kinematics, decay.parametrization, decay.decay_function);
+		return cs_xQ2;
+	}
+	PerturbativeResult lepton_pair_cross_section_Q2_sqrt_s(const double x, const double Q2, const double sqrt_s, const DecayParametrization parametrization) {
+		return lepton_pair_cross_section_Q2_sqrt_s(x, Q2, sqrt_s, Decay(parametrization, DecayFunctions::decay_function));
+	}
+	PerturbativeResult lepton_pair_cross_section_y_E(const double x, const double y, const double E_beam, const DecayParametrization parametrization) {
+		TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, process.target_mass, process.projectile_mass);
+		const PerturbativeResult cs_xQ2 = lepton_pair_cross_section(kinematics, parametrization, DecayFunctions::decay_function);
+		const double jacobian = (kinematics.s - std::pow(process.target_mass, 2) - std::pow(process.projectile_mass, 2)) * x;
+		const PerturbativeResult cs_xy = cs_xQ2 * jacobian;
+		return cs_xy;
+
+	}
 	void lepton_pair_cross_section(const std::vector<double> x_bins, const std::vector<double> y_bins, const std::vector<double> E_beam_bins, const DecayParametrization parametrization, const std::string filename) {
 		const size_t x_step_count = x_bins.size();
 		const size_t y_step_count = y_bins.size();
@@ -114,9 +144,7 @@ struct SIDIS {
 					const double E_beam = E_beam_bins[j];
 					
 					TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, process.target_mass, process.projectile_mass);
-					const PerturbativeResult cs_xQ2 = lepton_pair_cross_section(kinematics, parametrization, DecayFunctions::decay_function);
-					const double jacobian = (kinematics.s - std::pow(process.target_mass, 2) - std::pow(process.projectile_mass, 2)) * x;
-					const PerturbativeResult cs_xy = cs_xQ2 * jacobian;
+					const PerturbativeResult cs_xy = lepton_pair_cross_section_y_E(x, y, E_beam, parametrization);
 
 					#pragma omp critical
 					{

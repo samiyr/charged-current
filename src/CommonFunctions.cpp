@@ -33,6 +33,10 @@ namespace CommonFunctions {
 
 		return result;
 	}
+
+	constexpr double compute_momentum_fraction_mass_correction(const double x_0, const double Q2, const double mass_scale, const double target_mass) {
+		return x_0 * (1 + std::pow(mass_scale, 2) / Q2) * (1 - std::pow(x_0 * target_mass, 2) / Q2);
+	}
 }
 
 

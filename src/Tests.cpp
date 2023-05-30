@@ -10,6 +10,8 @@
 #include "FunctionalFormInterface.cpp"
 
 namespace Tests {
+	/// Checks that LHAInterface evaluates to correct values at various values of x using the CT18NLO PDF set.
+	/// Checks are done against hard-coded values.
 	bool pdf_evaluation_tests() {
 		bool flag = true;
 		LHAInterface pdf("CT18NLO");
@@ -34,6 +36,7 @@ namespace Tests {
 		return flag;
 	}
 
+	/// Checks LHAInterface for using the evaluate() first and then call xf() usage pattern against the simpler xf_evaluate().
 	bool pdf_comparison_tests() {
 		bool flag = true;
 		LHAInterface pdf1("CT18NLO");
@@ -55,6 +58,7 @@ namespace Tests {
 		return flag;
 	}
 
+	/// Checks that the function CKM::squared works properly by comparing the results directly to the various CKM matrix elements found in Constants namespace.
 	bool ckm_tests() {
 		bool flag = true;
 		const double tol = 1e-12;
@@ -148,6 +152,9 @@ namespace Tests {
 		return flag;
 	}
 
+	/// Checks SIDIS cross section values against analytically computed values (with Mathematica) for several values of x and z.
+	/// To obtain analytical results, simple functional forms are chosen for PDFs and FFs. These forms include flavor-dependence.
+	/// Here, only quarks are active (gluon PDFs and FFs = 0).
 	bool sidis_structure_function_only_quarks_tests() {
 		bool flag = true;
 
@@ -228,6 +235,9 @@ namespace Tests {
 		return flag;
 	}
 
+	/// Checks SIDIS cross section values against analytically computed values (with Mathematica) for several values of x and z.
+	/// To obtain analytical results, simple functional forms are chosen for PDFs and FFs. These forms include flavor-dependence.
+	/// Here, PDF quarks = 0.
 	bool sidis_structure_function_only_gluons_tests_1() {
 		bool flag = true;
 
@@ -306,6 +316,9 @@ namespace Tests {
 		}
 		return flag;
 	}
+	/// Checks SIDIS cross section values against analytically computed values (with Mathematica) for several values of x and z.
+	/// To obtain analytical results, simple functional forms are chosen for PDFs and FFs. These forms include flavor-dependence.
+	/// Here, FF quarks = 0.
 	bool sidis_structure_function_only_gluons_tests_2() {
 		bool flag = true;
 
@@ -385,6 +398,9 @@ namespace Tests {
 		return flag;
 	}
 
+	/// Checks SIDIS cross section values against analytically computed values (with Mathematica) for several values of x and z.
+	/// To obtain analytical results, simple functional forms are chosen for PDFs and FFs. These forms include flavor-dependence.
+	/// Here, all quarks and gluons are enabled.
 	bool sidis_structure_function_quarks_gluons_tests() {
 		bool flag = true;
 
@@ -465,34 +481,37 @@ namespace Tests {
 		return flag;
 	}
 
+	/// Tests the evaluation of DecayFunctions::decay_function against a set of values computed with Mathematica.
 	bool decay_function_tests_1() {
 		bool flag = true;
 		
 		const double z_min = 0.1;
 		DecayParametrization param(
 			1.0, 1.4, 2.3, 2.0,
-			1.8, 1.0, 1.0,
+			1.8, 1.0,
 			0.0, z_min
 		);
 
-		flag &= double_comparison(DecayFunctions::decay_function(0.1, 0.3, 10, z_min, param), 0.00100292 / (8 * M_PI * M_PI));
-		flag &= double_comparison(DecayFunctions::decay_function(0.2, 0.3, 10, z_min, param), 0.000995329 / (8 * M_PI * M_PI));
-		flag &= double_comparison(DecayFunctions::decay_function(0.3, 0.3, 10, z_min, param), 0.00098196 / (8 * M_PI * M_PI));
-		flag &= double_comparison(DecayFunctions::decay_function(0.4, 0.5, 10, z_min, param), 0.00180983 / (8 * M_PI * M_PI));
-		flag &= double_comparison(DecayFunctions::decay_function(0.5, 0.5, 10, z_min, param), 0.00181612 / (8 * M_PI * M_PI));
-		flag &= double_comparison(DecayFunctions::decay_function(0.7, 0.9, 10, z_min, param), 0.00247266 / (8 * M_PI * M_PI));
-		flag &= double_comparison(DecayFunctions::decay_function(0.99, 0.9, 10, z_min, param), 0.00251066 / (8 * M_PI * M_PI));
+		flag &= double_comparison(DecayFunctions::decay_function(0.1, 0.3, 10, z_min, param), 2 * M_PI * 0.00100292);
+		flag &= double_comparison(DecayFunctions::decay_function(0.2, 0.3, 10, z_min, param), 2 * M_PI * 0.000995329);
+		flag &= double_comparison(DecayFunctions::decay_function(0.3, 0.3, 10, z_min, param), 2 * M_PI * 0.00098196);
+		flag &= double_comparison(DecayFunctions::decay_function(0.4, 0.5, 10, z_min, param), 2 * M_PI * 0.00180983);
+		flag &= double_comparison(DecayFunctions::decay_function(0.5, 0.5, 10, z_min, param), 2 * M_PI * 0.00181612);
+		flag &= double_comparison(DecayFunctions::decay_function(0.7, 0.9, 10, z_min, param), 2 * M_PI * 0.00247266);
+		flag &= double_comparison(DecayFunctions::decay_function(0.99, 0.9, 10, z_min, param), 2 * M_PI * 0.00251066);
 
 		return flag;
 	}
 
+	/// Tests the analytically obtained decay function DecayFunctions::decay_function against numerically integrated version 
+	/// starting from the integrand DecayFunctions::decay_function_integrand.
 	bool decay_function_tests_2() {
 		bool flag = true;
 		
 		const double z_min = 0.1;
 		DecayParametrization param(
 			1.0, 1.4, 2.3, 2.0,
-			1.8, 1.0, 1.0,
+			1.8, 1.0,
 			0.0, z_min
 		);
 
@@ -514,6 +533,222 @@ namespace Tests {
 				}
 			}
 		}
+
+		return flag;
+	}
+
+	bool lepton_pair_lo_cross_section_integration_tests() {
+		bool flag = true;
+
+		const double sqrt_s = 120.0;
+		const double x = 0.3;
+		const double Q2 = 10.0;
+
+		SIDIS sidis(
+			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+			LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
+			FragmentationConfiguration(
+				{LHAInterface("kkks08_opal_d0___mas"), LHAInterface("kkks08_opal_d+___mas")},
+				{3 * Constants::D0::Lifetime, 5 * Constants::Dp::Lifetime}
+			),
+			100'000,
+			Process {Process::Type::NeutrinoToLepton, Constants::Proton::Mass, 0.0}
+		);
+		sidis.global_sqrt_s = sqrt_s;
+		sidis.max_chi_squared_deviation = 0.2;
+		sidis.max_relative_error = 1e-3;
+		sidis.iter_max = 10;
+
+		DecayParametrization parametrization(7.365, 1.4, 2.276, 2.0, Constants::D0::Mass, Constants::Proton::Mass, 5.0, 0.0);
+		Decay decay(parametrization, DecayFunctions::trivial);
+
+		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, Constants::Proton::Mass, 0.0);
+
+		const double z_min = SIDISFunctions::compute_z_min(kinematics, decay);
+
+		const PerturbativeResult result = sidis.lepton_pair_cross_section_Q2_sqrt_s(x, Q2, sqrt_s, parametrization);
+		std::cout << "Lepton-pair cross section value = " << result.lo << std::endl;
+
+		SIDIS sidis1(
+			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+			LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
+			LHAInterface("kkks08_opal_d0___mas"),
+			10'000,
+			Process {Process::Type::NeutrinoToLepton, Constants::Proton::Mass, 0.0}
+		);
+		sidis1.global_sqrt_s = sqrt_s;
+		sidis1.max_chi_squared_deviation = 0.2;
+		sidis1.max_relative_error = 1e-3;
+		sidis1.iter_max = 10;
+
+		SIDIS sidis2(
+			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+			LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
+			LHAInterface("kkks08_opal_d+___mas"),
+			10'000,
+			Process {Process::Type::NeutrinoToLepton, Constants::Proton::Mass, 0.0}
+		);
+		sidis2.global_sqrt_s = sqrt_s;
+		sidis2.max_chi_squared_deviation = 0.2;
+		sidis2.max_relative_error = 1e-3;
+		sidis2.iter_max = 10;
+
+		Integrator integrator([&](const double input[], [[maybe_unused]] const size_t dim, [[maybe_unused]] void *params) {
+			const double z = input[0];
+
+			const double differential_cs_1 = sidis1.differential_cross_section(x, z, Q2).lo;
+			const double differential_cs_2 = sidis2.differential_cross_section(x, z, Q2).lo;
+
+			const double decay = DecayFunctions::decay_function(x, z, Q2, z_min, parametrization);
+
+			const double result = decay * (3 * Constants::D0::Lifetime * differential_cs_1 + 5 * Constants::Dp::Lifetime * differential_cs_2);
+			return result;
+		}, {z_min}, {1}, 100, nullptr, 0.5, 1e-2, 10);
+		integrator.verbose = true;
+		const auto result2 = integrator.integrate();
+		std::cout << "Lepton-pair cross section value = " << result2 << std::endl;
+		flag &= double_comparison_rel(result.lo, result2.value, 1e-1);
+
+		return flag;
+	}
+
+	bool lepton_pair_cross_section_integration_tests() {
+		bool flag = true;
+
+		const double sqrt_s = 120.0;
+		const double x = 0.3;
+		const double Q2 = 10.0;
+
+		SIDIS sidis(
+			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+			LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
+			FragmentationConfiguration(
+				{LHAInterface("kkks08_opal_d0___mas"), LHAInterface("kkks08_opal_d+___mas")},
+				{3 * Constants::D0::Lifetime, 5 * Constants::Dp::Lifetime}
+			),
+			100'000,
+			Process {Process::Type::NeutrinoToLepton, Constants::Proton::Mass, 0.0}
+		);
+		sidis.global_sqrt_s = sqrt_s;
+		sidis.max_chi_squared_deviation = 0.2;
+		sidis.max_relative_error = 1e-3;
+		sidis.iter_max = 10;
+
+		DecayParametrization parametrization(7.365, 1.4, 2.276, 2.0, Constants::D0::Mass, Constants::Proton::Mass, 5.0, 0.0);
+		Decay decay(parametrization, DecayFunctions::trivial);
+
+		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, Constants::Proton::Mass, 0.0);
+
+		const double z_min = SIDISFunctions::compute_z_min(kinematics, decay);
+
+		const PerturbativeResult result = sidis.lepton_pair_cross_section_Q2_sqrt_s(x, Q2, sqrt_s, parametrization);
+		std::cout << "Lepton-pair cross section value = " << result.nlo << std::endl;
+
+		SIDIS sidis1(
+			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+			LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
+			LHAInterface("kkks08_opal_d0___mas"),
+			100'000,
+			Process {Process::Type::NeutrinoToLepton, Constants::Proton::Mass, 0.0}
+		);
+		sidis1.global_sqrt_s = sqrt_s;
+		sidis1.max_chi_squared_deviation = 0.2;
+		sidis1.max_relative_error = 1e-3;
+		sidis1.iter_max = 10;
+
+		SIDIS sidis2(
+			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+			LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
+			LHAInterface("kkks08_opal_d+___mas"),
+			100'000,
+			Process {Process::Type::NeutrinoToLepton, Constants::Proton::Mass, 0.0}
+		);
+		sidis2.global_sqrt_s = sqrt_s;
+		sidis2.max_chi_squared_deviation = 0.2;
+		sidis2.max_relative_error = 1e-3;
+		sidis2.iter_max = 10;
+
+		Integrator integrator([&](const double input[], [[maybe_unused]] const size_t dim, [[maybe_unused]] void *params) {
+			const double z = input[0];
+
+			const double differential_cs_1 = sidis1.differential_cross_section(x, z, Q2).nlo;
+			const double differential_cs_2 = sidis2.differential_cross_section(x, z, Q2).nlo;
+
+			const double decay = DecayFunctions::decay_function(x, z, Q2, z_min, parametrization);
+
+			const double result = decay * (3 * Constants::D0::Lifetime * differential_cs_1 + 5 * Constants::Dp::Lifetime * differential_cs_2);
+			return result;
+		}, {z_min}, {1}, 100, nullptr, 0.5, 1e-2, 10);
+		integrator.verbose = true;
+		const auto result2 = integrator.integrate();
+		std::cout << "Lepton-pair cross section value = " << result2 << std::endl;
+		flag &= double_comparison_rel(result.nlo, result2.value, 1e-1);
+
+		return flag;
+	}
+
+	bool sidis_lo_cross_section_integration_test() {
+		bool flag = true;
+
+		const double sqrt_s = 120.0;
+		const double x = 0.3;
+		const double Q2 = 10.0;
+		const auto pdf = LHAInterface("EPPS21nlo_CT18Anlo_Fe56");
+
+		DIS dis(
+			sqrt_s,
+			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+			pdf,
+			10'000,
+			Process {Process::Type::NeutrinoToLepton, Constants::Proton::Mass, 0.0}
+		);
+		dis.max_chi_squared_deviation = 0.2;
+		dis.max_relative_error = 1e-3;
+		dis.iter_max = 10;
+
+		SIDIS sidis(
+			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+			pdf,
+			FunctionalFormInterface([]([[maybe_unused]] const FlavorType flavor, const double z, [[maybe_unused]] const double Q2) {
+				return z;
+			}),
+			100,
+			Process {Process::Type::NeutrinoToLepton, Constants::Proton::Mass, 0.0}
+		);
+		sidis.global_sqrt_s = sqrt_s;
+		sidis.max_chi_squared_deviation = 0.2;
+		sidis.max_relative_error = 1e-3;
+		sidis.iter_max = 10;
+
+		SIDIS sidis2(
+			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+			pdf,
+			FunctionalFormInterface([]([[maybe_unused]] const FlavorType flavor, const double z, [[maybe_unused]] const double Q2) {
+				return z;
+			}),
+			2,
+			Process {Process::Type::NeutrinoToLepton, Constants::Proton::Mass, 0.0}
+		);
+		sidis2.global_sqrt_s = sqrt_s;
+		sidis2.max_chi_squared_deviation = 0.2;
+		sidis2.max_relative_error = 1e-3;
+		sidis2.iter_max = 0;
+
+		Decay decay(DecayFunctions::trivial);
+
+		const PerturbativeResult result_dis = dis.cross_section(x, Q2);
+		const PerturbativeResult result_sidis = sidis.lepton_pair_cross_section_Q2_sqrt_s(x, Q2, sqrt_s, decay);
+		std::cout << "Lepton-pair cross section value (DIS) = " << result_dis.lo << std::endl;
+		std::cout << "Lepton-pair cross section value (SIDIS integrated) = " << result_sidis.lo << std::endl;
+
+		Integrator integrator([&](const double input[], [[maybe_unused]] const size_t dim, [[maybe_unused]] void *params) {
+			const double z = input[0];
+			return sidis2.differential_cross_section(x, z, Q2).lo;
+		}, {0}, {1}, 100, nullptr, 0.5, 1e-2, 10);
+		integrator.verbose = true;
+		const auto result2 = integrator.integrate();
+		std::cout << "Lepton-pair cross section value (SIDIS integrated manually) = " << result2 << std::endl;
+		flag &= double_comparison_rel(result_dis.lo, result2.value, 1e-1);
 
 		return flag;
 	}
