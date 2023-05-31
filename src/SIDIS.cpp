@@ -27,6 +27,7 @@ struct SIDIS {
 	const Process process;
 
 	double global_sqrt_s;
+	bool momentum_fraction_mass_corrections = false;
 
 	SIDIS (const FlavorVector _active_flavors, const PDFInterface _pdf, const FFInterface _ff, const size_t _points, const Process _process)
 	: active_flavors(_active_flavors), 
@@ -44,7 +45,7 @@ struct SIDIS {
 	{ }
 
 	PerturbativeResult compute_structure_function(StructureFunction F, const double x, const double z, const double Q2) {
-		SIDISComputation sidis(global_sqrt_s, active_flavors, pdf, ff, points, max_chi_squared_deviation, max_relative_error, iter_max, process);
+		SIDISComputation sidis(global_sqrt_s, active_flavors, pdf, ff, points, max_chi_squared_deviation, max_relative_error, iter_max, process, momentum_fraction_mass_corrections);
 		return sidis.structure_function(F, x, z, Q2);
 	}
 	PerturbativeResult F2(const double x, const double z, const double Q2) {
@@ -63,14 +64,14 @@ struct SIDIS {
 	}
 
 	PerturbativeResult differential_cross_section(const double x, const double z, const double Q2, const bool use_direct = false) {
-		SIDISComputation sidis(global_sqrt_s, active_flavors, pdf, ff, points, max_chi_squared_deviation, max_relative_error, iter_max, process);
+		SIDISComputation sidis(global_sqrt_s, active_flavors, pdf, ff, points, max_chi_squared_deviation, max_relative_error, iter_max, process, momentum_fraction_mass_corrections);
 		const PerturbativeResult differential_cs = use_direct ? sidis.differential_cross_section_direct(x, z, Q2) : sidis.differential_cross_section_indirect(x, z, Q2);
 		return differential_cs;
 	}
 
 	template <typename DecayFunction>
 	PerturbativeResult lepton_pair_cross_section(const TRFKinematics kinematics, const DecayParametrization parametrization, const DecayFunction decay_function) {
-		SIDISComputation sidis(global_sqrt_s, active_flavors, pdf, ff, points, max_chi_squared_deviation, max_relative_error, iter_max, process);
+		SIDISComputation sidis(global_sqrt_s, active_flavors, pdf, ff, points, max_chi_squared_deviation, max_relative_error, iter_max, process, momentum_fraction_mass_corrections);
 		Decay decay(parametrization, decay_function);
 		const PerturbativeResult cs = sidis.lepton_pair_cross_section(kinematics, decay);
 		return cs;

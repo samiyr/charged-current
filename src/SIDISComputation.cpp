@@ -31,6 +31,7 @@ class SIDISComputation {
 	const unsigned int iter_max;
 
 	const Process process;
+	const bool momentum_fraction_mass_corrections;
 
 	SIDISComputation (
 		const double _sqrt_s, 
@@ -41,7 +42,8 @@ class SIDISComputation {
 		const double _max_chi_squared_deviation, 
 		const double _max_relative_error,
 		const unsigned int _iter_max,
-		const Process _process
+		const Process _process,
+		const bool _momentum_fraction_mass_corrections
 	) : sqrt_s(_sqrt_s),
 	s(_sqrt_s * _sqrt_s), 
 	flavors(_active_flavors),
@@ -53,7 +55,8 @@ class SIDISComputation {
 	max_chi_squared_deviation(_max_chi_squared_deviation), 
 	max_relative_error(_max_relative_error),
 	iter_max(_iter_max),
-	process(_process) { }
+	process(_process),
+	momentum_fraction_mass_corrections(_momentum_fraction_mass_corrections) { }
 
 	PerturbativeResult F2(const double x, const double z, const double Q2) {
 		double alpha_s = pdf1.alpha_s(Q2);
