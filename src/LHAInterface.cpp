@@ -25,8 +25,13 @@ class LHAInterface {
 	}
 
 	void evaluate(const double x, const double Q2) {
+		if (x == prev_x && Q2 == prev_Q2) { return; }
+
 		if (_pdf->inRangeXQ2(x, Q2)) {
 			_pdf->xfxQ2(x, Q2, flavor_values);
+
+			prev_x = x;
+			prev_Q2 = Q2;
 
 			// if (set_name.find("kkks08") != std::string::npos) {
 			// 	const FlavorType isolated = Flavor::Gluon;
@@ -70,6 +75,9 @@ class LHAInterface {
 		available_flavors = _pdf->flavors();
 		flavor_values = std::vector<double>(TOTAL_FLAVORS, 0.0);
 	}
+
+	double prev_x;
+	double prev_Q2;
 };
 
 #endif

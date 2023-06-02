@@ -126,6 +126,12 @@ int main() {
 	// Tests::lepton_pair_lo_cross_section_integration_tests();
 	// return 0;
 
+	const double N = 7.365;
+	const double alpha = 1.4;
+	const double beta = 2.276;
+	const double gamma = 2.0;
+	const double minimum_lepton_momentum = 5.0;
+
 	SIDIS sidis(
 		{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
 		// LHAInterface("CT18ANLO"),
@@ -143,10 +149,10 @@ int main() {
 				LHAInterface("bkk05_D3_lambda_c_nlo")
 			},
 			{
-				Constants::D0::Lifetime,
-				Constants::Dp::Lifetime, 
-				Constants::Ds::Lifetime, 
-				Constants::LambdaC::Lifetime
+				Decay(DecayParametrization(N, alpha, beta, gamma, Constants::D0::Mass, Constants::D0::Lifetime, Constants::Proton::Mass, minimum_lepton_momentum, 0.0), DecayFunctions::decay_function),
+				Decay(DecayParametrization(N, alpha, beta, gamma, Constants::Dp::Mass, Constants::Dp::Lifetime, Constants::Proton::Mass, minimum_lepton_momentum, 0.0), DecayFunctions::decay_function),
+				Decay(DecayParametrization(N, alpha, beta, gamma, Constants::Ds::Mass, Constants::Ds::Lifetime, Constants::Proton::Mass, minimum_lepton_momentum, 0.0), DecayFunctions::decay_function),
+				Decay(DecayParametrization(N, alpha, beta, gamma, Constants::LambdaC::Mass, Constants::LambdaC::Lifetime, Constants::Proton::Mass, minimum_lepton_momentum, 0.0), DecayFunctions::decay_function),
 			}
 		),
 		// LHAInterface("kkks08_global_d0_mas"),
@@ -157,21 +163,21 @@ int main() {
 		Process {Process::Type::NeutrinoToLepton, Constants::Proton::Mass, 0.0}
 	);
 	sidis.global_sqrt_s = 21.5465;
-	sidis.max_chi_squared_deviation = 0.2;
-	sidis.max_relative_error = 1e-3;
-	sidis.iter_max = 10;
+	sidis.max_chi_squared_deviation = 0.5;
+	sidis.max_relative_error = 1e-2;
+	sidis.iter_max = 5;
 
 	// Tests::decay_function_tests_2();
 
-	DecayParametrization parametrization(7.365, 1.4, 2.276, 2.0, Constants::D0::Mass, Constants::Proton::Mass, 5.0, 0.0);
+	// DecayParametrization parametrization(7.365, 1.4, 2.276, 2.0, Constants::D0::Mass, Constants::Proton::Mass, 5.0, 0.0);
 	// DecayParametrization parametrization(2.411, 0.866, 1.767, 2.0, Constants::D0::Mass, Constants::Proton::Mass, 5.0, 0.0);
 	// DecayParametrization parametrization(7.365, 1.4, 2.276, 2.0, 1.8, 1.0, 6.33e-13, 5.0, 0.0);
 
 	sidis.lepton_pair_cross_section(
-		{0.04, 0.0425, 0.045, 0.05, 0.055, 0.06, 0.065, 0.07, 0.075, 0.08, 0.09, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35}, 
+		{0.04, 0.045, 0.05, 0.055, 0.06, 0.065, 0.07, 0.075, 0.08, 0.09, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35}, 
 		{0.334},
 		{90.2},
-		parametrization, "lepton_pair_data.csv"
+		"lepton_pair_data.csv"
 	);
 	// sidis.lepton_pair_cross_section(
 	// 	{0.10443, 0.30345}, 

@@ -47,110 +47,110 @@ namespace PDFCommon {
 		return xq;
 	}
 
-	template <typename PDFInterface, typename FFInterface>
-	constexpr static double xq_zq_sum(const PDFInterface &pdf, 
-	const FFInterface &ff, 
-	const FlavorInfo &flavors, 
-	const bool quark_minus, 
-	const Process &process) {
-		const bool positive_W = process.positive_W();
+	// template <typename PDFInterface, typename FFInterface>
+	// constexpr static double xq_zq_sum(const PDFInterface &pdf, 
+	// const FFInterface &ff, 
+	// const FlavorInfo &flavors, 
+	// const bool quark_minus, 
+	// const Process &process) {
+	// 	const bool positive_W = process.positive_W();
 
-		const FlavorVector &flavors1 = positive_W ? flavors.lower_flavors : flavors.upper_flavors;
-		const FlavorVector &flavors2 = positive_W ? flavors.upper_flavors : flavors.lower_flavors;
+	// 	const FlavorVector &flavors1 = positive_W ? flavors.lower_flavors : flavors.upper_flavors;
+	// 	const FlavorVector &flavors2 = positive_W ? flavors.upper_flavors : flavors.lower_flavors;
 
-		double sum = 0.0;
-		for (const FlavorType flavor1 : flavors1) {
-			const FlavorType antiflavor2 = Flavor::conjugate_flavor(flavor1);
-			for (const FlavorType flavor2 : flavors2) {
-				const FlavorType antiflavor1 = Flavor::conjugate_flavor(flavor2);
+	// 	double sum = 0.0;
+	// 	for (const FlavorType flavor1 : flavors1) {
+	// 		const FlavorType antiflavor2 = Flavor::conjugate_flavor(flavor1);
+	// 		for (const FlavorType flavor2 : flavors2) {
+	// 			const FlavorType antiflavor1 = Flavor::conjugate_flavor(flavor2);
 
-				const double V_ckm = CKM::squared(flavor1, flavor2);
+	// 			const double V_ckm = CKM::squared(flavor1, flavor2);
 
-				const double xq = pdf.xf(flavor1);
-				const double zD = ff.xf(flavor2);
+	// 			const double xq = pdf.xf(flavor1);
+	// 			const double zD = ff.xf(flavor2);
 
-				const double anti_xq = pdf.xf(antiflavor1);
-				const double anti_zD = ff.xf(antiflavor2);
+	// 			const double anti_xq = pdf.xf(antiflavor1);
+	// 			const double anti_zD = ff.xf(antiflavor2);
 
-				const double contribution = quark_minus ? xq * zD - anti_xq * anti_zD : xq * zD + anti_xq * anti_zD;
-				// std::cout << xq << std::endl;
-				// std::cout << zD << std::endl;
-				// std::cout << anti_xq << std::endl;
-				// std::cout << anti_zD << std::endl << std::endl;
-				sum += V_ckm * contribution;
-			}
-		}
-		// std::cout << sum << std::endl;
-		return sum;
-	}
-	template <typename PDFInterface, typename FFInterface>
-	constexpr static double xq_zq_sum(const PDFInterface &pdf, 
-	FragmentationConfiguration<FFInterface> &ffs, 
-	const FlavorInfo &flavors, 
-	const bool quark_minus, 
-	const Process &process) {
-		double sum = 0.0;
-		for (size_t i = 0; i < ffs.size(); i++) {
-			FFInterface &ff = ffs[i];
-			const double coefficient = ffs.coefficients[i];
-			sum += coefficient * PDFCommon::xq_zq_sum(pdf, ff, flavors, quark_minus, process);
-		}
-		return sum;
-	}
+	// 			const double contribution = quark_minus ? xq * zD - anti_xq * anti_zD : xq * zD + anti_xq * anti_zD;
+	// 			// std::cout << xq << std::endl;
+	// 			// std::cout << zD << std::endl;
+	// 			// std::cout << anti_xq << std::endl;
+	// 			// std::cout << anti_zD << std::endl << std::endl;
+	// 			sum += V_ckm * contribution;
+	// 		}
+	// 	}
+	// 	// std::cout << sum << std::endl;
+	// 	return sum;
+	// }
+	// template <typename PDFInterface, typename FFInterface>
+	// constexpr static double xq_zq_sum(const PDFInterface &pdf, 
+	// FragmentationConfiguration<FFInterface> &ffs, 
+	// const FlavorInfo &flavors, 
+	// const bool quark_minus, 
+	// const Process &process) {
+	// 	double sum = 0.0;
+	// 	for (size_t i = 0; i < ffs.size(); i++) {
+	// 		FFInterface &ff = ffs[i];
+	// 		const double coefficient = ffs.coefficients[i];
+	// 		sum += coefficient * PDFCommon::xq_zq_sum(pdf, ff, flavors, quark_minus, process);
+	// 	}
+	// 	return sum;
+	// }
 
-	template <typename PDFInterface, typename FFInterface>
-	constexpr static double xq_zg_sum(const PDFInterface &pdf, 
-	const FFInterface &ff, 
-	const FlavorInfo &flavors, 
-	const bool quark_minus, 
-	const Process &process) {
-		const double xq_sum = PDFCommon::xq_sum(pdf, flavors, quark_minus, process, true);
-		const double zg_sum = ff.xg();
-		const double sum = xq_sum * zg_sum;
+	// template <typename PDFInterface, typename FFInterface>
+	// constexpr static double xq_zg_sum(const PDFInterface &pdf, 
+	// const FFInterface &ff, 
+	// const FlavorInfo &flavors, 
+	// const bool quark_minus, 
+	// const Process &process) {
+	// 	const double xq_sum = PDFCommon::xq_sum(pdf, flavors, quark_minus, process, true);
+	// 	const double zg_sum = ff.xg();
+	// 	const double sum = xq_sum * zg_sum;
 
-		return sum;
-	}
-	template <typename PDFInterface, typename FFInterface>
-	constexpr static double xq_zg_sum(const PDFInterface &pdf, 
-	FragmentationConfiguration<FFInterface> &ffs, 
-	const FlavorInfo &flavors, 
-	const bool quark_minus, 
-	const Process &process) {
-		double sum = 0.0;
-		for (size_t i = 0; i < ffs.size(); i++) {
-			FFInterface &ff = ffs[i];
-			const double coefficient = ffs.coefficients[i];
-			sum += coefficient * PDFCommon::xq_zg_sum(pdf, ff, flavors, quark_minus, process);
-		}
-		return sum;
-	}
+	// 	return sum;
+	// }
+	// template <typename PDFInterface, typename FFInterface>
+	// constexpr static double xq_zg_sum(const PDFInterface &pdf, 
+	// FragmentationConfiguration<FFInterface> &ffs, 
+	// const FlavorInfo &flavors, 
+	// const bool quark_minus, 
+	// const Process &process) {
+	// 	double sum = 0.0;
+	// 	for (size_t i = 0; i < ffs.size(); i++) {
+	// 		FFInterface &ff = ffs[i];
+	// 		const double coefficient = ffs.coefficients[i];
+	// 		sum += coefficient * PDFCommon::xq_zg_sum(pdf, ff, flavors, quark_minus, process);
+	// 	}
+	// 	return sum;
+	// }
 
-	template <typename PDFInterface, typename FFInterface>
-	constexpr static double xg_zq_sum(const PDFInterface &pdf, 
-	const FFInterface &ff, 
-	const FlavorInfo &flavors, 
-	const bool quark_minus, 
-	const Process &process) {
-		const double xg_sum = pdf.xg();
-		const double zq_sum = PDFCommon::xq_sum(ff, flavors, quark_minus, process, false);
-		const double sum = xg_sum * zq_sum;
+	// template <typename PDFInterface, typename FFInterface>
+	// constexpr static double xg_zq_sum(const PDFInterface &pdf, 
+	// const FFInterface &ff, 
+	// const FlavorInfo &flavors, 
+	// const bool quark_minus, 
+	// const Process &process) {
+	// 	const double xg_sum = pdf.xg();
+	// 	const double zq_sum = PDFCommon::xq_sum(ff, flavors, quark_minus, process, false);
+	// 	const double sum = xg_sum * zq_sum;
 
-		return sum;
-	}
-	template <typename PDFInterface, typename FFInterface>
-	constexpr static double xg_zq_sum(const PDFInterface &pdf, 
-	FragmentationConfiguration<FFInterface> &ffs, 
-	const FlavorInfo &flavors, 
-	const bool quark_minus, 
-	const Process &process) {
-		double sum = 0.0;
-		for (size_t i = 0; i < ffs.size(); i++) {
-			FFInterface &ff = ffs[i];
-			const double coefficient = ffs.coefficients[i];
-			sum += coefficient * PDFCommon::xg_zq_sum(pdf, ff, flavors, quark_minus, process);
-		}
-		return sum;
-	}
+	// 	return sum;
+	// }
+	// template <typename PDFInterface, typename FFInterface>
+	// constexpr static double xg_zq_sum(const PDFInterface &pdf, 
+	// FragmentationConfiguration<FFInterface> &ffs, 
+	// const FlavorInfo &flavors, 
+	// const bool quark_minus, 
+	// const Process &process) {
+	// 	double sum = 0.0;
+	// 	for (size_t i = 0; i < ffs.size(); i++) {
+	// 		FFInterface &ff = ffs[i];
+	// 		const double coefficient = ffs.coefficients[i];
+	// 		sum += coefficient * PDFCommon::xg_zq_sum(pdf, ff, flavors, quark_minus, process);
+	// 	}
+	// 	return sum;
+	// }
 }
 
 #else

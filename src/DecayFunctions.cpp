@@ -8,6 +8,7 @@ namespace DecayFunctions {
 	const static auto trivial = []([[maybe_unused]] const double x, [[maybe_unused]] const double z, [[maybe_unused]] const double Q2, [[maybe_unused]] const double z_min, [[maybe_unused]] const DecayParametrization &decay) { return 1.0; };
 
 	constexpr double decay_function(const double x, const double z, const double Q2, const double z_min, const DecayParametrization &decay) {
+		if (z < z_min) { return 0.0; }
 		const double alpha = decay.alpha;
 		const double beta = decay.beta;
 		const double gamma = decay.gamma;
@@ -31,7 +32,7 @@ namespace DecayFunctions {
 		const double beta_2 = rho_min * Utility::incomplete_beta(beta_arg_min, 1 + alpha, 1 + beta);
 		const double beta_3 = 1.0 / (gamma * (a - b)) * (decay.beta_term_2p_alpha_beta - Utility::incomplete_beta(beta_arg_min, 2 + alpha, 1 + beta));
 
-		const double result = prefactor * (beta_1 + beta_2 + beta_3);
+		const double result = prefactor * decay.lifetime * (beta_1 + beta_2 + beta_3);
 
 		return result;
 	}

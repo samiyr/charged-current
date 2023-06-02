@@ -8,13 +8,13 @@
 #include "DecayFunctions.cpp"
 #include "FragmentationConfiguration.cpp"
 
-template <typename PDFInterface, typename FFInterface>
+template <typename PDFInterface, typename FFInterface, typename DecayFunction>
 struct SIDIS {
 	const FlavorVector active_flavors;
 	const FlavorVector active_antiflavors;
 
 	PDFInterface pdf;
-	FragmentationConfiguration<FFInterface> ff;
+	FragmentationConfiguration<FFInterface, DecayFunction> ff;
 
 	bool parallelize = true;
 	int number_of_threads = 8;
@@ -37,6 +37,13 @@ struct SIDIS {
 	process(_process)
 	{ }
 	SIDIS (const FlavorVector _active_flavors, const PDFInterface _pdf, const std::vector<FFInterface> _ff, const size_t _points, const Process _process)
+	: active_flavors(_active_flavors), 
+	pdf(_pdf),
+	ff(_ff),
+	points(_points),
+	process(_process)
+	{ }
+	SIDIS (const FlavorVector _active_flavors, const PDFInterface _pdf, const FragmentationConfiguration<FFInterface, DecayFunction> _ff, const size_t _points, const Process _process)
 	: active_flavors(_active_flavors), 
 	pdf(_pdf),
 	ff(_ff),
@@ -69,11 +76,9 @@ struct SIDIS {
 		return differential_cs;
 	}
 
-	template <typename DecayFunction>
-	PerturbativeResult lepton_pair_cross_section(const TRFKinematics kinematics, const DecayParametrization parametrization, const DecayFunction decay_function) {
+	PerturbativeResult lepton_pair_cross_section(const TRFKinematics kinematics) {
 		SIDISComputation sidis(global_sqrt_s, active_flavors, pdf, ff, points, max_chi_squared_deviation, max_relative_error, iter_max, process, momentum_fraction_mass_corrections);
-		Decay decay(parametrization, decay_function);
-		const PerturbativeResult cs = sidis.lepton_pair_cross_section(kinematics, decay);
+		const PerturbativeResult cs = sidis.lepton_pair_cross_section(kinematics);
 		return cs;
 	}
 
@@ -110,24 +115,20 @@ struct SIDIS {
 
 		file.close();
 	}
-	template <typename DecayFunction>
-	PerturbativeResult lepton_pair_cross_section_Q2_sqrt_s(const double x, const double Q2, const double sqrt_s, const Decay<DecayFunction> decay) {
+	PerturbativeResult lepton_pair_cross_section_Q2_sqrt_s(const double x, const double Q2, const double sqrt_s) {
 		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, process.target_mass, process.projectile_mass);
-		const PerturbativeResult cs_xQ2 = lepton_pair_cross_section(kinematics, decay.parametrization, decay.decay_function);
+		const PerturbativeResult cs_xQ2 = lepton_pair_cross_section(kinematics);
 		return cs_xQ2;
 	}
-	PerturbativeResult lepton_pair_cross_section_Q2_sqrt_s(const double x, const double Q2, const double sqrt_s, const DecayParametrization parametrization) {
-		return lepton_pair_cross_section_Q2_sqrt_s(x, Q2, sqrt_s, Decay(parametrization, DecayFunctions::decay_function));
-	}
-	PerturbativeResult lepton_pair_cross_section_y_E(const double x, const double y, const double E_beam, const DecayParametrization parametrization) {
+	PerturbativeResult lepton_pair_cross_section_y_E(const double x, const double y, const double E_beam) {
 		TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, process.target_mass, process.projectile_mass);
-		const PerturbativeResult cs_xQ2 = lepton_pair_cross_section(kinematics, parametrization, DecayFunctions::decay_function);
+		const PerturbativeResult cs_xQ2 = lepton_pair_cross_section(kinematics);
 		const double jacobian = (kinematics.s - std::pow(process.target_mass, 2) - std::pow(process.projectile_mass, 2)) * x;
 		const PerturbativeResult cs_xy = cs_xQ2 * jacobian;
 		return cs_xy;
 
 	}
-	void lepton_pair_cross_section(const std::vector<double> x_bins, const std::vector<double> y_bins, const std::vector<double> E_beam_bins, const DecayParametrization parametrization, const std::string filename) {
+	void lepton_pair_cross_section(const std::vector<double> x_bins, const std::vector<double> y_bins, const std::vector<double> E_beam_bins, const std::string filename) {
 		const size_t x_step_count = x_bins.size();
 		const size_t y_step_count = y_bins.size();
 		const size_t E_beam_step_count = E_beam_bins.size();
@@ -145,7 +146,7 @@ struct SIDIS {
 					const double E_beam = E_beam_bins[j];
 					
 					TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, process.target_mass, process.projectile_mass);
-					const PerturbativeResult cs_xy = lepton_pair_cross_section_y_E(x, y, E_beam, parametrization);
+					const PerturbativeResult cs_xy = lepton_pair_cross_section_y_E(x, y, E_beam);
 
 					#pragma omp critical
 					{

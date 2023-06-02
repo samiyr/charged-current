@@ -70,7 +70,8 @@ template <typename T> int sgn(T val) {
 
 namespace Utility {
 	constexpr double logm1(const double x) {
-		return std::log1p(-x);
+		return std::log(1 - x);
+		// return std::log1p(-x);
 	}
 
 	inline double gamma(const double z) {
@@ -81,6 +82,7 @@ namespace Utility {
 		return boost::math::beta(a, b);
 	}
 	inline double incomplete_beta(const double z, const double a, const double b) {
+		// return std::pow(z, a) * (1.0 / a + z * (1 - b) / (1 + a) + z * z * (2 - b) * (1 - b) / (2 * (2 + a)));
 		return boost::math::beta(a, b, z);
 	}
 	// inline double beta(const double a, const double b) {

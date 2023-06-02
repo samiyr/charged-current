@@ -6,6 +6,8 @@
 #include <cassert>
 #include <iostream>
 
+#define GSL_MONTE_FN_EVAL(F,x) (*((F)->f))(x,(F)->dim,(F)->params)
+
 template <typename Function>
 struct ParametrizedFunctor {
 	Function function;
@@ -26,6 +28,7 @@ class Integrator {
 	Integrand integrand;
 	std::vector<double> lower;
 	std::vector<double> upper;
+	gsl_monte_function function;
 
 	const size_t points;
 	void *params;
@@ -68,6 +71,10 @@ class Integrator {
 		}
 	};
 
+	double evaluate_integrand(double input[]) {
+		return (function.f)(input, function.dim, function.params);
+	}
+
 	Result integrate() {
 		assert(lower.size() == upper.size());
 		assert(lower.size() > 0);
@@ -75,8 +82,6 @@ class Integrator {
 		const auto dim = lower.size();
 		double integral = 0.0;
 		double error = 0.0;
-
-		gsl_monte_function function;
 
 		ParametrizedFunctor<Integrand> functor { integrand, params };
 		function.f = &ParametrizedFunctor<Integrand>::invoke;

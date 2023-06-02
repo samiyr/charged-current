@@ -2,16 +2,18 @@
 #define FRAGMENTATION_CONFIGURATION_H
 
 #include <vector>
+#include "Decay.cpp"
+#include "DecayFunctions.cpp"
 
-template <typename Interface>
+template <typename Interface, typename DecayFunction>
 struct FragmentationConfiguration {
 	std::vector<Interface> interfaces;
-	const std::vector<double> coefficients;
+	std::vector<Decay<DecayFunction>> decays;
 
-	FragmentationConfiguration(const std::vector<Interface> _interfaces) : interfaces(_interfaces), coefficients(interfaces.size(), 1.0) {}
-	FragmentationConfiguration(const std::initializer_list<Interface> _interfaces) : interfaces(_interfaces), coefficients(interfaces.size(), 1.0) {}
-	FragmentationConfiguration(const std::vector<Interface> _interfaces, const std::vector<double> _coefficients) : interfaces(_interfaces), coefficients(_coefficients) {}
-	FragmentationConfiguration(const std::initializer_list<Interface> _interfaces, const std::vector<double> _coefficients) : interfaces(_interfaces), coefficients(_coefficients) {}
+	FragmentationConfiguration(const std::vector<Interface> _interfaces) : interfaces(_interfaces), decays(interfaces.size(), Decay(DecayFunctions::trivial)) {}
+	FragmentationConfiguration(const std::initializer_list<Interface> _interfaces) : interfaces(_interfaces), decays(interfaces.size(), Decay(DecayFunctions::trivial)) {}
+	FragmentationConfiguration(const std::vector<Interface> _interfaces, const std::vector<Decay<DecayFunction>> _decays) : interfaces(_interfaces), decays(_decays) {}
+	FragmentationConfiguration(const std::initializer_list<Interface> _interfaces, const std::initializer_list<Decay<DecayFunction>> _decays) : interfaces(_interfaces), decays(_decays) {}
 
 	void evaluate(const double x, const double Q2) {
 		for (auto &interface : interfaces) {

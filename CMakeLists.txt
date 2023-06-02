@@ -32,7 +32,8 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
 # Flags
-target_compile_options(${PROJECT_NAME} PRIVATE -ffast-math -Wall -Wconversion -Wextra -Wpedantic $<$<CONFIG:Release>:-O3> $<$<CONFIG:Debug>:-g>)
+target_compile_options(${PROJECT_NAME} PRIVATE -ffast-math -Wall -Wconversion -Wextra -Wpedantic $<$<CONFIG:Release>:-O3> -g)
+# target_compile_options(${PROJECT_NAME} PRIVATE -ffast-math -Wall -Wconversion -Wextra -Wpedantic $<$<CONFIG:Release>:-O3> $<$<CONFIG:Debug>:-g>)
 
 # OpenMP
 if (APPLE)
