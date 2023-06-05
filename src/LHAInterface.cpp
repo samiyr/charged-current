@@ -74,10 +74,13 @@ class LHAInterface {
 		_pdf = std::unique_ptr<LHAPDF::PDF>(LHAPDF::mkPDF(set_name, set_member_number));
 		available_flavors = _pdf->flavors();
 		flavor_values = std::vector<double>(TOTAL_FLAVORS, 0.0);
+		prev_x = -1.0;
+		prev_Q2 = -1.0;
 	}
 
 	double prev_x;
 	double prev_Q2;
+
 };
 
 #endif

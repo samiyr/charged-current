@@ -106,6 +106,7 @@ namespace SIDISFunctions {
 			}
 
 			if (z_int) {
+				if (xip < z) { return 0.0; }
 				ff1.evaluate(z, Q2);
 			}
 
@@ -137,7 +138,7 @@ namespace SIDISFunctions {
 			return sum;
 		}
 
-		template <typename PDFInterface, typename FFInterface, typename DecayFunction, typename Signature>
+		template <typename PDFInterface, typename FFInterface, typename DecayFunction = decltype(DecayFunctions::trivial), typename Signature>
 		constexpr static double construct(const double input[], void *params_in, const Signature integrand, const bool xi_int, const bool xip_int, const bool z_int, const int sign) {
 			const Parameters<PDFInterface, FFInterface, DecayFunction> &params = *static_cast<Parameters<PDFInterface, FFInterface, DecayFunction> *>(params_in);
 

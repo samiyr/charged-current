@@ -2,6 +2,7 @@
 #define DECAY_H
 
 #include "DecayParametrization.cpp"
+#include "DecayFunctions.cpp"
 
 template <typename DecayFunction>
 struct Decay {
@@ -22,7 +23,7 @@ struct Decay {
 
 			prev_value = decay_function(x, z, Q2, z_min, parametrization);
 		}
-		return prev_value; 
+		return prev_value;
 	}
 
 	private:
@@ -32,5 +33,7 @@ struct Decay {
 	double prev_z_min;
 	double prev_value;
 };
+
+const static auto TrivialDecay = Decay(DecayParametrization(), DecayFunctions::trivial);
 
 #endif

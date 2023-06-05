@@ -63,7 +63,7 @@ int main() {
 	// std::cout << 2 * value_2 / z << std::endl;
 	// std::cout << 2 * value3_2 / z << std::endl;
 
-	// Tests::decay_function_tests_2();
+	// Tests::sidis_lo_cross_section_integration_test();
 	// return 0;
 	// Tests::run_tests();
 	// return 0;
@@ -149,10 +149,10 @@ int main() {
 				LHAInterface("bkk05_D3_lambda_c_nlo")
 			},
 			{
-				Decay(DecayParametrization(N, alpha, beta, gamma, Constants::D0::Mass, Constants::D0::Lifetime, Constants::Proton::Mass, minimum_lepton_momentum, 0.0), DecayFunctions::decay_function),
-				Decay(DecayParametrization(N, alpha, beta, gamma, Constants::Dp::Mass, Constants::Dp::Lifetime, Constants::Proton::Mass, minimum_lepton_momentum, 0.0), DecayFunctions::decay_function),
-				Decay(DecayParametrization(N, alpha, beta, gamma, Constants::Ds::Mass, Constants::Ds::Lifetime, Constants::Proton::Mass, minimum_lepton_momentum, 0.0), DecayFunctions::decay_function),
-				Decay(DecayParametrization(N, alpha, beta, gamma, Constants::LambdaC::Mass, Constants::LambdaC::Lifetime, Constants::Proton::Mass, minimum_lepton_momentum, 0.0), DecayFunctions::decay_function),
+				Decay(DecayParametrization(N, alpha, beta, gamma, Constants::D0::Mass, Constants::Proton::Mass, Constants::D0::Lifetime, minimum_lepton_momentum, 0.0), DecayFunctions::decay_function),
+				Decay(DecayParametrization(N, alpha, beta, gamma, Constants::Dp::Mass, Constants::Proton::Mass, Constants::Dp::Lifetime, minimum_lepton_momentum, 0.0), DecayFunctions::decay_function),
+				Decay(DecayParametrization(N, alpha, beta, gamma, Constants::Ds::Mass, Constants::Proton::Mass, Constants::Ds::Lifetime, minimum_lepton_momentum, 0.0), DecayFunctions::decay_function),
+				Decay(DecayParametrization(N, alpha, beta, gamma, Constants::LambdaC::Mass, Constants::Proton::Mass, Constants::LambdaC::Lifetime, minimum_lepton_momentum, 0.0), DecayFunctions::decay_function),
 			}
 		),
 		// LHAInterface("kkks08_global_d0_mas"),

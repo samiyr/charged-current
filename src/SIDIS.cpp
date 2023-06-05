@@ -8,7 +8,7 @@
 #include "DecayFunctions.cpp"
 #include "FragmentationConfiguration.cpp"
 
-template <typename PDFInterface, typename FFInterface, typename DecayFunction>
+template <typename PDFInterface, typename FFInterface, typename DecayFunction = decltype(DecayFunctions::trivial)>
 struct SIDIS {
 	const FlavorVector active_flavors;
 	const FlavorVector active_antiflavors;
@@ -32,17 +32,17 @@ struct SIDIS {
 	SIDIS (const FlavorVector _active_flavors, const PDFInterface _pdf, const FFInterface _ff, const size_t _points, const Process _process)
 	: active_flavors(_active_flavors), 
 	pdf(_pdf),
-	ff({_ff}),
+	ff({_ff}, {TrivialDecay}),
 	points(_points),
 	process(_process)
 	{ }
-	SIDIS (const FlavorVector _active_flavors, const PDFInterface _pdf, const std::vector<FFInterface> _ff, const size_t _points, const Process _process)
-	: active_flavors(_active_flavors), 
-	pdf(_pdf),
-	ff(_ff),
-	points(_points),
-	process(_process)
-	{ }
+	// SIDIS (const FlavorVector _active_flavors, const PDFInterface _pdf, const std::vector<FFInterface> _ff, const size_t _points, const Process _process)
+	// : active_flavors(_active_flavors), 
+	// pdf(_pdf),
+	// ff(_ff, ),
+	// points(_points),
+	// process(_process)
+	// { }
 	SIDIS (const FlavorVector _active_flavors, const PDFInterface _pdf, const FragmentationConfiguration<FFInterface, DecayFunction> _ff, const size_t _points, const Process _process)
 	: active_flavors(_active_flavors), 
 	pdf(_pdf),

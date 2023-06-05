@@ -2,6 +2,8 @@
 #define CONSTANTS_H
 
 #include "Utility.cpp"
+#include "Particle.cpp"
+#include <limits>
 
 namespace Constants {
 	constexpr double C_F = 4.0 / 3.0;
@@ -46,34 +48,13 @@ namespace Constants {
 	// 	{0,		0,		0}
 	// };
 
-	namespace D0 {
-		constexpr static double Mass = 1.86484;
-		constexpr static double Lifetime = 0.4101;
-	}
-
-	namespace Dp {
-		constexpr static double Mass = 1.86962;
-		constexpr static double Lifetime = 1.04;
-	}
-	namespace Ds {
-		constexpr static double Mass = 1.96847;
-		constexpr static double Lifetime = 0.5;
-	}
-	namespace LambdaC {
-		constexpr static double Mass = 2.28646;
-		constexpr static double Lifetime = 0.2;
-	}
-
-	namespace Proton {
-		constexpr static double Mass = 0.938272;
-	}
-
-	namespace WBoson {
-		constexpr static double Mass = 80.377;
-	}
-
-	namespace Fe56 {
-		constexpr static double Mass = 52.1031;
+	namespace Particles {
+		constexpr static Particle Proton = Particle { .mass = 0.938272, .lifetime = std::numeric_limits<double>::infinity() };
+		constexpr static Particle D0 = Particle { .mass = 1.86484, .lifetime = 0.4101 };
+		constexpr static Particle Dp = Particle { .mass = 1.86962, .lifetime = 1.04 };
+		constexpr static Particle Ds = Particle { .mass = 1.96847, .lifetime = 0.5 };
+		constexpr static Particle LambdaC = Particle { .mass = 2.28646, .lifetime = 0.2 };
+		constexpr static Particle W = Particle { .mass = 80.377, .lifetime = 4.7961631e-9 };
 	}
 
 	namespace Charm {

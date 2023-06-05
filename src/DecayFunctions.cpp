@@ -5,7 +5,7 @@
 #include "DecayParametrization.cpp"
 
 namespace DecayFunctions {
-	const static auto trivial = []([[maybe_unused]] const double x, [[maybe_unused]] const double z, [[maybe_unused]] const double Q2, [[maybe_unused]] const double z_min, [[maybe_unused]] const DecayParametrization &decay) { return 1.0; };
+	static auto trivial = []([[maybe_unused]] const double x, [[maybe_unused]] const double z, [[maybe_unused]] const double Q2, [[maybe_unused]] const double z_min, [[maybe_unused]] const DecayParametrization &decay) { return 1.0; };
 
 	constexpr double decay_function(const double x, const double z, const double Q2, const double z_min, const DecayParametrization &decay) {
 		if (z < z_min) { return 0.0; }

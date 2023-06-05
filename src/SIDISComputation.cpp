@@ -65,15 +65,17 @@ class SIDISComputation {
 		pdf1.evaluate(x, Q2);
 		ff1.evaluate(z, Q2);
 
+		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, process.target_mass, process.projectile_mass);
+
 		SIDISFunctions::Parameters<PDFInterface, FFInterface, DecayFunction> params {
 			pdf1, ff1, pdf2, ff2,
 			flavors,
-			Q2, nlo_coefficient, s,
-			process,
-			x, z
+			nlo_coefficient,
+			process, kinematics,
+			z
 		};
 
-		const double lo = SIDISFunctions::Evaluation::construct({}, &params, SIDISFunctions::Integrands::F2_lo_integrand, false, false, false, 1);
+		const double lo = SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>({}, &params, SIDISFunctions::Integrands::F2_lo_integrand, false, false, false, 1);
 
 		Integrator xi_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>(input, params_in, SIDISFunctions::Integrands::F2_xi_integrand, true, false, false, 1);
@@ -93,7 +95,7 @@ class SIDISComputation {
 		auto xi_xip_result = xi_xip_integrator.integrate();
 		const double xi_xip_integral = xi_xip_result.value;
 
-		const double nlo1 = SIDISFunctions::Evaluation::construct({}, &params, SIDISFunctions::Integrands::F2_delta_integrand, false, false, false, 1);
+		const double nlo1 = SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>({}, &params, SIDISFunctions::Integrands::F2_delta_integrand, false, false, false, 1);
 		const double nlo2 = xi_integral + xip_integral + xi_xip_integral;
 
 		const double nlo = nlo_coefficient * (nlo1 + nlo2);
@@ -104,12 +106,14 @@ class SIDISComputation {
 		double alpha_s = pdf1.alpha_s(Q2);
 		double nlo_coefficient = alpha_s / (2 * M_PI);
 
+		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, process.target_mass, process.projectile_mass);
+
 		SIDISFunctions::Parameters<PDFInterface, FFInterface, DecayFunction> params {
 			pdf1, ff1, pdf2, ff2,
 			flavors,
-			Q2, nlo_coefficient, s,
-			process,
-			x, z
+			nlo_coefficient,
+			process, kinematics,
+			z
 		};
 
 		Integrator xi_xip_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
@@ -129,15 +133,17 @@ class SIDISComputation {
 		pdf1.evaluate(x, Q2);
 		ff1.evaluate(z, Q2);
 
+		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, process.target_mass, process.projectile_mass);
+
 		SIDISFunctions::Parameters<PDFInterface, FFInterface, DecayFunction> params {
 			pdf1, ff1, pdf2, ff2,
 			flavors,
-			Q2, nlo_coefficient, s,
-			process,
-			x, z
+			nlo_coefficient,
+			process, kinematics,
+			z
 		};
 
-		const double lo = SIDISFunctions::Evaluation::construct({}, &params, SIDISFunctions::Integrands::F3_lo_integrand, false, false, false, -1);
+		const double lo = SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>({}, &params, SIDISFunctions::Integrands::F3_lo_integrand, false, false, false, -1);
 
 		Integrator xi_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>(input, params_in, SIDISFunctions::Integrands::F3_xi_integrand, true, false, false, -1);
@@ -157,7 +163,7 @@ class SIDISComputation {
 		auto xi_xip_result = xi_xip_integrator.integrate();
 		const double xi_xip_integral = xi_xip_result.value;
 
-		const double nlo1 = SIDISFunctions::Evaluation::construct({}, &params, SIDISFunctions::Integrands::F3_delta_integrand, false, false, false, -1);
+		const double nlo1 = SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>({}, &params, SIDISFunctions::Integrands::F3_delta_integrand, false, false, false, -1);
 		const double nlo2 = xi_integral + xip_integral + xi_xip_integral;
 
 		const double nlo = nlo_coefficient * (nlo1 + nlo2);
@@ -200,12 +206,14 @@ class SIDISComputation {
 		pdf1.evaluate(x, Q2);
 		ff1.evaluate(z, Q2);
 
+		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, process.target_mass, process.projectile_mass);
+
 		SIDISFunctions::Parameters<PDFInterface, FFInterface, DecayFunction> params {
 			pdf1, ff1, pdf2, ff2,
 			flavors,
-			Q2, nlo_coefficient, s,
-			process,
-			x, z
+			nlo_coefficient,
+			process, kinematics,
+			z
 		};
 
 		const double lo = SIDISFunctions::Evaluation::cross_section<PDFInterface, FFInterface, DecayFunction>({}, &params, 
