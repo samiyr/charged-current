@@ -65,7 +65,7 @@ class SIDISComputation {
 		pdf1.evaluate(x, Q2);
 		ff1.evaluate(z, Q2);
 
-		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, process.target_mass, process.projectile_mass);
+		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, process.target.mass, process.projectile.mass);
 
 		SIDISFunctions::Parameters<PDFInterface, FFInterface, DecayFunction> params {
 			pdf1, ff1, pdf2, ff2,
@@ -106,7 +106,7 @@ class SIDISComputation {
 		double alpha_s = pdf1.alpha_s(Q2);
 		double nlo_coefficient = alpha_s / (2 * M_PI);
 
-		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, process.target_mass, process.projectile_mass);
+		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, process.target.mass, process.projectile.mass);
 
 		SIDISFunctions::Parameters<PDFInterface, FFInterface, DecayFunction> params {
 			pdf1, ff1, pdf2, ff2,
@@ -133,7 +133,7 @@ class SIDISComputation {
 		pdf1.evaluate(x, Q2);
 		ff1.evaluate(z, Q2);
 
-		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, process.target_mass, process.projectile_mass);
+		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, process.target.mass, process.projectile.mass);
 
 		SIDISFunctions::Parameters<PDFInterface, FFInterface, DecayFunction> params {
 			pdf1, ff1, pdf2, ff2,
@@ -186,7 +186,7 @@ class SIDISComputation {
 		const PerturbativeResult fL = FL(x, z, Q2);
 		const PerturbativeResult xf3 = xF3(x, z, Q2);
 
-		const std::optional<double> y_opt = CommonFunctions::compute_y(x, Q2, s, process.target_mass, process.projectile_mass);
+		const std::optional<double> y_opt = CommonFunctions::compute_y(x, Q2, s, process.target.mass, process.projectile.mass);
 		if (!y_opt.has_value()) {
 			return {0, 0};
 		}
@@ -206,7 +206,7 @@ class SIDISComputation {
 		pdf1.evaluate(x, Q2);
 		ff1.evaluate(z, Q2);
 
-		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, process.target_mass, process.projectile_mass);
+		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, process.target.mass, process.projectile.mass);
 
 		SIDISFunctions::Parameters<PDFInterface, FFInterface, DecayFunction> params {
 			pdf1, ff1, pdf2, ff2,

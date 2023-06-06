@@ -10,8 +10,8 @@ struct FragmentationConfiguration {
 	std::vector<Interface> interfaces;
 	std::vector<Decay<DecayFunction>> decays;
 
-	FragmentationConfiguration(const std::vector<Interface> _interfaces) : interfaces(_interfaces), decays(interfaces.size(), Decay(DecayFunctions::trivial)) {}
-	FragmentationConfiguration(const std::initializer_list<Interface> _interfaces) : interfaces(_interfaces), decays(interfaces.size(), Decay(DecayFunctions::trivial)) {}
+	FragmentationConfiguration(const std::vector<Interface> _interfaces) : interfaces(_interfaces), decays(interfaces.size(), TrivialDecay) {}
+	FragmentationConfiguration(const std::initializer_list<Interface> _interfaces) : interfaces(_interfaces), decays(interfaces.size(), TrivialDecay) {}
 	FragmentationConfiguration(const std::vector<Interface> _interfaces, const std::vector<Decay<DecayFunction>> _decays) : interfaces(_interfaces), decays(_decays) {}
 	FragmentationConfiguration(const std::initializer_list<Interface> _interfaces, const std::initializer_list<Decay<DecayFunction>> _decays) : interfaces(_interfaces), decays(_decays) {}
 

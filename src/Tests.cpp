@@ -486,19 +486,18 @@ namespace Tests {
 		bool flag = true;
 		
 		const double z_min = 0.1;
-		DecayParametrization param(
-			1.0, 1.4, 2.3, 2.0,
-			1.8, 1.0, 1.0,
-			0.0, z_min
-		);
+		const DecayParametrization param(1.0, 1.4, 2.3, 2.0);
 
-		flag &= double_comparison(DecayFunctions::decay_function(0.1, 0.3, 10, z_min, param), 2 * M_PI * 0.00100292);
-		flag &= double_comparison(DecayFunctions::decay_function(0.2, 0.3, 10, z_min, param), 2 * M_PI * 0.000995329);
-		flag &= double_comparison(DecayFunctions::decay_function(0.3, 0.3, 10, z_min, param), 2 * M_PI * 0.00098196);
-		flag &= double_comparison(DecayFunctions::decay_function(0.4, 0.5, 10, z_min, param), 2 * M_PI * 0.00180983);
-		flag &= double_comparison(DecayFunctions::decay_function(0.5, 0.5, 10, z_min, param), 2 * M_PI * 0.00181612);
-		flag &= double_comparison(DecayFunctions::decay_function(0.7, 0.9, 10, z_min, param), 2 * M_PI * 0.00247266);
-		flag &= double_comparison(DecayFunctions::decay_function(0.99, 0.9, 10, z_min, param), 2 * M_PI * 0.00251066);
+		const Particle resonance = Particle(1.8, 1.0);
+		const Particle target = Particle(1.0);
+
+		flag &= double_comparison(DecayFunctions::decay_function(0.1, 0.3, 10, z_min, param, resonance, target), 2 * M_PI * 0.00100292);
+		flag &= double_comparison(DecayFunctions::decay_function(0.2, 0.3, 10, z_min, param, resonance, target), 2 * M_PI * 0.000995329);
+		flag &= double_comparison(DecayFunctions::decay_function(0.3, 0.3, 10, z_min, param, resonance, target), 2 * M_PI * 0.00098196);
+		flag &= double_comparison(DecayFunctions::decay_function(0.4, 0.5, 10, z_min, param, resonance, target), 2 * M_PI * 0.00180983);
+		flag &= double_comparison(DecayFunctions::decay_function(0.5, 0.5, 10, z_min, param, resonance, target), 2 * M_PI * 0.00181612);
+		flag &= double_comparison(DecayFunctions::decay_function(0.7, 0.9, 10, z_min, param, resonance, target), 2 * M_PI * 0.00247266);
+		flag &= double_comparison(DecayFunctions::decay_function(0.99, 0.9, 10, z_min, param, resonance, target), 2 * M_PI * 0.00251066);
 
 		return flag;
 	}
@@ -509,11 +508,10 @@ namespace Tests {
 		bool flag = true;
 		
 		const double z_min = 0.1;
-		DecayParametrization param(
-			1.0, 1.4, 2.3, 2.0,
-			1.8, 1.0, 1.0,
-			0.0, z_min
-		);
+		const DecayParametrization param(1.0, 1.4, 2.3, 2.0);
+
+		const Particle resonance = Particle(1.8, 1.0);
+		const Particle target = Particle(1.0);
 
 		const std::vector<double> xz_values = {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
 		const std::vector<double> Q2_values = {10.0, 20.0, 50.0, 100.0};
@@ -529,7 +527,7 @@ namespace Tests {
 						std::cout << "Skipping value due to non-applicable region" << std::endl;
 						continue;
 					}
-					flag &= double_comparison_rel(DecayFunctions::decay_function(x, z, Q2, z_min, param), result.value, 1e-5);
+					flag &= double_comparison_rel(DecayFunctions::decay_function(x, z, Q2, z_min, param, resonance, target), result.value, 1e-5);
 				}
 			}
 		}
@@ -544,18 +542,18 @@ namespace Tests {
 		const double x = 0.3;
 		const double Q2 = 10.0;
 
-		DecayParametrization parametrization(7.365, 1.4, 2.276, 2.0, Constants::D0::Mass, Constants::Proton::Mass, Constants::D0::Lifetime, 5.0, 0.0);
+		DecayParametrization parametrization(7.365, 1.4, 2.276, 2.0);
 
 		// Since lambdas have a unique type, have to first convert them to e.g. std::function and then pass in a vector, otherwise the template DecayFunction cannot be uniquely defined.
-		auto lambda1 = []([[maybe_unused]] const double x, [[maybe_unused]] const double z, [[maybe_unused]] const double Q2, [[maybe_unused]] const double z_min, [[maybe_unused]] const DecayParametrization &decay) { 
-			return 3 * Constants::D0::Lifetime;
+		auto lambda1 = []([[maybe_unused]] const double x, [[maybe_unused]] const double z, [[maybe_unused]] const double Q2, [[maybe_unused]] const double z_min, [[maybe_unused]] const DecayParametrization &decay, [[maybe_unused]] const Particle &resonance, [[maybe_unused]] const Particle &hadron) { 
+			return 3 * Constants::Particles::D0.lifetime;
 		};
-		Decay decay1(parametrization, std::function(lambda1));
+		Decay decay1(parametrization, Constants::Particles::D0, Constants::Particles::Proton, std::function(lambda1), 5.0);
 
-		auto lambda2 = []([[maybe_unused]] const double x, [[maybe_unused]] const double z, [[maybe_unused]] const double Q2, [[maybe_unused]] const double z_min, [[maybe_unused]] const DecayParametrization &decay) { 
-			return 5 * Constants::Dp::Lifetime; 
+		auto lambda2 = []([[maybe_unused]] const double x, [[maybe_unused]] const double z, [[maybe_unused]] const double Q2, [[maybe_unused]] const double z_min, [[maybe_unused]] const DecayParametrization &decay, [[maybe_unused]] const Particle &resonance, [[maybe_unused]] const Particle &hadron) { 
+			return 5 * Constants::Particles::Dp.lifetime; 
 		};
-		Decay decay2(parametrization, std::function(lambda2));
+		Decay decay2(parametrization, Constants::Particles::D0, Constants::Particles::Proton, std::function(lambda2), 5.0);
 
 		SIDIS sidis(
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
@@ -571,16 +569,16 @@ namespace Tests {
 				}
 			),
 			100'000,
-			Process {Process::Type::NeutrinoToLepton, Constants::Proton::Mass, 0.0}
+			Process {Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino}
 		);
 		sidis.global_sqrt_s = sqrt_s;
 		sidis.max_chi_squared_deviation = 0.2;
 		sidis.max_relative_error = 1e-3;
 		sidis.iter_max = 10;
 
-		Decay decay(parametrization, DecayFunctions::trivial);
+		Decay decay(parametrization, Particle(), Particle(), DecayFunctions::trivial, 5.0);
 
-		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, Constants::Proton::Mass, 0.0);
+		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, Constants::Particles::Proton.mass, 0.0);
 
 		const double z_min = SIDISFunctions::compute_z_min(kinematics, decay);
 
@@ -592,7 +590,7 @@ namespace Tests {
 			LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
 			LHAInterface("kkks08_opal_d0___mas"),
 			10'000,
-			Process {Process::Type::NeutrinoToLepton, Constants::Proton::Mass, 0.0}
+			Process {Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino}
 		);
 		sidis1.global_sqrt_s = sqrt_s;
 		sidis1.max_chi_squared_deviation = 0.2;
@@ -604,7 +602,7 @@ namespace Tests {
 			LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
 			LHAInterface("kkks08_opal_d+___mas"),
 			10'000,
-			Process {Process::Type::NeutrinoToLepton, Constants::Proton::Mass, 0.0}
+			Process {Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino}
 		);
 		sidis2.global_sqrt_s = sqrt_s;
 		sidis2.max_chi_squared_deviation = 0.2;
@@ -617,7 +615,7 @@ namespace Tests {
 			const double differential_cs_1 = sidis1.differential_cross_section(x, z, Q2).lo;
 			const double differential_cs_2 = sidis2.differential_cross_section(x, z, Q2).lo;
 
-			const double result = 3 * Constants::D0::Lifetime * differential_cs_1 + 5 * Constants::Dp::Lifetime * differential_cs_2;
+			const double result = 3 * Constants::Particles::D0.lifetime * differential_cs_1 + 5 * Constants::Particles::Dp.lifetime * differential_cs_2;
 			return result;
 		}, {z_min}, {1}, 100, nullptr, 0.5, 1e-2, 10);
 		integrator.verbose = true;
@@ -635,18 +633,18 @@ namespace Tests {
 		const double x = 0.3;
 		const double Q2 = 10.0;
 
-		DecayParametrization parametrization(7.365, 1.4, 2.276, 2.0, Constants::D0::Mass, Constants::Proton::Mass, Constants::D0::Lifetime, 5.0, 0.0);
+		DecayParametrization parametrization(7.365, 1.4, 2.276, 2.0);
 
 		// Since lambdas have a unique type, have to first convert them to e.g. std::function and then pass in a vector, otherwise the template DecayFunction cannot be uniquely defined.
-		auto lambda1 = []([[maybe_unused]] const double x, [[maybe_unused]] const double z, [[maybe_unused]] const double Q2, [[maybe_unused]] const double z_min, [[maybe_unused]] const DecayParametrization &decay) { 
-			return 3 * Constants::D0::Lifetime; 
+		auto lambda1 = []([[maybe_unused]] const double x, [[maybe_unused]] const double z, [[maybe_unused]] const double Q2, [[maybe_unused]] const double z_min, [[maybe_unused]] const DecayParametrization &decay, [[maybe_unused]] const Particle &resonance, [[maybe_unused]] const Particle &hadron) { 
+			return 3 * Constants::Particles::D0.lifetime;
 		};
-		Decay decay1(parametrization, std::function(lambda1));
+		Decay decay1(parametrization, Constants::Particles::D0, Constants::Particles::Proton, std::function(lambda1), 5.0);
 
-		auto lambda2 = []([[maybe_unused]] const double x, [[maybe_unused]] const double z, [[maybe_unused]] const double Q2, [[maybe_unused]] const double z_min, [[maybe_unused]] const DecayParametrization &decay) { 
-			return 5 * Constants::Dp::Lifetime; 
+		auto lambda2 = []([[maybe_unused]] const double x, [[maybe_unused]] const double z, [[maybe_unused]] const double Q2, [[maybe_unused]] const double z_min, [[maybe_unused]] const DecayParametrization &decay, [[maybe_unused]] const Particle &resonance, [[maybe_unused]] const Particle &hadron) { 
+			return 5 * Constants::Particles::Dp.lifetime; 
 		};
-		Decay decay2(parametrization, std::function(lambda2));
+		Decay decay2(parametrization, Constants::Particles::D0, Constants::Particles::Proton, std::function(lambda2), 5.0);
 
 		SIDIS sidis(
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
@@ -662,16 +660,16 @@ namespace Tests {
 				}
 			),
 			100'000,
-			Process {Process::Type::NeutrinoToLepton, Constants::Proton::Mass, 0.0}
+			Process {Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino}
 		);
 		sidis.global_sqrt_s = sqrt_s;
 		sidis.max_chi_squared_deviation = 0.2;
 		sidis.max_relative_error = 1e-3;
 		sidis.iter_max = 10;
 
-		Decay decay(parametrization, DecayFunctions::trivial);
+		Decay decay(parametrization, Particle(), Particle(), DecayFunctions::trivial, 5.0);
 
-		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, Constants::Proton::Mass, 0.0);
+		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, Constants::Particles::Proton.mass, 0.0);
 
 		const double z_min = SIDISFunctions::compute_z_min(kinematics, decay);
 
@@ -683,7 +681,7 @@ namespace Tests {
 			LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
 			LHAInterface("kkks08_opal_d0___mas"),
 			100'000,
-			Process {Process::Type::NeutrinoToLepton, Constants::Proton::Mass, 0.0}
+			Process {Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino}
 		);
 		sidis1.global_sqrt_s = sqrt_s;
 		sidis1.max_chi_squared_deviation = 0.2;
@@ -695,7 +693,7 @@ namespace Tests {
 			LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
 			LHAInterface("kkks08_opal_d+___mas"),
 			100'000,
-			Process {Process::Type::NeutrinoToLepton, Constants::Proton::Mass, 0.0}
+			Process {Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino}
 		);
 		sidis2.global_sqrt_s = sqrt_s;
 		sidis2.max_chi_squared_deviation = 0.2;
@@ -708,7 +706,7 @@ namespace Tests {
 			const double differential_cs_1 = sidis1.differential_cross_section(x, z, Q2).nlo;
 			const double differential_cs_2 = sidis2.differential_cross_section(x, z, Q2).nlo;
 
-			const double result = 3 * Constants::D0::Lifetime * differential_cs_1 + 5 * Constants::Dp::Lifetime * differential_cs_2;
+			const double result = 3 * Constants::Particles::D0.lifetime * differential_cs_1 + 5 * Constants::Particles::Dp.lifetime * differential_cs_2;
 			return result;
 		}, {z_min}, {1}, 100, nullptr, 0.5, 1e-2, 10);
 		integrator.verbose = true;
@@ -732,7 +730,7 @@ namespace Tests {
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
 			pdf,
 			10'000,
-			Process {Process::Type::NeutrinoToLepton, Constants::Proton::Mass, 0.0}
+			Process {Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino}
 		);
 		dis.max_chi_squared_deviation = 0.2;
 		dis.max_relative_error = 1e-3;
@@ -745,7 +743,7 @@ namespace Tests {
 				return z;
 			}),
 			100,
-			Process {Process::Type::NeutrinoToLepton, Constants::Proton::Mass, 0.0}
+			Process {Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino}
 		);
 		sidis.global_sqrt_s = sqrt_s;
 		sidis.max_chi_squared_deviation = 0.2;
@@ -759,14 +757,12 @@ namespace Tests {
 				return z;
 			}),
 			2,
-			Process {Process::Type::NeutrinoToLepton, Constants::Proton::Mass, 0.0}
+			Process {Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino}
 		);
 		sidis2.global_sqrt_s = sqrt_s;
 		sidis2.max_chi_squared_deviation = 0.2;
 		sidis2.max_relative_error = 1e-3;
 		sidis2.iter_max = 0;
-
-		Decay decay(DecayFunctions::trivial);
 
 		const PerturbativeResult result_dis = dis.cross_section(x, Q2);
 		const PerturbativeResult result_sidis = sidis.lepton_pair_cross_section_Q2_sqrt_s(x, Q2, sqrt_s);

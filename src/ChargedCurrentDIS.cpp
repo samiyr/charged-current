@@ -131,16 +131,14 @@ int main() {
 	const double beta = 2.276;
 	const double gamma = 2.0;
 	const double minimum_lepton_momentum = 5.0;
+	const Particle target = Constants::Particles::Proton;
+	const auto decay_function = DecayFunctions::decay_function;
+
+	const DecayParametrization parametrization(N, alpha, beta, gamma);
 
 	SIDIS sidis(
 		{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
-		// LHAInterface("CT18ANLO"),
 		LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
-		// LHAInterface("EPPS21nlo_CT18Anlo_He4"),
-		// LHAInterface("EPPS21nlo_CT18Anlo_Ar40"),
-		// LHAInterface("JAM20-SIDIS_FF_pion_nlo"),
-		// LHAInterface("JAM20-SIDIS_FF_kaon_nlo"),
-		// LHAInterface("JAM20-SIDIS_FF_hadron_nlo"),
 		FragmentationConfiguration(
 			{
 				LHAInterface("kkks08_opal_d0___mas"), 
@@ -149,29 +147,19 @@ int main() {
 				LHAInterface("bkk05_D3_lambda_c_nlo")
 			},
 			{
-				Decay(DecayParametrization(N, alpha, beta, gamma, Constants::D0::Mass, Constants::Proton::Mass, Constants::D0::Lifetime, minimum_lepton_momentum, 0.0), DecayFunctions::decay_function),
-				Decay(DecayParametrization(N, alpha, beta, gamma, Constants::Dp::Mass, Constants::Proton::Mass, Constants::Dp::Lifetime, minimum_lepton_momentum, 0.0), DecayFunctions::decay_function),
-				Decay(DecayParametrization(N, alpha, beta, gamma, Constants::Ds::Mass, Constants::Proton::Mass, Constants::Ds::Lifetime, minimum_lepton_momentum, 0.0), DecayFunctions::decay_function),
-				Decay(DecayParametrization(N, alpha, beta, gamma, Constants::LambdaC::Mass, Constants::Proton::Mass, Constants::LambdaC::Lifetime, minimum_lepton_momentum, 0.0), DecayFunctions::decay_function),
+				Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),
+				Decay(parametrization, Constants::Particles::Dp, target, decay_function, minimum_lepton_momentum),
+				Decay(parametrization, Constants::Particles::Ds, target, decay_function, minimum_lepton_momentum),
+				Decay(parametrization, Constants::Particles::LambdaC, target, decay_function, minimum_lepton_momentum)
 			}
 		),
-		// LHAInterface("kkks08_global_d0_mas"),
-		// LHAInterface("kkks08_opal_d0___mas"),
-		// LHAInterface("kkks08_cleo_d0___mas"),
-		// LHAInterface("kkks08_belle_d0__m00"),
 		100'000,
-		Process {Process::Type::NeutrinoToLepton, Constants::Proton::Mass, 0.0}
+		Process {Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino }
 	);
 	sidis.global_sqrt_s = 21.5465;
 	sidis.max_chi_squared_deviation = 0.5;
 	sidis.max_relative_error = 1e-2;
 	sidis.iter_max = 5;
-
-	// Tests::decay_function_tests_2();
-
-	// DecayParametrization parametrization(7.365, 1.4, 2.276, 2.0, Constants::D0::Mass, Constants::Proton::Mass, 5.0, 0.0);
-	// DecayParametrization parametrization(2.411, 0.866, 1.767, 2.0, Constants::D0::Mass, Constants::Proton::Mass, 5.0, 0.0);
-	// DecayParametrization parametrization(7.365, 1.4, 2.276, 2.0, 1.8, 1.0, 6.33e-13, 5.0, 0.0);
 
 	sidis.lepton_pair_cross_section(
 		{0.04, 0.045, 0.05, 0.055, 0.06, 0.065, 0.07, 0.075, 0.08, 0.09, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35}, 
@@ -179,56 +167,7 @@ int main() {
 		{90.2},
 		"lepton_pair_data.csv"
 	);
-	// sidis.lepton_pair_cross_section(
-	// 	{0.10443, 0.30345}, 
-	// 	{0.334, 0.771},
-	// 	{547.0},
-	// 	parametrization, "lepton_pair_data.csv"
-	// );
-
-	// DecayParametrization parametrization2(7.365, 1.4, 2.276, 2.0, Constants::D0::Mass, Constants::Proton::Mass, 0.0, 0.1);
-	// TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(0.2, 10.0, 318, 1.0, 0.0);
-	// std::cout << sidis.lepton_pair_cross_section(kinematics, parametrization2, DecayFunctions::decay_function).nlo << std::endl;
-
-	// // std::cout << sidis.lepton_pair_cross_section(0.2, 10.0, 0.8).nlo << std::endl;
-	// Integrator integrator([&](double input[], size_t dim, void *params) {
-	// 	return sidis.differential_cross_section(0.2, input[0], 10.0).nlo * DecayFunctions::decay_function(0.2, input[0], 10.0, 0.1, parametrization2);
-	// }, {0.1}, {1.0}, 100, nullptr, 0.2, 1e-5, 10);
-	// integrator.verbose = true;
-	// auto result = integrator.integrate();
-	// std::cout << result << std::endl;
-
-	// sidis.differential_cross_section({0.0001, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}, {0.0001, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}, {10}, "sidis_cross_sections.csv");
-	// sidis.differential_cross_section({0.002, 0.1, 0.2}, {0.1, 0.2, 0.3}, {10, 100, 1000}, "sidis_cross_sections.csv");
-
-	// DIS dis(318,
-	// 	{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
-	// 	// TrivialInterface(),
-	// 	LHAInterface("CT18ANLO"),
-	// 	// FunctionalFormInterface([](const FlavorType flavor, const double x, const double Q2) {
-	// 	// 	return x * (1 - x);
-	// 	// }),
-	// 	100'000,
-	// 	Process {Process::Type::NeutrinoToLepton}
-	// );
-
-	// std::cout << dis.cross_section(0.2, 10.0).nlo << std::endl;
-
-	// std::cout << dis.F2(0.2, 10).nlo << std::endl;
-
-	// const double sidis_result = SIDISComparison::F2_z_integral(0.2, 10, 1e-3);
-	// std::cout << sidis_result << std::endl;
-	// // dis.differential_cross_section({0.002}, {200}, "differential_cross_sections.csv");
-	// dis.differential_cross_section({0.002, 0.1, 0.2, 0.5}, {50, 500, 1'000, 10'000}, "differential_cross_sections.csv");
-
-	// dis.y_max = 0.9;	
-	// dis.cross_section({2e2, 5e2, 1e3, 2e3, 3e3, 5e3, 1e4, 2e4, 3e4}, "output2.csv");
-
-	// dis.differential_cross_section({1e-4, 2e-4, 3e-4, 5e-4, 1e-3, 2e-3, 3e-3, 5e-3, 1e-2}, {10}, "dis_cross_section_small_x.csv");
-	// dis.compute_all_structure_function({1e-4, 2e-4, 3e-4, 5e-4, 1e-3, 2e-3, 3e-3, 5e-3, 1e-2}, {100}, "dis_structure_functions_small_x.csv");
-	// dis.compute_all_structure_function({0.002, 0.1, 0.2, 0.5}, {200, 500, 1'000, 10'000}, "structure_functions.csv");
-	// dis.compute_all_structure_function({0.002}, {200}, "structure_functions.csv");
-
+	
 	return 0;
 }
 

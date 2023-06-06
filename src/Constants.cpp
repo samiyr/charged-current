@@ -49,12 +49,13 @@ namespace Constants {
 	// };
 
 	namespace Particles {
-		constexpr static Particle Proton = Particle { .mass = 0.938272, .lifetime = std::numeric_limits<double>::infinity() };
-		constexpr static Particle D0 = Particle { .mass = 1.86484, .lifetime = 0.4101 };
-		constexpr static Particle Dp = Particle { .mass = 1.86962, .lifetime = 1.04 };
-		constexpr static Particle Ds = Particle { .mass = 1.96847, .lifetime = 0.5 };
-		constexpr static Particle LambdaC = Particle { .mass = 2.28646, .lifetime = 0.2 };
-		constexpr static Particle W = Particle { .mass = 80.377, .lifetime = 4.7961631e-9 };
+		constexpr static Particle Proton = Particle(0.938272);
+		constexpr static Particle D0 = Particle(1.86484, 0.4101);
+		constexpr static Particle Dp = Particle(1.86962, 1.04);
+		constexpr static Particle Ds = Particle(1.96847, 0.5);
+		constexpr static Particle LambdaC = Particle(2.28646, 0.2);
+		constexpr static Particle W = Particle(80.377, 4.7961631e-9);
+		constexpr static Particle Neutrino = Particle(0.0);
 	}
 
 	namespace Charm {

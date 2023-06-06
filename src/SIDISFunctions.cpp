@@ -39,9 +39,9 @@ namespace SIDISFunctions {
 	template <typename DecayFunction>
 	constexpr double compute_z_min(const TRFKinematics kinematics, const Decay<DecayFunction> &decay) {
 		return std::max({
-			decay.parametrization.lepton_momentum_min / (kinematics.y * kinematics.E_beam), 
-			2 * kinematics.x * decay.parametrization.resonance_mass * decay.parametrization.hadron_mass / kinematics.Q2,
-			decay.parametrization.z_min_cutoff
+			decay.lepton_momentum_min / (kinematics.y * kinematics.E_beam), 
+			2 * kinematics.x * decay.resonance.mass * decay.hadron.mass / kinematics.Q2,
+			decay.z_min_cutoff
 		});
 	}
 

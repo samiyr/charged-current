@@ -2,21 +2,22 @@
 #define DECAY_FUNCTIONS_H
 
 #include "Utility.cpp"
-#include "DecayParametrization.cpp"
+#include "Decay.cpp"
+#include <any>
 
 namespace DecayFunctions {
-	static auto trivial = []([[maybe_unused]] const double x, [[maybe_unused]] const double z, [[maybe_unused]] const double Q2, [[maybe_unused]] const double z_min, [[maybe_unused]] const DecayParametrization &decay) { return 1.0; };
+	static auto trivial = []([[maybe_unused]] const double x, [[maybe_unused]] const double z, [[maybe_unused]] const double Q2, [[maybe_unused]] const double z_min, [[maybe_unused]] const DecayParametrization &decay, [[maybe_unused]] const Particle &resonance, [[maybe_unused]] const Particle &hadron) { return 1.0; };
 
-	constexpr double decay_function(const double x, const double z, const double Q2, const double z_min, const DecayParametrization &decay) {
+	constexpr double decay_function(const double x, const double z, const double Q2, const double z_min, const DecayParametrization &parametrization, const Particle &resonance, const Particle &hadron) {
 		if (z < z_min) { return 0.0; }
-		const double alpha = decay.alpha;
-		const double beta = decay.beta;
-		const double gamma = decay.gamma;
-		const double N = decay.N;
-		const double mD = decay.resonance_mass;
+		const double alpha = parametrization.alpha;
+		const double beta = parametrization.beta;
+		const double gamma = parametrization.gamma;
+		const double N = parametrization.N;
+		const double mD = resonance.mass;
 		const double rho_min = z_min / z;
 
-		const double h0 = (z * Q2) / (2 * x * decay.hadron_mass);
+		const double h0 = (z * Q2) / (2 * x * hadron.mass);
 		const double hv = std::sqrt(h0 * h0 - mD * mD);
 
 		const double a = h0 * h0 / (mD * mD);
@@ -27,12 +28,12 @@ namespace DecayFunctions {
 			return 0.0;
 		}
 		
-		const double prefactor = 2 * M_PI * (N * mD * decay.gamma_prefactor_term * h0) / (2 * hv);
-		const double beta_1 = -rho_min * decay.beta_term_1p_alpha_beta;
+		const double prefactor = 2 * M_PI * (N * mD * parametrization.gamma_prefactor_term * h0) / (2 * hv);
+		const double beta_1 = -rho_min * parametrization.beta_term_1p_alpha_beta;
 		const double beta_2 = rho_min * Utility::incomplete_beta(beta_arg_min, 1 + alpha, 1 + beta);
-		const double beta_3 = 1.0 / (gamma * (a - b)) * (decay.beta_term_2p_alpha_beta - Utility::incomplete_beta(beta_arg_min, 2 + alpha, 1 + beta));
+		const double beta_3 = 1.0 / (gamma * (a - b)) * (parametrization.beta_term_2p_alpha_beta - Utility::incomplete_beta(beta_arg_min, 2 + alpha, 1 + beta));
 
-		const double result = prefactor * decay.lifetime * (beta_1 + beta_2 + beta_3);
+		const double result = prefactor * resonance.lifetime * (beta_1 + beta_2 + beta_3);
 
 		return result;
 	}

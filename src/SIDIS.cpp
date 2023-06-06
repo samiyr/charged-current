@@ -116,14 +116,14 @@ struct SIDIS {
 		file.close();
 	}
 	PerturbativeResult lepton_pair_cross_section_Q2_sqrt_s(const double x, const double Q2, const double sqrt_s) {
-		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, process.target_mass, process.projectile_mass);
+		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, process.target.mass, process.projectile.mass);
 		const PerturbativeResult cs_xQ2 = lepton_pair_cross_section(kinematics);
 		return cs_xQ2;
 	}
 	PerturbativeResult lepton_pair_cross_section_y_E(const double x, const double y, const double E_beam) {
-		TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, process.target_mass, process.projectile_mass);
+		TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, process.target.mass, process.projectile.mass);
 		const PerturbativeResult cs_xQ2 = lepton_pair_cross_section(kinematics);
-		const double jacobian = (kinematics.s - std::pow(process.target_mass, 2) - std::pow(process.projectile_mass, 2)) * x;
+		const double jacobian = (kinematics.s - std::pow(process.target.mass, 2) - std::pow(process.projectile.mass, 2)) * x;
 		const PerturbativeResult cs_xy = cs_xQ2 * jacobian;
 		return cs_xy;
 
@@ -145,7 +145,7 @@ struct SIDIS {
 					const double y = y_bins[k];
 					const double E_beam = E_beam_bins[j];
 					
-					TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, process.target_mass, process.projectile_mass);
+					TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, process.target.mass, process.projectile.mass);
 					const PerturbativeResult cs_xy = lepton_pair_cross_section_y_E(x, y, E_beam);
 
 					#pragma omp critical
