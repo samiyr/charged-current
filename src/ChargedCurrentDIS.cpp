@@ -63,7 +63,7 @@ int main() {
 	// std::cout << 2 * value_2 / z << std::endl;
 	// std::cout << 2 * value3_2 / z << std::endl;
 
-	// Tests::sidis_lo_cross_section_integration_test();
+	// Tests::lepton_pair_nlo_cross_section_integration_tests();
 	// return 0;
 	// Tests::run_tests();
 	// return 0;
@@ -124,6 +124,19 @@ int main() {
 
 	// Tests::sidis_lo_cross_section_integration_test();
 	// Tests::lepton_pair_lo_cross_section_integration_tests();
+	// return 0;
+
+	// DIS dis(120.0,
+	// 	{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+	// 	LHAInterface("CT18NLO"),
+	// 	100'000,
+	// 	Process { Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino }
+	// );
+	// dis.max_chi_squared_deviation = 0.2;
+	// dis.max_relative_error = 1e-3;
+	// dis.iter_max = 10;
+
+	// dis.differential_cross_section({0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}, {5.0, 10.0, 20.0, 100.0}, "dis_differential_cross_section.csv");
 	// return 0;
 
 	const double N = 7.365;

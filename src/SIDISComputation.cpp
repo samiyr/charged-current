@@ -79,19 +79,19 @@ class SIDISComputation {
 
 		Integrator xi_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>(input, params_in, SIDISFunctions::Integrands::F2_xi_integrand, true, false, false, 1);
-		}, {x}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {0}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
 		auto xi_result = xi_integrator.integrate();
 		const double xi_integral = xi_result.value;
 		
 		Integrator xip_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>(input, params_in, SIDISFunctions::Integrands::F2_xip_integrand, false, true, false, 1);
-		}, {z}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {0}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
 		auto xip_result = xip_integrator.integrate();
 		const double xip_integral = xip_result.value;
 
 		Integrator xi_xip_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>(input, params_in, SIDISFunctions::Integrands::F2_xi_xip_integrand, true, true, false, 1);
-		}, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {0, 0}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
 		auto xi_xip_result = xi_xip_integrator.integrate();
 		const double xi_xip_integral = xi_xip_result.value;
 
@@ -118,7 +118,7 @@ class SIDISComputation {
 
 		Integrator xi_xip_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>(input, params_in, SIDISFunctions::Integrands::FL_xi_xip_integrand, true, true, false, 1);
-		}, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {0, 0}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
 		auto xi_xip_result = xi_xip_integrator.integrate();
 		const double xi_xip_integral = xi_xip_result.value;
 
@@ -147,19 +147,19 @@ class SIDISComputation {
 
 		Integrator xi_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>(input, params_in, SIDISFunctions::Integrands::F3_xi_integrand, true, false, false, -1);
-		}, {x}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {0}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
 		auto xi_result = xi_integrator.integrate();
 		const double xi_integral = xi_result.value;
 		
 		Integrator xip_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>(input, params_in, SIDISFunctions::Integrands::F3_xip_integrand, false, true, false, -1);
-		}, {z}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {0}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
 		auto xip_result = xip_integrator.integrate();
 		const double xip_integral = xip_result.value;
 
 		Integrator xi_xip_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>(input, params_in, SIDISFunctions::Integrands::F3_xi_xip_integrand, true, true, false, -1);
-		}, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {0, 0}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
 		auto xi_xip_result = xi_xip_integrator.integrate();
 		const double xi_xip_integral = xi_xip_result.value;
 
@@ -226,7 +226,7 @@ class SIDISComputation {
 				SIDISFunctions::Integrands::F2_xi_integrand, SIDISFunctions::Integrands::FL_xi_integrand, SIDISFunctions::Integrands::F3_xi_integrand,
 				true, false, false
 			);
-		}, {x}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {0}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
 		const auto xi_result = xi_integrator.integrate();
 		const double xi_integral = xi_result.value;
 		
@@ -235,7 +235,7 @@ class SIDISComputation {
 				SIDISFunctions::Integrands::F2_xip_integrand, SIDISFunctions::Integrands::FL_xip_integrand, SIDISFunctions::Integrands::F3_xip_integrand,
 				false, true, false
 			);
-		}, {z}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {0}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
 		const auto xip_result = xip_integrator.integrate();
 		const double xip_integral = xip_result.value;
 
@@ -244,7 +244,7 @@ class SIDISComputation {
 				SIDISFunctions::Integrands::F2_xi_xip_integrand, SIDISFunctions::Integrands::FL_xi_xip_integrand, SIDISFunctions::Integrands::F3_xi_xip_integrand,
 				true, true, false
 			);
-		}, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {0, 0}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
 		const auto xi_xip_result = xi_xip_integrator.integrate();
 		const double xi_xip_integral = xi_xip_result.value;
 
@@ -298,7 +298,7 @@ class SIDISComputation {
 				SIDISFunctions::Integrands::F2_xi_integrand, SIDISFunctions::Integrands::FL_xi_integrand, SIDISFunctions::Integrands::F3_xi_integrand,
 				true, false, true
 			);
-		}, {x, z_min}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {0, z_min}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
 		const auto xi_result = xi_integrator.integrate();
 		const double xi_integral = xi_result.value;
 		
@@ -316,7 +316,7 @@ class SIDISComputation {
 				SIDISFunctions::Integrands::F2_xi_xip_integrand, SIDISFunctions::Integrands::FL_xi_xip_integrand, SIDISFunctions::Integrands::F3_xi_xip_integrand,
 				true, true, true
 			);
-		}, {x, z_min, z_min}, {1, 1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {0, z_min, z_min}, {1, 1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
 		const auto xi_xip_result = xi_xip_integrator.integrate();
 		const double xi_xip_integral = xi_xip_result.value;
 

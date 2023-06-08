@@ -98,9 +98,11 @@ namespace SIDISFunctions {
 			const double z_hat = z / xip;
 
 			if (xi_int) {
+				if (xi < x) { return 0; }
 				if (std::abs(xi - 1) < 1e-15) { return 0; }
 			}
 			if (xip_int) {
+				if (xip < z) { return 0; }
 				if (std::abs(xip - 1) < 1e-15) { return 0; }
 				ff2.evaluate(z_hat, Q2);
 			}
@@ -118,14 +120,23 @@ namespace SIDISFunctions {
 			const FlavorVector &flavors1 = positive_W ? flavors.lower_flavors : flavors.upper_flavors;
 			const FlavorVector &flavors2 = positive_W ? flavors.upper_flavors : flavors.lower_flavors;
 
-			double sum = 0.0;
-			for (const FlavorType flavor1 : flavors1) {
-				const FlavorType antiflavor2 = Flavor::conjugate_flavor(flavor1);
-				for (const FlavorType flavor2 : flavors2) {
-					const FlavorType antiflavor1 = Flavor::conjugate_flavor(flavor2);
+			PDFInterface &pdf1 = params.pdf1;
+			PDFInterface &pdf2 = params.pdf2;
 
-					const double V_ckm = CKM::squared(flavor1, flavor2);
-					const double total_value = construct(x, z, xi, xip, params, signature, sign, ff1, ff2, flavor1, flavor2, antiflavor1, antiflavor2);
+			double sum = 0.0;
+			for (const FlavorType incoming : flavors1) {
+				const FlavorType anti_outgoing = Flavor::conjugate_flavor(incoming);
+				for (const FlavorType outgoing : flavors2) {
+					const FlavorType anti_incoming = Flavor::conjugate_flavor(outgoing);
+
+					const double x_mass = CommonFunctions::compute_momentum_fraction_mass_correction(x, Q2, Flavor::mass(outgoing), 0.0);
+
+					if (xi_int && xi < x_mass) { continue; }
+					pdf1.evaluate(x_mass, Q2);
+					pdf2.evaluate(x_mass / xi, Q2);
+
+					const double V_ckm = CKM::squared(incoming, outgoing);
+					const double total_value = construct(x_mass, z, xi, xip, params, signature, sign, ff1, ff2, incoming, outgoing, anti_incoming, anti_outgoing);
 					const double summand = V_ckm * total_value;
 
 					sum += summand;
