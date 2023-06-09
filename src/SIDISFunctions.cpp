@@ -129,7 +129,7 @@ namespace SIDISFunctions {
 				for (const FlavorType outgoing : flavors2) {
 					const FlavorType anti_incoming = Flavor::conjugate_flavor(outgoing);
 
-					const double x_mass = CommonFunctions::compute_momentum_fraction_mass_correction(x, Q2, Flavor::mass(outgoing), 0.0);
+					const double x_mass = CommonFunctions::compute_momentum_fraction_mass_correction(x, Q2, Flavor::mass(Flavor::Charm), 0.0);
 
 					if (xi_int && xi < x_mass) { continue; }
 					pdf1.evaluate(x_mass, Q2);
@@ -142,7 +142,6 @@ namespace SIDISFunctions {
 					sum += summand;
 				}
 			}
-
 			const double decay_value = decay(x, z, Q2, z_min);
 			sum *= decay_value;
 

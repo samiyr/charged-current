@@ -2,6 +2,8 @@
 #define COMMON_FUNCTIONS_H
 
 #include "Constants.cpp"
+#include "Process.cpp"
+#include "Flavor.cpp"
 #include <optional>
 
 namespace CommonFunctions {
@@ -16,6 +18,9 @@ namespace CommonFunctions {
 
 		return numerator / denominator;
 	}
+	constexpr double compute_momentum_fraction_mass_correction(const double x_0, const double Q2, const double mass_scale, const double target_mass) {
+		return x_0 * (1 + std::pow(mass_scale, 2) / Q2) * (1 - std::pow(x_0 * target_mass, 2) / Q2);
+	}
 
 	constexpr double make_cross_section_variable(const double x, const double Q2, const double s, const Process process, const double f2, const double fL, const double xf3) {
 		const std::optional<double> y_opt = CommonFunctions::compute_y(x, Q2, s, process.target.mass, process.projectile.mass);
@@ -29,13 +34,11 @@ namespace CommonFunctions {
 		const double term2 = - 0.5 * y * y;
 		const double term3 = y * (1 - 0.5 * y);
 
-		const double result = (term1 * f2 + term2 * fL + double(process.W_sign()) * term3 * xf3) / x;
+		const double x_mass = CommonFunctions::compute_momentum_fraction_mass_correction(x, Q2, Flavor::mass(Flavor::Charm), 0.0);
+
+		const double result = (term1 * f2 + term2 * fL + double(process.W_sign()) * term3 * xf3) / x_mass;
 
 		return result;
-	}
-
-	constexpr double compute_momentum_fraction_mass_correction(const double x_0, const double Q2, const double mass_scale, const double target_mass) {
-		return x_0 * (1 + std::pow(mass_scale, 2) / Q2) * (1 - std::pow(x_0 * target_mass, 2) / Q2);
 	}
 }
 

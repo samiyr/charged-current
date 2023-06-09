@@ -174,12 +174,45 @@ int main() {
 	sidis.max_relative_error = 1e-2;
 	sidis.iter_max = 5;
 
+	// LHAInterface pdf("EPPS21nlo_CT18Anlo_Fe56");
+	// LHAInterface ff("kkks08_opal_d0___mas");
+	// const double x = 0.2;
+	// const double z = 0.3;
+	// const double Q2 = 10.0;
+	// std::cout << sidis.F2(x, z, Q2).lo << std::endl;
+
+	// const double x_mass = CommonFunctions::compute_momentum_fraction_mass_correction(x, Q2, Flavor::mass(Flavor::Charm), 0.0);
+	// pdf.evaluate(x_mass, Q2);
+	// ff.evaluate(z, Q2);
+
+	// double sum = 0.0;
+	// for (const FlavorType incoming : {Flavor::Down, Flavor::Strange, Flavor::Bottom}) {
+	// 	const FlavorType anti_outgoing = Flavor::conjugate_flavor(incoming);
+	// 	for (const FlavorType outgoing : {Flavor::Up, Flavor::Charm}) {
+	// 		const FlavorType anti_incoming = Flavor::conjugate_flavor(outgoing);
+
+	// 		const double V_ckm = CKM::squared(incoming, outgoing);
+	// 		const double summand = 2 * (pdf.xf(incoming) * ff.xf(outgoing) + pdf.xf(anti_incoming) * ff.xf(anti_outgoing)) / z;
+	// 		const double total_value = V_ckm * summand;
+	// 		sum += total_value;
+	// 	}
+	// }
+	// std::cout << sum << std::endl;
+	// return 0;
+
 	sidis.lepton_pair_cross_section(
 		{0.04, 0.045, 0.05, 0.055, 0.06, 0.065, 0.07, 0.075, 0.08, 0.09, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35}, 
 		{0.334},
 		{90.2},
 		"lepton_pair_data.csv"
 	);
+
+	// sidis.lepton_pair_cross_section(
+	// 	{0.10737, 0.3208}, 
+	// 	{0.334},
+	// 	{90.2},
+	// 	"lepton_pair_data.csv"
+	// );
 	
 	return 0;
 }
