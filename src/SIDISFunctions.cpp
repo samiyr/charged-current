@@ -124,10 +124,10 @@ namespace SIDISFunctions {
 			PDFInterface &pdf2 = params.pdf2;
 
 			double sum = 0.0;
-			for (const FlavorType incoming : flavors1) {
-				const FlavorType anti_outgoing = Flavor::conjugate_flavor(incoming);
-				for (const FlavorType outgoing : flavors2) {
-					const FlavorType anti_incoming = Flavor::conjugate_flavor(outgoing);
+			for (const FlavorType outgoing : flavors2) {
+				const FlavorType anti_incoming = Flavor::conjugate_flavor(outgoing);
+				for (const FlavorType incoming : flavors1) {
+					const FlavorType anti_outgoing = Flavor::conjugate_flavor(incoming);
 
 					const double x_mass = CommonFunctions::compute_momentum_fraction_mass_correction(x, Q2, Flavor::mass(Flavor::Charm), 0.0);
 

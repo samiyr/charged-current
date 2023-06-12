@@ -170,9 +170,10 @@ int main() {
 		Process {Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino }
 	);
 	sidis.global_sqrt_s = 21.5465;
-	sidis.max_chi_squared_deviation = 0.5;
-	sidis.max_relative_error = 1e-2;
-	sidis.iter_max = 5;
+	sidis.max_chi_squared_deviation = 0.2;
+	sidis.max_relative_error = 1e-3;
+	sidis.iter_max = 10;
+	// sidis.parallelize = false;
 
 	// LHAInterface pdf("EPPS21nlo_CT18Anlo_Fe56");
 	// LHAInterface ff("kkks08_opal_d0___mas");
@@ -200,11 +201,17 @@ int main() {
 	// std::cout << sum << std::endl;
 	// return 0;
 
+	// sidis.lepton_pair_cross_section(
+	// 	{0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05, 0.055, 0.06, 0.065, 0.07, 0.075, 0.08, 0.09, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35}, 
+	// 	{0.334, 0.573, 0.790},
+	// 	{90.18, 174.37, 244.72},
+	// 	"neutrino_sidis_nutev.csv"
+	// );
 	sidis.lepton_pair_cross_section(
-		{0.04, 0.045, 0.05, 0.055, 0.06, 0.065, 0.07, 0.075, 0.08, 0.09, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35}, 
-		{0.334},
-		{90.2},
-		"lepton_pair_data.csv"
+		{0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05, 0.055, 0.06, 0.065, 0.07, 0.075, 0.08, 0.09, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35}, 
+		{0.32, 0.57, 0.795},
+		{109.5, 209.9, 332.7},
+		"neutrino_sidis_ccfr.csv"
 	);
 
 	// sidis.lepton_pair_cross_section(

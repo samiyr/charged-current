@@ -11,6 +11,8 @@
 
 #define TOTAL_FLAVORS 13
 
+#define CACHE_STATS false
+
 class LHAInterface {
 	// using Cache = boost::compute::detail::lru_cache<std::pair<double, double>, std::vector<double>>;
 	public:
@@ -27,11 +29,20 @@ class LHAInterface {
 	}
 
 	void evaluate(const double x, const double Q2) {
+		#if CACHE_STATS
+		std::cout << "Cache hit ratio: " << 100 * double(cache_hits) / double(total_hits) << " (cache hits: " << cache_hits << ", total hits: " << total_hits << ")" << std::endl;
+		total_hits++;
+		#endif
 		// if (const boost::optional<std::vector<double>> values = cache.get({x, Q2})) {
 		// 	flavor_values = *values;
 		// 	return;
 		// }
-		if (x == prev_x && Q2 == prev_Q2) { return; }
+		if (x == prev_x && Q2 == prev_Q2) { 
+			#if CACHE_STATS
+			cache_hits++; 
+			#endif
+			return; 
+		}
 
 		if (_pdf->inRangeXQ2(x, Q2)) {
 			_pdf->xfxQ2(x, Q2, flavor_values);
@@ -73,6 +84,10 @@ class LHAInterface {
 		// cache = Cache(TOTAL_FLAVORS);
 		prev_x = -1.0;
 		prev_Q2 = -1.0;
+		#if CACHE_STATS
+		total_hits = 0;
+		cache_hits = 0;
+		#endif
 	}
 
 	// Cache cache{TOTAL_FLAVORS};
@@ -80,6 +95,10 @@ class LHAInterface {
 	double prev_x;
 	double prev_Q2;
 
+	#if CACHE_STATS
+	size_t total_hits = 0;
+	size_t cache_hits = 0;
+	#endif
 };
 
 #endif
