@@ -582,7 +582,7 @@ namespace Tests {
 
 		const double z_min = SIDISFunctions::compute_z_min(kinematics, decay);
 
-		const PerturbativeResult result = sidis.lepton_pair_cross_section_Q2_sqrt_s(x, Q2, sqrt_s);
+		const PerturbativeResult result = sidis.lepton_pair_cross_section_xQ2(kinematics);
 		std::cout << "Lepton-pair cross section value = " << result.lo << std::endl;
 
 		SIDIS sidis1(
@@ -612,8 +612,8 @@ namespace Tests {
 		Integrator integrator([&](const double input[], [[maybe_unused]] const size_t dim, [[maybe_unused]] void *params) {
 			const double z = input[0];
 
-			const double differential_cs_1 = sidis1.differential_cross_section(x, z, Q2).lo;
-			const double differential_cs_2 = sidis2.differential_cross_section(x, z, Q2).lo;
+			const double differential_cs_1 = sidis1.differential_cross_section_xQ2(z, kinematics).lo;
+			const double differential_cs_2 = sidis2.differential_cross_section_xQ2(z, kinematics).lo;
 
 			const double result = 3 * Constants::Particles::D0.lifetime * differential_cs_1 + 5 * Constants::Particles::Dp.lifetime * differential_cs_2;
 			return result;
@@ -673,7 +673,7 @@ namespace Tests {
 
 		const double z_min = SIDISFunctions::compute_z_min(kinematics, decay);
 
-		const PerturbativeResult result = sidis.lepton_pair_cross_section_Q2_sqrt_s(x, Q2, sqrt_s);
+		const PerturbativeResult result = sidis.lepton_pair_cross_section_xQ2(kinematics);
 		std::cout << "Lepton-pair cross section value = " << result.nlo << std::endl;
 
 		SIDIS sidis1(
@@ -703,8 +703,8 @@ namespace Tests {
 		Integrator integrator([&](const double input[], [[maybe_unused]] const size_t dim, [[maybe_unused]] void *params) {
 			const double z = input[0];
 
-			const double differential_cs_1 = sidis1.differential_cross_section(x, z, Q2).nlo;
-			const double differential_cs_2 = sidis2.differential_cross_section(x, z, Q2).nlo;
+			const double differential_cs_1 = sidis1.differential_cross_section_xQ2(z, kinematics).nlo;
+			const double differential_cs_2 = sidis2.differential_cross_section_xQ2(z, kinematics).nlo;
 
 			const double result = 3 * Constants::Particles::D0.lifetime * differential_cs_1 + 5 * Constants::Particles::Dp.lifetime * differential_cs_2;
 			return result;
@@ -765,13 +765,14 @@ namespace Tests {
 		sidis2.iter_max = 0;
 
 		const PerturbativeResult result_dis = dis.cross_section(x, Q2);
-		const PerturbativeResult result_sidis = sidis.lepton_pair_cross_section_Q2_sqrt_s(x, Q2, sqrt_s);
+		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, Constants::Particles::Proton.mass, 0);
+		const PerturbativeResult result_sidis = sidis.lepton_pair_cross_section_xQ2(kinematics);
 		std::cout << "Lepton-pair cross section value (DIS) = " << result_dis.lo << std::endl;
 		std::cout << "Lepton-pair cross section value (SIDIS integrated) = " << result_sidis.lo << std::endl;
 
 		Integrator integrator([&](const double input[], [[maybe_unused]] const size_t dim, [[maybe_unused]] void *params) {
 			const double z = input[0];
-			return sidis2.differential_cross_section(x, z, Q2).lo;
+			return sidis2.differential_cross_section_xQ2(z, kinematics).lo;
 		}, {0}, {1}, 100, nullptr, 0.5, 1e-2, 10);
 		integrator.verbose = true;
 		const auto result2 = integrator.integrate();

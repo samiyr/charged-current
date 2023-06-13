@@ -81,11 +81,118 @@ class SIDISComputation {
 		return kinematics.Q2;
 	}
 
-	PerturbativeResult F2(const double x, const double z, const double Q2) {
+	PerturbativeResult F2_combined(const double z, const TRFKinematics &kinematics) {
+		const double Q2 = kinematics.Q2;
+		const double x = kinematics.x;
 		double alpha_s = pdf1.alpha_s(Q2);
 		double nlo_coefficient = alpha_s / (2 * M_PI);
 
-		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, process.target.mass, process.projectile.mass);
+		const double factorization_scale = compute_factorization_scale(kinematics);
+		const double fragmentation_scale = compute_fragmentation_scale(kinematics);
+
+		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
+		const double fragmentation_scale_log = fragmentation_scale == Q2 ? 0 : std::log(Q2 / fragmentation_scale);
+
+		pdf1.evaluate(x, factorization_scale);
+		ff1.evaluate(z, fragmentation_scale);
+
+		SIDISFunctions::Parameters<PDFInterface, FFInterface, DecayFunction> params {
+			pdf1, ff1, pdf2, ff2,
+			flavors,
+			nlo_coefficient,
+			process, kinematics,
+			z,
+			factorization_scale, fragmentation_scale,
+			factorization_scale_log, fragmentation_scale_log
+		};
+
+		const double lo = x * SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>({}, &params, SIDISFunctions::Integrands::F2x_lo_integrand, false, false, false, 1);
+
+		Integrator nlo_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+			return SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>(input, params_in, SIDISFunctions::Integrands::F2x_nlo_integrand, true, true, false, 1);
+		}, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		auto nlo_result = nlo_integrator.integrate();
+		const double nlo_value = nlo_result.value;
+
+		const double nlo = nlo_coefficient * x * nlo_value;
+
+		return PerturbativeResult {lo, lo + nlo};
+	}
+	PerturbativeResult FL_combined(const double z, const TRFKinematics &kinematics) {
+		const double Q2 = kinematics.Q2;
+		const double x = kinematics.x;
+		double alpha_s = pdf1.alpha_s(Q2);
+		double nlo_coefficient = alpha_s / (2 * M_PI);
+
+		const double factorization_scale = compute_factorization_scale(kinematics);
+		const double fragmentation_scale = compute_fragmentation_scale(kinematics);
+
+		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
+		const double fragmentation_scale_log = fragmentation_scale == Q2 ? 0 : std::log(Q2 / fragmentation_scale);
+
+		SIDISFunctions::Parameters<PDFInterface, FFInterface, DecayFunction> params {
+			pdf1, ff1, pdf2, ff2,
+			flavors,
+			nlo_coefficient,
+			process, kinematics,
+			z,
+			factorization_scale, fragmentation_scale,
+			factorization_scale_log, fragmentation_scale_log
+		};
+
+		Integrator xi_xip_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+			return SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>(input, params_in, SIDISFunctions::Integrands::FLx_xi_xip_integrand, true, true, false, 1);
+		}, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		auto xi_xip_result = xi_xip_integrator.integrate();
+		const double xi_xip_integral = xi_xip_result.value;
+
+		const double nlo = nlo_coefficient * x * xi_xip_integral;
+
+		return PerturbativeResult {0, nlo};
+	}
+	PerturbativeResult xF3_combined(const double z, const TRFKinematics &kinematics) {
+		const double Q2 = kinematics.Q2;
+		const double x = kinematics.x;
+		double alpha_s = pdf1.alpha_s(Q2);
+		double nlo_coefficient = alpha_s / (2 * M_PI);
+		
+		const double factorization_scale = compute_factorization_scale(kinematics);
+		const double fragmentation_scale = compute_fragmentation_scale(kinematics);
+
+		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
+		const double fragmentation_scale_log = fragmentation_scale == Q2 ? 0 : std::log(Q2 / fragmentation_scale);
+
+		pdf1.evaluate(x, factorization_scale);
+		ff1.evaluate(z, fragmentation_scale);
+
+		SIDISFunctions::Parameters<PDFInterface, FFInterface, DecayFunction> params {
+			pdf1, ff1, pdf2, ff2,
+			flavors,
+			nlo_coefficient,
+			process, kinematics,
+			z,
+			factorization_scale, fragmentation_scale,
+			factorization_scale_log, fragmentation_scale_log
+		};
+
+		const double lo = x * SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>({}, &params, SIDISFunctions::Integrands::F3_lo_integrand, false, false, false, -1);
+
+		Integrator nlo_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+			return SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>(input, params_in, SIDISFunctions::Integrands::F3_nlo_integrand, true, true, false, -1);
+		}, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		auto nlo_result = nlo_integrator.integrate();
+		const double nlo_value = nlo_result.value;
+
+		const double nlo = nlo_coefficient * x * nlo_value;
+
+		return PerturbativeResult {lo, lo + nlo};
+	}
+
+	PerturbativeResult F2_separated(const double z, const TRFKinematics &kinematics) {
+		const double Q2 = kinematics.Q2;
+		const double x = kinematics.x;
+		double alpha_s = pdf1.alpha_s(Q2);
+		double nlo_coefficient = alpha_s / (2 * M_PI);
 
 		const double factorization_scale = compute_factorization_scale(kinematics);
 		const double fragmentation_scale = compute_fragmentation_scale(kinematics);
@@ -133,11 +240,11 @@ class SIDISComputation {
 
 		return PerturbativeResult {lo, lo + nlo};
 	}
-	PerturbativeResult FL(const double x, const double z, const double Q2) {
+	PerturbativeResult FL_separated(const double z, const TRFKinematics &kinematics) {
+		const double Q2 = kinematics.Q2;
+		const double x = kinematics.x;
 		double alpha_s = pdf1.alpha_s(Q2);
 		double nlo_coefficient = alpha_s / (2 * M_PI);
-
-		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, process.target.mass, process.projectile.mass);
 
 		const double factorization_scale = compute_factorization_scale(kinematics);
 		const double fragmentation_scale = compute_fragmentation_scale(kinematics);
@@ -165,11 +272,11 @@ class SIDISComputation {
 
 		return PerturbativeResult {0, nlo};
 	}
-	PerturbativeResult xF3(const double x, const double z, const double Q2) {
+	PerturbativeResult xF3_separated(const double z, const TRFKinematics &kinematics) {
+		const double Q2 = kinematics.Q2;
+		const double x = kinematics.x;
 		double alpha_s = pdf1.alpha_s(Q2);
 		double nlo_coefficient = alpha_s / (2 * M_PI);
-
-		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, process.target.mass, process.projectile.mass);
 		
 		const double factorization_scale = compute_factorization_scale(kinematics);
 		const double fragmentation_scale = compute_fragmentation_scale(kinematics);
@@ -218,26 +325,25 @@ class SIDISComputation {
 		return PerturbativeResult {lo, lo + nlo};
 	}
 
-	constexpr PerturbativeResult structure_function(const StructureFunction F, const double x, const double z, const double Q2) {
-		switch (F) {
-		case StructureFunction::F2: return F2(x, z, Q2);
-		case StructureFunction::FL: return FL(x, z, Q2);
-		case StructureFunction::xF3: return xF3(x, z, Q2);
+	PerturbativeResult compute_structure_function(const StructureFunction structure_function, const double z, const TRFKinematics &kinematics, const bool combine_integrals) {
+		switch (structure_function) {
+		case StructureFunction::F2: return combine_integrals ? F2_combined(z, kinematics) : F2_separated(z, kinematics);
+		case StructureFunction::FL: return combine_integrals ? FL_combined(z, kinematics) : FL_separated(z, kinematics);
+		case StructureFunction::xF3: return combine_integrals ? xF3_combined(z, kinematics) : xF3_separated(z, kinematics);
 		}
 	}
 
-	PerturbativeResult differential_cross_section_direct(const double x, const double z, const double Q2) {
+	PerturbativeResult differential_cross_section_xQ2_direct(const TRFKinematics &kinematics, const PerturbativeResult f2, const PerturbativeResult fL, const PerturbativeResult xf3) {
+		const double Q2 = kinematics.Q2;
+		const double x = kinematics.x;
+		const double y = kinematics.y;
 		const double prefactor = CommonFunctions::cross_section_prefactor(Q2);
 
-		const PerturbativeResult f2 = F2(x, z, Q2);
-		const PerturbativeResult fL = FL(x, z, Q2);
-		const PerturbativeResult xf3 = xF3(x, z, Q2);
-
-		const std::optional<double> y_opt = CommonFunctions::compute_y(x, Q2, s, process.target.mass, process.projectile.mass);
-		if (!y_opt.has_value()) {
-			return {0, 0};
-		}
-		const double y = *y_opt;
+		// const std::optional<double> y_opt = CommonFunctions::compute_y(x, Q2, s, process.target.mass, process.projectile.mass);
+		// if (!y_opt.has_value()) {
+		// 	return {0, 0};
+		// }
+		// const double y = *y_opt;
 
 		const double term1 = 1 - y + 0.5 * y * y;
 		const double term2 = - 0.5 * y * y;
@@ -246,11 +352,19 @@ class SIDISComputation {
 		const PerturbativeResult result = (term1 * f2 + term2 * fL + double(process.W_sign()) * term3 * xf3) / x;
 		return prefactor * result;
 	}
-	PerturbativeResult differential_cross_section_indirect(const double x, const double z, const double Q2) {
+
+	PerturbativeResult differential_cross_section_xQ2_direct_combined(const double z, const TRFKinematics &kinematics) {
+		return differential_cross_section_xQ2_direct(kinematics, F2_combined(z, kinematics), FL_combined(z, kinematics), xF3_combined(z, kinematics));
+	}
+	PerturbativeResult differential_cross_section_xQ2_direct_separated(const double z, const TRFKinematics &kinematics) {
+		return differential_cross_section_xQ2_direct(kinematics, F2_separated(z, kinematics), FL_separated(z, kinematics), xF3_separated(z, kinematics));
+	}
+
+	PerturbativeResult differential_cross_section_xQ2_indirect_separated(const double z, const TRFKinematics &kinematics) {
+		const double Q2 = kinematics.Q2;
+		const double x = kinematics.x;
 		double alpha_s = pdf1.alpha_s(Q2);
 		double nlo_coefficient = alpha_s / (2 * M_PI);
-
-		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, process.target.mass, process.projectile.mass);
 
 		const double factorization_scale = compute_factorization_scale(kinematics);
 		const double fragmentation_scale = compute_fragmentation_scale(kinematics);
@@ -316,7 +430,53 @@ class SIDISComputation {
 		return prefactor * result;
 	}
 
-	PerturbativeResult lepton_pair_cross_section(const TRFKinematics kinematics) {
+	PerturbativeResult differential_cross_section_xQ2_indirect_combined(const double z, const TRFKinematics &kinematics) {
+		const double Q2 = kinematics.Q2;
+		const double x = kinematics.x;
+		double alpha_s = pdf1.alpha_s(Q2);
+		double nlo_coefficient = alpha_s / (2 * M_PI);
+
+		const double factorization_scale = compute_factorization_scale(kinematics);
+		const double fragmentation_scale = compute_fragmentation_scale(kinematics);
+
+		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
+		const double fragmentation_scale_log = fragmentation_scale == Q2 ? 0 : std::log(Q2 / fragmentation_scale);
+
+		pdf1.evaluate(x, factorization_scale);
+		ff1.evaluate(z, fragmentation_scale);
+
+		SIDISFunctions::Parameters<PDFInterface, FFInterface, DecayFunction> params {
+			pdf1, ff1, pdf2, ff2,
+			flavors,
+			nlo_coefficient,
+			process, kinematics,
+			z,
+			factorization_scale, fragmentation_scale,
+			factorization_scale_log, fragmentation_scale_log
+		};
+
+		const double lo = SIDISFunctions::Evaluation::cross_section<PDFInterface, FFInterface, DecayFunction>({}, &params, 
+			SIDISFunctions::Integrands::F2x_lo_integrand, SIDISFunctions::Integrands::FLx_lo_integrand, SIDISFunctions::Integrands::F3_lo_integrand,
+			false, false, false
+		);
+
+		Integrator nlo_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+			return SIDISFunctions::Evaluation::cross_section<PDFInterface, FFInterface, DecayFunction>(input, params_in, 
+				SIDISFunctions::Integrands::F2x_nlo_integrand, SIDISFunctions::Integrands::FLx_nlo_integrand, SIDISFunctions::Integrands::F3_nlo_integrand,
+				true, true, false
+			);
+		}, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		const auto nlo_result = nlo_integrator.integrate();
+		const double nlo_integral = nlo_result.value;
+
+		const double nlo = nlo_coefficient * nlo_integral;
+
+		const PerturbativeResult result = PerturbativeResult {lo, lo + nlo};
+		const double prefactor = CommonFunctions::cross_section_prefactor(Q2);
+		return prefactor * result;
+	}
+
+	PerturbativeResult lepton_pair_cross_section_xQ2_separated(const TRFKinematics &kinematics) {
 		const double x = kinematics.x;
 		const double Q2 = kinematics.Q2;
 
@@ -394,6 +554,61 @@ class SIDISComputation {
 		const double delta_integral = delta_result.value;
 
 		const double nlo = nlo_coefficient * (xi_integral + xip_integral + xi_xip_integral + delta_integral);
+
+		const PerturbativeResult result = PerturbativeResult {lo, lo + nlo};
+		const double prefactor = CommonFunctions::cross_section_prefactor(Q2);
+		return prefactor * result;
+	}
+	PerturbativeResult lepton_pair_cross_section_xQ2_combined(const TRFKinematics &kinematics) {
+		const double x = kinematics.x;
+		const double Q2 = kinematics.Q2;
+
+		std::vector<double> z_mins;
+		for (const auto &decay : ff1.decays) {
+			z_mins.push_back(SIDISFunctions::compute_z_min(kinematics, decay));
+		}
+		const double z_min = *std::min_element(z_mins.begin(), z_mins.end());
+
+		const double alpha_s = pdf1.alpha_s(Q2);
+		const double nlo_coefficient = alpha_s / (2 * M_PI);
+
+		const double factorization_scale = compute_factorization_scale(kinematics);
+		const double fragmentation_scale = compute_fragmentation_scale(kinematics);
+
+		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
+		const double fragmentation_scale_log = fragmentation_scale == Q2 ? 0 : std::log(Q2 / fragmentation_scale);
+
+		pdf1.evaluate(x, factorization_scale);
+
+		SIDISFunctions::Parameters<PDFInterface, FFInterface, DecayFunction> params {
+			pdf1, ff1, pdf2, ff2,
+			flavors,
+			nlo_coefficient,
+			process, kinematics,
+			0.0,
+			factorization_scale, fragmentation_scale,
+			factorization_scale_log, fragmentation_scale_log
+		};
+
+		Integrator lo_integrator([&](double input[], [[maybe_unused]] size_t dim, void* params_in) {
+			return SIDISFunctions::Evaluation::cross_section<PDFInterface, FFInterface, DecayFunction>(input, params_in, 
+				SIDISFunctions::Integrands::F2x_lo_integrand, SIDISFunctions::Integrands::FLx_lo_integrand, SIDISFunctions::Integrands::F3_lo_integrand,
+				false, false, true
+			);
+		}, {z_min}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		const auto lo_result = lo_integrator.integrate();
+		const double lo = lo_result.value;
+
+		Integrator nlo_integrator([&](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+			return SIDISFunctions::Evaluation::cross_section<PDFInterface, FFInterface, DecayFunction>(input, params_in, 
+				SIDISFunctions::Integrands::F2x_nlo_integrand, SIDISFunctions::Integrands::FLx_nlo_integrand, SIDISFunctions::Integrands::F3_nlo_integrand,
+				true, true, true
+			);
+		}, {x, z_min, z_min}, {1, 1, 1.0 - 1e-2}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		const auto nlo_result = nlo_integrator.integrate();
+		const double nlo_integral = nlo_result.value;
+
+		const double nlo = nlo_coefficient * nlo_integral;
 
 		const PerturbativeResult result = PerturbativeResult {lo, lo + nlo};
 		const double prefactor = CommonFunctions::cross_section_prefactor(Q2);

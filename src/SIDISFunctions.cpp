@@ -47,6 +47,11 @@ namespace SIDISFunctions {
 		});
 	}
 
+	constexpr static double xy_jacobian(const TRFKinematics &kinematics, const Process &process) {
+		return (kinematics.s - std::pow(process.target.mass, 2) - std::pow(process.projectile.mass, 2)) * kinematics.x;
+	}
+
+
 	namespace Evaluation {
 		template <typename PDFInterface, typename FFInterface, typename DecayFunction, typename Signature>
 		constexpr static double construct(const double x, const double z, const double xi, const double xip, const Parameters<PDFInterface, FFInterface, DecayFunction> &params, const Signature integrand, const int sign, FFInterface &ff1, FFInterface &ff2, const FlavorType flavor1, const FlavorType flavor2, const FlavorType antiflavor1, const FlavorType antiflavor2) {			
@@ -594,6 +599,91 @@ namespace SIDISFunctions {
 			const double value = F2_value - 2 * (term1 + term2 + term3) / (x * z);
 
 			return value;
+		}
+
+		template <typename Signature>
+		static constexpr double make_nlo_integrand(
+			const Signature delta_integrand_f,
+			const Signature xi_integrand_f,
+			const Signature xip_integrand_f,
+			const Signature xi_xip_integrand_f,
+			const double xi,
+			const double xip, 
+			const double x, 
+			const double z, 
+			const double factorization_scale_log,
+			const double fragmentation_scale_log,
+			const double xq_zq,
+			const double xq_hat_zq, 
+			const double xq_zq_hat,
+			const double xq_hat_zq_hat, 
+			const double xq_zg_hat,
+			const double xg_hat_zq,
+			const double xq_hat_zg_hat,
+			const double xg_hat_zq_hat) {
+			
+			const double delta_integrand = delta_integrand_f(xi, xip, x, z, factorization_scale_log, fragmentation_scale_log, xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat);
+			const double xi_integrand = xi_integrand_f(xi, xip, x, z, factorization_scale_log, fragmentation_scale_log, xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat);
+			const double xip_integrand = xip_integrand_f(xi, xip, x, z, factorization_scale_log, fragmentation_scale_log, xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat);
+			const double xi_xip_integrand = xi_xip_integrand_f(xi, xip, x, z, factorization_scale_log, fragmentation_scale_log, xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat);
+
+			const double integrand = delta_integrand / ((1 - x) * (1 - z)) + xi_integrand / (1 - z) + xip_integrand / (1 - x) + xi_xip_integrand;
+			return integrand;
+		}
+
+		static constexpr double F2x_nlo_integrand(
+			const double xi,
+			const double xip, 
+			const double x, 
+			const double z, 
+			const double factorization_scale_log,
+			const double fragmentation_scale_log,
+			const double xq_zq,
+			const double xq_hat_zq, 
+			const double xq_zq_hat,
+			const double xq_hat_zq_hat, 
+			const double xq_zg_hat,
+			const double xg_hat_zq,
+			const double xq_hat_zg_hat,
+			const double xg_hat_zq_hat) {
+			
+			return make_nlo_integrand(F2x_delta_integrand, F2x_xi_integrand, F2x_xip_integrand, F2x_xi_xip_integrand, xi, xip, x, z, factorization_scale_log, fragmentation_scale_log, xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat);
+		}
+		static constexpr double FLx_nlo_integrand(
+			const double xi,
+			const double xip, 
+			const double x, 
+			const double z, 
+			const double factorization_scale_log,
+			const double fragmentation_scale_log,
+			const double xq_zq,
+			const double xq_hat_zq, 
+			const double xq_zq_hat,
+			const double xq_hat_zq_hat, 
+			const double xq_zg_hat,
+			const double xg_hat_zq,
+			const double xq_hat_zg_hat,
+			const double xg_hat_zq_hat) {
+			
+			return make_nlo_integrand(FLx_delta_integrand, FLx_xi_integrand, FLx_xip_integrand, FLx_xi_xip_integrand, xi, xip, x, z, factorization_scale_log, fragmentation_scale_log, xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat);
+		}
+		static constexpr double F3_nlo_integrand(
+			const double xi,
+			const double xip, 
+			const double x, 
+			const double z, 
+			const double factorization_scale_log,
+			const double fragmentation_scale_log,
+			const double xq_zq,
+			const double xq_hat_zq, 
+			const double xq_zq_hat,
+			const double xq_hat_zq_hat, 
+			const double xq_zg_hat,
+			const double xg_hat_zq,
+			const double xq_hat_zg_hat,
+			const double xg_hat_zq_hat) {
+			
+			return make_nlo_integrand(F3_delta_integrand, F3_xi_integrand, F3_xip_integrand, F3_xi_xip_integrand, xi, xip, x, z, factorization_scale_log, fragmentation_scale_log, xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat);
 		}
 	}
 }
