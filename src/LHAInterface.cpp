@@ -4,9 +4,11 @@
 #include <string>
 #include <stdexcept>
 #include "LHAPDF/LHAPDF.h"
+#include "LHAPDF/GridPDF.h"
 #include "Flavor.cpp"
 #include "CKM.cpp"
 #include "Process.cpp"
+#include "ZeroExtrapolator.cpp"
 
 #define TOTAL_FLAVORS 13
 
@@ -20,10 +22,19 @@ class LHAInterface {
 	FlavorVector available_flavors;
 
 	LHAInterface(std::string _set_name, int _set_member_number = 0)
-	: set_name(_set_name), set_member_number(_set_member_number), flavor_values(TOTAL_FLAVORS, 0.0) {
+	: set_name(_set_name), 
+	set_member_number(_set_member_number), 
+	flavor_values(TOTAL_FLAVORS, 0.0),
+	_pdf(LHAPDF::mkPDF(set_name, set_member_number)) {
+		std::shared_ptr<LHAPDF::GridPDF> grid_pdf = std::static_pointer_cast<LHAPDF::GridPDF>(_pdf);
+		LHAPDF::Extrapolator *zero_extrapolator = new ZeroExtrapolator();
+		grid_pdf->setExtrapolator(zero_extrapolator);
+		available_flavors = _pdf->flavors();
+	}
+
+	static void disable_verbosity() {
 		LHAPDF::Info &cfg = LHAPDF::getConfig();
 		cfg.set_entry("Verbosity", 0);
-		initialize();
 	}
 
 	void evaluate(const double x, const double Q2) {
@@ -38,16 +49,12 @@ class LHAInterface {
 			return; 
 		}
 
-		if (_pdf->inRangeXQ2(x, Q2)) {
-			_pdf->xfxQ2(x, Q2, flavor_values);
+		_pdf->xfxQ2(x, Q2, flavor_values);
 
-			// cache.insert({x, Q2}, flavor_values);
-			prev_x = x;
-			prev_Q2 = Q2;
-		} else {
-			std::fill(flavor_values.begin(), flavor_values.end(), 0.0);
-		}
+		prev_x = x;
+		prev_Q2 = Q2;
 	}
+	
 	double xf_evaluate(const FlavorType flavor, const double x, const double Q2) {
 		return _pdf->xfxQ2(flavor, x, Q2);
 	}
@@ -61,30 +68,12 @@ class LHAInterface {
 		return _pdf->alphasQ2(Q2);
 	}
 
-	LHAInterface(const LHAInterface &o) {
-		set_name = o.set_name;
-		set_member_number = o.set_member_number;
-		initialize();
-	}
-
 	private:
-	std::unique_ptr<LHAPDF::PDF> _pdf;
 	std::vector<double> flavor_values;
-	
-	void initialize() {
-		_pdf = std::unique_ptr<LHAPDF::PDF>(LHAPDF::mkPDF(set_name, set_member_number));
-		available_flavors = _pdf->flavors();
-		flavor_values = std::vector<double>(TOTAL_FLAVORS, 0.0);
-		prev_x = -1.0;
-		prev_Q2 = -1.0;
-		#if CACHE_STATS
-		total_hits = 0;
-		cache_hits = 0;
-		#endif
-	}
+	std::shared_ptr<LHAPDF::PDF> _pdf;
 
-	double prev_x;
-	double prev_Q2;
+	double prev_x = -1.0;
+	double prev_Q2 = -1.0;
 
 	#if CACHE_STATS
 	size_t total_hits = 0;

@@ -48,8 +48,7 @@ struct SIDIS {
 	points(_points),
 	process(_process),
 	factorization_scale(_factorization_scale),
-	fragmentation_scale(_fragmentation_scale)
-	{ }
+	fragmentation_scale(_fragmentation_scale) { }
 	SIDIS (
 		const FlavorVector _active_flavors, 
 		const PDFInterface _pdf, 
@@ -64,8 +63,7 @@ struct SIDIS {
 	points(_points),
 	process(_process),
 	factorization_scale(_factorization_scale),
-	fragmentation_scale(_fragmentation_scale)
-	{ }
+	fragmentation_scale(_fragmentation_scale) {	}
 
 	PerturbativeResult compute_structure_function(StructureFunction F, const double x, const double z, const double Q2) {
 		SIDISComputation sidis(global_sqrt_s, active_flavors, pdf, ff, points, max_chi_squared_deviation, max_relative_error, iter_max, process, momentum_fraction_mass_corrections, factorization_scale, fragmentation_scale);

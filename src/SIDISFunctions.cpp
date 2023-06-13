@@ -102,19 +102,23 @@ namespace SIDISFunctions {
 			const double factorization_scale = params.factorization_scale;
 			const double fragmentation_scale = params.fragmentation_scale;
 
-			if (xi_int) {
-				if (xi < x) { return 0; }
-				if (std::abs(xi - 1) < 1e-15) { return 0; }
-			}
-			if (xip_int) {
-				if (xip < z) { return 0; }
-				if (std::abs(xip - 1) < 1e-15) { return 0; }
-				ff2.evaluate(z_hat, fragmentation_scale);
-			}
-
+			// if (xi_int) {
+			// 	if (xi < x) { return 0; }
+			// 	if (std::abs(xi - 1) < 1e-15) { return 0; }
+			// }
 			if (z_int) {
 				if (xip < z) { return 0.0; }
 				ff1.evaluate(z, fragmentation_scale);
+			}
+			if (xip_int) {
+				// if (xip < z) {
+				// 	if (!z_int) {
+				// 		std::cout << xip << std::endl; 
+				// 	}
+				// 	return 0; 
+				// 	}
+				// if (std::abs(xip - 1) < 1e-15) { return 0; }
+				ff2.evaluate(z_hat, fragmentation_scale);
 			}
 
 			const FlavorInfo &flavors = params.flavors;
@@ -156,16 +160,12 @@ namespace SIDISFunctions {
 		template <typename PDFInterface, typename FFInterface, typename DecayFunction = decltype(DecayFunctions::trivial), typename Signature>
 		constexpr static double construct(const double input[], void *params_in, const Signature integrand, const bool xi_int, const bool xip_int, const bool z_int, const int sign) {
 			const Parameters<PDFInterface, FFInterface, DecayFunction> &params = *static_cast<Parameters<PDFInterface, FFInterface, DecayFunction> *>(params_in);
+			const TRFKinematics &kinematics = params.kinematics;
 
 			if (xi_int) {
 				const double xi = input[0];
-
-				const TRFKinematics &kinematics = params.kinematics;
-
 				const double x = kinematics.x;
-
 				const double x_hat = x / xi;
-
 				params.pdf2.evaluate(x_hat, params.factorization_scale);
 			}
 
@@ -179,7 +179,7 @@ namespace SIDISFunctions {
 				FFInterface &ff2 = ffs2[ff_i];
 				auto &decay = ffs1.decays[ff_i];
 
-				const double z_min = SIDISFunctions::compute_z_min(params.kinematics, decay);
+				const double z_min = SIDISFunctions::compute_z_min(kinematics, decay);
 				const double value = construct<PDFInterface, FFInterface, DecayFunction>(input, params, integrand, xi_int, xip_int, z_int, sign, ff1, ff2, decay, z_min);
 				const double summand = value;
 
