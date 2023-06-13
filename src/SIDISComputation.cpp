@@ -10,8 +10,9 @@
 #include "Decay.cpp"
 #include "TRFKinematics.cpp"
 #include "FragmentationConfiguration.cpp"
+#include <optional>
 
-template <typename PDFInterface, typename FFInterface, typename DecayFunction>
+template <typename PDFInterface, typename FFInterface, typename DecayFunction, typename ScaleFunction>
 class SIDISComputation {
 	public:
 	double sqrt_s;
@@ -33,6 +34,9 @@ class SIDISComputation {
 	const Process process;
 	const bool momentum_fraction_mass_corrections;
 
+	const std::optional<ScaleFunction> factorization_scale_function;
+	const std::optional<ScaleFunction> fragmentation_scale_function;
+
 	SIDISComputation (
 		const double _sqrt_s, 
 		const FlavorVector _active_flavors, 
@@ -43,7 +47,9 @@ class SIDISComputation {
 		const double _max_relative_error,
 		const unsigned int _iter_max,
 		const Process _process,
-		const bool _momentum_fraction_mass_corrections
+		const bool _momentum_fraction_mass_corrections,
+		const std::optional<ScaleFunction> _factorization_scale_function,
+		const std::optional<ScaleFunction> _fragmentation_scale_function
 	) : sqrt_s(_sqrt_s),
 	s(_sqrt_s * _sqrt_s), 
 	flavors(_active_flavors),
@@ -56,23 +62,48 @@ class SIDISComputation {
 	max_relative_error(_max_relative_error),
 	iter_max(_iter_max),
 	process(_process),
-	momentum_fraction_mass_corrections(_momentum_fraction_mass_corrections) { }
+	momentum_fraction_mass_corrections(_momentum_fraction_mass_corrections),
+	factorization_scale_function(_factorization_scale_function),
+	fragmentation_scale_function(_fragmentation_scale_function) { }
+
+	constexpr bool nontrivial_factorization_scale() { return factorization_scale_function.has_value(); }
+	constexpr bool nontrivial_fragmentation_scale() { return fragmentation_scale_function.has_value(); }
+	constexpr double compute_factorization_scale(const TRFKinematics &kinematics) {
+		if (nontrivial_factorization_scale()) {
+			return (*factorization_scale_function)(kinematics);
+		}
+		return kinematics.Q2;
+	}
+	constexpr double compute_fragmentation_scale(const TRFKinematics &kinematics) {
+		if (fragmentation_scale_function) {
+			return (*fragmentation_scale_function)(kinematics);
+		}
+		return kinematics.Q2;
+	}
 
 	PerturbativeResult F2(const double x, const double z, const double Q2) {
 		double alpha_s = pdf1.alpha_s(Q2);
 		double nlo_coefficient = alpha_s / (2 * M_PI);
 
-		pdf1.evaluate(x, Q2);
-		ff1.evaluate(z, Q2);
-
 		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, process.target.mass, process.projectile.mass);
+
+		const double factorization_scale = compute_factorization_scale(kinematics);
+		const double fragmentation_scale = compute_fragmentation_scale(kinematics);
+
+		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
+		const double fragmentation_scale_log = fragmentation_scale == Q2 ? 0 : std::log(Q2 / fragmentation_scale);
+
+		pdf1.evaluate(x, factorization_scale);
+		ff1.evaluate(z, fragmentation_scale);
 
 		SIDISFunctions::Parameters<PDFInterface, FFInterface, DecayFunction> params {
 			pdf1, ff1, pdf2, ff2,
 			flavors,
 			nlo_coefficient,
 			process, kinematics,
-			z
+			z,
+			factorization_scale, fragmentation_scale,
+			factorization_scale_log, fragmentation_scale_log
 		};
 
 		const double lo = SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>({}, &params, SIDISFunctions::Integrands::F2_lo_integrand, false, false, false, 1);
@@ -108,12 +139,20 @@ class SIDISComputation {
 
 		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, process.target.mass, process.projectile.mass);
 
+		const double factorization_scale = compute_factorization_scale(kinematics);
+		const double fragmentation_scale = compute_fragmentation_scale(kinematics);
+
+		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
+		const double fragmentation_scale_log = fragmentation_scale == Q2 ? 0 : std::log(Q2 / fragmentation_scale);
+
 		SIDISFunctions::Parameters<PDFInterface, FFInterface, DecayFunction> params {
 			pdf1, ff1, pdf2, ff2,
 			flavors,
 			nlo_coefficient,
 			process, kinematics,
-			z
+			z,
+			factorization_scale, fragmentation_scale,
+			factorization_scale_log, fragmentation_scale_log
 		};
 
 		Integrator xi_xip_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
@@ -130,17 +169,25 @@ class SIDISComputation {
 		double alpha_s = pdf1.alpha_s(Q2);
 		double nlo_coefficient = alpha_s / (2 * M_PI);
 
-		pdf1.evaluate(x, Q2);
-		ff1.evaluate(z, Q2);
-
 		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, process.target.mass, process.projectile.mass);
+		
+		const double factorization_scale = compute_factorization_scale(kinematics);
+		const double fragmentation_scale = compute_fragmentation_scale(kinematics);
+
+		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
+		const double fragmentation_scale_log = fragmentation_scale == Q2 ? 0 : std::log(Q2 / fragmentation_scale);
+
+		pdf1.evaluate(x, factorization_scale);
+		ff1.evaluate(z, fragmentation_scale);
 
 		SIDISFunctions::Parameters<PDFInterface, FFInterface, DecayFunction> params {
 			pdf1, ff1, pdf2, ff2,
 			flavors,
 			nlo_coefficient,
 			process, kinematics,
-			z
+			z,
+			factorization_scale, fragmentation_scale,
+			factorization_scale_log, fragmentation_scale_log
 		};
 
 		const double lo = SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>({}, &params, SIDISFunctions::Integrands::F3_lo_integrand, false, false, false, -1);
@@ -203,17 +250,25 @@ class SIDISComputation {
 		double alpha_s = pdf1.alpha_s(Q2);
 		double nlo_coefficient = alpha_s / (2 * M_PI);
 
-		pdf1.evaluate(x, Q2);
-		ff1.evaluate(z, Q2);
-
 		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, process.target.mass, process.projectile.mass);
+
+		const double factorization_scale = compute_factorization_scale(kinematics);
+		const double fragmentation_scale = compute_fragmentation_scale(kinematics);
+
+		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
+		const double fragmentation_scale_log = fragmentation_scale == Q2 ? 0 : std::log(Q2 / fragmentation_scale);
+
+		pdf1.evaluate(x, factorization_scale);
+		ff1.evaluate(z, fragmentation_scale);
 
 		SIDISFunctions::Parameters<PDFInterface, FFInterface, DecayFunction> params {
 			pdf1, ff1, pdf2, ff2,
 			flavors,
 			nlo_coefficient,
 			process, kinematics,
-			z
+			z,
+			factorization_scale, fragmentation_scale,
+			factorization_scale_log, fragmentation_scale_log
 		};
 
 		const double lo = SIDISFunctions::Evaluation::cross_section<PDFInterface, FFInterface, DecayFunction>({}, &params, 
@@ -274,14 +329,22 @@ class SIDISComputation {
 		const double alpha_s = pdf1.alpha_s(Q2);
 		const double nlo_coefficient = alpha_s / (2 * M_PI);
 
-		pdf1.evaluate(x, Q2);
+		const double factorization_scale = compute_factorization_scale(kinematics);
+		const double fragmentation_scale = compute_fragmentation_scale(kinematics);
+
+		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
+		const double fragmentation_scale_log = fragmentation_scale == Q2 ? 0 : std::log(Q2 / fragmentation_scale);
+
+		pdf1.evaluate(x, factorization_scale);
 
 		SIDISFunctions::Parameters<PDFInterface, FFInterface, DecayFunction> params {
 			pdf1, ff1, pdf2, ff2,
 			flavors,
 			nlo_coefficient,
 			process, kinematics,
-			0.0
+			0.0,
+			factorization_scale, fragmentation_scale,
+			factorization_scale_log, fragmentation_scale_log
 		};
 
 		Integrator lo_integrator([&](double input[], [[maybe_unused]] size_t dim, void* params_in) {

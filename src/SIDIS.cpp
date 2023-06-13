@@ -7,8 +7,10 @@
 #include "TRFKinematics.cpp"
 #include "DecayFunctions.cpp"
 #include "FragmentationConfiguration.cpp"
+#include "ScaleDependence.cpp"
+#include <optional>
 
-template <typename PDFInterface, typename FFInterface, typename DecayFunction = decltype(DecayFunctions::trivial)>
+template <typename PDFInterface, typename FFInterface, typename DecayFunction = decltype(DecayFunctions::trivial), typename ScaleFunction = decltype(ScaleDependence::trivial)>
 struct SIDIS {
 	const FlavorVector active_flavors;
 	const FlavorVector active_antiflavors;
@@ -29,30 +31,44 @@ struct SIDIS {
 	double global_sqrt_s;
 	bool momentum_fraction_mass_corrections = false;
 
-	SIDIS (const FlavorVector _active_flavors, const PDFInterface _pdf, const FFInterface _ff, const size_t _points, const Process _process)
-	: active_flavors(_active_flavors), 
+	const std::optional<ScaleFunction> factorization_scale;
+	const std::optional<ScaleFunction> fragmentation_scale;
+
+	SIDIS (
+		const FlavorVector _active_flavors, 
+		const PDFInterface _pdf, 
+		const FFInterface _ff, 
+		const size_t _points, 
+		const Process _process,
+		const std::optional<ScaleFunction> _factorization_scale = std::nullopt,
+		const std::optional<ScaleFunction> _fragmentation_scale = std::nullopt)
+	: active_flavors(_active_flavors),
 	pdf(_pdf),
 	ff({_ff}, {TrivialDecay}),
 	points(_points),
-	process(_process)
+	process(_process),
+	factorization_scale(_factorization_scale),
+	fragmentation_scale(_fragmentation_scale)
 	{ }
-	// SIDIS (const FlavorVector _active_flavors, const PDFInterface _pdf, const std::vector<FFInterface> _ff, const size_t _points, const Process _process)
-	// : active_flavors(_active_flavors), 
-	// pdf(_pdf),
-	// ff(_ff, ),
-	// points(_points),
-	// process(_process)
-	// { }
-	SIDIS (const FlavorVector _active_flavors, const PDFInterface _pdf, const FragmentationConfiguration<FFInterface, DecayFunction> _ff, const size_t _points, const Process _process)
+	SIDIS (
+		const FlavorVector _active_flavors, 
+		const PDFInterface _pdf, 
+		const FragmentationConfiguration<FFInterface, DecayFunction> _ff, 
+		const size_t _points, 
+		const Process _process,
+		const std::optional<ScaleFunction> _factorization_scale = std::nullopt,
+		const std::optional<ScaleFunction> _fragmentation_scale = std::nullopt)
 	: active_flavors(_active_flavors), 
 	pdf(_pdf),
 	ff(_ff),
 	points(_points),
-	process(_process)
+	process(_process),
+	factorization_scale(_factorization_scale),
+	fragmentation_scale(_fragmentation_scale)
 	{ }
 
 	PerturbativeResult compute_structure_function(StructureFunction F, const double x, const double z, const double Q2) {
-		SIDISComputation sidis(global_sqrt_s, active_flavors, pdf, ff, points, max_chi_squared_deviation, max_relative_error, iter_max, process, momentum_fraction_mass_corrections);
+		SIDISComputation sidis(global_sqrt_s, active_flavors, pdf, ff, points, max_chi_squared_deviation, max_relative_error, iter_max, process, momentum_fraction_mass_corrections, factorization_scale, fragmentation_scale);
 		return sidis.structure_function(F, x, z, Q2);
 	}
 	PerturbativeResult F2(const double x, const double z, const double Q2) {
@@ -71,13 +87,13 @@ struct SIDIS {
 	}
 
 	PerturbativeResult differential_cross_section(const double x, const double z, const double Q2, const bool use_direct = false) {
-		SIDISComputation sidis(global_sqrt_s, active_flavors, pdf, ff, points, max_chi_squared_deviation, max_relative_error, iter_max, process, momentum_fraction_mass_corrections);
+		SIDISComputation sidis(global_sqrt_s, active_flavors, pdf, ff, points, max_chi_squared_deviation, max_relative_error, iter_max, process, momentum_fraction_mass_corrections, factorization_scale, fragmentation_scale);
 		const PerturbativeResult differential_cs = use_direct ? sidis.differential_cross_section_direct(x, z, Q2) : sidis.differential_cross_section_indirect(x, z, Q2);
 		return differential_cs;
 	}
 
 	PerturbativeResult lepton_pair_cross_section(const TRFKinematics kinematics) {
-		SIDISComputation sidis(global_sqrt_s, active_flavors, pdf, ff, points, max_chi_squared_deviation, max_relative_error, iter_max, process, momentum_fraction_mass_corrections);
+		SIDISComputation sidis(global_sqrt_s, active_flavors, pdf, ff, points, max_chi_squared_deviation, max_relative_error, iter_max, process, momentum_fraction_mass_corrections, factorization_scale, fragmentation_scale);
 		const PerturbativeResult cs = sidis.lepton_pair_cross_section(kinematics);
 		return cs;
 	}
