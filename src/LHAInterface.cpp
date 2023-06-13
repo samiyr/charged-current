@@ -7,14 +7,12 @@
 #include "Flavor.cpp"
 #include "CKM.cpp"
 #include "Process.cpp"
-// #include <boost/compute/detail/lru_cache.hpp>
 
 #define TOTAL_FLAVORS 13
 
 #define CACHE_STATS false
 
 class LHAInterface {
-	// using Cache = boost::compute::detail::lru_cache<std::pair<double, double>, std::vector<double>>;
 	public:
 	std::string set_name;
 	int set_member_number;
@@ -33,10 +31,6 @@ class LHAInterface {
 		std::cout << "Cache hit ratio: " << 100 * double(cache_hits) / double(total_hits) << " (cache hits: " << cache_hits << ", total hits: " << total_hits << ")" << std::endl;
 		total_hits++;
 		#endif
-		// if (const boost::optional<std::vector<double>> values = cache.get({x, Q2})) {
-		// 	flavor_values = *values;
-		// 	return;
-		// }
 		if (x == prev_x && Q2 == prev_Q2) { 
 			#if CACHE_STATS
 			cache_hits++; 
@@ -81,7 +75,6 @@ class LHAInterface {
 		_pdf = std::unique_ptr<LHAPDF::PDF>(LHAPDF::mkPDF(set_name, set_member_number));
 		available_flavors = _pdf->flavors();
 		flavor_values = std::vector<double>(TOTAL_FLAVORS, 0.0);
-		// cache = Cache(TOTAL_FLAVORS);
 		prev_x = -1.0;
 		prev_Q2 = -1.0;
 		#if CACHE_STATS
@@ -89,8 +82,6 @@ class LHAInterface {
 		cache_hits = 0;
 		#endif
 	}
-
-	// Cache cache{TOTAL_FLAVORS};
 
 	double prev_x;
 	double prev_Q2;

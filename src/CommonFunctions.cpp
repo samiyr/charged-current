@@ -34,9 +34,9 @@ namespace CommonFunctions {
 		const double term2 = - 0.5 * y * y;
 		const double term3 = y * (1 - 0.5 * y);
 
-		const double x_mass = CommonFunctions::compute_momentum_fraction_mass_correction(x, Q2, Flavor::mass(Flavor::Charm), 0.0);
+		// const double x_mass = CommonFunctions::compute_momentum_fraction_mass_correction(x, Q2, Flavor::mass(Flavor::Charm), 0.0);
 
-		const double result = (term1 * f2 + term2 * fL + double(process.W_sign()) * term3 * xf3) / x_mass;
+		const double result = term1 * f2 + term2 * fL + double(process.W_sign()) * term3 * xf3;
 
 		return result;
 	}

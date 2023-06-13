@@ -38,10 +38,6 @@ namespace SIDISFunctions {
 		// const double zq;
 	};
 
-	constexpr double delta_contribution(const double x, const double z) {
-		return 2 * Constants::C_F * (std::pow(std::log(1 - x) + std::log(1 - z), 2) - 8) / z;
-	}
-
 	template <typename DecayFunction>
 	constexpr double compute_z_min(const TRFKinematics kinematics, const Decay<DecayFunction> &decay) {
 		return std::max({
@@ -207,11 +203,15 @@ namespace SIDISFunctions {
 		}
 	}
 
+	constexpr double delta_contribution(const double x, const double z) {
+		return 2 * Constants::C_F * (std::pow(std::log(1 - x) + std::log(1 - z), 2) - 8) / (x * z);
+	}
+
 	namespace Integrands {
-		static constexpr double F2_lo_integrand(
+		static constexpr double F2x_lo_integrand(
 			[[maybe_unused]] const double xi, 
 			[[maybe_unused]] const double xip, 
-			[[maybe_unused]] const double x, 
+			const double x, 
 			const double z,
 			[[maybe_unused]] const double factorization_scale_log,
 			[[maybe_unused]] const double fragmentation_scale_log,
@@ -224,9 +224,9 @@ namespace SIDISFunctions {
 			[[maybe_unused]] const double xq_hat_zg_hat,
 			[[maybe_unused]] const double xg_hat_zq_hat) {
 
-			return 2 * xq_zq / z;
+			return 2 * xq_zq / (x * z);
 		}
-		static constexpr double FL_lo_integrand(
+		static constexpr double FLx_lo_integrand(
 			[[maybe_unused]] const double xi, 
 			[[maybe_unused]] const double xip, 
 			[[maybe_unused]] const double x, 
@@ -247,7 +247,7 @@ namespace SIDISFunctions {
 		static constexpr double F3_lo_integrand(
 			[[maybe_unused]] const double xi, 
 			[[maybe_unused]] const double xip, 
-			[[maybe_unused]] const double x, 
+			const double x, 
 			const double z, 
 			[[maybe_unused]] const double factorization_scale_log,
 			[[maybe_unused]] const double fragmentation_scale_log,
@@ -259,7 +259,7 @@ namespace SIDISFunctions {
 			[[maybe_unused]] const double xg_hat_zq,
 			[[maybe_unused]] const double xq_hat_zg_hat,
 			[[maybe_unused]] const double xg_hat_zq_hat) {
-			return 2 * xq_zq / z;
+			return 2 * xq_zq / (x * z);
 		}
 
 
@@ -278,13 +278,13 @@ namespace SIDISFunctions {
 			[[maybe_unused]] const double xg_hat_zq,
 			[[maybe_unused]] const double xq_hat_zg_hat,
 			[[maybe_unused]] const double xg_hat_zq_hat) {
-			return 2 * Constants::C_F * xq_zq * ((2 * std::log(1 - z) + 1.5) * fragmentation_scale_log + (2 * std::log(1 - x) + 1.5) * factorization_scale_log) / z;
+			return 2 * Constants::C_F * xq_zq * ((2 * std::log(1 - z) + 1.5) * fragmentation_scale_log + (2 * std::log(1 - x) + 1.5) * factorization_scale_log) / (x * z);
 		}
 		static constexpr double scale_xi_integrand(
 			const double xi,
 			[[maybe_unused]] const double xip,
-			[[maybe_unused]] const double x, 
-			[[maybe_unused]] const double z, 
+			const double x, 
+			const double z, 
 			const double factorization_scale_log,
 			[[maybe_unused]] const double fragmentation_scale_log,
 			const double xq_zq,
@@ -297,13 +297,13 @@ namespace SIDISFunctions {
 			[[maybe_unused]] const double xg_hat_zq_hat) {
 			const double term1 = Constants::C_F * ((1 + xi * xi) * xq_hat_zq - 2 * xq_zq) / (1 - xi);
 			const double term2 = Constants::T_R * xg_hat_zq * (std::pow(xi, 2) + std::pow(1 - xi, 2));
-			const double result = 2 * factorization_scale_log * (term1 + term2) / z;
+			const double result = 2 * factorization_scale_log * (term1 + term2) / (x * z);
 			return result;
 		}
 		static constexpr double scale_xip_integrand(
 			[[maybe_unused]] const double xi,
 			const double xip,
-			[[maybe_unused]] const double x, 
+			const double x, 
 			const double z, 
 			[[maybe_unused]] const double factorization_scale_log,
 			const double fragmentation_scale_log,
@@ -317,10 +317,10 @@ namespace SIDISFunctions {
 			[[maybe_unused]] const double xg_hat_zq_hat) {
 			const double term1 = Constants::C_F * ((1 + std::pow(xip, 2)) * xq_zq_hat - 2 * xq_zq) / (1 - xip);
 			const double term2 = Constants::C_F * xq_zg_hat * (1 + std::pow(1 - xip, 2)) / xip;
-			const double result = 2 * fragmentation_scale_log * (term1 + term2) / z;
+			const double result = 2 * fragmentation_scale_log * (term1 + term2) / (x * z);
 			return result;
 		}
-		static constexpr double F2_delta_integrand(
+		static constexpr double F2x_delta_integrand(
 			[[maybe_unused]] const double xi, 
 			[[maybe_unused]] const double xip, 
 			const double x, 
@@ -340,7 +340,7 @@ namespace SIDISFunctions {
 			const double term2 = (factorization_scale_log == 0 && fragmentation_scale_log == 0) ? 0 : scale_delta_integrand(xi, xip, x, z, factorization_scale_log, fragmentation_scale_log, xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat);
 			return term1 + term2;
 		}
-		static constexpr double FL_delta_integrand(
+		static constexpr double FLx_delta_integrand(
 			[[maybe_unused]] const double xi, 
 			[[maybe_unused]] const double xip, 
 			[[maybe_unused]] const double x, 
@@ -359,27 +359,27 @@ namespace SIDISFunctions {
 			return 0.0;
 		}
 		static constexpr double F3_delta_integrand(
-			[[maybe_unused]] const double xi, 
-			[[maybe_unused]] const double xip, 
+			const double xi, 
+			const double xip, 
 			const double x, 
 			const double z, 
 			const double factorization_scale_log,
 			const double fragmentation_scale_log,
 			const double xq_zq,
-			[[maybe_unused]] const double xq_hat_zq, 
-			[[maybe_unused]] const double xq_zq_hat,
-			[[maybe_unused]] const double xq_hat_zq_hat, 
-			[[maybe_unused]] const double xq_zg_hat,
-			[[maybe_unused]] const double xg_hat_zq,
-			[[maybe_unused]] const double xq_hat_zg_hat,
-			[[maybe_unused]] const double xg_hat_zq_hat) {
+			const double xq_hat_zq, 
+			const double xq_zq_hat,
+			const double xq_hat_zq_hat, 
+			const double xq_zg_hat,
+			const double xg_hat_zq,
+			const double xq_hat_zg_hat,
+			const double xg_hat_zq_hat) {
 
-			return F2_delta_integrand(xi, xip, x, z, factorization_scale_log, fragmentation_scale_log, xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat);
+			return F2x_delta_integrand(xi, xip, x, z, factorization_scale_log, fragmentation_scale_log, xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat);
 		}
-		static constexpr double F2_xi_integrand(
+		static constexpr double F2x_xi_integrand(
 			const double xi, 
 			[[maybe_unused]] const double xip, 
-			[[maybe_unused]] const double x, 
+			const double x, 
 			const double z, 
 			const double factorization_scale_log,
 			const double fragmentation_scale_log,
@@ -406,7 +406,7 @@ namespace SIDISFunctions {
 
 			const double gluon_contribution = Constants::T_R * xg_hat_zq * (term4 + term5);
 
-			const double coefficient_contribution = 2 * (quark_contribution + gluon_contribution) / z;
+			const double coefficient_contribution = 2 * (quark_contribution + gluon_contribution) / (x * z);
 			const double scale_contribution = (factorization_scale_log == 0 && fragmentation_scale_log == 0) ? 0 : scale_xi_integrand(xi, xip, x, z, factorization_scale_log, fragmentation_scale_log, xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat);
 
 			return coefficient_contribution + scale_contribution;
@@ -426,10 +426,10 @@ namespace SIDISFunctions {
 			const double xg_hat_zq,
 			const double xq_hat_zg_hat,
 			const double xg_hat_zq_hat) {
-			return F2_xi_integrand(xi, xip, x, z, factorization_scale_log, fragmentation_scale_log, xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat);
+			return F2x_xi_integrand(xi, xip, x, z, factorization_scale_log, fragmentation_scale_log, xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat);
 		}
 
-		static constexpr double F2_xip_integrand(
+		static constexpr double F2x_xip_integrand(
 			[[maybe_unused]] const double xi, 
 			const double xip, 
 			const double x, 
@@ -459,7 +459,7 @@ namespace SIDISFunctions {
 
 			const double gluon_contribution = Constants::C_F * xq_zg_hat * (term4 + term5);
 
-			const double coefficient_contribution = 2 * (quark_contribution + gluon_contribution) / z;
+			const double coefficient_contribution = 2 * (quark_contribution + gluon_contribution) / (x * z);
 			const double scale_contribution = (factorization_scale_log == 0 && fragmentation_scale_log == 0) ? 0 : scale_xip_integrand(xi, xip, x, z, factorization_scale_log, fragmentation_scale_log, xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat);
 
 			return coefficient_contribution + scale_contribution;
@@ -479,12 +479,12 @@ namespace SIDISFunctions {
 			const double xg_hat_zq,
 			const double xq_hat_zg_hat,
 			const double xg_hat_zq_hat) {
-			return F2_xip_integrand(xi, xip, x, z, factorization_scale_log, fragmentation_scale_log, xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat);
+			return F2x_xip_integrand(xi, xip, x, z, factorization_scale_log, fragmentation_scale_log, xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat);
 		}
 
-		static constexpr double F2_xi_xip_integrand(const double xi, 
+		static constexpr double F2x_xi_xip_integrand(const double xi, 
 			const double xip, 
-			[[maybe_unused]] const double x, 
+			const double x, 
 			const double z, 
 			[[maybe_unused]] const double factorization_scale_log,
 			[[maybe_unused]] const double fragmentation_scale_log,
@@ -512,9 +512,9 @@ namespace SIDISFunctions {
 
 			const double gluon_contribution_2 = Constants::T_R * (term7 + term8);
 
-			return 2 * (quark_contribution + gluon_contribution_1 + gluon_contribution_2) / z;
+			return 2 * (quark_contribution + gluon_contribution_1 + gluon_contribution_2) / (x * z);
 		}
-		static constexpr double FL_xi_integrand(
+		static constexpr double FLx_xi_integrand(
 			[[maybe_unused]] const double xi, 
 			[[maybe_unused]] const double xip, 
 			[[maybe_unused]] const double x, 
@@ -532,7 +532,7 @@ namespace SIDISFunctions {
 
 			return 0.0;
 		}
-		static constexpr double FL_xip_integrand(
+		static constexpr double FLx_xip_integrand(
 			[[maybe_unused]] const double xi, 
 			[[maybe_unused]] const double xip, 
 			[[maybe_unused]] const double x, 
@@ -550,9 +550,9 @@ namespace SIDISFunctions {
 
 			return 0.0;
 		}
-		static constexpr double FL_xi_xip_integrand(const double xi, 
+		static constexpr double FLx_xi_xip_integrand(const double xi, 
 			const double xip, 
-			[[maybe_unused]] const double x, 
+			const double x, 
 			const double z, 
 			[[maybe_unused]] const double factorization_scale_log,
 			[[maybe_unused]] const double fragmentation_scale_log,
@@ -569,7 +569,7 @@ namespace SIDISFunctions {
 			const double term3 = xg_hat_zq_hat * Constants::T_R * 8 * xi * (1 - xi);
 			
 			const double value = term1 + term2 + term3;
-			return 2 * value / z;
+			return 2 * value / (x * z);
 		}
 
 		static constexpr double F3_xi_xip_integrand(const double xi, 
@@ -586,12 +586,12 @@ namespace SIDISFunctions {
 			const double xg_hat_zq,
 			const double xq_hat_zg_hat,
 			const double xg_hat_zq_hat) {
-			const double F2_value = F2_xi_xip_integrand(xi, xip, x, z, factorization_scale_log, fragmentation_scale_log, xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat);
+			const double F2_value = F2x_xi_xip_integrand(xi, xip, x, z, factorization_scale_log, fragmentation_scale_log, xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat);
 			const double term1 = Constants::C_F * xq_hat_zq_hat * (6 * xi * xip + 2 * (1 - xi - xip));
 			const double term2 = Constants::C_F * xq_hat_zg_hat * (4 * xi * (1 - xip) + 2 * (1 - xi) * xip);
 			const double term3 = Constants::T_R * xg_hat_zq_hat * (12 * xi * (1 - xi) + 2 * (1 - 2 * xi * (1 - xi)) / xip - 2);
 
-			const double value = F2_value - 2 * (term1 + term2 + term3) / z;
+			const double value = F2_value - 2 * (term1 + term2 + term3) / (x * z);
 
 			return value;
 		}

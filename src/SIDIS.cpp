@@ -170,7 +170,7 @@ struct SIDIS {
 						file.flush();
 
 						calculated_values++;
-						std::cout << "Calculated value " << calculated_values << " / " << x_step_count * y_step_count * E_beam_step_count << " (x = " << x << ", y = " << y << ", s = " << kinematics.s << ", E_beam = " << E_beam << ", Q2 = " << kinematics.Q2 << ")" << std::endl;
+						std::cout << "Calculated value " << calculated_values << " / " << x_step_count * y_step_count * E_beam_step_count << ": " << cs_xy.lo << ", " << cs_xy.nlo << " (x = " << x << ", y = " << y << ", s = " << kinematics.s << ", E_beam = " << E_beam << ", Q2 = " << kinematics.Q2 << ")" << std::endl;
 					}
 				}
 			}
