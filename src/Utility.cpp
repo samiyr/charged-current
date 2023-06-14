@@ -100,6 +100,18 @@ namespace Utility {
 	constexpr double dot_product(const Iterator1 &iter1, const Iterator2 &iter2) {
 		return std::inner_product(std::begin(iter1), std::end(iter1), std::begin(iter2), 0.0);
 	}
+
+	constexpr double kahan_sum(const std::initializer_list<double> values) {
+		double sum = 0.0;
+		double c = 0.0;
+		for (const double value : values) {
+			double y = value - c;
+			double t = sum + y;
+			c = (t - sum) - y;
+			sum = t;
+		}
+		return sum;
+	}
 }
 
 #endif

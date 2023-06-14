@@ -603,10 +603,10 @@ class SIDISComputation {
 			return SIDISFunctions::Evaluation::cross_section<PDFInterface, FFInterface, DecayFunction>(input, params_in, 
 				SIDISFunctions::Integrands::F2x_nlo_integrand, SIDISFunctions::Integrands::FLx_nlo_integrand, SIDISFunctions::Integrands::F3_nlo_integrand,
 				true, true, true
-			);
-		}, {x, z_min, z_min}, {1, 1, 1.0 - 1e-2}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+			) / (1.0 - input[2]);
+		}, {x, z_min, z_min}, {1, 1, 1.0 - 1e-3}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
 		const auto nlo_result = nlo_integrator.integrate();
-		const double nlo_integral = nlo_result.value;
+		const double nlo_integral = nlo_result.value / (1.0 - x);
 
 		const double nlo = nlo_coefficient * nlo_integral;
 

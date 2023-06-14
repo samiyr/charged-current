@@ -168,15 +168,15 @@ int main() {
 				Decay(parametrization, Constants::Particles::LambdaC, target, decay_function, minimum_lepton_momentum)
 			}
 		),
-		150'000,
+		100'000,
 		Process {Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino }
 	);
 	sidis.global_sqrt_s = 21.5465;
-	sidis.max_chi_squared_deviation = 0.2;
-	sidis.max_relative_error = 1e-3;
-	sidis.iter_max = 10;
+	sidis.max_chi_squared_deviation = 0.5;
+	sidis.max_relative_error = 1e-2;
+	sidis.iter_max = 5;
 	// sidis.parallelize = false;
-	// sidis.combine_integrals = false;
+	sidis.combine_integrals = false;
 	// sidis.number_of_threads = 12;
 
 	// LHAInterface pdf("EPPS21nlo_CT18Anlo_Fe56");

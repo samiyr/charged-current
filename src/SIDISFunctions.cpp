@@ -627,7 +627,9 @@ namespace SIDISFunctions {
 			const double xip_integrand = xip_integrand_f(xi, xip, x, z, factorization_scale_log, fragmentation_scale_log, xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat);
 			const double xi_xip_integrand = xi_xip_integrand_f(xi, xip, x, z, factorization_scale_log, fragmentation_scale_log, xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat);
 
-			const double integrand = delta_integrand / ((1 - x) * (1 - z)) + xi_integrand / (1 - z) + xip_integrand / (1 - x) + xi_xip_integrand;
+			// const double integrand = Utility::kahan_sum({delta_integrand, (1.0 - x) * xi_integrand, (1.0 - z) * xip_integrand, (1.0 - x) * (1.0 - z) * xi_xip_integrand});
+			// const double integrand = delta_integrand / ((1.0 - x) * (1.0 - z)) + xi_integrand / (1.0 - z) + xip_integrand / (1.0 - x) + xi_xip_integrand;
+			const double integrand = delta_integrand + (1.0 - x) * xi_integrand + (1.0 - z) * xip_integrand + (1.0 - x) * (1.0 - z) * xi_xip_integrand;
 			return integrand;
 		}
 
