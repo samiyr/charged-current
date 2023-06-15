@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "Flavor.cpp"
-#include "PerturbativeResult.cpp"
+#include "PerturbativeQuantity.cpp"
 #include "PDFCommon.cpp"
 #include "SIDISFunctions.cpp"
 #include "Integrator.cpp"
@@ -82,7 +82,7 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 		return kinematics.Q2;
 	}
 
-	PerturbativeResult F2_combined(const double z, const TRFKinematics &kinematics) {
+	PerturbativeQuantity F2_combined(const double z, const TRFKinematics &kinematics) {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
 		double alpha_s = pdf1.alpha_s(Q2);
@@ -117,9 +117,9 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 
 		const double nlo = nlo_coefficient * x * nlo_value;
 
-		return PerturbativeResult {lo, lo + nlo};
+		return PerturbativeQuantity {lo, lo + nlo};
 	}
-	PerturbativeResult FL_combined(const double z, const TRFKinematics &kinematics) {
+	PerturbativeQuantity FL_combined(const double z, const TRFKinematics &kinematics) {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
 		double alpha_s = pdf1.alpha_s(Q2);
@@ -149,9 +149,9 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 
 		const double nlo = nlo_coefficient * x * xi_xip_integral;
 
-		return PerturbativeResult {0, nlo};
+		return PerturbativeQuantity {0, nlo};
 	}
-	PerturbativeResult xF3_combined(const double z, const TRFKinematics &kinematics) {
+	PerturbativeQuantity xF3_combined(const double z, const TRFKinematics &kinematics) {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
 		double alpha_s = pdf1.alpha_s(Q2);
@@ -186,10 +186,10 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 
 		const double nlo = nlo_coefficient * x * nlo_value;
 
-		return PerturbativeResult {lo, lo + nlo};
+		return PerturbativeQuantity {lo, lo + nlo};
 	}
 
-	PerturbativeResult F2_separated(const double z, const TRFKinematics &kinematics) {
+	PerturbativeQuantity F2_separated(const double z, const TRFKinematics &kinematics) {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
 		double alpha_s = pdf1.alpha_s(Q2);
@@ -239,9 +239,9 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 
 		const double nlo = nlo_coefficient * x * (nlo1 + nlo2);
 
-		return PerturbativeResult {lo, lo + nlo};
+		return PerturbativeQuantity {lo, lo + nlo};
 	}
-	PerturbativeResult FL_separated(const double z, const TRFKinematics &kinematics) {
+	PerturbativeQuantity FL_separated(const double z, const TRFKinematics &kinematics) {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
 		double alpha_s = pdf1.alpha_s(Q2);
@@ -271,9 +271,9 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 
 		const double nlo = nlo_coefficient * x * xi_xip_integral;
 
-		return PerturbativeResult {0, nlo};
+		return PerturbativeQuantity {0, nlo};
 	}
-	PerturbativeResult xF3_separated(const double z, const TRFKinematics &kinematics) {
+	PerturbativeQuantity xF3_separated(const double z, const TRFKinematics &kinematics) {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
 		double alpha_s = pdf1.alpha_s(Q2);
@@ -323,10 +323,10 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 
 		const double nlo = nlo_coefficient * x * (nlo1 + nlo2);
 
-		return PerturbativeResult {lo, lo + nlo};
+		return PerturbativeQuantity {lo, lo + nlo};
 	}
 
-	PerturbativeResult compute_structure_function(const StructureFunction structure_function, const double z, const TRFKinematics &kinematics, const bool combine_integrals) {
+	PerturbativeQuantity compute_structure_function(const StructureFunction structure_function, const double z, const TRFKinematics &kinematics, const bool combine_integrals) {
 		switch (structure_function) {
 		case StructureFunction::F2: return combine_integrals ? F2_combined(z, kinematics) : F2_separated(z, kinematics);
 		case StructureFunction::FL: return combine_integrals ? FL_combined(z, kinematics) : FL_separated(z, kinematics);
@@ -334,7 +334,7 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 		}
 	}
 
-	PerturbativeResult differential_cross_section_xQ2_direct(const TRFKinematics &kinematics, const PerturbativeResult f2, const PerturbativeResult fL, const PerturbativeResult xf3) {
+	PerturbativeQuantity differential_cross_section_xQ2_direct(const TRFKinematics &kinematics, const PerturbativeQuantity f2, const PerturbativeQuantity fL, const PerturbativeQuantity xf3) {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
 		const double y = kinematics.y;
@@ -350,18 +350,18 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 		const double term2 = - 0.5 * y * y;
 		const double term3 = y * (1 - 0.5 * y);
 
-		const PerturbativeResult result = (term1 * f2 + term2 * fL + double(process.W_sign()) * term3 * xf3) / x;
+		const PerturbativeQuantity result = (term1 * f2 + term2 * fL + double(process.W_sign()) * term3 * xf3) / x;
 		return prefactor * result;
 	}
 
-	PerturbativeResult differential_cross_section_xQ2_direct_combined(const double z, const TRFKinematics &kinematics) {
+	PerturbativeQuantity differential_cross_section_xQ2_direct_combined(const double z, const TRFKinematics &kinematics) {
 		return differential_cross_section_xQ2_direct(kinematics, F2_combined(z, kinematics), FL_combined(z, kinematics), xF3_combined(z, kinematics));
 	}
-	PerturbativeResult differential_cross_section_xQ2_direct_separated(const double z, const TRFKinematics &kinematics) {
+	PerturbativeQuantity differential_cross_section_xQ2_direct_separated(const double z, const TRFKinematics &kinematics) {
 		return differential_cross_section_xQ2_direct(kinematics, F2_separated(z, kinematics), FL_separated(z, kinematics), xF3_separated(z, kinematics));
 	}
 
-	PerturbativeResult differential_cross_section_xQ2_indirect_separated(const double z, const TRFKinematics &kinematics) {
+	PerturbativeQuantity differential_cross_section_xQ2_indirect_separated(const double z, const TRFKinematics &kinematics) {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
 		double alpha_s = pdf1.alpha_s(Q2);
@@ -426,12 +426,12 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 
 		const double nlo = nlo_coefficient * (nlo1 + nlo2);
 
-		const PerturbativeResult result = PerturbativeResult {lo, lo + nlo};
+		const PerturbativeQuantity result = PerturbativeQuantity {lo, lo + nlo};
 		const double prefactor = CommonFunctions::cross_section_prefactor(Q2);
 		return prefactor * result;
 	}
 
-	PerturbativeResult differential_cross_section_xQ2_indirect_combined(const double z, const TRFKinematics &kinematics) {
+	PerturbativeQuantity differential_cross_section_xQ2_indirect_combined(const double z, const TRFKinematics &kinematics) {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
 		double alpha_s = pdf1.alpha_s(Q2);
@@ -472,12 +472,12 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 
 		const double nlo = nlo_coefficient * nlo_integral;
 
-		const PerturbativeResult result = PerturbativeResult {lo, lo + nlo};
+		const PerturbativeQuantity result = PerturbativeQuantity {lo, lo + nlo};
 		const double prefactor = CommonFunctions::cross_section_prefactor(Q2);
 		return prefactor * result;
 	}
 
-	PerturbativeResult lepton_pair_cross_section_xQ2_separated(const TRFKinematics &kinematics) {
+	PerturbativeQuantity lepton_pair_cross_section_xQ2_separated(const TRFKinematics &kinematics) {
 		const double x = kinematics.x;
 		const double Q2 = kinematics.Q2;
 
@@ -556,11 +556,11 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 
 		const double nlo = nlo_coefficient * (xi_integral + xip_integral + xi_xip_integral + delta_integral);
 
-		const PerturbativeResult result = PerturbativeResult {lo, lo + nlo};
+		const PerturbativeQuantity result = PerturbativeQuantity {lo, lo + nlo};
 		const double prefactor = CommonFunctions::cross_section_prefactor(Q2);
 		return prefactor * result;
 	}
-	PerturbativeResult lepton_pair_cross_section_xQ2_combined(const TRFKinematics &kinematics) {
+	PerturbativeQuantity lepton_pair_cross_section_xQ2_combined(const TRFKinematics &kinematics) {
 		const double x = kinematics.x;
 		const double Q2 = kinematics.Q2;
 
@@ -611,7 +611,7 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 
 		const double nlo = nlo_coefficient * nlo_integral;
 
-		const PerturbativeResult result = PerturbativeResult {lo, lo + nlo};
+		const PerturbativeQuantity result = PerturbativeQuantity {lo, lo + nlo};
 		const double prefactor = CommonFunctions::cross_section_prefactor(Q2);
 		return prefactor * result;
 	}

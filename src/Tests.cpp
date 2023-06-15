@@ -664,7 +664,7 @@ namespace Tests {
 
 		const double z_min = SIDISFunctions::compute_z_min(kinematics, decay);
 
-		const PerturbativeResult result = sidis.lepton_pair_cross_section_xQ2(kinematics);
+		const PerturbativeQuantity result = sidis.lepton_pair_cross_section_xQ2(kinematics);
 		std::cout << "Lepton-pair cross section value = " << result.lo << std::endl;
 
 		SIDIS sidis1(
@@ -755,7 +755,7 @@ namespace Tests {
 
 		const double z_min = SIDISFunctions::compute_z_min(kinematics, decay);
 
-		const PerturbativeResult result = sidis.lepton_pair_cross_section_xQ2(kinematics);
+		const PerturbativeQuantity result = sidis.lepton_pair_cross_section_xQ2(kinematics);
 		std::cout << "Lepton-pair cross section value = " << result.nlo << std::endl;
 
 		SIDIS sidis1(
@@ -846,9 +846,9 @@ namespace Tests {
 		sidis2.max_relative_error = 1e-3;
 		sidis2.iter_max = 0;
 
-		const PerturbativeResult result_dis = dis.cross_section(x, Q2);
+		const PerturbativeQuantity result_dis = dis.cross_section(x, Q2);
 		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, Constants::Particles::Proton.mass, 0);
-		const PerturbativeResult result_sidis = sidis.lepton_pair_cross_section_xQ2(kinematics);
+		const PerturbativeQuantity result_sidis = sidis.lepton_pair_cross_section_xQ2(kinematics);
 		std::cout << "Lepton-pair cross section value (DIS) = " << result_dis.lo << std::endl;
 		std::cout << "Lepton-pair cross section value (SIDIS integrated) = " << result_sidis.lo << std::endl;
 

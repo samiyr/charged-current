@@ -67,7 +67,7 @@ class LHAInterface {
 		return xf(Flavor::Gluon);
 	}
 	double alpha_s(const double Q2) const {
-		return 0.2;
+		// return 0.2;
 		return _pdf->alphasQ2(Q2);
 	}
 

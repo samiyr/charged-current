@@ -5,9 +5,6 @@
 #include "DIS.cpp"
 #include "SIDIS.cpp"
 #include "LHAInterface.cpp"
-#include "TrivialInterface.cpp"
-#include "DeltaInterface.cpp"
-#include "SIDISComparison.cpp"
 #include "Tests.cpp"
 #include "TRFKinematics.cpp"
 // #include "PythiaSIDIS.cpp"
@@ -34,15 +31,15 @@ int main() {
 		FragmentationConfiguration(
 			{
 				LHAInterface("kkks08_opal_d0___mas"), 
-				// LHAInterface("kkks08_opal_d+___mas"), 
-				// LHAInterface("bkk05_D3_d_s_nlo"), 
-				// LHAInterface("bkk05_D3_lambda_c_nlo")
+				LHAInterface("kkks08_opal_d+___mas"), 
+				LHAInterface("bkk05_D3_d_s_nlo"), 
+				LHAInterface("bkk05_D3_lambda_c_nlo")
 			},
 			{
 				Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),
-				// Decay(parametrization, Constants::Particles::Dp, target, decay_function, minimum_lepton_momentum),
-				// Decay(parametrization, Constants::Particles::Ds, target, decay_function, minimum_lepton_momentum),
-				// Decay(parametrization, Constants::Particles::LambdaC, target, decay_function, minimum_lepton_momentum)
+				Decay(parametrization, Constants::Particles::Dp, target, decay_function, minimum_lepton_momentum),
+				Decay(parametrization, Constants::Particles::Ds, target, decay_function, minimum_lepton_momentum),
+				Decay(parametrization, Constants::Particles::LambdaC, target, decay_function, minimum_lepton_momentum)
 			}
 		),
 		200'000,
@@ -58,23 +55,25 @@ int main() {
 	sidis.iter_max = 5;
 	sidis.combine_integrals = true;
 
-	// sidis.lepton_pair_cross_section_xy(
-	// 	{0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05, 0.055, 0.06, 0.065, 0.07, 0.075, 0.08, 0.09, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35}, 
-	// 	{0.334, 0.573, 0.790},
-	// 	{90.18, 174.37, 244.72},
-	// 	"neutrino_sidis_nutev.csv"
-	// );
+	std::cout << "Remember alpha_s!" << std::endl;
+
 	sidis.lepton_pair_cross_section_xy(
-		{0.02245, 0.03233, 0.0422, 0.10145, 0.15082, 0.20019}, 
-		{0.790},
-		{90.18},
+		{0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05, 0.055, 0.06, 0.065, 0.07, 0.075, 0.08, 0.09, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35}, 
+		{0.334, 0.573, 0.790},
+		{90.18, 174.37, 244.72},
 		"neutrino_sidis_nutev.csv"
 	);
+	sidis.lepton_pair_cross_section_xy(
+		{0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05, 0.055, 0.06, 0.065, 0.07, 0.075, 0.08, 0.09, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35}, 
+		{0.32, 0.57, 0.795},
+		{109.46, 209.89, 332.7},
+		"neutrino_sidis_ccfr.csv"
+	);
 	// sidis.lepton_pair_cross_section_xy(
-	// 	{0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05, 0.055, 0.06, 0.065, 0.07, 0.075, 0.08, 0.09, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35}, 
-	// 	{0.32, 0.57, 0.795},
-	// 	{109.46, 209.89, 332.7},
-	// 	"neutrino_sidis_ccfr.csv"
+	// 	{0.02245, 0.03233, 0.0422, 0.10145, 0.15082, 0.20019}, 
+	// 	{0.790},
+	// 	{90.18},
+	// 	"garbage.csv"
 	// );
 	// sidis.lepton_pair_cross_section(
 	// 	{0.3, 0.35}, 

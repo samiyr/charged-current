@@ -35,17 +35,17 @@ struct DIS {
 	process(_process)
 	{ }
 
-	PerturbativeResult compute_structure_function(StructureFunction F, const double x, const double Q2) {
+	PerturbativeQuantity compute_structure_function(StructureFunction F, const double x, const double Q2) {
 		DISComputation dis(sqrt_s, active_flavors, pdf, points, max_chi_squared_deviation, max_relative_error, iter_max, process);
 		return dis.structure_function(F, x, Q2);
 	}
-	PerturbativeResult F2(const double x, const double Q2) {
+	PerturbativeQuantity F2(const double x, const double Q2) {
 		return compute_structure_function(StructureFunction::F2, x, Q2);
 	}
-	PerturbativeResult FL(const double x, const double Q2) {
+	PerturbativeQuantity FL(const double x, const double Q2) {
 		return compute_structure_function(StructureFunction::FL, x, Q2);
 	}
-	PerturbativeResult xF3(const double x, const double Q2) {
+	PerturbativeQuantity xF3(const double x, const double Q2) {
 		return compute_structure_function(StructureFunction::xF3, x, Q2);
 	}
 
@@ -93,11 +93,11 @@ struct DIS {
 				const double x = x_bins[i];
 				const double Q2 = Q2_bins[j];
 				
-				const PerturbativeResult value_F2 = dis.structure_function(StructureFunction::F2, x, Q2);
-				const PerturbativeResult value_FL = dis.structure_function(StructureFunction::FL, x, Q2);
-				const PerturbativeResult value_xF3 = dis.structure_function(StructureFunction::xF3, x, Q2);
-				const PerturbativeResult value_F1 = (value_F2  - value_FL) / (2 * x);
-				const PerturbativeResult value_F3 = value_xF3 / x;
+				const PerturbativeQuantity value_F2 = dis.structure_function(StructureFunction::F2, x, Q2);
+				const PerturbativeQuantity value_FL = dis.structure_function(StructureFunction::FL, x, Q2);
+				const PerturbativeQuantity value_xF3 = dis.structure_function(StructureFunction::xF3, x, Q2);
+				const PerturbativeQuantity value_F1 = (value_F2  - value_FL) / (2 * x);
+				const PerturbativeQuantity value_F3 = value_xF3 / x;
 
 				#pragma omp critical
 				{
@@ -158,9 +158,9 @@ struct DIS {
 	// 	file.close();
 	// }
 
-	PerturbativeResult cross_section(const double x, const double Q2) {
+	PerturbativeQuantity cross_section(const double x, const double Q2) {
 		DISComputation dis(sqrt_s, active_flavors, pdf, points, max_chi_squared_deviation, max_relative_error, iter_max, process);				
-		const PerturbativeResult differential_cs = dis.differential_cross_section(x, Q2);
+		const PerturbativeQuantity differential_cs = dis.differential_cross_section(x, Q2);
 		return differential_cs;
 	}
 
@@ -179,7 +179,7 @@ struct DIS {
 				const double x = x_bins[i];
 				const double Q2 = Q2_bins[j];
 				
-				const PerturbativeResult differential_cs = dis.differential_cross_section(x, Q2);
+				const PerturbativeQuantity differential_cs = dis.differential_cross_section(x, Q2);
 
 				#pragma omp critical
 				{

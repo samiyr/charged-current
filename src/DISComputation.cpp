@@ -2,11 +2,9 @@
 #define DIS_COMPUTATION_H
 
 #include "Integrator.cpp"
-#include "PDFInterface.cpp"
-#include "Coefficients.cpp"
 #include "Constants.cpp"
 #include "Utility.cpp"
-#include "PerturbativeResult.cpp"
+#include "PerturbativeQuantity.cpp"
 #include "Process.cpp"
 #include "StructureFunction.cpp"
 #include "DISFunctions.cpp"
@@ -58,7 +56,7 @@ class DISComputation {
 	iter_max(_iter_max),
 	process(_process) { }
 
-	PerturbativeResult F2(const double x, const double Q2) {	
+	PerturbativeQuantity F2(const double x, const double Q2) {	
 		double alpha_s = pdf.alpha_s(Q2);
 		double nlo_coefficient = alpha_s / (2 * M_PI);
 
@@ -79,9 +77,9 @@ class DISComputation {
 		const double nlo2 = integral;
 		const double nlo = 2 * nlo_coefficient * (-nlo1 + nlo2);
 
-		return PerturbativeResult {lo, lo + nlo};
+		return PerturbativeQuantity {lo, lo + nlo};
 	}
-	PerturbativeResult FL(const double x, const double Q2) {
+	PerturbativeQuantity FL(const double x, const double Q2) {
 		double alpha_s = pdf.alpha_s(Q2);
 		double nlo_coefficient = alpha_s / (2 * M_PI);
 
@@ -96,9 +94,9 @@ class DISComputation {
 
 		const double nlo = 2 * nlo_coefficient * integral;
 
-		return PerturbativeResult {0, nlo};
+		return PerturbativeQuantity {0, nlo};
 	}
-	PerturbativeResult xF3(const double x, const double Q2) {
+	PerturbativeQuantity xF3(const double x, const double Q2) {
 		double alpha_s = pdf.alpha_s(Q2);
 		double nlo_coefficient = alpha_s / (2 * M_PI);
 
@@ -119,9 +117,9 @@ class DISComputation {
 		const double nlo2 = integral;
 		const double nlo = 2 * nlo_coefficient * (-nlo1 + nlo2);
 
-		return PerturbativeResult {lo, lo + nlo};
+		return PerturbativeQuantity {lo, lo + nlo};
 	}
-	constexpr PerturbativeResult structure_function(StructureFunction F, double x, double Q2) {
+	constexpr PerturbativeQuantity structure_function(StructureFunction F, double x, double Q2) {
 		switch (F) {
 		case StructureFunction::F2: return F2(x, Q2);
 		case StructureFunction::FL: return FL(x, Q2);
@@ -129,12 +127,12 @@ class DISComputation {
 		}
 	}
 
-	PerturbativeResult differential_cross_section(const double x, const double Q2) {
+	PerturbativeQuantity differential_cross_section(const double x, const double Q2) {
 		const double prefactor = CommonFunctions::cross_section_prefactor(Q2);
 
-		const PerturbativeResult f2 = F2(x, Q2);
-		const PerturbativeResult fL = FL(x, Q2);
-		const PerturbativeResult xf3 = xF3(x, Q2);
+		const PerturbativeQuantity f2 = F2(x, Q2);
+		const PerturbativeQuantity fL = FL(x, Q2);
+		const PerturbativeQuantity xf3 = xF3(x, Q2);
 
 		const std::optional<double> y_opt = CommonFunctions::compute_y(x, Q2, s, process.target.mass, process.projectile.mass);
 		if (!y_opt.has_value()) {
@@ -146,7 +144,7 @@ class DISComputation {
 		const double term2 = - 0.5 * y * y;
 		const double term3 = y * (1 - 0.5 * y);
 
-		const PerturbativeResult result = prefactor * (term1 * f2 + term2 * fL + double(process.W_sign()) * term3 * xf3) / x;
+		const PerturbativeQuantity result = prefactor * (term1 * f2 + term2 * fL + double(process.W_sign()) * term3 * xf3) / x;
 		return result;
 	}
 };
