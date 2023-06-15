@@ -6,6 +6,7 @@
 #include <numeric>
 #include <gsl/gsl_sf.h>
 #include <boost/math/special_functions/beta.hpp>
+#include <string>
 
 #define POW2(x) (x) * (x)
 #define POW4(x) (x) * (x) * (x) * (x)
@@ -112,6 +113,23 @@ namespace Utility {
 		}
 		return sum;
 	}
+
+	constexpr std::string bool_to_string(const bool input) {
+		return input ? "true" : "false";
+	}
+
+	// https://stackoverflow.com/a/19743821/1531270
+	template<class Class>
+	struct Traced {
+	public:
+		Traced() = default;
+		Traced(Traced const&) {
+			#pragma omp critical
+			std::cout << typeid(Class).name() << " copy constructor called" << std::endl;
+		}
+	protected:
+		~Traced() = default;
+	};
 }
 
 #endif

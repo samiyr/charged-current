@@ -1,7 +1,6 @@
 #ifndef ZERO_EXTRAPOLATOR_H
 #define ZERO_EXTRAPOLATOR_H
 
-#include "LHAPDF/LHAPDF.h"
 #include "LHAPDF/Extrapolator.h"
 
 class ZeroExtrapolator : public LHAPDF::Extrapolator {

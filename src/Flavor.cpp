@@ -7,6 +7,8 @@
 #include "Utility.cpp"
 #include "Constants.cpp"
 
+#define TOTAL_FLAVORS 13
+
 using FlavorType = int;
 using FlavorVector = std::vector<FlavorType>;
 
@@ -28,8 +30,6 @@ namespace Flavor {
 	static FlavorVector all_upper_flavors = {Flavor::Up, Flavor::Charm, Flavor::Top, Flavor::AntiUp, Flavor::AntiCharm, Flavor::AntiTop};
 	static FlavorVector all_lower_flavors = {Flavor::Down, Flavor::Strange, Flavor::Bottom, Flavor::AntiDown, Flavor::AntiStrange, Flavor::AntiBottom};
 	static FlavorVector all_flavors = {-6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6};
-	// static constexpr std::array<double, 13> flavor_masses = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-	static constexpr std::array<double, 13> flavor_masses = {0.0, 0.0, 1.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 0.0, 0.0};
 
 	constexpr FlavorType conjugate_flavor(const FlavorType flavor) {
 		return -flavor;
@@ -78,10 +78,6 @@ namespace Flavor {
 			flavors[i] = reflect_flavor(flavors[i]);
 		}
 	}
-
-	constexpr double mass(const FlavorType flavor) {
-		return flavor_masses[size_t(flavor + 6)];
-	}
 };
 
 struct FlavorInfo {
@@ -93,12 +89,18 @@ struct FlavorInfo {
 	FlavorVector upper_antiflavors;
 	FlavorVector lower_antiflavors;
 
-	FlavorInfo(const FlavorVector _active_flavors) 
-	: active_flavors(_active_flavors), active_antiflavors(Flavor::conjugate_flavors(active_flavors)) {
+	const std::array<double, TOTAL_FLAVORS> flavor_masses;
+
+	FlavorInfo(const FlavorVector _active_flavors, const std::array<double, TOTAL_FLAVORS> _masses = {}) 
+	: active_flavors(_active_flavors), active_antiflavors(Flavor::conjugate_flavors(active_flavors)), flavor_masses(_masses) {
 		upper_flavors = Flavor::upper_flavors(active_flavors);
 		lower_flavors = Flavor::lower_flavors(active_flavors);
 		upper_antiflavors = Flavor::upper_flavors(active_antiflavors);
 		lower_antiflavors = Flavor::lower_flavors(active_antiflavors);
+	}
+
+	constexpr double mass(const FlavorType flavor) const {
+		return flavor_masses[size_t(flavor + 6)];
 	}
 };
 

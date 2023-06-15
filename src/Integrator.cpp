@@ -108,6 +108,9 @@ class Integrator {
 		double best_chi_squared = chi_squared;
 		double best_integral = integral;
 		double best_error = error;
+
+		// std::cout << "Warm-up integral: " << integral << " +- " << error << " (" << chi_squared << ")" << std::endl;
+
 		while (abs(chi_squared - 1.0) >= max_chi_squared_deviation || abs(error / integral) >= max_relative_error) {
 			iteration++;
 			if (iteration > iter_max) {
@@ -117,6 +120,7 @@ class Integrator {
 			gsl_monte_vegas_integrate(&function, lower.data(), upper.data(), dim, points, rng, state, &integral, &error);
 
 			chi_squared = gsl_monte_vegas_chisq(state);
+			// std::cout << "Iteration " << iteration << " integral: " << integral << " +- " << error << " (" << chi_squared << ")" << std::endl;
 			if (abs(chi_squared - 1.0) < abs(best_chi_squared - 1.0)) {
 				best_chi_squared = chi_squared;
 				best_integral = integral;
@@ -127,6 +131,7 @@ class Integrator {
 		double final_integral = integral;
 		double final_error = error;
 		double final_chi_squared = gsl_monte_vegas_chisq(state);
+		// std::cout << "Final iteration integral: " << final_integral << " +- " << final_error << " (" << final_chi_squared << ")" << std::endl;
 
 		if (iteration_limit_reached) {
 			final_integral = best_integral;
@@ -134,6 +139,7 @@ class Integrator {
 			final_chi_squared = best_chi_squared;
 		}
 
+		// std::cout << "Final integral: " << final_integral << " +- " << final_error << " (" << final_chi_squared << ")" << std::endl << std::endl;
 		gsl_monte_vegas_free(state);
 
 		return Result {final_integral, final_error, final_chi_squared};

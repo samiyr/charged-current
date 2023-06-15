@@ -481,6 +481,88 @@ namespace Tests {
 		return flag;
 	}
 
+	bool sidis_structure_function_quarks_gluons_scale_logs_tests() {
+		bool flag = true;
+
+		SIDIS sidis(
+			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+			FunctionalFormInterface([](const FlavorType flavor, const double x, [[maybe_unused]] const double Q2) {
+				if (Flavor::is_gluon(flavor)) { return x * x * (1 - x); }
+				const double f = double(flavor);
+				return (2.0 * f * f - f + 1.0) * x * (1 - x);
+			}),
+			FunctionalFormInterface([](const FlavorType flavor, const double x, [[maybe_unused]] const double Q2) {
+				if (Flavor::is_gluon(flavor)) { return x * x * (1 - x) * (1 - x); }
+				const double f = double(flavor);
+				return (2.0 * f * f + f + 1.0) * x * (1 - x) * (1 - x);
+			}),
+			200'000,
+			Process {Process::Type::NeutrinoToLepton, Particle(), Particle()},
+			ScaleDependence::constant(5.0),
+			ScaleDependence::constant(30.0)
+		);
+		sidis.max_chi_squared_deviation = 0.2;
+		sidis.iter_max = 10;
+
+		const std::vector<double> xz_values = {0.001, 0.01, 0.1, 0.2, 0.5, 0.9, 0.99};
+
+		const std::vector<std::vector<double>> F2_comparison_values = {
+			{20.9822, 27.874, 16.1389, 11.1343, 3.6576, 0.150557, 0.0021788}, 
+			{-42.5053, 129.146, 80.3101, 55.9039, 19.75, 1.0963, 0.0204371}, 
+			{-2466.3, 68.7253, 196.439, 166.484, 92.6354, 9.10165, 0.204603}, 
+			{-5481.73, -401.989, 127.422, 168.546, 144.624, 17.1099, 0.391234}, 
+			{-11185.8, -1695.81, -158.473, 106.705, 248.538, 32.8832, 0.729404}, 
+			{-5255.72, -837.606, 36.6268, 181.382, 195.638, 19.6929, 0.382525}, 
+			{-670.904, -58.5411, 64.9554, 76.1398, 49.5978, 3.7615, 0.0636219}
+		};
+
+		const std::vector<std::vector<double>> FL_comparison_values = {
+			{2.02362, 1.86103, 1.0821, 0.644802, 0.115307, 0.00070778, 0.000000674547}, 
+			{19.3544, 17.7651, 10.3144, 6.14418, 1.09838, 0.00674101, 0.00000642435}, 
+			{139.793, 127.473, 73.6375, 43.8173, 7.82426, 0.0479929, 0.0000457349}, 
+			{200.86, 182.733, 105.37, 62.6751, 11.1871, 0.0686066, 0.0000653769},
+			{160.82, 146.413, 84.4743, 50.2522, 8.97083, 0.0550184, 0.0000524288}, 
+			{9.55876, 8.77104, 5.09122, 3.03263, 0.542107, 0.00332695, 0.00000317065}, 
+			{0.101269, 0.0931449, 0.054165, 0.0322766, 0.00577202, 0.0000354302, 0.0000000337666}
+		};
+
+		const std::vector<std::vector<double>> xF3_comparison_values = {
+			{7.20047, 0.235145, -0.00764879, -0.000344872, 0.00251706, 0.0000826894, 0.000000196879}, 
+			{96.3767, 4.76113, 0.082146, 0.0323208, 0.0166181, 0.000314103, -0.00000264456}, 
+			{1134.74, 68.2821, 2.40841, 0.730088, 0.11012, -0.0000768031, -0.0000399631}, 
+			{2187.44, 137.874, 5.46561, 1.67682, 0.208582, -0.000911088, -0.0000720002}, 
+			{3932.75, 265.345, 12.2606, 3.92284, 0.435814, -0.00231401, -0.000113965}, 
+			{1794.75, 132.155, 7.1871, 2.45551, 0.300528, 0.00143252, -0.0000133274}, 
+			{247.164, 19.3459, 1.15259, 0.405764, 0.0514666, 0.000373753, 0.000000227695}
+		};
+
+		#pragma omp parallel for collapse(2)
+		for (size_t i = 0; i < xz_values.size(); i++) {
+			for (size_t j = 0; j < xz_values.size(); j++) {
+				const double x = xz_values[i];
+				const double z = xz_values[j];
+
+				const double comparison_value_F2 = F2_comparison_values[i][j];
+				const double comparison_value_FL = FL_comparison_values[i][j];
+				const double comparison_value_xF3 = xF3_comparison_values[i][j];
+
+				const double computed_value_F2 = sidis.F2(x, z, 20.0).nlo;
+				const double computed_value_FL = sidis.FL(x, z, 20.0).nlo;
+				const double computed_value_xF3 = sidis.xF3(x, z, 20.0).nlo;
+
+				#pragma omp critical
+				{
+					std::cout << "Running SIDIS test at x = " << x << ", z = " << z << " (quarks and gluons + scale logs):" << std::endl;
+					flag &= double_comparison_rel(computed_value_F2, comparison_value_F2, 1e-3);
+					flag &= double_comparison_rel(computed_value_FL, comparison_value_FL, 1e-3);
+					flag &= double_comparison_rel(computed_value_xF3, comparison_value_xF3, 1e-3);
+					std::cout << std::endl;
+				}
+			}
+		}
+		return flag;
+	}
+
 	/// Tests the evaluation of DecayFunctions::decay_function against a set of values computed with Mathematica.
 	bool decay_function_tests_1() {
 		bool flag = true;
@@ -792,8 +874,18 @@ namespace Tests {
 		flag &= sidis_structure_function_only_gluons_tests_1();
 		flag &= sidis_structure_function_only_gluons_tests_2();
 		flag &= sidis_structure_function_quarks_gluons_tests();
+		flag &= sidis_structure_function_quarks_gluons_scale_logs_tests();
 		flag &= decay_function_tests_1();
 		flag &= decay_function_tests_2();
+
+		return flag;
+	}
+
+	bool run_heavy_tests() {
+		bool flag = true;
+		flag &= lepton_pair_lo_cross_section_integration_tests();
+		flag &= lepton_pair_nlo_cross_section_integration_tests();
+		flag &= sidis_lo_cross_section_integration_test();
 
 		return flag;
 	}

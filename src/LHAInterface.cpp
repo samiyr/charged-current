@@ -10,8 +10,6 @@
 #include "Process.cpp"
 #include "ZeroExtrapolator.cpp"
 
-#define TOTAL_FLAVORS 13
-
 #define CACHE_STATS false
 
 class LHAInterface {
@@ -24,11 +22,8 @@ class LHAInterface {
 	LHAInterface(std::string _set_name, int _set_member_number = 0)
 	: set_name(_set_name), 
 	set_member_number(_set_member_number), 
-	flavor_values(TOTAL_FLAVORS, 0.0),
-	_pdf(LHAPDF::mkPDF(set_name, set_member_number)) {
-		std::shared_ptr<LHAPDF::GridPDF> grid_pdf = std::static_pointer_cast<LHAPDF::GridPDF>(_pdf);
-		LHAPDF::Extrapolator *zero_extrapolator = new ZeroExtrapolator();
-		grid_pdf->setExtrapolator(zero_extrapolator);
+	flavor_values(TOTAL_FLAVORS, 0.0) {
+		initialize();
 		available_flavors = _pdf->flavors();
 	}
 
@@ -53,6 +48,13 @@ class LHAInterface {
 
 		prev_x = x;
 		prev_Q2 = Q2;
+
+		// if (set_name == "kkks08_opal_d0___mas") {
+		// 	const double gluon = flavor_values[6];
+
+		// 	std::fill(flavor_values.begin(), flavor_values.end(), 0.0);
+		// 	flavor_values[6] = gluon;
+		// }
 	}
 	
 	double xf_evaluate(const FlavorType flavor, const double x, const double Q2) {
@@ -65,12 +67,36 @@ class LHAInterface {
 		return xf(Flavor::Gluon);
 	}
 	double alpha_s(const double Q2) const {
+		return 0.2;
 		return _pdf->alphasQ2(Q2);
+	}
+
+	LHAInterface(const LHAInterface &o) {
+		set_name = o.set_name;
+		set_member_number = o.set_member_number;
+		initialize();
 	}
 
 	private:
 	std::vector<double> flavor_values;
-	std::shared_ptr<LHAPDF::PDF> _pdf;
+	std::unique_ptr<LHAPDF::PDF> _pdf;
+	
+	void initialize() {
+		_pdf = std::unique_ptr<LHAPDF::PDF>(LHAPDF::mkPDF(set_name, set_member_number));
+		available_flavors = _pdf->flavors();
+		flavor_values = std::vector<double>(TOTAL_FLAVORS, 0.0);
+		prev_x = -1.0;
+		prev_Q2 = -1.0;
+
+		LHAPDF::GridPDF *grid_pdf = static_cast<LHAPDF::GridPDF *>(_pdf.get());
+		LHAPDF::Extrapolator *zero_extrapolator = new ZeroExtrapolator();
+		grid_pdf->setExtrapolator(zero_extrapolator);
+		
+		#if CACHE_STATS
+		total_hits = 0;
+		cache_hits = 0;
+		#endif
+	}
 
 	double prev_x = -1.0;
 	double prev_Q2 = -1.0;

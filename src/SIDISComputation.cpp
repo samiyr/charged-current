@@ -12,8 +12,8 @@
 #include "FragmentationConfiguration.cpp"
 #include <optional>
 
-template <typename PDFInterface, typename FFInterface, typename DecayFunction, typename ScaleFunction>
-class SIDISComputation {
+template <typename PDFInterface, typename FFInterface, typename DecayFunction, typename FactorizationScaleFunction, typename FragmentationScaleFunction>
+class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInterface, DecayFunction, FactorizationScaleFunction, FragmentationScaleFunction>> */ {
 	public:
 	double sqrt_s;
 	double s;
@@ -34,12 +34,13 @@ class SIDISComputation {
 	const Process process;
 	const bool momentum_fraction_mass_corrections;
 
-	const std::optional<ScaleFunction> factorization_scale_function;
-	const std::optional<ScaleFunction> fragmentation_scale_function;
+	const std::optional<FactorizationScaleFunction> factorization_scale_function;
+	const std::optional<FragmentationScaleFunction> fragmentation_scale_function;
 
 	SIDISComputation (
 		const double _sqrt_s, 
 		const FlavorVector _active_flavors, 
+		const std::array<double, TOTAL_FLAVORS> _flavor_masses,
 		const PDFInterface _pdf,
 		const FragmentationConfiguration<FFInterface, DecayFunction> _ff,
 		const size_t _points,
@@ -48,11 +49,11 @@ class SIDISComputation {
 		const unsigned int _iter_max,
 		const Process _process,
 		const bool _momentum_fraction_mass_corrections,
-		const std::optional<ScaleFunction> _factorization_scale_function,
-		const std::optional<ScaleFunction> _fragmentation_scale_function
+		const std::optional<FactorizationScaleFunction> _factorization_scale_function,
+		const std::optional<FragmentationScaleFunction> _fragmentation_scale_function
 	) : sqrt_s(_sqrt_s),
 	s(_sqrt_s * _sqrt_s), 
-	flavors(_active_flavors),
+	flavors(_active_flavors, _flavor_masses),
 	pdf1(_pdf), 
 	ff1(_ff),
 	pdf2(_pdf), 

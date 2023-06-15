@@ -107,10 +107,10 @@ namespace SIDISFunctions {
 			const double factorization_scale = params.factorization_scale;
 			const double fragmentation_scale = params.fragmentation_scale;
 
-			// if (xi_int) {
-			// 	if (xi < x) { return 0; }
-			// 	if (std::abs(xi - 1) < 1e-15) { return 0; }
-			// }
+			if (xi_int) {
+				// if (xi < x) { return 0; }
+				if (xi == 1.0) { return 0.0; }
+			}
 			if (z_int) {
 				if (xip < z) { return 0.0; }
 				ff1.evaluate(z, fragmentation_scale);
@@ -122,7 +122,7 @@ namespace SIDISFunctions {
 				// 	}
 				// 	return 0; 
 				// 	}
-				// if (std::abs(xip - 1) < 1e-15) { return 0; }
+				if (xip == 1.0) { return 0.0; }
 				ff2.evaluate(z_hat, fragmentation_scale);
 			}
 
@@ -143,7 +143,7 @@ namespace SIDISFunctions {
 				for (const FlavorType incoming : flavors1) {
 					const FlavorType anti_outgoing = Flavor::conjugate_flavor(incoming);
 
-					const double x_mass = CommonFunctions::compute_momentum_fraction_mass_correction(x, Q2, Flavor::mass(Flavor::Charm), 0.0);
+					const double x_mass = CommonFunctions::compute_momentum_fraction_mass_correction(x, Q2, flavors.mass(Flavor::Charm), 0.0);
 
 					if (xi_int && xi < x_mass) { continue; }
 					pdf1.evaluate(x_mass, factorization_scale);
