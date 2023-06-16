@@ -111,16 +111,31 @@ namespace Tests {
 	bool dis_cross_section_tests() {
 		bool flag = true;
 
-		DIS dis(
-			318,
+		DIS dis1(
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
 			LHAInterface("CT18ANLO"),
 			20'000,
 			Process {Process::Type::NeutrinoToLepton, Particle(), Particle()}
 		);
-		dis.max_chi_squared_deviation = 0.2;
-		dis.iter_max = 10;
 
+		dis1.max_chi_squared_deviation = 0.2;
+		dis1.max_relative_error = 1e-3;
+		dis1.iter_max = 10;
+		dis1.compute_differential_cross_section_directly = true;
+
+		DIS dis2(
+			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+			LHAInterface("CT18ANLO"),
+			20'000,
+			Process {Process::Type::NeutrinoToLepton, Particle(), Particle()}
+		);
+
+		dis2.max_chi_squared_deviation = 0.2;
+		dis2.max_relative_error = 1e-3;
+		dis2.iter_max = 10;
+		dis2.compute_differential_cross_section_directly = false;
+
+		const double sqrt_s = 318.0;
 		const std::vector<double> x_values = {0.002, 0.1, 0.2, 0.5};
 		const std::vector<double> Q2_values = {50.0, 500.0, 1000.0, 10'000.0};
 
@@ -139,12 +154,16 @@ namespace Tests {
 
 				const double comparison_value = comparison_values[i][j];
 
-				const double computed_value = dis.cross_section(x, Q2).nlo;
+				const TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, 0.0, 0.0);
+
+				const double computed_value_1 = dis1.differential_cross_section_xQ2(kinematics).nlo;
+				const double computed_value_2 = dis2.differential_cross_section_xQ2(kinematics).nlo;
 
 				#pragma omp critical 
 				{
 					std::cout << "Running DIS test at x = " << x << ", Q^2 = " << Q2 << std::endl;
-					flag &= double_comparison(computed_value, comparison_value, 1e-1);
+					flag &= double_comparison_rel(computed_value_1, comparison_value, 1e-3);
+					flag &= double_comparison_rel(computed_value_2, comparison_value, 1e-3);
 					std::cout << std::endl;
 				}
 			}
@@ -808,12 +827,13 @@ namespace Tests {
 		const auto pdf = LHAInterface("EPPS21nlo_CT18Anlo_Fe56");
 
 		DIS dis(
-			sqrt_s,
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
 			pdf,
 			10'000,
 			Process {Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino}
 		);
+
+		dis.global_sqrt_s = sqrt_s;
 		dis.max_chi_squared_deviation = 0.2;
 		dis.max_relative_error = 1e-3;
 		dis.iter_max = 10;
@@ -846,8 +866,8 @@ namespace Tests {
 		sidis2.max_relative_error = 1e-3;
 		sidis2.iter_max = 0;
 
-		const PerturbativeQuantity result_dis = dis.cross_section(x, Q2);
 		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, Constants::Particles::Proton.mass, 0);
+		const PerturbativeQuantity result_dis = dis.differential_cross_section_xQ2(kinematics);
 		const PerturbativeQuantity result_sidis = sidis.lepton_pair_cross_section_xQ2(kinematics);
 		std::cout << "Lepton-pair cross section value (DIS) = " << result_dis.lo << std::endl;
 		std::cout << "Lepton-pair cross section value (SIDIS integrated) = " << result_sidis.lo << std::endl;

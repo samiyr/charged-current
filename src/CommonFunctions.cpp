@@ -21,7 +21,9 @@ namespace CommonFunctions {
 	constexpr double compute_momentum_fraction_mass_correction(const double x_0, const double Q2, const double mass_scale, const double target_mass) {
 		return x_0 * (1 + std::pow(mass_scale, 2) / Q2) * (1 - std::pow(x_0 * target_mass, 2) / Q2);
 	}
-
+	constexpr static double xy_jacobian(const TRFKinematics &kinematics, const Process &process) {
+		return (kinematics.s - std::pow(process.target.mass, 2) - std::pow(process.projectile.mass, 2)) * kinematics.x;
+	}
 	constexpr double make_cross_section_variable(const double x, const double Q2, const double s, const Process process, const double f2, const double fL, const double xf3) {
 		const std::optional<double> y_opt = CommonFunctions::compute_y(x, Q2, s, process.target.mass, process.projectile.mass);
 

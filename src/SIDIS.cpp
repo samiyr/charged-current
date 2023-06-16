@@ -9,6 +9,7 @@
 #include "FragmentationConfiguration.cpp"
 #include "ScaleDependence.cpp"
 #include <optional>
+#include "CommonFunctions.cpp"
 
 template <
 	typename PDFInterface, 
@@ -19,13 +20,12 @@ template <
 >
 struct SIDIS {
 	const FlavorVector active_flavors;
-	const FlavorVector active_antiflavors;
 
 	PDFInterface pdf;
 	FragmentationConfiguration<FFInterface, DecayFunction> ff;
 
 	bool parallelize = true;
-	size_t number_of_threads = 8;
+	unsigned int number_of_threads = Utility::get_default_thread_count();
 
 	const size_t points;
 	double max_chi_squared_deviation = 0.2;
@@ -103,11 +103,6 @@ struct SIDIS {
 			file << flavor << " ";
 		}
 		file << std::endl;
-		file << "#active_antiflavors = ";
-		for (const FlavorType flavor : active_antiflavors) {
-			file << flavor << " ";
-		}
-		file << std::endl;
 		
 		file << "#pdf = " << pdf.set_name << std::endl;
 		file << "#ff = ";
@@ -135,11 +130,11 @@ struct SIDIS {
 	}
 
 	public:
-	PerturbativeQuantity compute_structure_function(StructureFunction F, const double z, const TRFKinematics kinematics) {
+	PerturbativeQuantity compute_structure_function(const StructureFunction F, const double z, const TRFKinematics kinematics) {
 		SIDISComputation sidis = construct_computation();
 		return sidis.compute_structure_function(F, z, kinematics, combine_integrals);
 	}
-	PerturbativeQuantity compute_structure_function(StructureFunction F, const double x, const double z, const double Q2) {
+	PerturbativeQuantity compute_structure_function(const StructureFunction F, const double x, const double z, const double Q2) {
 		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, global_sqrt_s, process.target.mass, process.projectile.mass);
 		return compute_structure_function(F, z, kinematics);
 	}
@@ -179,7 +174,7 @@ struct SIDIS {
 
 	PerturbativeQuantity differential_cross_section_xy(const double z, const TRFKinematics kinematics) {
 		const PerturbativeQuantity xQ2 = differential_cross_section_xQ2(z, kinematics);
-		const double jacobian = SIDISFunctions::xy_jacobian(kinematics, process);
+		const double jacobian = CommonFunctions::xy_jacobian(kinematics, process);
 		return xQ2 * jacobian;
 	}
 
@@ -189,7 +184,7 @@ struct SIDIS {
 	}
 	PerturbativeQuantity lepton_pair_cross_section_xy(const TRFKinematics kinematics) {
 		const PerturbativeQuantity xQ2 = lepton_pair_cross_section_xQ2(kinematics);
-		const double jacobian = SIDISFunctions::xy_jacobian(kinematics, process);
+		const double jacobian = CommonFunctions::xy_jacobian(kinematics, process);
 		return xQ2 * jacobian;
 	}
 
@@ -262,7 +257,7 @@ struct SIDIS {
 						const PerturbativeQuantity cross_section_xQ2 = combine_integrals 
 																		? sidis.lepton_pair_cross_section_xQ2_combined(kinematics) 
 																		: sidis.lepton_pair_cross_section_xQ2_separated(kinematics);
-						const double jacobian = SIDISFunctions::xy_jacobian(kinematics, process);
+						const double jacobian = CommonFunctions::xy_jacobian(kinematics, process);
 						const PerturbativeQuantity cross_section_xy = cross_section_xQ2 * jacobian;
 
 						const double Q2 = kinematics.Q2;

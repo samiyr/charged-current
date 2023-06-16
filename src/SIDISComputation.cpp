@@ -149,7 +149,7 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 
 		const double nlo = nlo_coefficient * x * xi_xip_integral;
 
-		return PerturbativeQuantity {0, nlo};
+		return PerturbativeQuantity {0.0, nlo};
 	}
 	PerturbativeQuantity xF3_combined(const double z, const TRFKinematics &kinematics) {
 		const double Q2 = kinematics.Q2;
@@ -339,6 +339,8 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 		const double x = kinematics.x;
 		const double y = kinematics.y;
 		const double prefactor = CommonFunctions::cross_section_prefactor(Q2);
+
+		if (!kinematics.is_valid()) { return PerturbativeQuantity {0.0, 0.0}; }
 
 		// const std::optional<double> y_opt = CommonFunctions::compute_y(x, Q2, s, process.target.mass, process.projectile.mass);
 		// if (!y_opt.has_value()) {

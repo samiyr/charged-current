@@ -7,6 +7,7 @@
 #include <gsl/gsl_sf.h>
 #include <boost/math/special_functions/beta.hpp>
 #include <string>
+#include <thread>
 
 #define POW2(x) (x) * (x)
 #define POW4(x) (x) * (x) * (x) * (x)
@@ -130,6 +131,11 @@ namespace Utility {
 	protected:
 		~Traced() = default;
 	};
+
+	static unsigned int get_default_thread_count() {
+		const unsigned int hardware = std::thread::hardware_concurrency();
+		return std::max(1U, hardware);
+	}
 }
 
 #endif

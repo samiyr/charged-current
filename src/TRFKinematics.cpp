@@ -34,6 +34,10 @@ struct TRFKinematics {
 		return TRFKinematics::Q2_s(x, Q2, sqrt_s * sqrt_s, target_mass, projectile_mass, mass_scale);
 	}
 
+	constexpr bool is_valid() const {
+		return (y >= 0.0 && y <= 1.0);
+	}
+
 	private:
 	constexpr static double s_from_beam_energy(const double E_beam, const double target_mass, const double projectile_mass) {
 		return std::pow(target_mass, 2) + std::pow(projectile_mass, 2) + 2 * target_mass * E_beam;

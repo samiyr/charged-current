@@ -12,8 +12,8 @@
 int main() {
 	LHAInterface::disable_verbosity();
 
-	// Tests::sidis_structure_function_quarks_gluons_scale_logs_tests();
-	// return 0;
+	Tests::dis_cross_section_tests();
+	return 0;
 
 	const double N = 7.365;
 	const double alpha = 1.4;

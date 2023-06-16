@@ -47,11 +47,6 @@ namespace SIDISFunctions {
 		});
 	}
 
-	constexpr static double xy_jacobian(const TRFKinematics &kinematics, const Process &process) {
-		return (kinematics.s - std::pow(process.target.mass, 2) - std::pow(process.projectile.mass, 2)) * kinematics.x;
-	}
-
-
 	namespace Evaluation {
 		template <typename PDFInterface, typename FFInterface, typename DecayFunction, typename Signature>
 		constexpr static double construct(const double x, const double z, const double xi, const double xip, const Parameters<PDFInterface, FFInterface, DecayFunction> &params, const Signature integrand, const int sign, FFInterface &ff1, FFInterface &ff2, const FlavorType flavor1, const FlavorType flavor2, const FlavorType antiflavor1, const FlavorType antiflavor2) {			
