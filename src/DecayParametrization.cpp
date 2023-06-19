@@ -12,9 +12,9 @@ struct DecayParametrization {
 
 	const double gamma_prefactor_term;
 
-	DecayParametrization() : N(0.0), alpha(0.0), beta(0.0), gamma(0.0), beta_term_1p_alpha_beta(0.0), beta_term_2p_alpha_beta(0.0), gamma_prefactor_term(0.0) {}
+	constexpr DecayParametrization() : N(0.0), alpha(0.0), beta(0.0), gamma(0.0), beta_term_1p_alpha_beta(0.0), beta_term_2p_alpha_beta(0.0), gamma_prefactor_term(0.0) {}
 
-	DecayParametrization(const double _N,
+	constexpr DecayParametrization(const double _N,
 	const double _alpha,
 	const double _beta,
 	const double _gamma)

@@ -21,8 +21,8 @@ template <
 struct SIDIS {
 	const FlavorVector active_flavors;
 
-	PDFInterface pdf;
-	FragmentationConfiguration<FFInterface, DecayFunction> ff;
+	const PDFInterface pdf;
+	const FragmentationConfiguration<FFInterface, DecayFunction> ff;
 
 	bool parallelize = true;
 	unsigned int number_of_threads = Utility::get_default_thread_count();
@@ -66,6 +66,7 @@ struct SIDIS {
 	process(_process),
 	factorization_scale(_factorization_scale),
 	fragmentation_scale(_fragmentation_scale) { }
+
 	SIDIS (
 		const FlavorVector _active_flavors, 
 		const PDFInterface _pdf, 
@@ -83,7 +84,7 @@ struct SIDIS {
 	fragmentation_scale(_fragmentation_scale) {	}
 
 	private:
-	auto construct_computation() {
+	auto construct_computation() const {
 		SIDISComputation sidis(
 			global_sqrt_s, active_flavors, 
 			{
@@ -130,36 +131,36 @@ struct SIDIS {
 	}
 
 	public:
-	PerturbativeQuantity compute_structure_function(const StructureFunction F, const double z, const TRFKinematics kinematics) {
+	PerturbativeQuantity compute_structure_function(const StructureFunction F, const double z, const TRFKinematics kinematics) const {
 		SIDISComputation sidis = construct_computation();
 		return sidis.compute_structure_function(F, z, kinematics, combine_integrals);
 	}
-	PerturbativeQuantity compute_structure_function(const StructureFunction F, const double x, const double z, const double Q2) {
+	PerturbativeQuantity compute_structure_function(const StructureFunction F, const double x, const double z, const double Q2) const {
 		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, global_sqrt_s, process.target.mass, process.projectile.mass);
 		return compute_structure_function(F, z, kinematics);
 	}
 
-	PerturbativeQuantity F2(const double z, const TRFKinematics kinematics) {
+	PerturbativeQuantity F2(const double z, const TRFKinematics kinematics) const {
 		return compute_structure_function(StructureFunction::F2, z, kinematics);
 	}
-	PerturbativeQuantity FL(const double z, const TRFKinematics kinematics) {
+	PerturbativeQuantity FL(const double z, const TRFKinematics kinematics) const {
 		return compute_structure_function(StructureFunction::FL, z, kinematics);
 	}
-	PerturbativeQuantity xF3(const double z, const TRFKinematics kinematics) {
+	PerturbativeQuantity xF3(const double z, const TRFKinematics kinematics) const {
 		return compute_structure_function(StructureFunction::xF3, z, kinematics);
 	}
 
-	PerturbativeQuantity F2(const double x, const double z, const double Q2) {
+	PerturbativeQuantity F2(const double x, const double z, const double Q2) const {
 		return compute_structure_function(StructureFunction::F2, x, z, Q2);
 	}
-	PerturbativeQuantity FL(const double x, const double z, const double Q2) {
+	PerturbativeQuantity FL(const double x, const double z, const double Q2) const {
 		return compute_structure_function(StructureFunction::FL, x, z, Q2);
 	}
-	PerturbativeQuantity xF3(const double x, const double z, const double Q2) {
+	PerturbativeQuantity xF3(const double x, const double z, const double Q2) const {
 		return compute_structure_function(StructureFunction::xF3, x, z, Q2);
 	}
 
-	PerturbativeQuantity differential_cross_section_xQ2(const double z, const TRFKinematics kinematics) {
+	PerturbativeQuantity differential_cross_section_xQ2(const double z, const TRFKinematics kinematics) const {
 		SIDISComputation sidis = construct_computation();
 		if (compute_differential_cross_section_directly) {
 			return combine_integrals 
@@ -172,17 +173,17 @@ struct SIDIS {
 		}
 	}
 
-	PerturbativeQuantity differential_cross_section_xy(const double z, const TRFKinematics kinematics) {
+	PerturbativeQuantity differential_cross_section_xy(const double z, const TRFKinematics kinematics) const {
 		const PerturbativeQuantity xQ2 = differential_cross_section_xQ2(z, kinematics);
 		const double jacobian = CommonFunctions::xy_jacobian(kinematics, process);
 		return xQ2 * jacobian;
 	}
 
-	PerturbativeQuantity lepton_pair_cross_section_xQ2(const TRFKinematics kinematics) {
+	PerturbativeQuantity lepton_pair_cross_section_xQ2(const TRFKinematics kinematics) const {
 		SIDISComputation sidis = construct_computation();
 		return combine_integrals ? sidis.lepton_pair_cross_section_xQ2_combined(kinematics) : sidis.lepton_pair_cross_section_xQ2_separated(kinematics);
 	}
-	PerturbativeQuantity lepton_pair_cross_section_xy(const TRFKinematics kinematics) {
+	PerturbativeQuantity lepton_pair_cross_section_xy(const TRFKinematics kinematics) const {
 		const PerturbativeQuantity xQ2 = lepton_pair_cross_section_xQ2(kinematics);
 		const double jacobian = CommonFunctions::xy_jacobian(kinematics, process);
 		return xQ2 * jacobian;

@@ -32,7 +32,7 @@ class LHAInterface {
 		cfg.set_entry("Verbosity", 0);
 	}
 
-	void evaluate(const double x, const double Q2) {
+	void evaluate(const double x, const double Q2) const {
 		#if CACHE_STATS
 		std::cout << "Cache hit ratio: " << 100 * double(cache_hits) / double(total_hits) << " (cache hits: " << cache_hits << ", total hits: " << total_hits << ")" << std::endl;
 		total_hits++;
@@ -57,7 +57,7 @@ class LHAInterface {
 		// }
 	}
 	
-	double xf_evaluate(const FlavorType flavor, const double x, const double Q2) {
+	double xf_evaluate(const FlavorType flavor, const double x, const double Q2) const {
 		return _pdf->xfxQ2(flavor, x, Q2);
 	}
 	constexpr double xf(const FlavorType flavor) const {
@@ -78,8 +78,8 @@ class LHAInterface {
 	}
 
 	private:
-	std::vector<double> flavor_values;
-	std::unique_ptr<LHAPDF::PDF> _pdf;
+	mutable std::vector<double> flavor_values;
+	mutable std::unique_ptr<LHAPDF::PDF> _pdf;
 	
 	void initialize() {
 		_pdf = std::unique_ptr<LHAPDF::PDF>(LHAPDF::mkPDF(set_name, set_member_number));
@@ -98,12 +98,12 @@ class LHAInterface {
 		#endif
 	}
 
-	double prev_x = -1.0;
-	double prev_Q2 = -1.0;
+	mutable double prev_x = -1.0;
+	mutable double prev_Q2 = -1.0;
 
 	#if CACHE_STATS
-	size_t total_hits = 0;
-	size_t cache_hits = 0;
+	mutable size_t total_hits = 0;
+	mutable size_t cache_hits = 0;
 	#endif
 };
 

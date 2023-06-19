@@ -5,15 +5,15 @@
 #include <cmath>
 #include "Flavor.cpp"
 #include <functional>
-#include "PDFCommon.cpp"
 #include "TRFKinematics.cpp"
 #include "CommonFunctions.cpp"
+#include "CKM.cpp"
 
 namespace DISFunctions {
 	template <typename PDFInterface>
 	struct Parameters {
-		PDFInterface &pdf1;
-		PDFInterface &pdf2;
+		const PDFInterface &pdf1;
+		const PDFInterface &pdf2;
 
 		const FlavorInfo &flavors;
 
@@ -34,8 +34,8 @@ namespace DISFunctions {
 	namespace Evaluation {
 		template <typename PDFInterface, typename Signature>
 		constexpr static double construct(const double x, const double xi, const Parameters<PDFInterface> &params, const Signature integrand, const int sign, const FlavorType flavor1, const FlavorType antiflavor1) {			
-			PDFInterface &pdf1 = params.pdf1;
-			PDFInterface &pdf2 = params.pdf2;
+			const PDFInterface &pdf1 = params.pdf1;
+			const PDFInterface &pdf2 = params.pdf2;
 
 			const double xg_hat = pdf2.xg();
 
@@ -76,8 +76,8 @@ namespace DISFunctions {
 			const FlavorVector &flavors1 = positive_W ? flavors.lower_flavors : flavors.upper_flavors;
 			const FlavorVector &flavors2 = positive_W ? flavors.upper_flavors : flavors.lower_flavors;
 
-			PDFInterface &pdf1 = params.pdf1;
-			PDFInterface &pdf2 = params.pdf2;
+			const PDFInterface &pdf1 = params.pdf1;
+			const PDFInterface &pdf2 = params.pdf2;
 
 			double sum = 0.0;
 			for (const FlavorType outgoing : flavors2) {

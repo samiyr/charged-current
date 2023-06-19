@@ -12,7 +12,7 @@ template <typename PDFInterface, typename FactorizationScaleFunction = decltype(
 struct DIS {
 	const FlavorVector active_flavors;
 
-	PDFInterface pdf;
+	const PDFInterface pdf;
 
 	bool parallelize = true;
 	unsigned int number_of_threads = Utility::get_default_thread_count();
@@ -51,7 +51,7 @@ struct DIS {
 	factorization_scale(_factorization_scale) { }
 
 	private:
-	auto construct_computation() {
+	auto construct_computation() const {
 		DISComputation dis(
 			global_sqrt_s, active_flavors, 
 			{
@@ -93,36 +93,36 @@ struct DIS {
 	}
 
 	public:
-	PerturbativeQuantity compute_structure_function(const StructureFunction F, const TRFKinematics kinematics) {
+	PerturbativeQuantity compute_structure_function(const StructureFunction F, const TRFKinematics kinematics) const {
 		DISComputation dis = construct_computation();
 		return dis.compute_structure_function(F, kinematics);
 	}
-	PerturbativeQuantity compute_structure_function(const StructureFunction F, const double x, const double Q2) {
+	PerturbativeQuantity compute_structure_function(const StructureFunction F, const double x, const double Q2) const {
 		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, global_sqrt_s, process.target.mass, process.projectile.mass);
 		return compute_structure_function(F, kinematics);
 	}
 
-	PerturbativeQuantity F2(const TRFKinematics kinematics) {
+	PerturbativeQuantity F2(const TRFKinematics kinematics) const {
 		return compute_structure_function(StructureFunction::F2, kinematics);
 	}
-	PerturbativeQuantity FL(const TRFKinematics kinematics) {
+	PerturbativeQuantity FL(const TRFKinematics kinematics) const {
 		return compute_structure_function(StructureFunction::FL, kinematics);
 	}
-	PerturbativeQuantity xF3(const TRFKinematics kinematics) {
+	PerturbativeQuantity xF3(const TRFKinematics kinematics) const {
 		return compute_structure_function(StructureFunction::xF3, kinematics);
 	}
 
-	PerturbativeQuantity F2(const double x, const double Q2) {
+	PerturbativeQuantity F2(const double x, const double Q2) const {
 		return compute_structure_function(StructureFunction::F2, x, Q2);
 	}
-	PerturbativeQuantity FL(const double x, const double Q2) {
+	PerturbativeQuantity FL(const double x, const double Q2) const {
 		return compute_structure_function(StructureFunction::FL, x, Q2);
 	}
-	PerturbativeQuantity xF3(const double x, const double Q2) {
+	PerturbativeQuantity xF3(const double x, const double Q2) const {
 		return compute_structure_function(StructureFunction::xF3, x, Q2);
 	}
 
-	PerturbativeQuantity differential_cross_section_xQ2(const TRFKinematics kinematics) {
+	PerturbativeQuantity differential_cross_section_xQ2(const TRFKinematics kinematics) const {
 		DISComputation dis = construct_computation();
 		if (compute_differential_cross_section_directly) {
 			return dis.differential_cross_section_xQ2_direct(kinematics);
@@ -131,7 +131,7 @@ struct DIS {
 		}
 	}
 
-	PerturbativeQuantity differential_cross_section_xy(const TRFKinematics kinematics) {
+	PerturbativeQuantity differential_cross_section_xy(const TRFKinematics kinematics) const {
 		const PerturbativeQuantity xQ2 = differential_cross_section_xQ2(kinematics);
 		const double jacobian = CommonFunctions::xy_jacobian(kinematics, process);
 		return xQ2 * jacobian;

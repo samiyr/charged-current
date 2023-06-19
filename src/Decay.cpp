@@ -21,7 +21,7 @@ struct Decay {
 	// Decay(const DecayParametrization _parametrization, const DecayFunction _decay_function) : parametrization(_parametrization), decay_function(_decay_function) {}
 	// Decay(const DecayFunction _decay_function) : parametrization(), decay_function(_decay_function) {}
 
-	constexpr double operator()(const double x, const double z, const double Q2, const double z_min) {
+	constexpr double operator()(const double x, const double z, const double Q2, const double z_min) const {
 		if (x != prev_x || z != prev_z || Q2 != prev_Q2 || z_min != prev_z_min) {
 			prev_x = x;
 			prev_z = z;
@@ -36,11 +36,11 @@ struct Decay {
 	}
 
 	private:
-	double prev_x;
-	double prev_z;
-	double prev_Q2;
-	double prev_z_min;
-	double prev_value;
+	mutable double prev_x;
+	mutable double prev_z;
+	mutable double prev_Q2;
+	mutable double prev_z_min;
+	mutable double prev_value;
 };
 
 const static auto TrivialDecay = Decay(DecayParametrization(), Particle(), Particle(), DecayFunctions::trivial, 0.0);

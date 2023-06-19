@@ -14,13 +14,13 @@ class FunctionalFormInterface {
 
 	}
 
-	void evaluate(const double x, const double Q2) {
+	void evaluate(const double x, const double Q2) const {
 		for (auto const flavor : available_flavors) {
 			const double function_value = function(flavor, x, Q2);
 			flavor_values[size_t(flavor + 6)] = function_value;
 		}
 	}
-	constexpr double xf_evaluate(const FlavorType flavor, const double x, const double Q2) {
+	constexpr double xf_evaluate(const FlavorType flavor, const double x, const double Q2) const {
 		return function(flavor, x, Q2);
 	}
 	constexpr double xf(const FlavorType flavor) const {
@@ -34,7 +34,7 @@ class FunctionalFormInterface {
 		return 1;
 	}
 	private:
-	std::vector<double> flavor_values;
+	mutable std::vector<double> flavor_values;
 };
 
 #endif

@@ -19,34 +19,9 @@ namespace Constants {
 	constexpr static double V_cs = POW2(0.97349);
 	constexpr static double V_cb = POW2(0.04182);
 
-	// const static double V_td = POW2(0);
-	// const static double V_ts = POW2(0);
-	// const static double V_tb = POW2(0);
-
 	constexpr static double V_td = POW2(0.00857);
 	constexpr static double V_ts = POW2(0.04110);
 	constexpr static double V_tb = POW2(0.999112);
-
-	// constexpr double ckm_squared_matrix_elements[3][3] = {
-	// 	/*
-	// 	  	V_ud				V_us				V_ub
-	// 	  	V_cd				V_cs				V_cb
-	// 	  	V_td				V_ts				V_tb
-	// 	*/
-	// 	{POW2(0.97435), 	POW2(0.22500), 		POW2(0.00369)},
-	// 	{POW2(0.22486),		POW2(0.97349),		POW2(0.04182)},
-	// 	{POW2(0.00857),		POW2(0.04110),		POW2(0.999112)}
-	// };
-	// constexpr double ckm_squared_matrix_elements[3][3] = {
-	// 	/*
-	// 	  	V_ud				V_us				V_ub
-	// 	  	V_cd				V_cs				V_cb
-	// 	  	V_td				V_ts				V_tb
-	// 	*/
-	// 	{POW2(0.97435), 	0, 		0},
-	// 	{0,		POW2(0.97349),		0},
-	// 	{0,		0,		0}
-	// };
 
 	namespace Particles {
 		constexpr static Particle Proton = Particle(0.938272);
@@ -59,10 +34,7 @@ namespace Constants {
 	}
 
 	namespace Charm {
-		constexpr static double Mass = 1.5;
-	}
-	namespace Bottom {
-		constexpr static double Mass = 5.0;
+		constexpr static double Mass = 1.3;
 	}
 } 
 

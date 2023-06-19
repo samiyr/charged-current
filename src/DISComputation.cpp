@@ -19,8 +19,8 @@ class DISComputation {
 
 	FlavorInfo flavors;
 
-	PDFInterface pdf1;
-	PDFInterface pdf2;
+	const PDFInterface pdf1;
+	const PDFInterface pdf2;
 
 	const size_t points;
 	const double max_chi_squared_deviation;
@@ -57,15 +57,15 @@ class DISComputation {
 	momentum_fraction_mass_corrections(_momentum_fraction_mass_corrections),
 	factorization_scale_function(_factorization_scale_function) { }
 
-	constexpr bool nontrivial_factorization_scale() { return factorization_scale_function.has_value(); }
-	constexpr double compute_factorization_scale(const TRFKinematics &kinematics) {
+	constexpr bool nontrivial_factorization_scale() const { return factorization_scale_function.has_value(); }
+	constexpr double compute_factorization_scale(const TRFKinematics &kinematics) const {
 		if (nontrivial_factorization_scale()) {
 			return (*factorization_scale_function)(kinematics);
 		}
 		return kinematics.Q2;
 	}
 
-	PerturbativeQuantity F2(const TRFKinematics &kinematics) {	
+	PerturbativeQuantity F2(const TRFKinematics &kinematics) const {	
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
 		double alpha_s = pdf1.alpha_s(Q2);
@@ -100,7 +100,7 @@ class DISComputation {
 		return PerturbativeQuantity {lo, lo + nlo};
 	}
 
-	PerturbativeQuantity FL(const TRFKinematics &kinematics) {
+	PerturbativeQuantity FL(const TRFKinematics &kinematics) const {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
 		double alpha_s = pdf1.alpha_s(Q2);
@@ -128,7 +128,7 @@ class DISComputation {
 
 		return PerturbativeQuantity {0.0, nlo};
 	}
-	PerturbativeQuantity xF3(const TRFKinematics &kinematics) {
+	PerturbativeQuantity xF3(const TRFKinematics &kinematics) const {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
 		double alpha_s = pdf1.alpha_s(Q2);
@@ -162,7 +162,7 @@ class DISComputation {
 
 		return PerturbativeQuantity {lo, lo + nlo};
 	}
-	constexpr PerturbativeQuantity compute_structure_function(const StructureFunction F, const TRFKinematics &kinematics) {
+	constexpr PerturbativeQuantity compute_structure_function(const StructureFunction F, const TRFKinematics &kinematics) const {
 		switch (F) {
 		case StructureFunction::F2: return F2(kinematics);
 		case StructureFunction::FL: return FL(kinematics);
@@ -170,7 +170,7 @@ class DISComputation {
 		}
 	}
 
-	PerturbativeQuantity differential_cross_section_xQ2_direct(const TRFKinematics &kinematics) {
+	PerturbativeQuantity differential_cross_section_xQ2_direct(const TRFKinematics &kinematics) const {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
 		const double y = kinematics.y;
@@ -191,7 +191,7 @@ class DISComputation {
 		return result;
 	}
 
-	PerturbativeQuantity differential_cross_section_xQ2_indirect(const TRFKinematics &kinematics) {
+	PerturbativeQuantity differential_cross_section_xQ2_indirect(const TRFKinematics &kinematics) const {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
 		double alpha_s = pdf1.alpha_s(Q2);

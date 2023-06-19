@@ -7,15 +7,15 @@
 
 template <typename Interface, typename DecayFunction>
 struct FragmentationConfiguration {
-	std::vector<Interface> interfaces;
-	std::vector<Decay<DecayFunction>> decays;
+	const std::vector<Interface> interfaces;
+	const std::vector<Decay<DecayFunction>> decays;
 
 	FragmentationConfiguration(const std::vector<Interface> _interfaces) : interfaces(_interfaces), decays(interfaces.size(), TrivialDecay) {}
 	FragmentationConfiguration(const std::initializer_list<Interface> _interfaces) : interfaces(_interfaces), decays(interfaces.size(), TrivialDecay) {}
 	FragmentationConfiguration(const std::vector<Interface> _interfaces, const std::vector<Decay<DecayFunction>> _decays) : interfaces(_interfaces), decays(_decays) {}
 	FragmentationConfiguration(const std::initializer_list<Interface> _interfaces, const std::initializer_list<Decay<DecayFunction>> _decays) : interfaces(_interfaces), decays(_decays) {}
 
-	void evaluate(const double x, const double Q2) {
+	void evaluate(const double x, const double Q2) const {
 		for (auto &interface : interfaces) {
 			interface.evaluate(x, Q2);
 		}
@@ -38,7 +38,7 @@ struct FragmentationConfiguration {
 		return interfaces.size();
 	}
 
-	Interface &operator[](const std::vector<Interface>::size_type index) {
+	const Interface &operator[](const std::vector<Interface>::size_type index) const {
 		return interfaces[index];
 	}
 };

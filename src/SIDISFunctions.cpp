@@ -4,19 +4,19 @@
 #include "Constants.cpp"
 #include <cmath>
 #include "Flavor.cpp"
-#include "PDFCommon.cpp"
 #include "Decay.cpp"
 #include "FragmentationConfiguration.cpp"
 #include "TRFKinematics.cpp"
 #include "DecayFunctions.cpp"
+#include "CKM.cpp"
 
 namespace SIDISFunctions {
 	template <typename PDFInterface, typename FFInterface, typename DecayFunction>
 	struct Parameters {
-		PDFInterface &pdf1;
-		FragmentationConfiguration<FFInterface, DecayFunction> &ff1;
-		PDFInterface &pdf2;
-		FragmentationConfiguration<FFInterface, DecayFunction> &ff2;
+		const PDFInterface &pdf1;
+		const FragmentationConfiguration<FFInterface, DecayFunction> &ff1;
+		const PDFInterface &pdf2;
+		const FragmentationConfiguration<FFInterface, DecayFunction> &ff2;
 
 		const FlavorInfo &flavors;
 
@@ -49,9 +49,9 @@ namespace SIDISFunctions {
 
 	namespace Evaluation {
 		template <typename PDFInterface, typename FFInterface, typename DecayFunction, typename Signature>
-		constexpr static double construct(const double x, const double z, const double xi, const double xip, const Parameters<PDFInterface, FFInterface, DecayFunction> &params, const Signature integrand, const int sign, FFInterface &ff1, FFInterface &ff2, const FlavorType flavor1, const FlavorType flavor2, const FlavorType antiflavor1, const FlavorType antiflavor2) {			
-			PDFInterface &pdf1 = params.pdf1;
-			PDFInterface &pdf2 = params.pdf2;
+		constexpr static double construct(const double x, const double z, const double xi, const double xip, const Parameters<PDFInterface, FFInterface, DecayFunction> &params, const Signature integrand, const int sign, const FFInterface &ff1, const FFInterface &ff2, const FlavorType flavor1, const FlavorType flavor2, const FlavorType antiflavor1, const FlavorType antiflavor2) {			
+			const PDFInterface &pdf1 = params.pdf1;
+			const PDFInterface &pdf2 = params.pdf2;
 
 			const double xg_hat = pdf2.xg();
 			const double zg_hat = ff2.xg();
@@ -83,7 +83,7 @@ namespace SIDISFunctions {
 			return value;
 		}
 		template <typename PDFInterface, typename FFInterface, typename DecayFunction, typename Signature>
-		constexpr static double construct(const double input[], const Parameters<PDFInterface, FFInterface, DecayFunction> &params, const Signature signature, const bool xi_int, const bool xip_int, const bool z_int, const int sign, FFInterface &ff1, FFInterface &ff2, Decay<DecayFunction> &decay, const double z_min) {
+		constexpr static double construct(const double input[], const Parameters<PDFInterface, FFInterface, DecayFunction> &params, const Signature signature, const bool xi_int, const bool xip_int, const bool z_int, const int sign, const FFInterface &ff1, const FFInterface &ff2, const Decay<DecayFunction> &decay, const double z_min) {
 			const size_t xi_index = 0;
 			const size_t xip_index = size_t(xi_int);
 			const size_t z_index = size_t(xi_int) + size_t(xip_int);
@@ -129,8 +129,8 @@ namespace SIDISFunctions {
 			const FlavorVector &flavors1 = positive_W ? flavors.lower_flavors : flavors.upper_flavors;
 			const FlavorVector &flavors2 = positive_W ? flavors.upper_flavors : flavors.lower_flavors;
 
-			PDFInterface &pdf1 = params.pdf1;
-			PDFInterface &pdf2 = params.pdf2;
+			const PDFInterface &pdf1 = params.pdf1;
+			const PDFInterface &pdf2 = params.pdf2;
 
 			double sum = 0.0;
 			for (const FlavorType outgoing : flavors2) {
@@ -169,15 +169,15 @@ namespace SIDISFunctions {
 				params.pdf2.evaluate(x_hat, params.factorization_scale);
 			}
 
-			FragmentationConfiguration<FFInterface, DecayFunction> &ffs1 = params.ff1;
-			FragmentationConfiguration<FFInterface, DecayFunction> &ffs2 = params.ff2;
+			const FragmentationConfiguration<FFInterface, DecayFunction> &ffs1 = params.ff1;
+			const FragmentationConfiguration<FFInterface, DecayFunction> &ffs2 = params.ff2;
 
 			double sum = 0.0;
 
 			for (size_t ff_i = 0; ff_i < ffs1.size(); ff_i++) {
-				FFInterface &ff1 = ffs1[ff_i];
-				FFInterface &ff2 = ffs2[ff_i];
-				auto &decay = ffs1.decays[ff_i];
+				const FFInterface &ff1 = ffs1[ff_i];
+				const FFInterface &ff2 = ffs2[ff_i];
+				const auto &decay = ffs1.decays[ff_i];
 
 				const double z_min = SIDISFunctions::compute_z_min(kinematics, decay);
 				const double value = construct<PDFInterface, FFInterface, DecayFunction>(input, params, integrand, xi_int, xip_int, z_int, sign, ff1, ff2, decay, z_min);
