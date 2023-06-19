@@ -12,8 +12,8 @@
 int main() {
 	LHAInterface::disable_verbosity();
 
-	Tests::dis_cross_section_tests();
-	return 0;
+	// Tests::dis_cross_section_tests();
+	// return 0;
 
 	const double N = 7.365;
 	const double alpha = 1.4;
@@ -55,7 +55,7 @@ int main() {
 	sidis.iter_max = 5;
 	sidis.combine_integrals = true;
 
-	std::cout << "Remember alpha_s!" << std::endl;
+	std::cout << "!!! Remember alpha_s != 0.2" << std::endl;
 
 	sidis.lepton_pair_cross_section_xy(
 		{0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05, 0.055, 0.06, 0.065, 0.07, 0.075, 0.08, 0.09, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35}, 

@@ -36,6 +36,8 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 	const std::optional<FactorizationScaleFunction> factorization_scale_function;
 	const std::optional<FragmentationScaleFunction> fragmentation_scale_function;
 
+	const size_t lo_integration_point_factor;
+
 	SIDISComputation (
 		const double _sqrt_s, 
 		const FlavorVector _active_flavors, 
@@ -49,7 +51,8 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 		const Process _process,
 		const bool _momentum_fraction_mass_corrections,
 		const std::optional<FactorizationScaleFunction> _factorization_scale_function,
-		const std::optional<FragmentationScaleFunction> _fragmentation_scale_function
+		const std::optional<FragmentationScaleFunction> _fragmentation_scale_function,
+		const size_t _lo_integration_point_factor
 	) : sqrt_s(_sqrt_s),
 	s(_sqrt_s * _sqrt_s), 
 	flavors(_active_flavors, _flavor_masses),
@@ -64,7 +67,8 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 	process(_process),
 	momentum_fraction_mass_corrections(_momentum_fraction_mass_corrections),
 	factorization_scale_function(_factorization_scale_function),
-	fragmentation_scale_function(_fragmentation_scale_function) { }
+	fragmentation_scale_function(_fragmentation_scale_function),
+	lo_integration_point_factor(_lo_integration_point_factor) { }
 
 	constexpr bool nontrivial_factorization_scale() const { return factorization_scale_function.has_value(); }
 	constexpr bool nontrivial_fragmentation_scale() const { return fragmentation_scale_function.has_value(); }
@@ -515,7 +519,7 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 				SIDISFunctions::Integrands::F2x_lo_integrand, SIDISFunctions::Integrands::FLx_lo_integrand, SIDISFunctions::Integrands::F3_lo_integrand,
 				false, false, true
 			);
-		}, {z_min}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {z_min}, {1}, points / lo_integration_point_factor, &params, max_chi_squared_deviation, max_relative_error, iter_max);
 		const auto lo_result = lo_integrator.integrate();
 		const double lo = lo_result.value;
 
@@ -598,7 +602,7 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 				SIDISFunctions::Integrands::F2x_lo_integrand, SIDISFunctions::Integrands::FLx_lo_integrand, SIDISFunctions::Integrands::F3_lo_integrand,
 				false, false, true
 			);
-		}, {z_min}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {z_min}, {1}, points / lo_integration_point_factor, &params, max_chi_squared_deviation, max_relative_error, iter_max);
 		const auto lo_result = lo_integrator.integrate();
 		const double lo = lo_result.value;
 
