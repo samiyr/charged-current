@@ -10,13 +10,14 @@
 #include "ScaleDependence.cpp"
 #include <optional>
 #include "CommonFunctions.cpp"
+#include "PDFConcept.cpp"
 
 template <
-	typename PDFInterface, 
-	typename FFInterface, 
-	typename DecayFunction = decltype(DecayFunctions::trivial), 
-	typename FactorizationScaleFunction = decltype(ScaleDependence::trivial), 
-	typename FragmentationScaleFunction = decltype(ScaleDependence::trivial)
+	PDFConcept PDFInterface, 
+	PDFConcept FFInterface, 
+	DecayFunctions::Concept DecayFunction = decltype(DecayFunctions::trivial), 
+	ScaleDependence::Concept FactorizationScaleFunction = decltype(ScaleDependence::trivial), 
+	ScaleDependence::Concept FragmentationScaleFunction = decltype(ScaleDependence::trivial)
 >
 struct SIDIS {
 	const FlavorVector active_flavors;
@@ -57,22 +58,6 @@ struct SIDIS {
 	SIDIS (
 		const FlavorVector _active_flavors, 
 		const PDFInterface _pdf, 
-		const FFInterface _ff, 
-		const size_t _points, 
-		const Process _process,
-		const std::optional<FactorizationScaleFunction> _factorization_scale = std::nullopt,
-		const std::optional<FragmentationScaleFunction> _fragmentation_scale = std::nullopt)
-	: active_flavors(_active_flavors),
-	pdf(_pdf),
-	ff({_ff}, {TrivialDecay}),
-	points(_points),
-	process(_process),
-	factorization_scale(_factorization_scale),
-	fragmentation_scale(_fragmentation_scale) { }
-
-	SIDIS (
-		const FlavorVector _active_flavors, 
-		const PDFInterface _pdf, 
 		const FragmentationConfiguration<FFInterface, DecayFunction> _ff, 
 		const size_t _points, 
 		const Process _process,
@@ -85,6 +70,16 @@ struct SIDIS {
 	process(_process),
 	factorization_scale(_factorization_scale),
 	fragmentation_scale(_fragmentation_scale) {	}
+
+	SIDIS (
+		const FlavorVector _active_flavors, 
+		const PDFInterface _pdf, 
+		const FFInterface _ff, 
+		const size_t _points, 
+		const Process _process,
+		const std::optional<FactorizationScaleFunction> _factorization_scale = std::nullopt,
+		const std::optional<FragmentationScaleFunction> _fragmentation_scale = std::nullopt)
+	: SIDIS(_active_flavors, _pdf, FragmentationConfiguration<FFInterface, DecayFunction>({_ff}), _points, _process, _factorization_scale, _fragmentation_scale) { }
 
 	private:
 	auto construct_computation() const {

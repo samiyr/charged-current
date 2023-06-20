@@ -9,9 +9,10 @@
 #include "TRFKinematics.cpp"
 #include "DecayFunctions.cpp"
 #include "CKM.cpp"
+#include "PDFConcept.cpp"
 
 namespace SIDISFunctions {
-	template <typename PDFInterface, typename FFInterface, typename DecayFunction>
+	template <PDFConcept PDFInterface, PDFConcept FFInterface, DecayFunctions::Concept DecayFunction>
 	struct Parameters {
 		const PDFInterface &pdf1;
 		const FragmentationConfiguration<FFInterface, DecayFunction> &ff1;
@@ -38,7 +39,7 @@ namespace SIDISFunctions {
 		// const double zq;
 	};
 
-	template <typename DecayFunction>
+	template <DecayFunctions::Concept DecayFunction>
 	constexpr double compute_z_min(const TRFKinematics kinematics, const Decay<DecayFunction> &decay) {
 		return std::max({
 			decay.lepton_momentum_min / (kinematics.y * kinematics.E_beam), 
@@ -48,7 +49,7 @@ namespace SIDISFunctions {
 	}
 
 	namespace Evaluation {
-		template <typename PDFInterface, typename FFInterface, typename DecayFunction, typename Signature>
+		template <PDFConcept PDFInterface, PDFConcept FFInterface, DecayFunctions::Concept DecayFunction, typename Signature>
 		constexpr static double construct(const double x, const double z, const double xi, const double xip, const Parameters<PDFInterface, FFInterface, DecayFunction> &params, const Signature integrand, const int sign, const FFInterface &ff1, const FFInterface &ff2, const FlavorType flavor1, const FlavorType flavor2, const FlavorType antiflavor1, const FlavorType antiflavor2) {			
 			const PDFInterface &pdf1 = params.pdf1;
 			const PDFInterface &pdf2 = params.pdf2;
@@ -82,7 +83,7 @@ namespace SIDISFunctions {
 
 			return value;
 		}
-		template <typename PDFInterface, typename FFInterface, typename DecayFunction, typename Signature>
+		template <PDFConcept PDFInterface, PDFConcept FFInterface, DecayFunctions::Concept DecayFunction, typename Signature>
 		constexpr static double construct(const double input[], const Parameters<PDFInterface, FFInterface, DecayFunction> &params, const Signature signature, const bool xi_int, const bool xip_int, const bool z_int, const int sign, const FFInterface &ff1, const FFInterface &ff2, const Decay<DecayFunction> &decay, const double z_min) {
 			const size_t xi_index = 0;
 			const size_t xip_index = size_t(xi_int);
@@ -157,7 +158,7 @@ namespace SIDISFunctions {
 			return sum;
 		}
 
-		template <typename PDFInterface, typename FFInterface, typename DecayFunction = decltype(DecayFunctions::trivial), typename Signature>
+		template <PDFConcept PDFInterface, PDFConcept FFInterface, DecayFunctions::Concept DecayFunction = decltype(DecayFunctions::trivial), typename Signature>
 		constexpr static double construct(const double input[], void *params_in, const Signature integrand, const bool xi_int, const bool xip_int, const bool z_int, const int sign) {
 			const Parameters<PDFInterface, FFInterface, DecayFunction> &params = *static_cast<Parameters<PDFInterface, FFInterface, DecayFunction> *>(params_in);
 			const TRFKinematics &kinematics = params.kinematics;
@@ -189,7 +190,7 @@ namespace SIDISFunctions {
 			return sum;
 		}
 
-		template <typename PDFInterface, typename FFInterface, typename DecayFunction, typename Signature>
+		template <PDFConcept PDFInterface, PDFConcept FFInterface, DecayFunctions::Concept DecayFunction, typename Signature>
 		constexpr static double cross_section(const double input[], void *params_in, const Signature F2, const Signature FL, const Signature xF3, const bool xi_int, const bool xip_int, const bool z_int) {
 			const struct Parameters<PDFInterface, FFInterface, DecayFunction> &params = *static_cast<Parameters<PDFInterface, FFInterface, DecayFunction> *>(params_in);
 			

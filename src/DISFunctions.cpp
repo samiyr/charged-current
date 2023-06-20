@@ -8,9 +8,10 @@
 #include "TRFKinematics.cpp"
 #include "CommonFunctions.cpp"
 #include "CKM.cpp"
+#include "PDFConcept.cpp"
 
 namespace DISFunctions {
-	template <typename PDFInterface>
+	template <PDFConcept PDFInterface>
 	struct Parameters {
 		const PDFInterface &pdf1;
 		const PDFInterface &pdf2;
@@ -32,7 +33,7 @@ namespace DISFunctions {
 	}
 
 	namespace Evaluation {
-		template <typename PDFInterface, typename Signature>
+		template <PDFConcept PDFInterface, typename Signature>
 		constexpr static double construct(const double x, const double xi, const Parameters<PDFInterface> &params, const Signature integrand, const int sign, const FlavorType flavor1, const FlavorType antiflavor1) {			
 			const PDFInterface &pdf1 = params.pdf1;
 			const PDFInterface &pdf2 = params.pdf2;
@@ -52,7 +53,7 @@ namespace DISFunctions {
 
 			return value;
 		}
-		template <typename PDFInterface, typename Signature>
+		template <PDFConcept PDFInterface, typename Signature>
 		constexpr static double construct(const double input[], const Parameters<PDFInterface> &params, const Signature signature, const bool xi_int, const int sign) {
 			const double xi = xi_int ? input[0] : 1.0;
 
@@ -100,7 +101,7 @@ namespace DISFunctions {
 			return sum;
 		}
 
-		template <typename PDFInterface, typename Signature>
+		template <PDFConcept PDFInterface, typename Signature>
 		constexpr static double construct(const double input[], void *params_in, const Signature integrand, const bool xi_int, const int sign) {
 			const Parameters<PDFInterface> &params = *static_cast<Parameters<PDFInterface> *>(params_in);
 			const TRFKinematics &kinematics = params.kinematics;
@@ -117,7 +118,7 @@ namespace DISFunctions {
 			return value;
 		}
 
-		template <typename PDFInterface, typename Signature>
+		template <PDFConcept PDFInterface, typename Signature>
 		constexpr static double cross_section(const double input[], void *params_in, const Signature F2, const Signature FL, const Signature xF3, const bool xi_int) {
 			const struct Parameters<PDFInterface> &params = *static_cast<Parameters<PDFInterface> *>(params_in);
 			

@@ -10,8 +10,9 @@
 #include "DISFunctions.cpp"
 #include "CommonFunctions.cpp"
 #include <optional>
+#include "PDFConcept.cpp"
 
-template <typename PDFInterface, typename FactorizationScaleFunction>
+template <PDFConcept PDFInterface, typename FactorizationScaleFunction>
 class DISComputation {
 	public:
 	double sqrt_s;

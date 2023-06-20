@@ -10,8 +10,15 @@
 #include "TRFKinematics.cpp"
 #include "FragmentationConfiguration.cpp"
 #include <optional>
+#include "PDFConcept.cpp"
 
-template <typename PDFInterface, typename FFInterface, typename DecayFunction, typename FactorizationScaleFunction, typename FragmentationScaleFunction>
+template <
+	PDFConcept PDFInterface, 
+	PDFConcept FFInterface, 
+	DecayFunctions::Concept DecayFunction, 
+	ScaleDependence::Concept FactorizationScaleFunction, 
+	ScaleDependence::Concept FragmentationScaleFunction
+>
 class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInterface, DecayFunction, FactorizationScaleFunction, FragmentationScaleFunction>> */ {
 	public:
 	double sqrt_s;

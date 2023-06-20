@@ -1,14 +1,14 @@
 #ifndef DIS_EVALUATION_H
 #define DIS_EVALUATION_H
 
-// #include "PDFInterface.cpp"
+#include "PDFConcept.cpp"
 #include "Row.cpp"
 #include <fstream>
 #include <string>
 #include "DISComputation.cpp"
 #include "ScaleDependence.cpp"
 
-template <typename PDFInterface, typename FactorizationScaleFunction = decltype(ScaleDependence::trivial)>
+template <PDFConcept PDFInterface, typename FactorizationScaleFunction = decltype(ScaleDependence::trivial)>
 struct DIS {
 	const FlavorVector active_flavors;
 
