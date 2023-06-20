@@ -37,6 +37,7 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 	const std::optional<FragmentationScaleFunction> fragmentation_scale_function;
 
 	const size_t lo_integration_point_factor;
+	const bool use_modified_cross_section_prefactor;
 
 	SIDISComputation (
 		const double _sqrt_s, 
@@ -52,7 +53,8 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 		const bool _momentum_fraction_mass_corrections,
 		const std::optional<FactorizationScaleFunction> _factorization_scale_function,
 		const std::optional<FragmentationScaleFunction> _fragmentation_scale_function,
-		const size_t _lo_integration_point_factor
+		const size_t _lo_integration_point_factor,
+		const bool _use_modified_cross_section_prefactor
 	) : sqrt_s(_sqrt_s),
 	s(_sqrt_s * _sqrt_s), 
 	flavors(_active_flavors, _flavor_masses),
@@ -68,7 +70,8 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 	momentum_fraction_mass_corrections(_momentum_fraction_mass_corrections),
 	factorization_scale_function(_factorization_scale_function),
 	fragmentation_scale_function(_fragmentation_scale_function),
-	lo_integration_point_factor(_lo_integration_point_factor) { }
+	lo_integration_point_factor(_lo_integration_point_factor),
+	use_modified_cross_section_prefactor(_use_modified_cross_section_prefactor) { }
 
 	constexpr bool nontrivial_factorization_scale() const { return factorization_scale_function.has_value(); }
 	constexpr bool nontrivial_fragmentation_scale() const { return fragmentation_scale_function.has_value(); }
@@ -339,10 +342,11 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 	}
 
 	PerturbativeQuantity differential_cross_section_xQ2_direct(const TRFKinematics &kinematics, const PerturbativeQuantity f2, const PerturbativeQuantity fL, const PerturbativeQuantity xf3) const {
-		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
 		const double y = kinematics.y;
-		const double prefactor = CommonFunctions::cross_section_prefactor(Q2);
+		const double prefactor = use_modified_cross_section_prefactor 
+									? CommonFunctions::cross_section_modified_prefactor(kinematics) 
+									: CommonFunctions::cross_section_prefactor(kinematics);
 
 		if (!kinematics.is_valid()) { return PerturbativeQuantity {0.0, 0.0}; }
 
@@ -433,7 +437,9 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 		const double nlo = nlo_coefficient * (nlo1 + nlo2);
 
 		const PerturbativeQuantity result = PerturbativeQuantity {lo, lo + nlo};
-		const double prefactor = CommonFunctions::cross_section_prefactor(Q2);
+		const double prefactor = use_modified_cross_section_prefactor 
+									? CommonFunctions::cross_section_modified_prefactor(kinematics) 
+									: CommonFunctions::cross_section_prefactor(kinematics);
 		return prefactor * result;
 	}
 
@@ -479,7 +485,9 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 		const double nlo = nlo_coefficient * nlo_integral;
 
 		const PerturbativeQuantity result = PerturbativeQuantity {lo, lo + nlo};
-		const double prefactor = CommonFunctions::cross_section_prefactor(Q2);
+		const double prefactor = use_modified_cross_section_prefactor 
+									? CommonFunctions::cross_section_modified_prefactor(kinematics) 
+									: CommonFunctions::cross_section_prefactor(kinematics);
 		return prefactor * result;
 	}
 
@@ -563,7 +571,9 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 		const double nlo = nlo_coefficient * (xi_integral + xip_integral + xi_xip_integral + delta_integral);
 
 		const PerturbativeQuantity result = PerturbativeQuantity {lo, lo + nlo};
-		const double prefactor = CommonFunctions::cross_section_prefactor(Q2);
+		const double prefactor = use_modified_cross_section_prefactor 
+									? CommonFunctions::cross_section_modified_prefactor(kinematics) 
+									: CommonFunctions::cross_section_prefactor(kinematics);
 		return prefactor * result;
 	}
 	PerturbativeQuantity lepton_pair_cross_section_xQ2_combined(const TRFKinematics &kinematics) const {
@@ -618,7 +628,9 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 		const double nlo = nlo_coefficient * nlo_integral;
 
 		const PerturbativeQuantity result = PerturbativeQuantity {lo, lo + nlo};
-		const double prefactor = CommonFunctions::cross_section_prefactor(Q2);
+		const double prefactor = use_modified_cross_section_prefactor 
+									? CommonFunctions::cross_section_modified_prefactor(kinematics) 
+									: CommonFunctions::cross_section_prefactor(kinematics);
 		return prefactor * result;
 	}
 };

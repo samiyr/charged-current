@@ -12,9 +12,15 @@ namespace CommonFunctions {
 		if (y < 0 || y > 1) { return std::nullopt; }
 		return y;
 	}
-	constexpr double cross_section_prefactor(const double Q2) {
+	constexpr double cross_section_prefactor(const TRFKinematics &kinematics) {
 		constexpr double numerator = POW2(Constants::fermi_coupling) * POW4(Constants::Particles::W.mass);
-		const double denominator = 2 * M_PI * POW2(Q2 + POW2(Constants::Particles::W.mass));
+		const double denominator = 2.0 * M_PI * POW2(kinematics.Q2 + POW2(Constants::Particles::W.mass));
+
+		return numerator / denominator;
+	}
+	constexpr double cross_section_modified_prefactor(const TRFKinematics &kinematics) {
+		constexpr double numerator = 50.0 * POW4(Constants::Particles::W.mass);
+		const double denominator = POW2(kinematics.Q2 + POW2(Constants::Particles::W.mass)) * kinematics.target_mass * kinematics.E_beam;
 
 		return numerator / denominator;
 	}

@@ -22,7 +22,19 @@ class LHAInterface {
 	LHAInterface(std::string _set_name, int _set_member_number = 0)
 	: set_name(_set_name), 
 	set_member_number(_set_member_number), 
-	flavor_values(TOTAL_FLAVORS, 0.0) {
+	flavor_values(TOTAL_FLAVORS, 0.0),
+	use_multipliers(false),
+	multipliers({}) {
+		initialize();
+		available_flavors = _pdf->flavors();
+	}
+
+	LHAInterface(std::string _set_name, const std::vector<double> _multipliers, int _set_member_number = 0)
+	: set_name(_set_name), 
+	set_member_number(_set_member_number), 
+	flavor_values(TOTAL_FLAVORS, 0.0),
+	use_multipliers(true),
+	multipliers(_multipliers) {
 		initialize();
 		available_flavors = _pdf->flavors();
 	}
@@ -49,12 +61,9 @@ class LHAInterface {
 		prev_x = x;
 		prev_Q2 = Q2;
 
-		// if (set_name == "kkks08_opal_d0___mas") {
-		// 	const double gluon = flavor_values[6];
-
-		// 	std::fill(flavor_values.begin(), flavor_values.end(), 0.0);
-		// 	flavor_values[6] = gluon;
-		// }
+		if (use_multipliers) {
+			Utility::multiply(flavor_values, multipliers);
+		}
 	}
 	
 	double xf_evaluate(const FlavorType flavor, const double x, const double Q2) const {
@@ -67,19 +76,19 @@ class LHAInterface {
 		return xf(Flavor::Gluon);
 	}
 	double alpha_s(const double Q2) const {
-		// return 0.2;
 		return _pdf->alphasQ2(Q2);
 	}
 
-	LHAInterface(const LHAInterface &o) {
-		set_name = o.set_name;
-		set_member_number = o.set_member_number;
+	LHAInterface(const LHAInterface &o) : set_name(o.set_name), set_member_number(o.set_member_number), use_multipliers(o.use_multipliers), multipliers(o.multipliers) {
 		initialize();
 	}
 
 	private:
 	mutable std::vector<double> flavor_values;
 	mutable std::unique_ptr<LHAPDF::PDF> _pdf;
+
+	const bool use_multipliers;
+	const std::vector<double> multipliers;
 	
 	void initialize() {
 		_pdf = std::unique_ptr<LHAPDF::PDF>(LHAPDF::mkPDF(set_name, set_member_number));

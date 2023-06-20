@@ -31,6 +31,7 @@ class DISComputation {
 	const bool momentum_fraction_mass_corrections;
 
 	const std::optional<FactorizationScaleFunction> factorization_scale_function;
+	const bool use_modified_cross_section_prefactor;
 
 	DISComputation (
 		const double _sqrt_s, 
@@ -43,7 +44,8 @@ class DISComputation {
 		const unsigned int _iter_max,
 		const Process _process,
 		const bool _momentum_fraction_mass_corrections,
-		const std::optional<FactorizationScaleFunction> _factorization_scale_function
+		const std::optional<FactorizationScaleFunction> _factorization_scale_function,
+		const bool _use_modified_cross_section_prefactor
 	) : sqrt_s(_sqrt_s), 
 	s(_sqrt_s * _sqrt_s), 
 	flavors(_active_flavors, _flavor_masses), 
@@ -55,7 +57,8 @@ class DISComputation {
 	iter_max(_iter_max),
 	process(_process),
 	momentum_fraction_mass_corrections(_momentum_fraction_mass_corrections),
-	factorization_scale_function(_factorization_scale_function) { }
+	factorization_scale_function(_factorization_scale_function),
+	use_modified_cross_section_prefactor(_use_modified_cross_section_prefactor) { }
 
 	constexpr bool nontrivial_factorization_scale() const { return factorization_scale_function.has_value(); }
 	constexpr double compute_factorization_scale(const TRFKinematics &kinematics) const {
@@ -171,13 +174,14 @@ class DISComputation {
 	}
 
 	PerturbativeQuantity differential_cross_section_xQ2_direct(const TRFKinematics &kinematics) const {
-		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
 		const double y = kinematics.y;
 
 		if (!kinematics.is_valid()) { return PerturbativeQuantity {0.0, 0.0}; }
 
-		const double prefactor = CommonFunctions::cross_section_prefactor(Q2);
+		const double prefactor = use_modified_cross_section_prefactor 
+									? CommonFunctions::cross_section_modified_prefactor(kinematics) 
+									: CommonFunctions::cross_section_prefactor(kinematics);
 
 		const PerturbativeQuantity f2 = F2(kinematics);
 		const PerturbativeQuantity fL = FL(kinematics);
@@ -233,7 +237,9 @@ class DISComputation {
 		const double nlo = nlo_coefficient * (nlo_integral + delta_contribution);
 
 		const PerturbativeQuantity result = PerturbativeQuantity {lo, lo + nlo};
-		const double prefactor = CommonFunctions::cross_section_prefactor(Q2);
+		const double prefactor = use_modified_cross_section_prefactor 
+									? CommonFunctions::cross_section_modified_prefactor(kinematics) 
+									: CommonFunctions::cross_section_prefactor(kinematics);
 		return prefactor * result;
 	}
 };

@@ -136,6 +136,13 @@ namespace Utility {
 		const unsigned int hardware = std::thread::hardware_concurrency();
 		return std::max(1U, hardware);
 	}
+
+	template <typename T>
+	static void multiply(std::vector<T> &v1, const std::vector<T> &v2) {
+		for (typename std::vector<T>::size_type i = 0; i < v1.size(); i++) {
+			v1[i] *= v2[i];
+		}
+	}
 }
 
 #endif

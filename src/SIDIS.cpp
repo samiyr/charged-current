@@ -52,6 +52,7 @@ struct SIDIS {
 	double bottom_mass = 0.0;
 
 	size_t lo_integration_point_factor = 1000;
+	bool use_modified_cross_section_prefactor = false;
 
 	SIDIS (
 		const FlavorVector _active_flavors, 
@@ -96,7 +97,7 @@ struct SIDIS {
 			points, max_chi_squared_deviation, max_relative_error, iter_max, 
 			process, 
 			momentum_fraction_mass_corrections, factorization_scale, fragmentation_scale,
-			lo_integration_point_factor
+			lo_integration_point_factor, use_modified_cross_section_prefactor
 		);
 		return sidis;
 	}

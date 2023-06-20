@@ -2,6 +2,9 @@
 #define DECAY_PARAMETRIZATION_H
 
 struct DecayParametrization {
+	static DecayParametrization fit1() {
+		return DecayParametrization(7.365, 1.4, 2.276, 2.04);
+	}
 	const double N;
 	const double alpha;
 	const double beta;

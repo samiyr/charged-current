@@ -38,6 +38,8 @@ struct DIS {
 	double top_mass = 0.0;
 	double bottom_mass = 0.0;
 
+	bool use_modified_cross_section_prefactor = false;
+
 	DIS(
 		const FlavorVector _active_flavors,
 		const PDFInterface _pdf,
@@ -60,7 +62,8 @@ struct DIS {
 			pdf,
 			points, max_chi_squared_deviation, max_relative_error, iter_max, 
 			process, 
-			momentum_fraction_mass_corrections, factorization_scale
+			momentum_fraction_mass_corrections, factorization_scale,
+			use_modified_cross_section_prefactor
 		);
 		return dis;
 	}
@@ -135,6 +138,65 @@ struct DIS {
 		const PerturbativeQuantity xQ2 = differential_cross_section_xQ2(kinematics);
 		const double jacobian = CommonFunctions::xy_jacobian(kinematics, process);
 		return xQ2 * jacobian;
+	}
+
+	void differential_cross_section_xy(
+		const std::vector<double> x_bins, 
+		const std::vector<double> y_bins, 
+		const std::vector<double> E_beam_bins, 
+		const std::string filename, 
+		const std::string comment = "") {
+
+		const size_t x_step_count = x_bins.size();
+		const size_t y_step_count = y_bins.size();
+		const size_t E_beam_step_count = E_beam_bins.size();
+
+		int calculated_values = 0;
+
+		std::ofstream file(filename);
+
+		output_run_info(file, comment);
+
+		file << "x,y,E,LO,NLO,Q2,factorization_scale" << std::endl;
+
+		DISComputation dis = construct_computation();
+		#pragma omp parallel if(parallelize) num_threads(number_of_threads) firstprivate(dis)
+		{
+			#pragma omp for collapse(3)
+			for (size_t i = 0; i < x_step_count; i++) {
+				for (size_t j = 0; j < E_beam_step_count; j++) {
+					for (size_t k = 0; k < y_step_count; k++) {
+						const double x = x_bins[i];
+						const double y = y_bins[k];
+						const double E_beam = E_beam_bins[j];
+						
+						TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, process.target.mass, process.projectile.mass);
+						const PerturbativeQuantity cross_section_xQ2 = compute_differential_cross_section_directly 
+																		? dis.differential_cross_section_xQ2_direct(kinematics) 
+																		: dis.differential_cross_section_xQ2_indirect(kinematics);
+						const double jacobian = CommonFunctions::xy_jacobian(kinematics, process);
+						const PerturbativeQuantity cross_section_xy = cross_section_xQ2 * jacobian;
+
+						const double Q2 = kinematics.Q2;
+						const double factorization_scale = dis.compute_factorization_scale(kinematics);
+
+						#pragma omp critical
+						{
+							file << x << ", " << y << ", " << E_beam << ", " << cross_section_xy.lo << ", " << cross_section_xy.nlo;
+							file << ", " << Q2 << ", " << factorization_scale << std::endl;
+							file.flush();
+
+							calculated_values++;
+							std::cout << "Calculated value " << calculated_values << " / " << x_step_count * y_step_count * E_beam_step_count ;
+							std::cout << ": " << cross_section_xy.lo << ", " << cross_section_xy.nlo;
+							std::cout << " (x = " << x << ", y = " << y << ", s = " << kinematics.s << ", E_beam = " << E_beam << ", Q2 = " << kinematics.Q2 << ")";
+							std::cout << std::endl;
+						}
+					}
+				}
+			}
+		}
+		file.close();
 	}
 };
 
