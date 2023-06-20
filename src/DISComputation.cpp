@@ -11,8 +11,9 @@
 #include "CommonFunctions.cpp"
 #include <optional>
 #include "PDFConcept.cpp"
+#include "ScaleDependence.cpp"
 
-template <PDFConcept PDFInterface, typename FactorizationScaleFunction>
+template <PDFConcept PDFInterface, ScaleDependence::Concept FactorizationScaleFunction>
 class DISComputation {
 	public:
 	double sqrt_s;

@@ -8,7 +8,7 @@
 #include "DISComputation.cpp"
 #include "ScaleDependence.cpp"
 
-template <PDFConcept PDFInterface, typename FactorizationScaleFunction = decltype(ScaleDependence::trivial)>
+template <PDFConcept PDFInterface, ScaleDependence::Concept FactorizationScaleFunction = decltype(ScaleDependence::trivial)>
 struct DIS {
 	const FlavorVector active_flavors;
 
