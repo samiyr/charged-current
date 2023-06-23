@@ -4,8 +4,9 @@
 #include <vector>
 #include "Decay.cpp"
 #include "DecayFunctions.cpp"
+#include "PDFConcept.cpp"
 
-template <typename Interface, typename DecayFunction>
+template <PDFConcept Interface, DecayFunctions::Concept DecayFunction>
 struct FragmentationConfiguration {
 	const std::vector<Interface> interfaces;
 	const std::vector<Decay<DecayFunction>> decays;

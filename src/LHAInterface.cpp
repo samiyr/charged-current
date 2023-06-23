@@ -91,11 +91,11 @@ class LHAInterface {
 	}
 
 	private:
-	mutable std::vector<double> flavor_values;
-	mutable std::unique_ptr<LHAPDF::PDF> pdf;
-
 	const bool use_multipliers;
 	const std::vector<double> multipliers;
+
+	mutable std::unique_ptr<LHAPDF::PDF> pdf;
+	mutable std::vector<double> flavor_values;
 
 	mutable double prev_x = -1.0;
 	mutable double prev_Q2 = -1.0;
