@@ -5,7 +5,7 @@
 #include "DecayFunctions.cpp"
 #include "Particle.cpp"
 
-template <typename DecayFunction>
+template <DecayFunctions::Concept DecayFunction>
 struct Decay {
 	const DecayParametrization parametrization;
 	const Particle resonance;

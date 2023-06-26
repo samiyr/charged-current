@@ -32,7 +32,7 @@ namespace Analysis {
 				{Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
 				LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
 				20'000,
-				Process {Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino}
+				Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
 			);
 
 			dis.max_chi_squared_deviation = 0.2;
@@ -272,6 +272,73 @@ namespace Analysis {
 				muon_pair_production_flavor_to_flavor(x_bins, y_bins, E_beam_bins, Flavor::AntiUp, Flavor::AntiBottom, base_filename + "_ubar_bbar.csv", "ubar -> bbar");
 				muon_pair_production_flavor_to_flavor(x_bins, y_bins, E_beam_bins, Flavor::AntiCharm, Flavor::AntiBottom, base_filename + "_cbar_bbar.csv", "cbar -> bbar");
 			}
+			static void muon_pair_production_gluon_to_quark(
+				const std::vector<double> x_bins, 
+				const std::vector<double> y_bins, 
+				const std::vector<double> E_beam_bins,
+				const std::string base_filename) {
+
+				muon_pair_production_flavor_to_flavor(x_bins, y_bins, E_beam_bins, Flavor::Gluon, Flavor::Up, base_filename + "_gu.csv", "g -> u");
+				muon_pair_production_flavor_to_flavor(x_bins, y_bins, E_beam_bins, Flavor::Gluon, Flavor::Charm, base_filename + "_gc.csv", "g -> c");
+
+				muon_pair_production_flavor_to_flavor(x_bins, y_bins, E_beam_bins, Flavor::Gluon, Flavor::AntiDown, base_filename + "_g_dbar.csv", "g -> dbar");
+				muon_pair_production_flavor_to_flavor(x_bins, y_bins, E_beam_bins, Flavor::Gluon, Flavor::AntiStrange, base_filename + "_g_sbar.csv", "g -> sbar");
+				muon_pair_production_flavor_to_flavor(x_bins, y_bins, E_beam_bins, Flavor::Gluon, Flavor::AntiBottom, base_filename + "_g_bbar.csv", "g -> bbar");
+			}
+		}
+
+		namespace FragmentationDecomposition {
+			template <PDFConcept FFInterface, DecayFunctions::Concept DecayFunction>
+			static void muon_pair_production_fragmentation_channel(
+				const std::vector<double> x_bins, 
+				const std::vector<double> y_bins, 
+				const std::vector<double> E_beam_bins,
+				const FFInterface ff,
+				const Decay<DecayFunction> decay,
+				const std::string filename, 
+				const std::string comment = "") {
+				
+				Analysis::SemiInclusive::muon_pair_production(
+					x_bins, y_bins, E_beam_bins, filename,
+					LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
+					FragmentationConfiguration({ ff }, { decay }),
+					comment
+				);
+			}
+
+			static void muon_pair_production(
+				const std::vector<double> x_bins, 
+				const std::vector<double> y_bins, 
+				const std::vector<double> E_beam_bins,
+				const std::string base_filename) {
+
+				const double minimum_lepton_momentum = 5.0;
+				const Particle target = Constants::Particles::Proton;
+				const auto decay_function = DecayFunctions::decay_function;
+
+				const DecayParametrization parametrization = DecayParametrization::fit1();
+
+				muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
+					LHAInterface("kkks08_opal_d0___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}),
+					Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),
+					base_filename + "_d0.csv", "d0 only"
+				);
+				muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
+					LHAInterface("kkks08_opal_d+___mas"),
+					Decay(parametrization, Constants::Particles::Dp, target, decay_function, minimum_lepton_momentum),
+					base_filename + "_d+.csv", "d+ only"
+				);
+				muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
+					LHAInterface("bkk05_D3_d_s_nlo"),
+					Decay(parametrization, Constants::Particles::Ds, target, decay_function, minimum_lepton_momentum),
+					base_filename + "_d_s.csv", "d_s only"
+				);
+				muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
+					LHAInterface("bkk05_D3_lambda_c_nlo"),
+					Decay(parametrization, Constants::Particles::LambdaC, target, decay_function, minimum_lepton_momentum),
+					base_filename + "_lambda_c.csv", "lambda_c only"
+				);
+			}
 		}
 
 		static void muon_pair_production_only_D0(
@@ -298,7 +365,7 @@ namespace Analysis {
 					}
 				),
 				300'000,
-				Process {Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino }
+				Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
 			);
 
 			sidis.charm_mass = 1.3;

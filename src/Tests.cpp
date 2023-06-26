@@ -115,7 +115,7 @@ namespace Tests {
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
 			LHAInterface("CT18ANLO"),
 			20'000,
-			Process {Process::Type::NeutrinoToLepton, Particle(), Particle()}
+			Process(Process::Type::NeutrinoToLepton, Particle(), Particle())
 		);
 
 		dis1.max_chi_squared_deviation = 0.2;
@@ -127,7 +127,7 @@ namespace Tests {
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
 			LHAInterface("CT18ANLO"),
 			20'000,
-			Process {Process::Type::NeutrinoToLepton, Particle(), Particle()}
+			Process(Process::Type::NeutrinoToLepton, Particle(), Particle())
 		);
 
 		dis2.max_chi_squared_deviation = 0.2;
@@ -190,7 +190,7 @@ namespace Tests {
 				return (2.0 * f * f + f + 1.0) * x * x * (1 - x) * (1 - x);
 			}),
 			100'000,
-			Process {Process::Type::NeutrinoToLepton, Particle(), Particle()}
+			Process(Process::Type::NeutrinoToLepton, Particle(), Particle())
 		);
 		sidis.max_chi_squared_deviation = 0.2;
 		sidis.iter_max = 10;
@@ -272,7 +272,7 @@ namespace Tests {
 				return (2.0 * f * f + f + 1.0) * x * (1 - x) * (1 - x);
 			}),
 			100'000,
-			Process {Process::Type::NeutrinoToLepton, Particle(), Particle()}
+			Process(Process::Type::NeutrinoToLepton, Particle(), Particle())
 		);
 		sidis.max_chi_squared_deviation = 0.2;
 		sidis.iter_max = 10;
@@ -353,7 +353,7 @@ namespace Tests {
 				return 0.0;
 			}),
 			100'000,
-			Process {Process::Type::NeutrinoToLepton, Particle(), Particle()}
+			Process(Process::Type::NeutrinoToLepton, Particle(), Particle())
 		);
 		sidis.max_chi_squared_deviation = 0.2;
 		sidis.iter_max = 10;
@@ -436,7 +436,7 @@ namespace Tests {
 				return (2.0 * f * f + f + 1.0) * x * (1 - x) * (1 - x);
 			}),
 			100'000,
-			Process {Process::Type::NeutrinoToLepton, Particle(), Particle()}
+			Process(Process::Type::NeutrinoToLepton, Particle(), Particle())
 		);
 		sidis.max_chi_squared_deviation = 0.2;
 		sidis.iter_max = 10;
@@ -516,7 +516,7 @@ namespace Tests {
 				return (2.0 * f * f + f + 1.0) * x * (1 - x) * (1 - x);
 			}),
 			200'000,
-			Process {Process::Type::NeutrinoToLepton, Particle(), Particle()},
+			Process(Process::Type::NeutrinoToLepton, Particle(), Particle()),
 			ScaleDependence::constant(5.0),
 			ScaleDependence::constant(30.0)
 		);
@@ -670,7 +670,7 @@ namespace Tests {
 				}
 			),
 			100'000,
-			Process {Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino}
+			Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
 		);
 		sidis.global_sqrt_s = sqrt_s;
 		sidis.max_chi_squared_deviation = 0.2;
@@ -691,7 +691,7 @@ namespace Tests {
 			LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
 			LHAInterface("kkks08_opal_d0___mas"),
 			10'000,
-			Process {Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino}
+			Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
 		);
 		sidis1.global_sqrt_s = sqrt_s;
 		sidis1.max_chi_squared_deviation = 0.2;
@@ -703,7 +703,7 @@ namespace Tests {
 			LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
 			LHAInterface("kkks08_opal_d+___mas"),
 			10'000,
-			Process {Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino}
+			Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
 		);
 		sidis2.global_sqrt_s = sqrt_s;
 		sidis2.max_chi_squared_deviation = 0.2;
@@ -761,7 +761,7 @@ namespace Tests {
 				}
 			),
 			100'000,
-			Process {Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino}
+			Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
 		);
 		sidis.global_sqrt_s = sqrt_s;
 		sidis.max_chi_squared_deviation = 0.2;
@@ -782,7 +782,7 @@ namespace Tests {
 			LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
 			LHAInterface("kkks08_opal_d0___mas"),
 			100'000,
-			Process {Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino}
+			Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
 		);
 		sidis1.global_sqrt_s = sqrt_s;
 		sidis1.max_chi_squared_deviation = 0.2;
@@ -794,7 +794,7 @@ namespace Tests {
 			LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
 			LHAInterface("kkks08_opal_d+___mas"),
 			100'000,
-			Process {Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino}
+			Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
 		);
 		sidis2.global_sqrt_s = sqrt_s;
 		sidis2.max_chi_squared_deviation = 0.2;
@@ -830,7 +830,7 @@ namespace Tests {
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
 			pdf,
 			10'000,
-			Process {Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino}
+			Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
 		);
 
 		dis.global_sqrt_s = sqrt_s;
@@ -845,7 +845,7 @@ namespace Tests {
 				return z;
 			}),
 			100,
-			Process {Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino}
+			Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
 		);
 		sidis.global_sqrt_s = sqrt_s;
 		sidis.max_chi_squared_deviation = 0.2;
@@ -859,7 +859,7 @@ namespace Tests {
 				return z;
 			}),
 			2,
-			Process {Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino}
+			Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
 		);
 		sidis2.global_sqrt_s = sqrt_s;
 		sidis2.max_chi_squared_deviation = 0.2;

@@ -15,6 +15,8 @@ struct Process {
 	const Particle target;
 	const Particle projectile;
 
+	constexpr Process(Type type, Particle target, Particle projectile) : type(type), target(target), projectile(projectile) { }
+
 	constexpr int W_sign() const {
 		return (type == Type::NeutrinoToLepton || type == Type::AntiLeptonToAntiNeutrino) ? +1 : -1;
 	}

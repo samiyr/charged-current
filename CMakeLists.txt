@@ -79,6 +79,13 @@ if (PYTHIA8_FOUND)
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${PYTHIA8_LIBRARIES})
 endif()
 
+# Cuba
+find_package(Cuba REQUIRED)
+if (Cuba_FOUND)
+	target_include_directories(${PROJECT_NAME} PRIVATE ${Cuba_INCLUDE_DIRS})
+	target_link_libraries(${PROJECT_NAME} PRIVATE ${Cuba_LIBRARIES})
+endif()
+
 # Unset cached values
 unset(USE_THREAD_SANITIZER CACHE)
 unset(USE_ADDRESS_SANITIZER CACHE)

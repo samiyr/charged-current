@@ -5,17 +5,23 @@
 #include <vector>
 #include <cassert>
 #include <iostream>
-
-#define GSL_MONTE_FN_EVAL(F,x) (*((F)->f))(x,(F)->dim,(F)->params)
+#include <cuba.h>
 
 template <typename Function>
 struct ParametrizedFunctor {
 	Function function;
 	void *params;
 
-	constexpr static double invoke(double input[], size_t dim, void *p) {
+	constexpr static double gsl_invoke(double input[], size_t dim, void *p) {
 		ParametrizedFunctor *functor = static_cast<ParametrizedFunctor *>(p);
 		return functor->function(input, dim, functor->params);
+	}
+
+	static int cuba_invoke(const int *ndim, const double x[], const int *ncomp, double f[], void *userdata) {
+		ParametrizedFunctor *functor = static_cast<ParametrizedFunctor *>(userdata);
+		const double function_value = functor->function(x, *ndim, functor->params);
+		f[0] = function_value;
+		return 0;
 	}
 };
 
@@ -25,6 +31,11 @@ class Integrator {
 	const gsl_rng_type *rng_type;
 	gsl_rng *rng;
 	public:
+
+	enum class Method {
+		GSLVegas, CubaVegas
+	};
+
 	Integrand integrand;
 	std::vector<double> lower;
 	std::vector<double> upper;
@@ -38,6 +49,8 @@ class Integrator {
 
 	bool verbose = false;
 	bool grid_warmup = true;
+
+	Method method = Method::GSLVegas;
 
 	Integrator(
 		Integrand _integrand, 
@@ -71,11 +84,18 @@ class Integrator {
 		}
 	};
 
-	double evaluate_integrand(double input[]) {
+	double evaluate_gsl_integrand(double input[]) {
 		return (function.f)(input, function.dim, function.params);
 	}
 
 	Result integrate() {
+		switch (method) {
+		case Method::GSLVegas: return integrate_gsl();
+		case Method::CubaVegas: return integrate_cuba_vegas();
+		}
+	}
+
+	Result integrate_gsl() {
 		assert(lower.size() == upper.size());
 		assert(lower.size() > 0);
 
@@ -84,7 +104,7 @@ class Integrator {
 		double error = 0.0;
 
 		ParametrizedFunctor<Integrand> functor { integrand, params };
-		function.f = &ParametrizedFunctor<Integrand>::invoke;
+		function.f = &ParametrizedFunctor<Integrand>::gsl_invoke;
 		// function.f = integrand;
 		function.dim = dim;
 		function.params = &functor;
@@ -143,6 +163,29 @@ class Integrator {
 		gsl_monte_vegas_free(state);
 
 		return Result {final_integral, final_error, final_chi_squared};
+	}
+
+	Result integrate_cuba_vegas() {
+		assert(lower.size() == upper.size());
+		assert(lower.size() > 0);
+
+		const auto dim = lower.size();
+		double integral[] = {0.0};
+		double error[] = {0.0};
+		double chi_squared[] = {0.0};
+
+		ParametrizedFunctor<Integrand> functor { integrand, params };
+		auto cuba_integrand = &ParametrizedFunctor<Integrand>::cuba_invoke;
+
+		#pragma clang diagnostic push
+		#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+		Vegas(dim, 1, cuba_integrand, &functor, 1, max_relative_error, 1e-3, 0, 0, 0, iter_max * points, 
+			std::max(int(points) / 1000, 10), std::max(int(points) / 100, 100), 1000, 0, nullptr, nullptr, nullptr, nullptr,
+			integral, error, chi_squared 
+		);
+		#pragma clang diagnostic pop
+
+		return Result { integral[0], error[0], chi_squared[0] };
 	}
 };
 
