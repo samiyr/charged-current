@@ -19,7 +19,12 @@ struct ParametrizedFunctor {
 
 	static int cuba_invoke(const int *ndim, const double x[], const int *ncomp, double f[], void *userdata) {
 		ParametrizedFunctor *functor = static_cast<ParametrizedFunctor *>(userdata);
-		const double function_value = functor->function(x, *ndim, functor->params);
+		// This is cancerous
+		double *input = const_cast<double *>(x);
+		#pragma clang diagnostic push
+		#pragma clang diagnostic ignored "-Wsign-conversion"
+		const double function_value = functor->function(input, *ndim, functor->params);
+		#pragma clang diagnostic pop
 		f[0] = function_value;
 		return 0;
 	}
