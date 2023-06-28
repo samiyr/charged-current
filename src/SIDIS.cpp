@@ -245,7 +245,7 @@ struct SIDIS {
 		SIDISComputation sidis = construct_computation();
 		#pragma omp parallel if(parallelize) num_threads(number_of_threads) firstprivate(sidis)
 		{
-			#pragma omp for collapse(3)
+			#pragma omp for collapse(3) schedule(guided)
 			for (size_t i = 0; i < x_step_count; i++) {
 				for (size_t j = 0; j < E_beam_step_count; j++) {
 					for (size_t k = 0; k < y_step_count; k++) {

@@ -114,7 +114,7 @@ namespace Tests {
 		DIS dis1(
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
 			LHAInterface("CT18ANLO"),
-			20'000,
+			5'000,
 			Process(Process::Type::NeutrinoToLepton, Particle(), Particle())
 		);
 
@@ -126,7 +126,7 @@ namespace Tests {
 		DIS dis2(
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
 			LHAInterface("CT18ANLO"),
-			20'000,
+			5'000,
 			Process(Process::Type::NeutrinoToLepton, Particle(), Particle())
 		);
 
@@ -622,7 +622,10 @@ namespace Tests {
 			for (const double z : xz_values) {
 				for (const double Q2 : Q2_values) {
 					std::vector<double> params = {x, z, Q2, 1.0, 1.8, 1.0, 1.4, 2.3, 2.0, 1.0};
-					Integrator integrator(&DecayFunctions::decay_function_integrand, {0.1 / params[1], -1}, {1, 1}, 2'000'000, &params, 0.2, 1e-3, 10);
+					CubaIntegrator integrator(&DecayFunctions::decay_function_integrand, {0.1 / params[1], -1}, {1, 1}, &params, CubaMethod::Vegas);
+					integrator.maximum_relative_error = 1e-6;
+					integrator.maximum_evaluations = 100'000'000;
+
 					const auto result = integrator.integrate();
 					if (result.value == 0) {
 						std::cout << "Skipping value due to non-applicable region" << std::endl;
@@ -710,7 +713,7 @@ namespace Tests {
 		sidis2.max_relative_error = 1e-3;
 		sidis2.iter_max = 10;
 
-		Integrator integrator([&](const double input[], [[maybe_unused]] const size_t dim, [[maybe_unused]] void *params) {
+		CubaIntegrator integrator([&](const double input[], [[maybe_unused]] const size_t dim, [[maybe_unused]] void *params) {
 			const double z = input[0];
 
 			const double differential_cs_1 = sidis1.differential_cross_section_xQ2(z, kinematics).lo;
@@ -718,7 +721,7 @@ namespace Tests {
 
 			const double result = 3 * Constants::Particles::D0.lifetime * differential_cs_1 + 5 * Constants::Particles::Dp.lifetime * differential_cs_2;
 			return result;
-		}, {z_min}, {1}, 100, nullptr, 0.5, 1e-2, 10);
+		}, {z_min}, {1});
 		integrator.verbose = true;
 		const auto result2 = integrator.integrate();
 		std::cout << "Lepton-pair cross section value = " << result2 << std::endl;
@@ -801,7 +804,7 @@ namespace Tests {
 		sidis2.max_relative_error = 1e-3;
 		sidis2.iter_max = 10;
 
-		Integrator integrator([&](const double input[], [[maybe_unused]] const size_t dim, [[maybe_unused]] void *params) {
+		CubaIntegrator integrator([&](const double input[], [[maybe_unused]] const size_t dim, [[maybe_unused]] void *params) {
 			const double z = input[0];
 
 			const double differential_cs_1 = sidis1.differential_cross_section_xQ2(z, kinematics).nlo;
@@ -809,7 +812,7 @@ namespace Tests {
 
 			const double result = 3 * Constants::Particles::D0.lifetime * differential_cs_1 + 5 * Constants::Particles::Dp.lifetime * differential_cs_2;
 			return result;
-		}, {z_min}, {1}, 100, nullptr, 0.5, 1e-2, 10);
+		}, {z_min}, {1});
 		integrator.verbose = true;
 		const auto result2 = integrator.integrate();
 		std::cout << "Lepton-pair cross section value = " << result2 << std::endl;
@@ -872,10 +875,10 @@ namespace Tests {
 		std::cout << "Lepton-pair cross section value (DIS) = " << result_dis.lo << std::endl;
 		std::cout << "Lepton-pair cross section value (SIDIS integrated) = " << result_sidis.lo << std::endl;
 
-		Integrator integrator([&](const double input[], [[maybe_unused]] const size_t dim, [[maybe_unused]] void *params) {
+		CubaIntegrator integrator([&](const double input[], [[maybe_unused]] const size_t dim, [[maybe_unused]] void *params) {
 			const double z = input[0];
 			return sidis2.differential_cross_section_xQ2(z, kinematics).lo;
-		}, {0}, {1}, 100, nullptr, 0.5, 1e-2, 10);
+		}, {0}, {1});
 		integrator.verbose = true;
 		const auto result2 = integrator.integrate();
 		std::cout << "Lepton-pair cross section value (SIDIS integrated manually) = " << result2 << std::endl;

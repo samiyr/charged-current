@@ -123,9 +123,9 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 
 		const double lo = x * SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>({}, &params, SIDISFunctions::Integrands::F2x_lo_integrand, false, false, false, 1);
 
-		Integrator nlo_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		CubaIntegrator nlo_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>(input, params_in, SIDISFunctions::Integrands::F2x_nlo_integrand, true, true, false, 1);
-		}, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {x, z}, {1, 1}, &params);
 		auto nlo_result = nlo_integrator.integrate();
 		const double nlo_value = nlo_result.value;
 
@@ -155,9 +155,9 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 			factorization_scale_log, fragmentation_scale_log
 		};
 
-		Integrator xi_xip_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		CubaIntegrator xi_xip_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>(input, params_in, SIDISFunctions::Integrands::FLx_xi_xip_integrand, true, true, false, 1);
-		}, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {x, z}, {1, 1}, &params);
 		auto xi_xip_result = xi_xip_integrator.integrate();
 		const double xi_xip_integral = xi_xip_result.value;
 
@@ -192,9 +192,9 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 
 		const double lo = x * SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>({}, &params, SIDISFunctions::Integrands::F3_lo_integrand, false, false, false, -1);
 
-		Integrator nlo_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		CubaIntegrator nlo_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>(input, params_in, SIDISFunctions::Integrands::F3_nlo_integrand, true, true, false, -1);
-		}, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {x, z}, {1, 1}, &params);
 		auto nlo_result = nlo_integrator.integrate();
 		const double nlo_value = nlo_result.value;
 
@@ -230,21 +230,21 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 
 		const double lo = x * SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>({}, &params, SIDISFunctions::Integrands::F2x_lo_integrand, false, false, false, 1);
 
-		Integrator xi_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		CubaIntegrator xi_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>(input, params_in, SIDISFunctions::Integrands::F2x_xi_integrand, true, false, false, 1);
-		}, {x}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {x}, {1}, &params);
 		auto xi_result = xi_integrator.integrate();
 		const double xi_integral = xi_result.value;
 		
-		Integrator xip_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		CubaIntegrator xip_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>(input, params_in, SIDISFunctions::Integrands::F2x_xip_integrand, false, true, false, 1);
-		}, {z}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {z}, {1}, &params);
 		auto xip_result = xip_integrator.integrate();
 		const double xip_integral = xip_result.value;
 
-		Integrator xi_xip_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		CubaIntegrator xi_xip_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>(input, params_in, SIDISFunctions::Integrands::F2x_xi_xip_integrand, true, true, false, 1);
-		}, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {x, z}, {1, 1}, &params);
 		auto xi_xip_result = xi_xip_integrator.integrate();
 		const double xi_xip_integral = xi_xip_result.value;
 
@@ -277,9 +277,9 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 			factorization_scale_log, fragmentation_scale_log
 		};
 
-		Integrator xi_xip_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		CubaIntegrator xi_xip_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>(input, params_in, SIDISFunctions::Integrands::FLx_xi_xip_integrand, true, true, false, 1);
-		}, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {x, z}, {1, 1}, &params);
 		auto xi_xip_result = xi_xip_integrator.integrate();
 		const double xi_xip_integral = xi_xip_result.value;
 
@@ -314,21 +314,21 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 
 		const double lo = x * SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>({}, &params, SIDISFunctions::Integrands::F3_lo_integrand, false, false, false, -1);
 
-		Integrator xi_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		CubaIntegrator xi_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>(input, params_in, SIDISFunctions::Integrands::F3_xi_integrand, true, false, false, -1);
-		}, {x}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {x}, {1}, &params);
 		auto xi_result = xi_integrator.integrate();
 		const double xi_integral = xi_result.value;
 		
-		Integrator xip_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		CubaIntegrator xip_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>(input, params_in, SIDISFunctions::Integrands::F3_xip_integrand, false, true, false, -1);
-		}, {z}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {z}, {1}, &params);
 		auto xip_result = xip_integrator.integrate();
 		const double xip_integral = xip_result.value;
 
-		Integrator xi_xip_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		CubaIntegrator xi_xip_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::construct<PDFInterface, FFInterface>(input, params_in, SIDISFunctions::Integrands::F3_xi_xip_integrand, true, true, false, -1);
-		}, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {x, z}, {1, 1}, &params);
 		auto xi_xip_result = xi_xip_integrator.integrate();
 		const double xi_xip_integral = xi_xip_result.value;
 
@@ -408,30 +408,30 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 			false, false, false
 		);
 
-		Integrator xi_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		CubaIntegrator xi_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::cross_section<PDFInterface, FFInterface, DecayFunction>(input, params_in, 
 				SIDISFunctions::Integrands::F2x_xi_integrand, SIDISFunctions::Integrands::FLx_xi_integrand, SIDISFunctions::Integrands::F3_xi_integrand,
 				true, false, false
 			);
-		}, {x}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {x}, {1}, &params);
 		const auto xi_result = xi_integrator.integrate();
 		const double xi_integral = xi_result.value;
 		
-		Integrator xip_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		CubaIntegrator xip_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::cross_section<PDFInterface, FFInterface, DecayFunction>(input, params_in, 
 				SIDISFunctions::Integrands::F2x_xip_integrand, SIDISFunctions::Integrands::FLx_xip_integrand, SIDISFunctions::Integrands::F3_xip_integrand,
 				false, true, false
 			);
-		}, {z}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {z}, {1}, &params);
 		const auto xip_result = xip_integrator.integrate();
 		const double xip_integral = xip_result.value;
 
-		Integrator xi_xip_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		CubaIntegrator xi_xip_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::cross_section<PDFInterface, FFInterface, DecayFunction>(input, params_in, 
 				SIDISFunctions::Integrands::F2x_xi_xip_integrand, SIDISFunctions::Integrands::FLx_xi_xip_integrand, SIDISFunctions::Integrands::F3_xi_xip_integrand,
 				true, true, false
 			);
-		}, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {x, z}, {1, 1}, &params);
 		const auto xi_xip_result = xi_xip_integrator.integrate();
 		const double xi_xip_integral = xi_xip_result.value;
 
@@ -480,12 +480,12 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 			false, false, false
 		);
 
-		Integrator nlo_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		CubaIntegrator nlo_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::cross_section<PDFInterface, FFInterface, DecayFunction>(input, params_in, 
 				SIDISFunctions::Integrands::F2x_nlo_integrand, SIDISFunctions::Integrands::FLx_nlo_integrand, SIDISFunctions::Integrands::F3_nlo_integrand,
 				true, true, false
 			);
-		}, {x, z}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {x, z}, {1, 1}, &params);
 		const auto nlo_result = nlo_integrator.integrate();
 		const double nlo_integral = nlo_result.value;
 
@@ -529,49 +529,49 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 			factorization_scale_log, fragmentation_scale_log
 		};
 
-		Integrator lo_integrator([&](double input[], [[maybe_unused]] size_t dim, void* params_in) {
+		CubaIntegrator lo_integrator([&](double input[], [[maybe_unused]] size_t dim, void* params_in) {
 			return SIDISFunctions::Evaluation::cross_section<PDFInterface, FFInterface, DecayFunction>(input, params_in, 
 				SIDISFunctions::Integrands::F2x_lo_integrand, SIDISFunctions::Integrands::FLx_lo_integrand, SIDISFunctions::Integrands::F3_lo_integrand,
 				false, false, true
 			);
-		}, {z_min}, {1}, points / lo_integration_point_factor, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {z_min}, {1}, &params);
 		const auto lo_result = lo_integrator.integrate();
 		const double lo = lo_result.value;
 
-		Integrator xi_integrator([&](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		CubaIntegrator xi_integrator([&](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::cross_section<PDFInterface, FFInterface, DecayFunction>(input, params_in, 
 				SIDISFunctions::Integrands::F2x_xi_integrand, SIDISFunctions::Integrands::FLx_xi_integrand, SIDISFunctions::Integrands::F3_xi_integrand,
 				true, false, true
 			);
-		}, {x, z_min}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {x, z_min}, {1, 1}, &params);
 		const auto xi_result = xi_integrator.integrate();
 		const double xi_integral = xi_result.value;
 		
-		Integrator xip_integrator([&](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		CubaIntegrator xip_integrator([&](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::cross_section<PDFInterface, FFInterface, DecayFunction>(input, params_in, 
 				SIDISFunctions::Integrands::F2x_xip_integrand, SIDISFunctions::Integrands::FLx_xip_integrand, SIDISFunctions::Integrands::F3_xip_integrand,
 				false, true, true
 			);
-		}, {z_min, z_min}, {1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {z_min, z_min}, {1, 1}, &params);
 		const auto xip_result = xip_integrator.integrate();
 		const double xip_integral = xip_result.value;
 
-		Integrator xi_xip_integrator([&](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		CubaIntegrator xi_xip_integrator([&](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::cross_section<PDFInterface, FFInterface, DecayFunction>(input, params_in, 
 				SIDISFunctions::Integrands::F2x_xi_xip_integrand, SIDISFunctions::Integrands::FLx_xi_xip_integrand, SIDISFunctions::Integrands::F3_xi_xip_integrand,
 				true, true, true
 			);
-		}, {x, z_min, z_min}, {1, 1, 1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {x, z_min, z_min}, {1, 1, 1}, &params);
 		const auto xi_xip_result = xi_xip_integrator.integrate();
 		const double xi_xip_integral = xi_xip_result.value;
 
 		// Could combine with z_integrator, but then lose separation between LO and NLO
-		Integrator delta_integrator([&](double input[], [[maybe_unused]] size_t dim, void* params_in) {
+		CubaIntegrator delta_integrator([&](double input[], [[maybe_unused]] size_t dim, void* params_in) {
 			return SIDISFunctions::Evaluation::cross_section<PDFInterface, FFInterface, DecayFunction>(input, params_in, 
 				SIDISFunctions::Integrands::F2x_delta_integrand, SIDISFunctions::Integrands::FLx_delta_integrand, SIDISFunctions::Integrands::F3_delta_integrand,
 				false, false, true
 			);
-		}, {z_min}, {1}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {z_min}, {1}, &params);
 		const auto delta_result = delta_integrator.integrate();
 		const double delta_integral = delta_result.value;
 
@@ -614,21 +614,21 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 			factorization_scale_log, fragmentation_scale_log
 		};
 
-		Integrator lo_integrator([&](double input[], [[maybe_unused]] size_t dim, void* params_in) {
+		CubaIntegrator lo_integrator([&](double input[], [[maybe_unused]] size_t dim, void* params_in) {
 			return SIDISFunctions::Evaluation::cross_section<PDFInterface, FFInterface, DecayFunction>(input, params_in, 
 				SIDISFunctions::Integrands::F2x_lo_integrand, SIDISFunctions::Integrands::FLx_lo_integrand, SIDISFunctions::Integrands::F3_lo_integrand,
 				false, false, true
 			);
-		}, {z_min}, {1}, points / lo_integration_point_factor, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {z_min}, {1}, &params);
 		const auto lo_result = lo_integrator.integrate();
 		const double lo = lo_result.value;
 
-		Integrator nlo_integrator([&](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		CubaIntegrator nlo_integrator([&](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return SIDISFunctions::Evaluation::cross_section<PDFInterface, FFInterface, DecayFunction>(input, params_in, 
 				SIDISFunctions::Integrands::F2x_nlo_integrand, SIDISFunctions::Integrands::FLx_nlo_integrand, SIDISFunctions::Integrands::F3_nlo_integrand,
 				true, true, true
 			) / (1.0 - input[2]);
-		}, {x, z_min, z_min}, {1, 1, 1.0 - 1e-3}, points, &params, max_chi_squared_deviation, max_relative_error, iter_max);
+		}, {x, z_min, z_min}, {1, 1, 1.0 - 1e-3}, &params);
 		const auto nlo_result = nlo_integrator.integrate();
 		const double nlo_integral = nlo_result.value / (1.0 - x);
 
