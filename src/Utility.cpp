@@ -13,6 +13,13 @@
 #define POW2(x) (x) * (x)
 #define POW4(x) (x) * (x) * (x) * (x)
 
+namespace IO {
+	inline std::ostream& endl(std::ostream& os) {
+		os.put(os.widen('\n'));
+		return os;
+	}
+}
+
 template <typename T>
 constexpr std::vector<T> vector_intersection(std::vector<T> &v1, std::vector<T> &v2) {
     std::vector<T> v3;
@@ -30,9 +37,9 @@ bool double_comparison(double a, double b, double tolerance = 1e-5) {
 
 	std::cout << "Floating-point comparison between " << a << " and " << b << ": ";
 	if (flag) {
-		std::cout << "PASS" << std::endl;
+		std::cout << "PASS" << IO::endl;
 	} else {
-		std::cout << "FAIL" << std::endl;
+		std::cout << "FAIL" << IO::endl;
 	}
 	return flag;
 }
@@ -41,9 +48,9 @@ bool double_comparison_rel(double a, double b, double tolerance = 1e-5) {
 
 	std::cout << "Floating-point comparison between " << a << " and " << b << ": ";
 	if (flag) {
-		std::cout << "PASS" << std::endl;
+		std::cout << "PASS" << IO::endl;
 	} else {
-		std::cout << "FAIL" << std::endl;
+		std::cout << "FAIL" << IO::endl;
 	}
 	return flag;
 }
@@ -59,9 +66,9 @@ bool double_comparison_digits(double a, double b, int digits = 5) {
 
 	std::cout << "Floating-point comparison between " << a << " and " << b << ": ";
 	if (flag) {
-		std::cout << "PASS" << std::endl;
+		std::cout << "PASS" << IO::endl;
 	} else {
-		std::cout << "FAIL" << std::endl;
+		std::cout << "FAIL" << IO::endl;
 	}
 	return flag;
 }
@@ -96,7 +103,7 @@ namespace Utility {
 	// }
 
 	void non_aborting_gsl_error_handler(const char *reason, const char *file, int line, int gsl_errno) {
-		std::cout << "gsl error " << gsl_errno << " (" << std::string(file) << ", " << line << "): " << std::string(reason) << std::endl;
+		std::cout << "gsl error " << gsl_errno << " (" << std::string(file) << ", " << line << "): " << std::string(reason) << IO::endl;
 	}
 
 	template <typename Iterator1, typename Iterator2>
@@ -127,7 +134,7 @@ namespace Utility {
 		Traced() = default;
 		Traced(Traced const&) {
 			#pragma omp critical
-			std::cout << typeid(Class).name() << " copy constructor called" << std::endl;
+			std::cout << typeid(Class).name() << " copy constructor called" << IO::endl;
 		}
 	protected:
 		~Traced() = default;

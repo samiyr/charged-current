@@ -31,13 +31,9 @@ namespace Analysis {
 			DIS dis(
 				{Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
 				LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
-				20'000,
 				Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
 			);
 
-			dis.max_chi_squared_deviation = 0.2;
-			dis.max_relative_error = 1e-3;
-			dis.iter_max = 10;
 			dis.compute_differential_cross_section_directly = false;
 			dis.use_modified_cross_section_prefactor = true;
 
@@ -70,15 +66,11 @@ namespace Analysis {
 			SIDIS sidis(
 				{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
 				pdf, ff,
-				200'000,
 				Process {Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino }				
 			);
 
 			sidis.charm_mass = 1.3;
 
-			sidis.max_chi_squared_deviation = 0.5;
-			sidis.max_relative_error = 1e-2;
-			sidis.iter_max = 5;
 			sidis.combine_integrals = true;
 			sidis.use_modified_cross_section_prefactor = true;
 
@@ -364,15 +356,11 @@ namespace Analysis {
 						Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),
 					}
 				),
-				300'000,
 				Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
 			);
 
 			sidis.charm_mass = 1.3;
 
-			sidis.max_chi_squared_deviation = 0.5;
-			sidis.max_relative_error = 1e-2;
-			sidis.iter_max = 5;
 			sidis.combine_integrals = true;
 			sidis.use_modified_cross_section_prefactor = true;
 

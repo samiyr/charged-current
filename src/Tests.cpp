@@ -17,7 +17,7 @@ namespace Tests {
 		bool flag = true;
 		LHAInterface pdf("CT18NLO");
 
-		std::cout << "CT18NLO central PDF test with up at Q^2 = 4 GeV^2:" << std::endl;
+		std::cout << "CT18NLO central PDF test with up at Q^2 = 4 GeV^2:" << IO::endl;
 		flag &= double_comparison(pdf.xf_evaluate(Flavor::Up, 1e-3, 4), 0.488643);
 		flag &= double_comparison(pdf.xf_evaluate(Flavor::Up, 1e-2, 4), 0.444769);
 		flag &= double_comparison(pdf.xf_evaluate(Flavor::Up, 1e-1, 4), 0.64825);
@@ -25,7 +25,7 @@ namespace Tests {
 		flag &= double_comparison(pdf.xf_evaluate(Flavor::Up, 0.5, 4), 0.287891);
 		flag &= double_comparison(pdf.xf_evaluate(Flavor::Up, 0.9, 4), 0.00186158);
 		
-		std::cout << "CT18NLO central PDF test with down at Q^2 = 4 GeV^2:" << std::endl;
+		std::cout << "CT18NLO central PDF test with down at Q^2 = 4 GeV^2:" << IO::endl;
 
 		flag &= double_comparison(pdf.xf_evaluate(Flavor::Down, 1e-3, 4), 0.447382);
 		flag &= double_comparison(pdf.xf_evaluate(Flavor::Down, 1e-2, 4), 0.395838);
@@ -115,25 +115,17 @@ namespace Tests {
 		DIS dis1(
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
 			LHAInterface("CT18ANLO"),
-			5'000,
 			Process(Process::Type::NeutrinoToLepton, Particle(), Particle())
 		);
 
-		dis1.max_chi_squared_deviation = 0.2;
-		dis1.max_relative_error = 1e-3;
-		dis1.iter_max = 10;
 		dis1.compute_differential_cross_section_directly = true;
 
 		DIS dis2(
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
 			LHAInterface("CT18ANLO"),
-			5'000,
 			Process(Process::Type::NeutrinoToLepton, Particle(), Particle())
 		);
 
-		dis2.max_chi_squared_deviation = 0.2;
-		dis2.max_relative_error = 1e-3;
-		dis2.iter_max = 10;
 		dis2.compute_differential_cross_section_directly = false;
 
 		const double sqrt_s = 318.0;
@@ -162,10 +154,10 @@ namespace Tests {
 
 				#pragma omp critical 
 				{
-					std::cout << "Running DIS test at x = " << x << ", Q^2 = " << Q2 << std::endl;
+					std::cout << "Running DIS test at x = " << x << ", Q^2 = " << Q2 << IO::endl;
 					flag &= double_comparison_rel(computed_value_1, comparison_value, 1e-3);
 					flag &= double_comparison_rel(computed_value_2, comparison_value, 1e-3);
-					std::cout << std::endl;
+					std::cout << IO::endl;
 				}
 			}
 		}
@@ -190,11 +182,8 @@ namespace Tests {
 				const double f = double(flavor);
 				return (2.0 * f * f + f + 1.0) * x * x * (1 - x) * (1 - x);
 			}),
-			100'000,
 			Process(Process::Type::NeutrinoToLepton, Particle(), Particle())
 		);
-		sidis.max_chi_squared_deviation = 0.2;
-		sidis.iter_max = 10;
 
 		const std::vector<double> xz_values = {0.001, 0.01, 0.1, 0.2, 0.5, 0.9, 0.99};
 
@@ -244,11 +233,11 @@ namespace Tests {
 
 				#pragma omp critical 
 				{
-					std::cout << "Running SIDIS test at x = " << x << ", z = " << z << " (only quarks):" << std::endl;
+					std::cout << "Running SIDIS test at x = " << x << ", z = " << z << " (only quarks):" << IO::endl;
 					flag &= double_comparison(computed_value_F2, comparison_value_F2, 1e-1);
 					flag &= double_comparison(computed_value_FL, comparison_value_FL, 1e-1);
 					flag &= double_comparison(computed_value_xF3, comparison_value_xF3, 1e-1);
-					std::cout << std::endl;
+					std::cout << IO::endl;
 				}
 			}
 		}
@@ -272,11 +261,8 @@ namespace Tests {
 				const double f = double(flavor);
 				return (2.0 * f * f + f + 1.0) * x * (1 - x) * (1 - x);
 			}),
-			100'000,
 			Process(Process::Type::NeutrinoToLepton, Particle(), Particle())
 		);
-		sidis.max_chi_squared_deviation = 0.2;
-		sidis.iter_max = 10;
 
 		const std::vector<double> xz_values = {0.001, 0.01, 0.1, 0.2, 0.5, 0.9, 0.99};
 
@@ -326,11 +312,11 @@ namespace Tests {
 
 				#pragma omp critical 
 				{
-					std::cout << "Running SIDIS test at x = " << x << ", z = " << z << " (only gluons on PDF side):" << std::endl;
+					std::cout << "Running SIDIS test at x = " << x << ", z = " << z << " (only gluons on PDF side):" << IO::endl;
 					flag &= double_comparison(computed_value_F2, comparison_value_F2, 1e-1);
 					flag &= double_comparison(computed_value_FL, comparison_value_FL, 1e-1);
 					flag &= double_comparison(computed_value_xF3, comparison_value_xF3, 1e-1);
-					std::cout << std::endl;
+					std::cout << IO::endl;
 				}
 			}
 		}
@@ -353,11 +339,8 @@ namespace Tests {
 				if (Flavor::is_gluon(flavor)) { return x * x * (1 - x) * (1 - x); }
 				return 0.0;
 			}),
-			100'000,
 			Process(Process::Type::NeutrinoToLepton, Particle(), Particle())
 		);
-		sidis.max_chi_squared_deviation = 0.2;
-		sidis.iter_max = 10;
 
 		const std::vector<double> xz_values = {0.001, 0.01, 0.1, 0.2, 0.5, 0.9, 0.99};
 
@@ -407,11 +390,11 @@ namespace Tests {
 
 				#pragma omp critical 
 				{
-					std::cout << "Running SIDIS test at x = " << x << ", z = " << z << " (only gluons on FF side):" << std::endl;
+					std::cout << "Running SIDIS test at x = " << x << ", z = " << z << " (only gluons on FF side):" << IO::endl;
 					flag &= double_comparison(computed_value_F2, comparison_value_F2, 1e-1);
 					flag &= double_comparison(computed_value_FL, comparison_value_FL, 1e-1);
 					flag &= double_comparison(computed_value_xF3, comparison_value_xF3, 1e-1);
-					std::cout << std::endl;
+					std::cout << IO::endl;
 				}
 			}
 		}
@@ -436,11 +419,8 @@ namespace Tests {
 				const double f = double(flavor);
 				return (2.0 * f * f + f + 1.0) * x * (1 - x) * (1 - x);
 			}),
-			100'000,
 			Process(Process::Type::NeutrinoToLepton, Particle(), Particle())
 		);
-		sidis.max_chi_squared_deviation = 0.2;
-		sidis.iter_max = 10;
 
 		const std::vector<double> xz_values = {0.001, 0.01, 0.1, 0.2, 0.5, 0.9, 0.99};
 
@@ -490,11 +470,11 @@ namespace Tests {
 
 				#pragma omp critical 
 				{
-					std::cout << "Running SIDIS test at x = " << x << ", z = " << z << " (quarks and gluons):" << std::endl;
+					std::cout << "Running SIDIS test at x = " << x << ", z = " << z << " (quarks and gluons):" << IO::endl;
 					flag &= double_comparison(computed_value_F2, comparison_value_F2, 1e-1);
 					flag &= double_comparison(computed_value_FL, comparison_value_FL, 1e-1);
 					flag &= double_comparison(computed_value_xF3, comparison_value_xF3, 1e-1);
-					std::cout << std::endl;
+					std::cout << IO::endl;
 				}
 			}
 		}
@@ -516,13 +496,10 @@ namespace Tests {
 				const double f = double(flavor);
 				return (2.0 * f * f + f + 1.0) * x * (1 - x) * (1 - x);
 			}),
-			200'000,
 			Process(Process::Type::NeutrinoToLepton, Particle(), Particle()),
 			ScaleDependence::constant(5.0),
 			ScaleDependence::constant(30.0)
 		);
-		sidis.max_chi_squared_deviation = 0.2;
-		sidis.iter_max = 10;
 
 		const std::vector<double> xz_values = {0.001, 0.01, 0.1, 0.2, 0.5, 0.9, 0.99};
 
@@ -572,11 +549,11 @@ namespace Tests {
 
 				#pragma omp critical
 				{
-					std::cout << "Running SIDIS test at x = " << x << ", z = " << z << " (quarks and gluons + scale logs):" << std::endl;
+					std::cout << "Running SIDIS test at x = " << x << ", z = " << z << " (quarks and gluons + scale logs):" << IO::endl;
 					flag &= double_comparison_rel(computed_value_F2, comparison_value_F2, 1e-3);
 					flag &= double_comparison_rel(computed_value_FL, comparison_value_FL, 1e-3);
 					flag &= double_comparison_rel(computed_value_xF3, comparison_value_xF3, 1e-3);
-					std::cout << std::endl;
+					std::cout << IO::endl;
 				}
 			}
 		}
@@ -631,7 +608,7 @@ namespace Tests {
 
 					const auto result = integrator.integrate();
 					if (result.value == 0) {
-						std::cout << "Skipping value due to non-applicable region" << std::endl;
+						std::cout << "Skipping value due to non-applicable region" << IO::endl;
 						continue;
 					}
 					flag &= double_comparison_rel(DecayFunctions::decay_function(x, z, Q2, z_min, param, resonance, target), result.value, 1e-5);
@@ -675,13 +652,9 @@ namespace Tests {
 					decay2
 				}
 			),
-			100'000,
 			Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
 		);
 		sidis.global_sqrt_s = sqrt_s;
-		sidis.max_chi_squared_deviation = 0.2;
-		sidis.max_relative_error = 1e-3;
-		sidis.iter_max = 10;
 
 		Decay decay(parametrization, Particle(), Particle(), DecayFunctions::trivial, 5.0);
 
@@ -690,31 +663,23 @@ namespace Tests {
 		const double z_min = SIDISFunctions::compute_z_min(kinematics, decay);
 
 		const PerturbativeQuantity result = sidis.lepton_pair_cross_section_xQ2(kinematics);
-		std::cout << "Lepton-pair cross section value = " << result.lo << std::endl;
+		std::cout << "Lepton-pair cross section value = " << result.lo << IO::endl;
 
 		SIDIS sidis1(
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
 			LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
 			LHAInterface("kkks08_opal_d0___mas"),
-			10'000,
 			Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
 		);
 		sidis1.global_sqrt_s = sqrt_s;
-		sidis1.max_chi_squared_deviation = 0.2;
-		sidis1.max_relative_error = 1e-3;
-		sidis1.iter_max = 10;
 
 		SIDIS sidis2(
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
 			LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
 			LHAInterface("kkks08_opal_d+___mas"),
-			10'000,
 			Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
 		);
 		sidis2.global_sqrt_s = sqrt_s;
-		sidis2.max_chi_squared_deviation = 0.2;
-		sidis2.max_relative_error = 1e-3;
-		sidis2.iter_max = 10;
 
 		Integrator integrator([&](const double input[], [[maybe_unused]] const size_t dim, [[maybe_unused]] void *params) {
 			const double z = input[0];
@@ -729,7 +694,7 @@ namespace Tests {
 		integrator.gsl.points = 100;
 
 		const auto result2 = integrator.integrate();
-		std::cout << "Lepton-pair cross section value = " << result2 << std::endl;
+		std::cout << "Lepton-pair cross section value = " << result2 << IO::endl;
 		flag &= double_comparison_rel(result.lo, result2.value, 1e-1);
 
 		return flag;
@@ -768,13 +733,9 @@ namespace Tests {
 					decay2
 				}
 			),
-			100'000,
 			Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
 		);
 		sidis.global_sqrt_s = sqrt_s;
-		sidis.max_chi_squared_deviation = 0.2;
-		sidis.max_relative_error = 1e-3;
-		sidis.iter_max = 10;
 
 		Decay decay(parametrization, Particle(), Particle(), DecayFunctions::trivial, 5.0);
 
@@ -783,31 +744,23 @@ namespace Tests {
 		const double z_min = SIDISFunctions::compute_z_min(kinematics, decay);
 
 		const PerturbativeQuantity result = sidis.lepton_pair_cross_section_xQ2(kinematics);
-		std::cout << "Lepton-pair cross section value = " << result.nlo << std::endl;
+		std::cout << "Lepton-pair cross section value = " << result.nlo << IO::endl;
 
 		SIDIS sidis1(
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
 			LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
 			LHAInterface("kkks08_opal_d0___mas"),
-			100'000,
 			Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
 		);
 		sidis1.global_sqrt_s = sqrt_s;
-		sidis1.max_chi_squared_deviation = 0.2;
-		sidis1.max_relative_error = 1e-3;
-		sidis1.iter_max = 10;
 
 		SIDIS sidis2(
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
 			LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
 			LHAInterface("kkks08_opal_d+___mas"),
-			100'000,
 			Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
 		);
 		sidis2.global_sqrt_s = sqrt_s;
-		sidis2.max_chi_squared_deviation = 0.2;
-		sidis2.max_relative_error = 1e-3;
-		sidis2.iter_max = 10;
 
 		Integrator integrator([&](const double input[], [[maybe_unused]] const size_t dim, [[maybe_unused]] void *params) {
 			const double z = input[0];
@@ -820,7 +773,7 @@ namespace Tests {
 		}, {z_min}, {1});
 		integrator.verbose = true;
 		const auto result2 = integrator.integrate();
-		std::cout << "Lepton-pair cross section value = " << result2 << std::endl;
+		std::cout << "Lepton-pair cross section value = " << result2 << IO::endl;
 		flag &= double_comparison_rel(result.nlo, result2.value, 1e-1);
 
 		return flag;
@@ -837,14 +790,10 @@ namespace Tests {
 		DIS dis(
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
 			pdf,
-			10'000,
 			Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
 		);
 
 		dis.global_sqrt_s = sqrt_s;
-		dis.max_chi_squared_deviation = 0.2;
-		dis.max_relative_error = 1e-3;
-		dis.iter_max = 10;
 
 		SIDIS sidis(
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
@@ -852,13 +801,9 @@ namespace Tests {
 			FunctionalFormInterface([]([[maybe_unused]] const FlavorType flavor, const double z, [[maybe_unused]] const double Q2) {
 				return z;
 			}),
-			100,
 			Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
 		);
 		sidis.global_sqrt_s = sqrt_s;
-		sidis.max_chi_squared_deviation = 0.2;
-		sidis.max_relative_error = 1e-3;
-		sidis.iter_max = 10;
 
 		SIDIS sidis2(
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
@@ -866,19 +811,15 @@ namespace Tests {
 			FunctionalFormInterface([]([[maybe_unused]] const FlavorType flavor, const double z, [[maybe_unused]] const double Q2) {
 				return z;
 			}),
-			2,
 			Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
 		);
 		sidis2.global_sqrt_s = sqrt_s;
-		sidis2.max_chi_squared_deviation = 0.2;
-		sidis2.max_relative_error = 1e-3;
-		sidis2.iter_max = 0;
 
 		TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, Constants::Particles::Proton.mass, 0);
 		const PerturbativeQuantity result_dis = dis.differential_cross_section_xQ2(kinematics);
 		const PerturbativeQuantity result_sidis = sidis.lepton_pair_cross_section_xQ2(kinematics);
-		std::cout << "Lepton-pair cross section value (DIS) = " << result_dis.lo << std::endl;
-		std::cout << "Lepton-pair cross section value (SIDIS integrated) = " << result_sidis.lo << std::endl;
+		std::cout << "Lepton-pair cross section value (DIS) = " << result_dis.lo << IO::endl;
+		std::cout << "Lepton-pair cross section value (SIDIS integrated) = " << result_sidis.lo << IO::endl;
 
 		Integrator integrator([&](const double input[], [[maybe_unused]] const size_t dim, [[maybe_unused]] void *params) {
 			const double z = input[0];
@@ -886,7 +827,7 @@ namespace Tests {
 		}, {0}, {1});
 		integrator.verbose = true;
 		const auto result2 = integrator.integrate();
-		std::cout << "Lepton-pair cross section value (SIDIS integrated manually) = " << result2 << std::endl;
+		std::cout << "Lepton-pair cross section value (SIDIS integrated manually) = " << result2 << IO::endl;
 		flag &= double_comparison_rel(result_dis.lo, result2.value, 1e-1);
 
 		return flag;
@@ -935,7 +876,7 @@ namespace Tests {
 					file << ", " << pdf_value;
 				}
 
-				file << std::endl;
+				file << IO::endl;
 			}
 		}
 

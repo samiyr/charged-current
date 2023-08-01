@@ -28,7 +28,7 @@ struct Decay {
 			prev_Q2 = Q2;
 			prev_z_min = z_min;
 
-			// std::cout << x << ", " << z << ", " << Q2 << ", " << z_min << std::endl;
+			// std::cout << x << ", " << z << ", " << Q2 << ", " << z_min << IO::endl;
 
 			prev_value = decay_function(x, z, Q2, z_min, parametrization, resonance, hadron);
 		}

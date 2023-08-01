@@ -58,7 +58,7 @@ namespace PythiaSIDIS {
 				const Vec4 D_momentum = particle.p();
 				const double z = (hadron_momentum * D_momentum) / (hadron_momentum * q);
 
-				// std::cout << x << ", " << z << ", " << Q2 << std::endl;
+				// std::cout << x << ", " << z << ", " << Q2 << IO::endl;
 
 				hist(x, z, Q2);
 			}
@@ -70,7 +70,7 @@ namespace PythiaSIDIS {
 
 		for (auto &&x : indexed(hist)) {
 			const double value = *x * factor / (x.bin(0).width() * x.bin(1).width() * x.bin(2).width());
-			file << x.bin(0).center() << ", " << x.bin(1).center() << ", " << x.bin(2).center() << ", " << value << std::endl;
+			file << x.bin(0).center() << ", " << x.bin(1).center() << ", " << x.bin(2).center() << ", " << value << IO::endl;
 		}
 
 		file.close();

@@ -106,7 +106,7 @@ class GSLIntegrator {
 		double best_integral = integral;
 		double best_error = error;
 
-		// std::cout << "Warm-up integral: " << integral << " +- " << error << " (" << chi_squared << ")" << std::endl;
+		// std::cout << "Warm-up integral: " << integral << " +- " << error << " (" << chi_squared << ")" << IO::endl;
 
 		while (abs(chi_squared - 1.0) >= max_chi_squared_deviation || abs(error / integral) >= max_relative_error) {
 			iteration++;
@@ -117,7 +117,7 @@ class GSLIntegrator {
 			gsl_monte_vegas_integrate(&function, lower.data(), upper.data(), dim, points, rng, state, &integral, &error);
 
 			chi_squared = gsl_monte_vegas_chisq(state);
-			// std::cout << "Iteration " << iteration << " integral: " << integral << " +- " << error << " (" << chi_squared << ")" << std::endl;
+			// std::cout << "Iteration " << iteration << " integral: " << integral << " +- " << error << " (" << chi_squared << ")" << IO::endl;
 			if (abs(chi_squared - 1.0) < abs(best_chi_squared - 1.0)) {
 				best_chi_squared = chi_squared;
 				best_integral = integral;
@@ -128,7 +128,7 @@ class GSLIntegrator {
 		double final_integral = integral;
 		double final_error = error;
 		double final_chi_squared = gsl_monte_vegas_chisq(state);
-		// std::cout << "Final iteration integral: " << final_integral << " +- " << final_error << " (" << final_chi_squared << ")" << std::endl;
+		// std::cout << "Final iteration integral: " << final_integral << " +- " << final_error << " (" << final_chi_squared << ")" << IO::endl;
 
 		if (iteration_limit_reached) {
 			final_integral = best_integral;
@@ -136,7 +136,7 @@ class GSLIntegrator {
 			final_chi_squared = best_chi_squared;
 		}
 
-		// std::cout << "Final integral: " << final_integral << " +- " << final_error << " (" << final_chi_squared << ")" << std::endl << std::endl;
+		// std::cout << "Final integral: " << final_integral << " +- " << final_error << " (" << final_chi_squared << ")" << IO::endl << IO::endl;
 		gsl_monte_vegas_free(state);
 
 		return Result {final_integral, final_error, final_chi_squared};

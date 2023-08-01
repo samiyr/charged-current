@@ -24,10 +24,7 @@ class DISComputation {
 	const PDFInterface pdf1;
 	const PDFInterface pdf2;
 
-	const size_t points;
-	const double max_chi_squared_deviation;
-	const double max_relative_error;
-	const unsigned int iter_max;
+	const IntegrationParameters integration_parameters;
 
 	const Process process;
 	const bool momentum_fraction_mass_corrections;
@@ -40,10 +37,7 @@ class DISComputation {
 		const FlavorVector _active_flavors,
 		const std::array<double, TOTAL_FLAVORS> _flavor_masses, 
 		const PDFInterface _pdf,
-		const size_t _points,
-		const double _max_chi_squared_deviation, 
-		const double _max_relative_error,
-		const unsigned int _iter_max,
+		const IntegrationParameters _integration_parameters,
 		const Process _process,
 		const bool _momentum_fraction_mass_corrections,
 		const std::optional<FactorizationScaleFunction> _factorization_scale_function,
@@ -53,10 +47,7 @@ class DISComputation {
 	flavors(_active_flavors, _flavor_masses), 
 	pdf1(_pdf), 
 	pdf2(_pdf), 
-	points(_points), 
-	max_chi_squared_deviation(_max_chi_squared_deviation), 
-	max_relative_error(_max_relative_error),
-	iter_max(_iter_max),
+	integration_parameters(_integration_parameters), 
 	process(_process),
 	momentum_fraction_mass_corrections(_momentum_fraction_mass_corrections),
 	factorization_scale_function(_factorization_scale_function),

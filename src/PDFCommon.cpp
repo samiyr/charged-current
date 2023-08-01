@@ -73,14 +73,14 @@
 // 	// 			const double anti_zD = ff.xf(antiflavor2);
 
 // 	// 			const double contribution = quark_minus ? xq * zD - anti_xq * anti_zD : xq * zD + anti_xq * anti_zD;
-// 	// 			// std::cout << xq << std::endl;
-// 	// 			// std::cout << zD << std::endl;
-// 	// 			// std::cout << anti_xq << std::endl;
-// 	// 			// std::cout << anti_zD << std::endl << std::endl;
+// 	// 			// std::cout << xq << IO::endl;
+// 	// 			// std::cout << zD << IO::endl;
+// 	// 			// std::cout << anti_xq << IO::endl;
+// 	// 			// std::cout << anti_zD << IO::endl << IO::endl;
 // 	// 			sum += V_ckm * contribution;
 // 	// 		}
 // 	// 	}
-// 	// 	// std::cout << sum << std::endl;
+// 	// 	// std::cout << sum << IO::endl;
 // 	// 	return sum;
 // 	// }
 // 	// template <typename PDFInterface, typename FFInterface>
@@ -208,14 +208,14 @@
 // 				const double anti_zD = ff.xf(antiflavor2);
 
 // 				const double contribution = quark_minus ? xq * zD - anti_xq * anti_zD : xq * zD + anti_xq * anti_zD;
-// 				// std::cout << xq << std::endl;
-// 				// std::cout << zD << std::endl;
-// 				// std::cout << anti_xq << std::endl;
-// 				// std::cout << anti_zD << std::endl << std::endl;
+// 				// std::cout << xq << IO::endl;
+// 				// std::cout << zD << IO::endl;
+// 				// std::cout << anti_xq << IO::endl;
+// 				// std::cout << anti_zD << IO::endl << IO::endl;
 // 				sum += V_ckm * contribution;
 // 			}
 // 		}
-// 		// std::cout << sum << std::endl;
+// 		// std::cout << sum << IO::endl;
 // 		return sum;
 // 	}
 

@@ -57,7 +57,7 @@ class LHAInterface {
 
 	void evaluate(const double x, const double Q2) const {
 		#if CACHE_STATS
-		std::cout << "Cache hit ratio: " << 100 * double(cache_hits) / double(total_hits) << " (cache hits: " << cache_hits << ", total hits: " << total_hits << ")" << std::endl;
+		std::cout << "Cache hit ratio: " << 100 * double(cache_hits) / double(total_hits) << " (cache hits: " << cache_hits << ", total hits: " << total_hits << ")" << IO::endl;
 		total_hits++;
 		#endif
 		if (x == prev_x && Q2 == prev_Q2) { 
