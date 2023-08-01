@@ -74,7 +74,7 @@ class DISComputation {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
 		double alpha_s = pdf1.alpha_s(Q2);
-		double nlo_coefficient = alpha_s / (2 * M_PI);
+		double nlo_coefficient = alpha_s / (2 * std::numbers::pi);
 
 		const double factorization_scale = compute_factorization_scale(kinematics);
 		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
@@ -92,7 +92,7 @@ class DISComputation {
 		
 		const double lo = x * DISFunctions::Evaluation::construct<PDFInterface>({}, &params, DISFunctions::Integrands::F2x_lo_integrand, false, 1);
 
-		CubaIntegrator nlo_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		Integrator nlo_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return DISFunctions::Evaluation::construct<PDFInterface>(input, params_in, DISFunctions::Integrands::F2x_nlo_integrand, true, 1);
 		}, {x}, {1.0}, &params);
 		auto nlo_result = nlo_integrator.integrate();
@@ -109,7 +109,7 @@ class DISComputation {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
 		double alpha_s = pdf1.alpha_s(Q2);
-		double nlo_coefficient = alpha_s / (2 * M_PI);
+		double nlo_coefficient = alpha_s / (2 * std::numbers::pi);
 
 		const double factorization_scale = compute_factorization_scale(kinematics);
 		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
@@ -123,7 +123,7 @@ class DISComputation {
 			factorization_scale_log
 		};
 
-		CubaIntegrator nlo_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		Integrator nlo_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return DISFunctions::Evaluation::construct<PDFInterface>(input, params_in, DISFunctions::Integrands::FLx_nlo_integrand, true, 1);
 		}, {x}, {1.0}, &params);
 		auto nlo_result = nlo_integrator.integrate();
@@ -137,7 +137,7 @@ class DISComputation {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
 		double alpha_s = pdf1.alpha_s(Q2);
-		double nlo_coefficient = alpha_s / (2 * M_PI);
+		double nlo_coefficient = alpha_s / (2 * std::numbers::pi);
 		
 		const double factorization_scale = compute_factorization_scale(kinematics);
 		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
@@ -155,7 +155,7 @@ class DISComputation {
 
 		const double lo = x * DISFunctions::Evaluation::construct<PDFInterface>({}, &params, DISFunctions::Integrands::F3_lo_integrand, false, -1);
 
-		CubaIntegrator nlo_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		Integrator nlo_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return DISFunctions::Evaluation::construct<PDFInterface>(input, params_in, DISFunctions::Integrands::F3_nlo_integrand, true, -1);
 		}, {x}, {1.0}, &params);
 		auto nlo_result = nlo_integrator.integrate();
@@ -201,7 +201,7 @@ class DISComputation {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
 		double alpha_s = pdf1.alpha_s(Q2);
-		double nlo_coefficient = alpha_s / (2 * M_PI);
+		double nlo_coefficient = alpha_s / (2 * std::numbers::pi);
 
 		const double factorization_scale = compute_factorization_scale(kinematics);
 		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
@@ -222,7 +222,7 @@ class DISComputation {
 			false
 		);
 
-		CubaIntegrator nlo_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		Integrator nlo_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
 			return DISFunctions::Evaluation::cross_section<PDFInterface>(input, params_in, 
 				DISFunctions::Integrands::F2x_nlo_integrand, DISFunctions::Integrands::FLx_nlo_integrand, DISFunctions::Integrands::F3_nlo_integrand,
 				true

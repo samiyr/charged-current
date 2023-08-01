@@ -5,6 +5,7 @@
 #include "Process.cpp"
 #include "Flavor.cpp"
 #include <optional>
+#include <numbers>
 
 namespace CommonFunctions {
 	constexpr std::optional<double> compute_y(const double x, const double Q2, const double s, const double target_mass, const double projectile_mass = 0.0) {
@@ -14,7 +15,7 @@ namespace CommonFunctions {
 	}
 	constexpr double cross_section_prefactor(const TRFKinematics &kinematics) {
 		constexpr double numerator = POW2(Constants::fermi_coupling) * POW4(Constants::Particles::W.mass);
-		const double denominator = 2.0 * M_PI * POW2(kinematics.Q2 + POW2(Constants::Particles::W.mass));
+		const double denominator = 2.0 * std::numbers::pi * POW2(kinematics.Q2 + POW2(Constants::Particles::W.mass));
 
 		return numerator / denominator;
 	}

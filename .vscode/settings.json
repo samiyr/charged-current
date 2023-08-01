@@ -96,6 +96,7 @@
 		"forward_list": "cpp",
 		"unordered_set": "cpp",
 		"valarray": "cpp",
-		"cfenv": "cpp"
+		"cfenv": "cpp",
+		"filesystem": "cpp"
 	}
 }

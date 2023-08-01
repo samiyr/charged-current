@@ -35,10 +35,11 @@ namespace Flavor {
 		return -flavor;
 	}
 	constexpr FlavorVector conjugate_flavors(const FlavorVector &flavors) {
-		FlavorVector conjugated;
-		for (auto const &flavor : flavors) {
-			conjugated.push_back(conjugate_flavor(flavor));
-		}
+		FlavorVector conjugated(flavors.size());
+		std::transform(flavors.begin(), flavors.end(), conjugated.begin(), conjugate_flavor);
+		// for (auto const &flavor : flavors) {
+		// 	conjugated.push_back(conjugate_flavor(flavor));
+		// }
 		return conjugated;
 	}
 
@@ -71,11 +72,11 @@ namespace Flavor {
 		if (is_lower_flavor(flavor)) {
 			return flavor + 1;
 		}
-		throw std::runtime_error("Cannot reflect flavor");
+		return flavor;
 	}
 	void reflect_flavors(FlavorVector &flavors) {
-		for (size_t i = 0; i < flavors.size(); i++) {
-			flavors[i] = reflect_flavor(flavors[i]);
+		for (FlavorType &flavor : flavors) {
+			flavor = reflect_flavor(flavor);
 		}
 	}
 };

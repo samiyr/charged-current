@@ -34,6 +34,8 @@ add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 # Flags
 target_compile_options(${PROJECT_NAME} PRIVATE -ffast-math -Wall -Wconversion -Wextra -Wpedantic $<$<CONFIG:Release>:-O3> -g)
 # target_compile_options(${PROJECT_NAME} PRIVATE -ffast-math -Wall -Wconversion -Wextra -Wpedantic $<$<CONFIG:Release>:-O3> $<$<CONFIG:Debug>:-g>)
+# target_compile_options(${PROJECT_NAME} PRIVATE -ffast-math -Weverything -Wno-c++98-compat -Wno-padded -Wno-unsafe-buffer-usage -Wno-ctad-maybe-unsupported -Wno-float-equal -Wno-c++98-compat-pedantic -Wno-missing-prototypes -Wpedantic $<$<CONFIG:Release>:-O3> -g)
+# target_compile_options(${PROJECT_NAME} PRIVATE -ffast-math -Weverything $<$<CONFIG:Release>:-O3> -g)
 
 # OpenMP
 if (APPLE)

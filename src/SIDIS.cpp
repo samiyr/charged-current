@@ -11,6 +11,7 @@
 #include <optional>
 #include "CommonFunctions.cpp"
 #include "PDFConcept.cpp"
+#include "FilePath.cpp"
 
 template <
 	PDFConcept PDFInterface, 
@@ -188,14 +189,14 @@ struct SIDIS {
 		return xQ2 * jacobian;
 	}
 
-	void differential_cross_section_xQ2(const std::vector<double> x_bins, const std::vector<double> z_bins, const std::vector<double> Q2_bins, const std::string filename) {
+	void differential_cross_section_xQ2(const std::vector<double> x_bins, const std::vector<double> z_bins, const std::vector<double> Q2_bins, const FilePath output) {
 		const size_t x_step_count = x_bins.size();
 		const size_t z_step_count = z_bins.size();
 		const size_t Q2_step_count = Q2_bins.size();
 
 		int calculated_values = 0;
 
-		std::ofstream file(filename);
+		std::ofstream file(output.path());
 
 		#pragma omp parallel for if(parallelize) num_threads(number_of_threads) collapse(3)
 		for (size_t i = 0; i < x_step_count; i++) {
@@ -227,7 +228,7 @@ struct SIDIS {
 		const std::vector<double> x_bins, 
 		const std::vector<double> y_bins, 
 		const std::vector<double> E_beam_bins, 
-		const std::string filename, 
+		const FilePath output, 
 		const std::string comment = "") {
 
 		const size_t x_step_count = x_bins.size();
@@ -236,11 +237,13 @@ struct SIDIS {
 
 		int calculated_values = 0;
 
-		std::ofstream file(filename);
+		std::ofstream file(output.path());
 
 		output_run_info(file, comment);
 
 		file << "x,y,E,LO,NLO,Q2,factorization_scale,fragmentation_scale" << std::endl;
+
+		// parallelize = false;
 
 		SIDISComputation sidis = construct_computation();
 		#pragma omp parallel if(parallelize) num_threads(number_of_threads) firstprivate(sidis)

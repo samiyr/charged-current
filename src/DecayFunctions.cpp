@@ -34,7 +34,7 @@ namespace DecayFunctions {
 			return 0.0;
 		}
 		
-		const double prefactor = 2 * M_PI * (N * mD * parametrization.gamma_prefactor_term * h0) / (2 * hv);
+		const double prefactor = 2 * std::numbers::pi * (N * mD * parametrization.gamma_prefactor_term * h0) / (2 * hv);
 		const double beta_1 = -rho_min * parametrization.beta_term_1p_alpha_beta;
 		const double beta_2 = rho_min * Utility::incomplete_beta(beta_arg_min, 1 + alpha, 1 + beta);
 		const double beta_3 = 1.0 / (gamma * (a - b)) * (parametrization.beta_term_2p_alpha_beta - Utility::incomplete_beta(beta_arg_min, 2 + alpha, 1 + beta));
@@ -69,7 +69,7 @@ namespace DecayFunctions {
 		if (w < 0 || w > 1.0 / gamma) { return 0.0; }
 
 		const double decay = n * std::pow(w, alpha) * std::pow(1.0 - gamma * w, beta);
-		const double integrand = 2 * M_PI * decay * rho * h0 * h0 / (gamma_tot * 2 * mD);
+		const double integrand = 2 * std::numbers::pi * decay * rho * h0 * h0 / (gamma_tot * 2 * mD);
 
 		return integrand;
 	};

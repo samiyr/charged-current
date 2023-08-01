@@ -8,6 +8,7 @@
 #include <boost/math/special_functions/beta.hpp>
 #include <string>
 #include <thread>
+#include <limits>
 
 #define POW2(x) (x) * (x)
 #define POW4(x) (x) * (x) * (x) * (x)
@@ -71,7 +72,7 @@ template <typename T> int sgn(T val) {
 }
 
 namespace Utility {
-	constexpr double logm1(const double x) {
+	constexpr double log1m(const double x) {
 		return std::log(1 - x);
 		// return std::log1p(-x);
 	}
@@ -142,6 +143,13 @@ namespace Utility {
 		for (typename std::vector<T>::size_type i = 0; i < v1.size(); i++) {
 			v1[i] *= v2[i];
 		}
+	}
+
+	constexpr int size_to_int(const size_t input) {
+		if (input > std::numeric_limits<int>::max()) {
+			throw std::runtime_error("Cannot cast size_t larger than std::numeric_limits<int>::max() to int");
+		}
+		return static_cast<int>(input);
 	}
 }
 

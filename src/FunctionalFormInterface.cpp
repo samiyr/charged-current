@@ -11,6 +11,7 @@ class FunctionalFormInterface {
 	const FlavorVector available_flavors;
 
 	const std::string set_name = "functional_form";
+	const int set_member_number = 0;
 
 	constexpr FunctionalFormInterface(const Signature _function, const FlavorVector _available_flavors = Flavor::all_flavors) : function(_function), available_flavors(_available_flavors), flavor_values(available_flavors.size(), 0) {
 

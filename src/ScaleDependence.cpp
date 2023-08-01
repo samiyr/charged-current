@@ -11,12 +11,12 @@ namespace ScaleDependence {
 		{ scale_function(kinematics) } -> std::same_as<double>;
 	};
 
-	static auto Q2 = std::make_optional([](const TRFKinematics &kinematics) { return kinematics.Q2; });
+	[[maybe_unused]] static auto Q2 = std::make_optional([](const TRFKinematics &kinematics) { return kinematics.Q2; });
 	static auto trivial = [](const TRFKinematics &kinematics) { return kinematics.Q2; };
-	static auto constant(const double value) {
+	[[maybe_unused]] static auto constant(const double value) {
 		return std::make_optional([value]([[maybe_unused]] const TRFKinematics &kinematics) { return value; });
 	}
-	static auto multiplicative(const double factor) {
+	[[maybe_unused]] static auto multiplicative(const double factor) {
 		return std::make_optional([factor](const TRFKinematics &kinematics) { return kinematics.Q2 * factor; });
 	}
 }

@@ -22,24 +22,24 @@ struct FragmentationConfiguration {
 		}
 	}
 
-	std::vector<Interface>::iterator begin() {
+	typename std::vector<Interface>::iterator begin() {
 		return interfaces.begin();
     }
-    std::vector<Interface>::iterator end() {
+    typename std::vector<Interface>::iterator end() {
     	return interfaces.end();
     }
-    std::vector<Interface>::const_iterator begin() const {
-    	return interfaces.begin();
+    typename std::vector<Interface>::const_iterator cbegin() const {
+    	return interfaces.cbegin();
     }
-    std::vector<Interface>::const_iterator end() const {
-    	return interfaces.end();
+    typename std::vector<Interface>::const_iterator cend() const {
+    	return interfaces.cend();
     }
 
-	std::vector<Interface>::size_type size() const {
+	typename std::vector<Interface>::size_type size() const {
 		return interfaces.size();
 	}
 
-	const Interface &operator[](const std::vector<Interface>::size_type index) const {
+	const Interface &operator[](const typename std::vector<Interface>::size_type index) const {
 		return interfaces[index];
 	}
 };

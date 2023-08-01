@@ -16,10 +16,10 @@ struct Coupling {
 
 	private:
 	static double beta_0(const double Q2, const size_t nf) {
-		return (33.0 - 2.0 * nf) / (12 * M_PI);
+		return (33.0 - 2.0 * nf) / (12 * std::numbers::pi);
 	}
 	static double beta_1(const double Q2, const size_t nf) {
-		return (153.0 - 19.0 * nf) / (24 * M_PI * M_PI);
+		return (153.0 - 19.0 * nf) / (24 * std::numbers::pi * std::numbers::pi);
 	}
 	static double L(const double Q2, const double lambda_QCD) {
 		return std::log(Q2 / (lambda_QCD * lambda_QCD));

@@ -7,6 +7,7 @@
 #include <string>
 #include "DISComputation.cpp"
 #include "ScaleDependence.cpp"
+#include "FilePath.cpp"
 
 template <PDFConcept PDFInterface, ScaleDependence::Concept FactorizationScaleFunction = decltype(ScaleDependence::trivial)>
 struct DIS {
@@ -144,7 +145,7 @@ struct DIS {
 		const std::vector<double> x_bins, 
 		const std::vector<double> y_bins, 
 		const std::vector<double> E_beam_bins, 
-		const std::string filename, 
+		const FilePath output, 
 		const std::string comment = "") {
 
 		const size_t x_step_count = x_bins.size();
@@ -153,7 +154,7 @@ struct DIS {
 
 		int calculated_values = 0;
 
-		std::ofstream file(filename);
+		std::ofstream file(output.path());
 
 		output_run_info(file, comment);
 

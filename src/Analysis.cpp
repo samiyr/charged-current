@@ -64,8 +64,8 @@ namespace Analysis {
 			const std::vector<double> y_bins, 
 			const std::vector<double> E_beam_bins, 
 			const std::string filename, 
-			const PDFInterface pdf,
-			const FragmentationConfiguration<FFInterface, DecayFunction> ff,
+			const PDFInterface &pdf,
+			const FragmentationConfiguration<FFInterface, DecayFunction> &ff,
 			const std::string comment = "") {
 			SIDIS sidis(
 				{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
@@ -293,7 +293,7 @@ namespace Analysis {
 				const std::vector<double> x_bins, 
 				const std::vector<double> y_bins, 
 				const std::vector<double> E_beam_bins,
-				const FFInterface ff,
+				const FFInterface &ff,
 				const Decay<DecayFunction> decay,
 				const std::string filename, 
 				const std::string comment = "") {

@@ -29,7 +29,7 @@ namespace DISFunctions {
 
 	static constexpr double delta_contribution(const double x) {
 		const double log = std::log(1 - x);
-		return -2.0 * Constants::C_F * (9.0 / 2.0 + (M_PI * M_PI) / 3.0 - log * log + 1.5 * log) / x;
+		return -2.0 * Constants::C_F * (9.0 / 2.0 + (std::numbers::pi * std::numbers::pi) / 3.0 - log * log + 1.5 * log) / x;
 	}
 
 	namespace Evaluation {

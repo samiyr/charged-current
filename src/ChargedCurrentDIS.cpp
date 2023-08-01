@@ -10,38 +10,37 @@
 #include "Analysis.cpp"
 // #include "PythiaSIDIS.cpp"
 #include <array>
-#include "CubaIntegrator.cpp"
 
 int main() {
 	LHAInterface::disable_verbosity();
 
 	const std::vector<double> x_bins = {0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05, 0.055, 0.06, 0.065, 0.07, 0.075, 0.08, 0.09, 0.1, 0.15, 0.2, 0.25, 0.3};
 
-	Analysis::Inclusive::charm_production_nutev_old(x_bins, "Data/DIS/charm_production_nutev_old.csv");
-	Analysis::Inclusive::charm_production_nutev_new(x_bins, "Data/DIS/charm_production_nutev_new.csv");
-	Analysis::Inclusive::charm_production_ccfr(x_bins, "Data/DIS/charm_production_ccfr.csv");
+	// Analysis::Inclusive::charm_production_nutev_old(x_bins, "Data/DIS/CharmProduction/nutev_old.csv");
+	// Analysis::Inclusive::charm_production_nutev_new(x_bins, "Data/DIS/CharmProduction/nutev_new.csv");
+	// Analysis::Inclusive::charm_production_ccfr(x_bins, "Data/DIS/CharmProduction/ccfr.csv");
 
-	Analysis::SemiInclusive::muon_pair_production_nutev_old(x_bins, "Data/SIDIS/CharmedHadrons/muon_pair_production_nutev_old.csv");
-	Analysis::SemiInclusive::muon_pair_production_nutev_new(x_bins, "Data/SIDIS/CharmedHadrons/muon_pair_production_nutev_new.csv");
-	Analysis::SemiInclusive::muon_pair_production_ccfr(x_bins, "Data/SIDIS/CharmedHadrons/muon_pair_production_ccfr.csv");
+	Analysis::SemiInclusive::muon_pair_production_nutev_old(x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/nutev_old.csv");
+	// Analysis::SemiInclusive::muon_pair_production_nutev_new(x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/nutev_new.csv");
+	// Analysis::SemiInclusive::muon_pair_production_ccfr(x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/ccfr.csv");
 
-	Analysis::SemiInclusive::muon_pair_production_nutev_old_only_D0(x_bins, "Data/SIDIS/D0/muon_pair_production_nutev_old.csv");
-	Analysis::SemiInclusive::muon_pair_production_nutev_new_only_D0(x_bins, "Data/SIDIS/D0/muon_pair_production_nutev_new.csv");
-	Analysis::SemiInclusive::muon_pair_production_ccfr_only_D0(x_bins, "Data/SIDIS/D0/muon_pair_production_ccfr.csv");
+	// Analysis::SemiInclusive::muon_pair_production_nutev_old_only_D0(x_bins, "Data/SIDIS/MuonPairProduction/D0/nutev_old.csv");
+	// Analysis::SemiInclusive::muon_pair_production_nutev_new_only_D0(x_bins, "Data/SIDIS/MuonPairProduction/D0/nutev_new.csv");
+	// Analysis::SemiInclusive::muon_pair_production_ccfr_only_D0(x_bins, "Data/SIDIS/MuonPairProduction/D0/ccfr.csv");
 
-	Analysis::SemiInclusive::ChannelDecomposition::muon_pair_production_quark_gluon_channels(x_bins, Analysis::NuTeV::New::y_bins, Analysis::NuTeV::New::E_bins,
-		{
-			"Data/SIDIS/CharmedHadrons/SeparateChannels/muon_pair_production_nutev_new_quark_to_quark.csv",
-			"Data/SIDIS/CharmedHadrons/SeparateChannels/muon_pair_production_nutev_new_quark_to_gluon.csv",
-			"Data/SIDIS/CharmedHadrons/SeparateChannels/muon_pair_production_nutev_new_gluon_to_quark.csv",
-			"Data/SIDIS/CharmedHadrons/SeparateChannels/muon_pair_production_nutev_new_gluon_to_gluon.csv"
-		}
-	);
+	// Analysis::SemiInclusive::ChannelDecomposition::muon_pair_production_quark_gluon_channels(x_bins, Analysis::NuTeV::New::y_bins, Analysis::NuTeV::New::E_bins,
+	// 	{
+	// 		"Data/SIDIS/MuonPairProduction/CharmedHadrons/ChannelDecomposition/nutev_new_quark_to_quark.csv",
+	// 		"Data/SIDIS/MuonPairProduction/CharmedHadrons/ChannelDecomposition/nutev_new_quark_to_gluon.csv",
+	// 		"Data/SIDIS/MuonPairProduction/CharmedHadrons/ChannelDecomposition/nutev_new_gluon_to_quark.csv",
+	// 		"Data/SIDIS/MuonPairProduction/CharmedHadrons/ChannelDecomposition/nutev_new_gluon_to_gluon.csv"
+	// 	}
+	// );
 
-	Analysis::SemiInclusive::FlavorDecomposition::muon_pair_production_quark_to_quark(x_bins, Analysis::NuTeV::New::y_bins, Analysis::NuTeV::New::E_bins, "Data/SIDIS/CharmedHadrons/FlavorDecomposition/muon_pair_production_nutev_new");
-	Analysis::SemiInclusive::FlavorDecomposition::muon_pair_production_gluon_to_quark(x_bins, Analysis::NuTeV::New::y_bins, Analysis::NuTeV::New::E_bins, "Data/SIDIS/CharmedHadrons/FlavorDecomposition/muon_pair_production_nutev_new");
+	// Analysis::SemiInclusive::FlavorDecomposition::muon_pair_production_quark_to_quark(x_bins, Analysis::NuTeV::New::y_bins, Analysis::NuTeV::New::E_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/FlavorDecomposition/nutev_new");
+	// Analysis::SemiInclusive::FlavorDecomposition::muon_pair_production_gluon_to_quark(x_bins, Analysis::NuTeV::New::y_bins, Analysis::NuTeV::New::E_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/FlavorDecomposition/nutev_new");
 
-	Analysis::SemiInclusive::FragmentationDecomposition::muon_pair_production(x_bins, Analysis::NuTeV::New::y_bins, Analysis::NuTeV::New::E_bins, "Data/SIDIS/CharmedHadrons/FragmentationDecomposition/muon_pair_production_nutev_new");
+	// Analysis::SemiInclusive::FragmentationDecomposition::muon_pair_production(x_bins, Analysis::NuTeV::New::y_bins, Analysis::NuTeV::New::E_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/FragmentationDecomposition/nutev_new");
 
 	// Tests::dis_cross_section_tests();
 	// return 0;

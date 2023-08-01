@@ -4,7 +4,7 @@
 #include "LHAPDF/Extrapolator.h"
 
 class ZeroExtrapolator : public LHAPDF::Extrapolator {
-	double extrapolateXQ2(int, double, double) const {
+	double extrapolateXQ2(int, double, double) const override {
 		return 0.0;
 	}
 };
