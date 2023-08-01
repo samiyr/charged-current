@@ -1,8 +1,8 @@
 #ifndef DECAY_FUNCTIONS_H
 #define DECAY_FUNCTIONS_H
 
-#include "Utility.cpp"
-#include "Decay.cpp"
+#include "Utility/Math.cpp"
+#include "Decay/Decay.cpp"
 #include <any>
 #include <concepts>
 
@@ -36,8 +36,8 @@ namespace DecayFunctions {
 		
 		const double prefactor = 2 * std::numbers::pi * (N * mD * parametrization.gamma_prefactor_term * h0) / (2 * hv);
 		const double beta_1 = -rho_min * parametrization.beta_term_1p_alpha_beta;
-		const double beta_2 = rho_min * Utility::incomplete_beta(beta_arg_min, 1 + alpha, 1 + beta);
-		const double beta_3 = 1.0 / (gamma * (a - b)) * (parametrization.beta_term_2p_alpha_beta - Utility::incomplete_beta(beta_arg_min, 2 + alpha, 1 + beta));
+		const double beta_2 = rho_min * Math::incomplete_beta(beta_arg_min, 1 + alpha, 1 + beta);
+		const double beta_3 = 1.0 / (gamma * (a - b)) * (parametrization.beta_term_2p_alpha_beta - Math::incomplete_beta(beta_arg_min, 2 + alpha, 1 + beta));
 
 		const double result = prefactor * resonance.lifetime * (beta_1 + beta_2 + beta_3);
 

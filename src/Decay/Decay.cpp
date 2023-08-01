@@ -1,9 +1,9 @@
 #ifndef DECAY_H
 #define DECAY_H
 
-#include "DecayParametrization.cpp"
-#include "DecayFunctions.cpp"
-#include "Particle.cpp"
+#include "Decay/DecayParametrization.cpp"
+#include "Decay/DecayFunctions.cpp"
+#include "Common/Particle.cpp"
 
 template <DecayFunctions::Concept DecayFunction>
 struct Decay {

@@ -1,10 +1,10 @@
 #ifndef ANALYSIS_H
 #define ANALYSIS_H
 
-#include "DIS.cpp"
-#include "SIDIS.cpp"
-#include "LHAInterface.cpp"
-#include "Particle.cpp"
+#include "DIS/DIS.cpp"
+#include "SIDIS/SIDIS.cpp"
+#include "PDF/Interfaces/LHAInterface.cpp"
+#include "Common/Particle.cpp"
 
 namespace Analysis {
 	namespace NuTeV {
@@ -130,7 +130,7 @@ namespace Analysis {
 				const std::vector<double> outgoing_multipliers(outgoing.begin(), outgoing.end());
 
 				std::vector<double> d0_multipliers(outgoing.begin(), outgoing.end());
-				Utility::multiply(d0_multipliers, {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0});
+				Collections::multiply(d0_multipliers, {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0});
 
 				muon_pair_production(
 					x_bins, y_bins, E_beam_bins, filename,

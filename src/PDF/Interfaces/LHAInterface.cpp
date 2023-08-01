@@ -5,10 +5,10 @@
 #include <stdexcept>
 #include "LHAPDF/LHAPDF.h"
 #include "LHAPDF/GridPDF.h"
-#include "Flavor.cpp"
-#include "CKM.cpp"
-#include "Process.cpp"
-#include "ZeroExtrapolator.cpp"
+#include "Common/Flavor.cpp"
+#include "Common/CKM.cpp"
+#include "Common/Process.cpp"
+#include "PDF/ZeroExtrapolator.cpp"
 
 #define CACHE_STATS false
 
@@ -73,7 +73,7 @@ class LHAInterface {
 		prev_Q2 = Q2;
 
 		if (use_multipliers) {
-			Utility::multiply(flavor_values, multipliers);
+			Collections::multiply(flavor_values, multipliers);
 		}
 	}
 	

@@ -1,8 +1,8 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#include "Utility.cpp"
-#include "Particle.cpp"
+#include "Utility/Utility.cpp"
+#include "Common/Particle.cpp"
 #include <limits>
 
 namespace Constants {

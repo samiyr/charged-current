@@ -1,16 +1,18 @@
 #ifndef TESTS_H
 #define TESTS_H
 
-#include "DIS.cpp"
-#include "SIDIS.cpp"
+#include "DIS/DIS.cpp"
+#include "SIDIS/SIDIS.cpp"
 #include <iostream>
 #include "Utility.cpp"
-#include "LHAInterface.cpp"
-#include "DecayFunctions.cpp"
-#include "FunctionalFormInterface.cpp"
-#include "PDFConcept.cpp"
+#include "PDF/Interfaces/LHAInterface.cpp"
+#include "Decay/DecayFunctions.cpp"
+#include "PDF/Interfaces/FunctionalFormInterface.cpp"
+#include "PDF/PDFConcept.cpp"
 
 namespace Tests {
+	using namespace Comparison;
+	
 	/// Checks that LHAInterface evaluates to correct values at various values of x using the CT18NLO PDF set.
 	/// Checks are done against hard-coded values.
 	bool pdf_evaluation_tests() {

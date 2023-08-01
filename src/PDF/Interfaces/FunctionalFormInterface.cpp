@@ -1,7 +1,7 @@
 #ifndef FUNCTIONAL_FORM_H
 #define FUNCTIONAL_FORM_H
 
-#include "Flavor.cpp"
+#include "Common/Flavor.cpp"
 #include <functional>
 
 template <typename Signature>

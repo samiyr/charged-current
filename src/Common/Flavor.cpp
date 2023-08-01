@@ -4,8 +4,8 @@
 #include <vector>
 #include <array>
 #include <string>
-#include "Utility.cpp"
-#include "Constants.cpp"
+#include "Utility/Utility.cpp"
+#include "Common/Constants.cpp"
 
 #define TOTAL_FLAVORS 13
 
@@ -44,10 +44,10 @@ namespace Flavor {
 	}
 
 	constexpr FlavorVector upper_flavors(FlavorVector &flavors) {
-		return vector_intersection<FlavorType>(Flavor::all_upper_flavors, flavors);
+		return Collections::vector_intersection<FlavorType>(Flavor::all_upper_flavors, flavors);
 	}
 	constexpr FlavorVector lower_flavors(FlavorVector &flavors) {
-		return vector_intersection<FlavorType>(Flavor::all_lower_flavors, flavors);
+		return Collections::vector_intersection<FlavorType>(Flavor::all_lower_flavors, flavors);
 	}
 	constexpr bool is_upper_flavor(const FlavorType flavor) {
 		return flavor != 0 && flavor % 2 == 0;

@@ -1,13 +1,12 @@
 #ifndef DIS_EVALUATION_H
 #define DIS_EVALUATION_H
 
-#include "PDFConcept.cpp"
-#include "Row.cpp"
+#include "PDF/PDFConcept.cpp"
 #include <fstream>
 #include <string>
-#include "DISComputation.cpp"
-#include "ScaleDependence.cpp"
-#include "FilePath.cpp"
+#include "DIS/DISComputation.cpp"
+#include "Common/ScaleDependence.cpp"
+#include "Legacy/FilePath.cpp"
 
 template <PDFConcept PDFInterface, ScaleDependence::Concept FactorizationScaleFunction = decltype(ScaleDependence::trivial)>
 struct DIS {
@@ -73,7 +72,7 @@ struct DIS {
 		
 		file << "#pdf = " << pdf.set_name << IO::endl;
 
-		file << "#parallelize = " << Utility::bool_to_string(parallelize) << IO::endl;
+		file << "#parallelize = " << Conversion::bool_to_string(parallelize) << IO::endl;
 		file << "#number_of_threads = " << number_of_threads << IO::endl;
 		file << "#up_mass = " << up_mass << IO::endl;
 		file << "#down_mass = " << down_mass << IO::endl;

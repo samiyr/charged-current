@@ -1,6 +1,8 @@
 #ifndef DECAY_PARAMETRIZATION_H
 #define DECAY_PARAMETRIZATION_H
 
+#include "Utility/Math.cpp"
+
 struct DecayParametrization {
 	static DecayParametrization fit1() {
 		return DecayParametrization(7.365, 1.4, 2.276, 2.04);
@@ -25,8 +27,8 @@ struct DecayParametrization {
 	alpha(_alpha),
 	beta(_beta),
 	gamma(_gamma),
-	beta_term_1p_alpha_beta(Utility::beta(1 + alpha, 1 + beta)),
-	beta_term_2p_alpha_beta(Utility::beta(2 + alpha, 1 + beta)),
+	beta_term_1p_alpha_beta(Math::beta(1 + alpha, 1 + beta)),
+	beta_term_2p_alpha_beta(Math::beta(2 + alpha, 1 + beta)),
 	gamma_prefactor_term(std::pow(gamma, -1 - alpha))
 	{ }
 };

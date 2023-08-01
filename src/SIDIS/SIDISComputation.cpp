@@ -2,15 +2,15 @@
 #define SIDIS_COMPUTATION_H
 
 #include <vector>
-#include "Flavor.cpp"
-#include "PerturbativeQuantity.cpp"
-#include "SIDISFunctions.cpp"
-#include "Integrator.cpp"
-#include "Decay.cpp"
-#include "TRFKinematics.cpp"
-#include "FragmentationConfiguration.cpp"
+#include "Common/Flavor.cpp"
+#include "Common/PerturbativeQuantity.cpp"
+#include "SIDIS/SIDISFunctions.cpp"
+#include "Integration/Integrator.cpp"
+#include "Decay/Decay.cpp"
+#include "Common/TRFKinematics.cpp"
+#include "PDF/FragmentationConfiguration.cpp"
 #include <optional>
-#include "PDFConcept.cpp"
+#include "PDF/PDFConcept.cpp"
 
 template <
 	PDFConcept PDFInterface, 

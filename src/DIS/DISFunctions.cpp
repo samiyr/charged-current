@@ -1,14 +1,14 @@
 #ifndef DIS_FUNCTIONS_H
 #define DIS_FUNCTIONS_H
 
-#include "Constants.cpp"
+#include "Common/Constants.cpp"
 #include <cmath>
-#include "Flavor.cpp"
+#include "Common/Flavor.cpp"
 #include <functional>
-#include "TRFKinematics.cpp"
-#include "CommonFunctions.cpp"
-#include "CKM.cpp"
-#include "PDFConcept.cpp"
+#include "Common/TRFKinematics.cpp"
+#include "Common/CommonFunctions.cpp"
+#include "Common/CKM.cpp"
+#include "PDF/PDFConcept.cpp"
 
 namespace DISFunctions {
 	template <PDFConcept PDFInterface>

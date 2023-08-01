@@ -1,16 +1,17 @@
 #ifndef SIDIS_FUNCTIONS_H
 #define SIDIS_FUNCTIONS_H
 
-#include "Constants.cpp"
+#include "Common/Constants.cpp"
 #include <cmath>
-#include "Flavor.cpp"
-#include "Decay.cpp"
-#include "FragmentationConfiguration.cpp"
-#include "TRFKinematics.cpp"
-#include "DecayFunctions.cpp"
-#include "CKM.cpp"
-#include "PDFConcept.cpp"
+#include "Common/Flavor.cpp"
+#include "Decay/Decay.cpp"
+#include "PDF/FragmentationConfiguration.cpp"
+#include "Common/TRFKinematics.cpp"
+#include "Decay/DecayFunctions.cpp"
+#include "Common/CKM.cpp"
+#include "PDF/PDFConcept.cpp"
 #include <ranges>
+#include "Utility/Math.cpp"
 
 namespace SIDISFunctions {
 	template <PDFConcept PDFInterface, PDFConcept FFInterface, DecayFunctions::Concept DecayFunction>
@@ -802,13 +803,13 @@ namespace SIDISFunctions::Evaluation {
 		const PDFInterface &pdf1 = params.pdf1;
 		const PDFInterface &pdf2 = params.pdf2;
 
-		const double log1mz = Utility::log1m(z);
+		const double log1mz = Math::log1m(z);
 		
 		const double logxi = std::log(xi);
 		const double logxip = std::log(xip);
 
-		const double log1mxi = Utility::log1m(xi);
-		const double log1mxip = Utility::log1m(xip);
+		const double log1mxi = Math::log1m(xi);
+		const double log1mxip = Math::log1m(xip);
 
 		double sum = 0.0;
 		for (const FlavorType outgoing : flavors2) {
@@ -822,7 +823,7 @@ namespace SIDISFunctions::Evaluation {
 				pdf1.evaluate(x_mass, factorization_scale);
 				pdf2.evaluate(x_mass / xi, factorization_scale);
 
-				const double log1mx = Utility::log1m(x_mass);
+				const double log1mx = Math::log1m(x_mass);
 
 				const double V_ckm = CKM::squared(incoming, outgoing);
 				const double total_value = construct(x_mass, z, xi, xip, params, signature, sign, ff1, ff2, incoming, outgoing, anti_incoming, anti_outgoing, log1mx, log1mz, logxi, logxip, log1mxi, log1mxip);

@@ -3,7 +3,7 @@
 
 #include <concepts>
 #include <string>
-#include "Flavor.cpp"
+#include "Common/Flavor.cpp"
 
 template <typename T>
 concept PDFConcept = requires(T pdf, const FlavorType flavor, const double x, const double Q2) {

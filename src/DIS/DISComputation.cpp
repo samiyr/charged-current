@@ -1,17 +1,17 @@
 #ifndef DIS_COMPUTATION_H
 #define DIS_COMPUTATION_H
 
-#include "Integrator.cpp"
-#include "Constants.cpp"
-#include "Utility.cpp"
-#include "PerturbativeQuantity.cpp"
-#include "Process.cpp"
-#include "StructureFunction.cpp"
-#include "DISFunctions.cpp"
-#include "CommonFunctions.cpp"
+#include "Integration/Integrator.cpp"
+#include "Common/Constants.cpp"
+#include "Utility/Utility.cpp"
+#include "Common/PerturbativeQuantity.cpp"
+#include "Common/Process.cpp"
+#include "Common/StructureFunction.cpp"
+#include "DIS/DISFunctions.cpp"
+#include "Common/CommonFunctions.cpp"
 #include <optional>
-#include "PDFConcept.cpp"
-#include "ScaleDependence.cpp"
+#include "PDF/PDFConcept.cpp"
+#include "Common/ScaleDependence.cpp"
 
 template <PDFConcept PDFInterface, ScaleDependence::Concept FactorizationScaleFunction>
 class DISComputation {

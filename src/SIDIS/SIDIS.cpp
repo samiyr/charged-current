@@ -1,17 +1,17 @@
 #ifndef SIDIS_H
 #define SIDIS_H
 
-#include "SIDISComputation.cpp"
-#include "Flavor.cpp"
-#include "Process.cpp"
-#include "TRFKinematics.cpp"
-#include "DecayFunctions.cpp"
-#include "FragmentationConfiguration.cpp"
-#include "ScaleDependence.cpp"
+#include "SIDIS/SIDISComputation.cpp"
+#include "Common/Flavor.cpp"
+#include "Common/Process.cpp"
+#include "Common/TRFKinematics.cpp"
+#include "Decay/DecayFunctions.cpp"
+#include "PDF/FragmentationConfiguration.cpp"
+#include "Common/ScaleDependence.cpp"
 #include <optional>
-#include "CommonFunctions.cpp"
-#include "PDFConcept.cpp"
-#include "FilePath.cpp"
+#include "Common/CommonFunctions.cpp"
+#include "PDF/PDFConcept.cpp"
+#include "Legacy/FilePath.cpp"
 
 template <
 	PDFConcept PDFInterface, 
@@ -105,7 +105,7 @@ struct SIDIS {
 		}
 		file << IO::endl;
 
-		file << "#parallelize = " << Utility::bool_to_string(parallelize) << IO::endl;
+		file << "#parallelize = " << Conversion::bool_to_string(parallelize) << IO::endl;
 		file << "#number_of_threads = " << number_of_threads << IO::endl;
 		file << "#up_mass = " << up_mass << IO::endl;
 		file << "#down_mass = " << down_mass << IO::endl;

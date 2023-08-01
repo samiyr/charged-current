@@ -2,12 +2,12 @@
 #define CHARGED_CURRENT_DIS_H
 
 #include <iostream>
-#include "DIS.cpp"
-#include "SIDIS.cpp"
-#include "LHAInterface.cpp"
-#include "Tests.cpp"
-#include "TRFKinematics.cpp"
-#include "Analysis.cpp"
+#include "DIS/DIS.cpp"
+#include "SIDIS/SIDIS.cpp"
+#include "PDF/Interfaces/LHAInterface.cpp"
+#include "Utility/Tests.cpp"
+#include "Common/TRFKinematics.cpp"
+#include "Analysis/Analysis.cpp"
 // #include "PythiaSIDIS.cpp"
 #include <array>
 
