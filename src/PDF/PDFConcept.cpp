@@ -14,4 +14,9 @@ concept PDFConcept = requires(T pdf, const FlavorType flavor, const double x, co
     { pdf.alpha_s(Q2) } -> std::same_as<double>;
 };
 
+template<typename T>
+concept PDFConceptActivation = requires(const T &pdf) {
+    { pdf.activate() } -> std::same_as<void>;
+};
+
 #endif

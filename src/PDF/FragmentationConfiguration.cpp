@@ -22,6 +22,14 @@ struct FragmentationConfiguration {
 		}
 	}
 
+	void activate() const {
+		if constexpr (PDFConceptActivation<Interface>) {
+			for (auto &interface : interfaces) {
+				interface.activate();
+			}
+		}
+	}
+
 	typename std::vector<Interface>::iterator begin() {
 		return interfaces.begin();
     }

@@ -25,21 +25,34 @@ class LHAInterface {
 	set_member_number(_set_member_number), 
 	use_multipliers(_use_multipliers), 
 	multipliers(_multipliers),
-	pdf(LHAPDF::mkPDF(set_name, set_member_number)),
 	flavor_values(TOTAL_FLAVORS, 0.0),
 	prev_x(-1.0),
 	prev_Q2(-1.0) {
-		available_flavors = pdf->flavors();
-
-		LHAPDF::GridPDF *grid_pdf = static_cast<LHAPDF::GridPDF *>(pdf.get());
-		LHAPDF::Extrapolator *zero_extrapolator = new ZeroExtrapolator();
-		grid_pdf->setExtrapolator(zero_extrapolator);
-
 		#if CACHE_STATS
 		total_hits = 0;
 		cache_hits = 0;
 		#endif
 	}
+	// LHAInterface(const std::string _set_name, const int _set_member_number, const bool _use_multipliers, const std::vector<double> _multipliers)
+	// : set_name(_set_name), 
+	// set_member_number(_set_member_number), 
+	// use_multipliers(_use_multipliers), 
+	// multipliers(_multipliers),
+	// pdf(LHAPDF::mkPDF(set_name, set_member_number)),
+	// flavor_values(TOTAL_FLAVORS, 0.0),
+	// prev_x(-1.0),
+	// prev_Q2(-1.0) {
+	// 	available_flavors = pdf->flavors();
+
+	// 	LHAPDF::GridPDF *grid_pdf = static_cast<LHAPDF::GridPDF *>(pdf.get());
+	// 	LHAPDF::Extrapolator *zero_extrapolator = new ZeroExtrapolator();
+	// 	grid_pdf->setExtrapolator(zero_extrapolator);
+
+	// 	#if CACHE_STATS
+	// 	total_hits = 0;
+	// 	cache_hits = 0;
+	// 	#endif
+	// }
 
 	public:
 	LHAInterface(std::string _set_name, const std::vector<double> _multipliers, int _set_member_number = 0)
@@ -47,6 +60,20 @@ class LHAInterface {
 
 	LHAInterface(std::string _set_name, int _set_member_number = 0)
 	: LHAInterface(_set_name, _set_member_number, false, {}) { }
+
+
+	void activate() const {
+		if (activated) { return; }
+
+		pdf = std::unique_ptr<LHAPDF::PDF>(LHAPDF::mkPDF(set_name, set_member_number));
+		// available_flavors = pdf->flavors();
+
+		LHAPDF::GridPDF *grid_pdf = static_cast<LHAPDF::GridPDF *>(pdf.get());
+		LHAPDF::Extrapolator *zero_extrapolator = new ZeroExtrapolator();
+		grid_pdf->setExtrapolator(zero_extrapolator);
+
+		activated = true;
+	}
 
 	LHAInterface(const LHAInterface &o) : LHAInterface(o.set_name, o.set_member_number, o.use_multipliers, o.multipliers) { }
 
@@ -56,6 +83,8 @@ class LHAInterface {
 	}
 
 	void evaluate(const double x, const double Q2) const {
+		activate();
+
 		#if CACHE_STATS
 		std::cout << "Cache hit ratio: " << 100 * double(cache_hits) / double(total_hits) << " (cache hits: " << cache_hits << ", total hits: " << total_hits << ")" << IO::endl;
 		total_hits++;
@@ -78,6 +107,7 @@ class LHAInterface {
 	}
 	
 	double xf_evaluate(const FlavorType flavor, const double x, const double Q2) const {
+		activate();
 		return pdf->xfxQ2(flavor, x, Q2);
 	}
 	constexpr double xf(const FlavorType flavor) const {
@@ -87,6 +117,7 @@ class LHAInterface {
 		return xf(Flavor::Gluon);
 	}
 	double alpha_s(const double Q2) const {
+		activate();
 		return pdf->alphasQ2(Q2);
 	}
 
@@ -96,6 +127,8 @@ class LHAInterface {
 
 	mutable std::unique_ptr<LHAPDF::PDF> pdf;
 	mutable std::vector<double> flavor_values;
+
+	mutable bool activated = false;
 
 	mutable double prev_x = -1.0;
 	mutable double prev_Q2 = -1.0;
