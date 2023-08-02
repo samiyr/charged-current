@@ -13,7 +13,11 @@
 #include "PDF/PDFConcept.cpp"
 #include "Common/ScaleDependence.cpp"
 
-template <PDFConcept PDFInterface, ScaleDependence::Concept FactorizationScaleFunction>
+template <
+	PDFConcept PDFInterface, 
+	ScaleDependence::Concept RenormalizationScale,
+	ScaleDependence::Concept FactorizationScale
+>
 class DISComputation {
 	public:
 	double sqrt_s;
@@ -29,7 +33,8 @@ class DISComputation {
 	const Process process;
 	const bool momentum_fraction_mass_corrections;
 
-	const std::optional<FactorizationScaleFunction> factorization_scale_function;
+	const ScaleDependence::Function<RenormalizationScale> renormalization_scale_function;
+	const ScaleDependence::Function<FactorizationScale> factorization_scale_function;
 	const bool use_modified_cross_section_prefactor;
 
 	DISComputation (
@@ -40,7 +45,8 @@ class DISComputation {
 		const IntegrationParameters _integration_parameters,
 		const Process _process,
 		const bool _momentum_fraction_mass_corrections,
-		const std::optional<FactorizationScaleFunction> _factorization_scale_function,
+		const ScaleDependence::Function<RenormalizationScale> _renormalization_scale_function,
+		const ScaleDependence::Function<FactorizationScale> _factorization_scale_function,
 		const bool _use_modified_cross_section_prefactor
 	) : sqrt_s(_sqrt_s), 
 	s(_sqrt_s * _sqrt_s), 
@@ -50,24 +56,23 @@ class DISComputation {
 	integration_parameters(_integration_parameters), 
 	process(_process),
 	momentum_fraction_mass_corrections(_momentum_fraction_mass_corrections),
+	renormalization_scale_function(_renormalization_scale_function),
 	factorization_scale_function(_factorization_scale_function),
 	use_modified_cross_section_prefactor(_use_modified_cross_section_prefactor) { }
 
-	constexpr bool nontrivial_factorization_scale() const { return factorization_scale_function.has_value(); }
-	constexpr double compute_factorization_scale(const TRFKinematics &kinematics) const {
-		if (nontrivial_factorization_scale()) {
-			return (*factorization_scale_function)(kinematics);
-		}
-		return kinematics.Q2;
+	double compute_alpha_s(const TRFKinematics &kinematics) const {
+		const double renormalization_scale = renormalization_scale_function(kinematics);
+		return pdf1.alpha_s(renormalization_scale);
 	}
 
 	PerturbativeQuantity F2(const TRFKinematics &kinematics) const {	
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
-		double alpha_s = pdf1.alpha_s(Q2);
+
+		double alpha_s = compute_alpha_s(kinematics);
 		double nlo_coefficient = alpha_s / (2 * std::numbers::pi);
 
-		const double factorization_scale = compute_factorization_scale(kinematics);
+		const double factorization_scale = factorization_scale_function(kinematics);
 		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
 
 		pdf1.evaluate(x, factorization_scale);
@@ -99,10 +104,11 @@ class DISComputation {
 	PerturbativeQuantity FL(const TRFKinematics &kinematics) const {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
-		double alpha_s = pdf1.alpha_s(Q2);
+
+		double alpha_s = compute_alpha_s(kinematics);
 		double nlo_coefficient = alpha_s / (2 * std::numbers::pi);
 
-		const double factorization_scale = compute_factorization_scale(kinematics);
+		const double factorization_scale = factorization_scale_function(kinematics);
 		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
 
 		DISFunctions::Parameters<PDFInterface> params {
@@ -127,10 +133,11 @@ class DISComputation {
 	PerturbativeQuantity xF3(const TRFKinematics &kinematics) const {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
-		double alpha_s = pdf1.alpha_s(Q2);
+
+		double alpha_s = compute_alpha_s(kinematics);
 		double nlo_coefficient = alpha_s / (2 * std::numbers::pi);
 		
-		const double factorization_scale = compute_factorization_scale(kinematics);
+		const double factorization_scale = factorization_scale_function(kinematics);
 		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
 
 		pdf1.evaluate(x, factorization_scale);
@@ -191,10 +198,11 @@ class DISComputation {
 	PerturbativeQuantity differential_cross_section_xQ2_indirect(const TRFKinematics &kinematics) const {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
-		double alpha_s = pdf1.alpha_s(Q2);
+
+		double alpha_s = compute_alpha_s(kinematics);
 		double nlo_coefficient = alpha_s / (2 * std::numbers::pi);
 
-		const double factorization_scale = compute_factorization_scale(kinematics);
+		const double factorization_scale = factorization_scale_function(kinematics);
 		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
 
 		pdf1.evaluate(x, factorization_scale);

@@ -8,7 +8,11 @@
 #include "Common/ScaleDependence.cpp"
 #include "Legacy/FilePath.cpp"
 
-template <PDFConcept PDFInterface, ScaleDependence::Concept FactorizationScaleFunction = decltype(ScaleDependence::trivial)>
+template <
+	PDFConcept PDFInterface, 
+	ScaleDependence::Concept RenormalizationScale = decltype(ScaleDependence::trivial)::type,
+	ScaleDependence::Concept FactorizationScale = decltype(ScaleDependence::trivial)::type
+>
 struct DIS {
 	const FlavorVector active_flavors;
 
@@ -24,7 +28,8 @@ struct DIS {
 	double global_sqrt_s;
 	bool momentum_fraction_mass_corrections = false;
 
-	const std::optional<FactorizationScaleFunction> factorization_scale;
+	const ScaleDependence::Function<RenormalizationScale> renormalization_scale;
+	const ScaleDependence::Function<FactorizationScale> factorization_scale;
 
 	bool compute_differential_cross_section_directly = false;
 
@@ -41,10 +46,12 @@ struct DIS {
 		const FlavorVector _active_flavors,
 		const PDFInterface _pdf,
 		const Process _process,
-		const std::optional<FactorizationScaleFunction> _factorization_scale = std::nullopt
+		const ScaleDependence::Function<RenormalizationScale> _renormalization_scale = ScaleDependence::Function<RenormalizationScale>(),
+		const ScaleDependence::Function<FactorizationScale> _factorization_scale = ScaleDependence::Function<FactorizationScale>()
 	) : active_flavors(_active_flavors),
 	pdf(_pdf),
 	process(_process),
+	renormalization_scale(_renormalization_scale),
 	factorization_scale(_factorization_scale) { }
 
 	private:
@@ -57,7 +64,7 @@ struct DIS {
 			pdf,
 			integration_parameters,
 			process, 
-			momentum_fraction_mass_corrections, factorization_scale,
+			momentum_fraction_mass_corrections, renormalization_scale, factorization_scale,
 			use_modified_cross_section_prefactor
 		);
 		return dis;
@@ -171,7 +178,7 @@ struct DIS {
 						const PerturbativeQuantity cross_section_xy = cross_section_xQ2 * jacobian;
 
 						const double Q2 = kinematics.Q2;
-						const double factorization_scale = dis.compute_factorization_scale(kinematics);
+						const double factorization_scale = dis.factorization_scale_function(kinematics);
 
 						#pragma omp critical
 						{

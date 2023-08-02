@@ -17,8 +17,9 @@ template <
 	PDFConcept PDFInterface, 
 	PDFConcept FFInterface, 
 	DecayFunctions::Concept DecayFunction = decltype(DecayFunctions::trivial), 
-	ScaleDependence::Concept FactorizationScaleFunction = decltype(ScaleDependence::trivial), 
-	ScaleDependence::Concept FragmentationScaleFunction = decltype(ScaleDependence::trivial)
+	ScaleDependence::Concept RenormalizationScale = decltype(ScaleDependence::trivial)::type, 
+	ScaleDependence::Concept FactorizationScale = decltype(ScaleDependence::trivial)::type, 
+	ScaleDependence::Concept FragmentationScale = decltype(ScaleDependence::trivial)::type
 >
 struct SIDIS {
 	const FlavorVector active_flavors;
@@ -36,8 +37,9 @@ struct SIDIS {
 	double global_sqrt_s;
 	bool momentum_fraction_mass_corrections = false;
 
-	const std::optional<FactorizationScaleFunction> factorization_scale;
-	const std::optional<FragmentationScaleFunction> fragmentation_scale;
+	const ScaleDependence::Function<RenormalizationScale> renormalization_scale;
+	const ScaleDependence::Function<FactorizationScale> factorization_scale;
+	const ScaleDependence::Function<FragmentationScale> fragmentation_scale;
 
 	bool maintain_order_separation = true;
 	bool combine_integrals = false;
@@ -57,12 +59,14 @@ struct SIDIS {
 		const PDFInterface _pdf, 
 		const FragmentationConfiguration<FFInterface, DecayFunction> _ff, 
 		const Process _process,
-		const std::optional<FactorizationScaleFunction> _factorization_scale = std::nullopt,
-		const std::optional<FragmentationScaleFunction> _fragmentation_scale = std::nullopt)
+		const ScaleDependence::Function<RenormalizationScale> _renormalization_scale = ScaleDependence::Function<RenormalizationScale>(),
+		const ScaleDependence::Function<FactorizationScale> _factorization_scale = ScaleDependence::Function<FactorizationScale>(),
+		const ScaleDependence::Function<FragmentationScale> _fragmentation_scale = ScaleDependence::Function<FragmentationScale>())
 	: active_flavors(_active_flavors), 
 	pdf(_pdf),
 	ff(_ff),
 	process(_process),
+	renormalization_scale(_renormalization_scale),
 	factorization_scale(_factorization_scale),
 	fragmentation_scale(_fragmentation_scale) {	}
 
@@ -71,9 +75,10 @@ struct SIDIS {
 		const PDFInterface _pdf, 
 		const FFInterface _ff, 
 		const Process _process,
-		const std::optional<FactorizationScaleFunction> _factorization_scale = std::nullopt,
-		const std::optional<FragmentationScaleFunction> _fragmentation_scale = std::nullopt)
-	: SIDIS(_active_flavors, _pdf, FragmentationConfiguration<FFInterface, DecayFunction>({_ff}), _process, _factorization_scale, _fragmentation_scale) { }
+		const ScaleDependence::Function<RenormalizationScale> _renormalization_scale = ScaleDependence::Function<RenormalizationScale>(),
+		const ScaleDependence::Function<FactorizationScale> _factorization_scale = ScaleDependence::Function<FactorizationScale>(),
+		const ScaleDependence::Function<FragmentationScale> _fragmentation_scale = ScaleDependence::Function<FragmentationScale>())
+	: SIDIS(_active_flavors, _pdf, FragmentationConfiguration<FFInterface, DecayFunction>({_ff}), _process, _renormalization_scale, _factorization_scale, _fragmentation_scale) { }
 
 	private:
 	auto construct_computation() const {
@@ -85,7 +90,7 @@ struct SIDIS {
 			pdf, ff,
 			integration_parameters,
 			process, 
-			momentum_fraction_mass_corrections, factorization_scale, fragmentation_scale,
+			momentum_fraction_mass_corrections, renormalization_scale, factorization_scale, fragmentation_scale,
 			use_modified_cross_section_prefactor
 		);
 		return sidis;
@@ -231,7 +236,7 @@ struct SIDIS {
 
 		output_run_info(file, comment);
 
-		file << "x,y,E,LO,NLO,Q2,factorization_scale,fragmentation_scale" << IO::endl;
+		file << "x,y,E,LO,NLO,Q2,renormalization_scale,factorization_scale,fragmentation_scale" << IO::endl;
 
 		SIDISComputation sidis = construct_computation();
 		#pragma omp parallel if(parallelize) num_threads(number_of_threads) firstprivate(sidis)
@@ -252,13 +257,14 @@ struct SIDIS {
 						const PerturbativeQuantity cross_section_xy = cross_section_xQ2 * jacobian;
 
 						const double Q2 = kinematics.Q2;
-						const double factorization_scale = sidis.compute_factorization_scale(kinematics);
-						const double fragmentation_scale = sidis.compute_fragmentation_scale(kinematics);
+						const double renormalization_scale = sidis.renormalization_scale_function(kinematics);
+						const double factorization_scale = sidis.factorization_scale_function(kinematics);
+						const double fragmentation_scale = sidis.fragmentation_scale_function(kinematics);
 
 						#pragma omp critical
 						{
 							file << x << ", " << y << ", " << E_beam << ", " << cross_section_xy.lo << ", " << cross_section_xy.nlo;
-							file << ", " << Q2 << ", " << factorization_scale << ", " << fragmentation_scale << IO::endl;
+							file << ", " << Q2 << ", " << renormalization_scale << ", " << factorization_scale << ", " << fragmentation_scale << IO::endl;
 							file.flush();
 
 							calculated_values++;

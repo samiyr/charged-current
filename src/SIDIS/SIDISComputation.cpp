@@ -16,8 +16,9 @@ template <
 	PDFConcept PDFInterface, 
 	PDFConcept FFInterface, 
 	DecayFunctions::Concept DecayFunction, 
-	ScaleDependence::Concept FactorizationScaleFunction, 
-	ScaleDependence::Concept FragmentationScaleFunction
+	ScaleDependence::Concept RenormalizationScale,
+	ScaleDependence::Concept FactorizationScale, 
+	ScaleDependence::Concept FragmentationScale
 >
 class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInterface, DecayFunction, FactorizationScaleFunction, FragmentationScaleFunction>> */ {
 	public:
@@ -37,8 +38,9 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 	const Process process;
 	const bool momentum_fraction_mass_corrections;
 
-	const std::optional<FactorizationScaleFunction> factorization_scale_function;
-	const std::optional<FragmentationScaleFunction> fragmentation_scale_function;
+	const ScaleDependence::Function<RenormalizationScale> renormalization_scale_function;
+	const ScaleDependence::Function<FactorizationScale> factorization_scale_function;
+	const ScaleDependence::Function<FragmentationScale> fragmentation_scale_function;
 
 	const bool use_modified_cross_section_prefactor;
 
@@ -51,8 +53,9 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 		const IntegrationParameters _integration_parameters,
 		const Process _process,
 		const bool _momentum_fraction_mass_corrections,
-		const std::optional<FactorizationScaleFunction> _factorization_scale_function,
-		const std::optional<FragmentationScaleFunction> _fragmentation_scale_function,
+		const ScaleDependence::Function<RenormalizationScale> _renormalization_scale_function,
+		const ScaleDependence::Function<FactorizationScale> _factorization_scale_function,
+		const ScaleDependence::Function<FragmentationScale> _fragmentation_scale_function,
 		const bool _use_modified_cross_section_prefactor
 	) : sqrt_s(_sqrt_s),
 	s(_sqrt_s * _sqrt_s), 
@@ -64,34 +67,25 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 	integration_parameters(_integration_parameters), 
 	process(_process),
 	momentum_fraction_mass_corrections(_momentum_fraction_mass_corrections),
+	renormalization_scale_function(_renormalization_scale_function),
 	factorization_scale_function(_factorization_scale_function),
 	fragmentation_scale_function(_fragmentation_scale_function),
 	use_modified_cross_section_prefactor(_use_modified_cross_section_prefactor) { }
 
-	constexpr bool nontrivial_factorization_scale() const { return factorization_scale_function.has_value(); }
-	constexpr bool nontrivial_fragmentation_scale() const { return fragmentation_scale_function.has_value(); }
-
-	constexpr double compute_factorization_scale(const TRFKinematics &kinematics) const {
-		if (nontrivial_factorization_scale()) {
-			return (*factorization_scale_function)(kinematics);
-		}
-		return kinematics.Q2;
-	}
-	constexpr double compute_fragmentation_scale(const TRFKinematics &kinematics) const {
-		if (fragmentation_scale_function) {
-			return (*fragmentation_scale_function)(kinematics);
-		}
-		return kinematics.Q2;
+	double compute_alpha_s(const TRFKinematics &kinematics) const {
+		const double renormalization_scale = renormalization_scale_function(kinematics);
+		return pdf1.alpha_s(renormalization_scale);
 	}
 
 	PerturbativeQuantity F2_combined(const double z, const TRFKinematics &kinematics) const {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
-		double alpha_s = pdf1.alpha_s(Q2);
+
+		double alpha_s = compute_alpha_s(kinematics);
 		double nlo_coefficient = alpha_s / (2 * std::numbers::pi);
 
-		const double factorization_scale = compute_factorization_scale(kinematics);
-		const double fragmentation_scale = compute_fragmentation_scale(kinematics);
+		const double factorization_scale = factorization_scale_function(kinematics);
+		const double fragmentation_scale = fragmentation_scale_function(kinematics);
 
 		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
 		const double fragmentation_scale_log = fragmentation_scale == Q2 ? 0 : std::log(Q2 / fragmentation_scale);
@@ -124,11 +118,12 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 	PerturbativeQuantity FL_combined(const double z, const TRFKinematics &kinematics) const {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
-		double alpha_s = pdf1.alpha_s(Q2);
+
+		double alpha_s = compute_alpha_s(kinematics);
 		double nlo_coefficient = alpha_s / (2 * std::numbers::pi);
 
-		const double factorization_scale = compute_factorization_scale(kinematics);
-		const double fragmentation_scale = compute_fragmentation_scale(kinematics);
+		const double factorization_scale = factorization_scale_function(kinematics);
+		const double fragmentation_scale = fragmentation_scale_function(kinematics);
 
 		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
 		const double fragmentation_scale_log = fragmentation_scale == Q2 ? 0 : std::log(Q2 / fragmentation_scale);
@@ -156,11 +151,12 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 	PerturbativeQuantity xF3_combined(const double z, const TRFKinematics &kinematics) const {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
-		double alpha_s = pdf1.alpha_s(Q2);
+
+		double alpha_s = compute_alpha_s(kinematics);
 		double nlo_coefficient = alpha_s / (2 * std::numbers::pi);
 		
-		const double factorization_scale = compute_factorization_scale(kinematics);
-		const double fragmentation_scale = compute_fragmentation_scale(kinematics);
+		const double factorization_scale = factorization_scale_function(kinematics);
+		const double fragmentation_scale = fragmentation_scale_function(kinematics);
 
 		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
 		const double fragmentation_scale_log = fragmentation_scale == Q2 ? 0 : std::log(Q2 / fragmentation_scale);
@@ -194,11 +190,12 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 	PerturbativeQuantity F2_separated(const double z, const TRFKinematics &kinematics) const {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
-		double alpha_s = pdf1.alpha_s(Q2);
+
+		double alpha_s = compute_alpha_s(kinematics);
 		double nlo_coefficient = alpha_s / (2 * std::numbers::pi);
 
-		const double factorization_scale = compute_factorization_scale(kinematics);
-		const double fragmentation_scale = compute_fragmentation_scale(kinematics);
+		const double factorization_scale = factorization_scale_function(kinematics);
+		const double fragmentation_scale = fragmentation_scale_function(kinematics);
 
 		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
 		const double fragmentation_scale_log = fragmentation_scale == Q2 ? 0 : std::log(Q2 / fragmentation_scale);
@@ -246,11 +243,12 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 	PerturbativeQuantity FL_separated(const double z, const TRFKinematics &kinematics) const {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
-		double alpha_s = pdf1.alpha_s(Q2);
+
+		double alpha_s = compute_alpha_s(kinematics);
 		double nlo_coefficient = alpha_s / (2 * std::numbers::pi);
 
-		const double factorization_scale = compute_factorization_scale(kinematics);
-		const double fragmentation_scale = compute_fragmentation_scale(kinematics);
+		const double factorization_scale = factorization_scale_function(kinematics);
+		const double fragmentation_scale = fragmentation_scale_function(kinematics);
 
 		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
 		const double fragmentation_scale_log = fragmentation_scale == Q2 ? 0 : std::log(Q2 / fragmentation_scale);
@@ -278,11 +276,12 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 	PerturbativeQuantity xF3_separated(const double z, const TRFKinematics &kinematics) const {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
-		double alpha_s = pdf1.alpha_s(Q2);
+
+		double alpha_s = compute_alpha_s(kinematics);
 		double nlo_coefficient = alpha_s / (2 * std::numbers::pi);
 		
-		const double factorization_scale = compute_factorization_scale(kinematics);
-		const double fragmentation_scale = compute_fragmentation_scale(kinematics);
+		const double factorization_scale = factorization_scale_function(kinematics);
+		const double fragmentation_scale = fragmentation_scale_function(kinematics);
 
 		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
 		const double fragmentation_scale_log = fragmentation_scale == Q2 ? 0 : std::log(Q2 / fragmentation_scale);
@@ -369,11 +368,12 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 	PerturbativeQuantity differential_cross_section_xQ2_indirect_separated(const double z, const TRFKinematics &kinematics) const {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
-		double alpha_s = pdf1.alpha_s(Q2);
+
+		double alpha_s = compute_alpha_s(kinematics);
 		double nlo_coefficient = alpha_s / (2 * std::numbers::pi);
 
-		const double factorization_scale = compute_factorization_scale(kinematics);
-		const double fragmentation_scale = compute_fragmentation_scale(kinematics);
+		const double factorization_scale = factorization_scale_function(kinematics);
+		const double fragmentation_scale = fragmentation_scale_function(kinematics);
 
 		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
 		const double fragmentation_scale_log = fragmentation_scale == Q2 ? 0 : std::log(Q2 / fragmentation_scale);
@@ -441,11 +441,12 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 	PerturbativeQuantity differential_cross_section_xQ2_indirect_combined(const double z, const TRFKinematics &kinematics) const {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
-		double alpha_s = pdf1.alpha_s(Q2);
+
+		double alpha_s = compute_alpha_s(kinematics);
 		double nlo_coefficient = alpha_s / (2 * std::numbers::pi);
 
-		const double factorization_scale = compute_factorization_scale(kinematics);
-		const double fragmentation_scale = compute_fragmentation_scale(kinematics);
+		const double factorization_scale = factorization_scale_function(kinematics);
+		const double fragmentation_scale = fragmentation_scale_function(kinematics);
 
 		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
 		const double fragmentation_scale_log = fragmentation_scale == Q2 ? 0 : std::log(Q2 / fragmentation_scale);
@@ -497,11 +498,11 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 		}
 		const double z_min = *std::min_element(z_mins.begin(), z_mins.end());
 
-		const double alpha_s = pdf1.alpha_s(Q2);
+		double alpha_s = compute_alpha_s(kinematics);
 		const double nlo_coefficient = alpha_s / (2 * std::numbers::pi);
 
-		const double factorization_scale = compute_factorization_scale(kinematics);
-		const double fragmentation_scale = compute_fragmentation_scale(kinematics);
+		const double factorization_scale = factorization_scale_function(kinematics);
+		const double fragmentation_scale = fragmentation_scale_function(kinematics);
 
 		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
 		const double fragmentation_scale_log = fragmentation_scale == Q2 ? 0 : std::log(Q2 / fragmentation_scale);
@@ -583,11 +584,11 @@ class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInte
 		}
 		const double z_min = *std::min_element(z_mins.begin(), z_mins.end());
 
-		const double alpha_s = pdf1.alpha_s(Q2);
+		double alpha_s = compute_alpha_s(kinematics);
 		const double nlo_coefficient = alpha_s / (2 * std::numbers::pi);
 
-		const double factorization_scale = compute_factorization_scale(kinematics);
-		const double fragmentation_scale = compute_fragmentation_scale(kinematics);
+		const double factorization_scale = factorization_scale_function(kinematics);
+		const double fragmentation_scale = fragmentation_scale_function(kinematics);
 
 		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
 		const double fragmentation_scale_log = fragmentation_scale == Q2 ? 0 : std::log(Q2 / fragmentation_scale);
