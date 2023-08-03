@@ -15,10 +15,21 @@ struct Decay {
 	const double lepton_momentum_min;
 	const double z_min_cutoff;
 
-	constexpr Decay(const DecayParametrization _parametrization, const Particle _resonance, const Particle _hadron, const DecayFunction _decay_function, const double _lepton_momentum_min, const double _z_min_cutoff = 0.0)
-	: parametrization(_parametrization), resonance(_resonance), hadron(_hadron), decay_function(_decay_function), lepton_momentum_min(_lepton_momentum_min), z_min_cutoff(_z_min_cutoff) {}
+	constexpr Decay(
+		const DecayParametrization _parametrization, 
+		const Particle _resonance, 
+		const Particle _hadron, 
+		const DecayFunction _decay_function, 
+		const double _lepton_momentum_min, 
+		const double _z_min_cutoff = 0.0) noexcept
+	: parametrization(_parametrization), 
+	resonance(_resonance), 
+	hadron(_hadron), 
+	decay_function(_decay_function), 
+	lepton_momentum_min(_lepton_momentum_min), 
+	z_min_cutoff(_z_min_cutoff) {}
 
-	constexpr double operator()(const double x, const double z, const double Q2, const double z_min) const {
+	constexpr double operator()(const double x, const double z, const double Q2, const double z_min) const noexcept(noexcept(decay_function)) {
 		if (x != prev_x || z != prev_z || Q2 != prev_Q2 || z_min != prev_z_min) {
 			prev_x = x;
 			prev_z = z;

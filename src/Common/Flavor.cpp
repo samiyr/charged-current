@@ -31,7 +31,7 @@ namespace Flavor {
 	static FlavorVector all_lower_flavors = {Flavor::Down, Flavor::Strange, Flavor::Bottom, Flavor::AntiDown, Flavor::AntiStrange, Flavor::AntiBottom};
 	static FlavorVector all_flavors = {-6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6};
 
-	constexpr FlavorType conjugate_flavor(const FlavorType flavor) {
+	constexpr FlavorType conjugate_flavor(const FlavorType flavor) noexcept {
 		return -flavor;
 	}
 	constexpr FlavorVector conjugate_flavors(const FlavorVector &flavors) {
@@ -49,20 +49,20 @@ namespace Flavor {
 	constexpr FlavorVector lower_flavors(FlavorVector &flavors) {
 		return Collections::vector_intersection<FlavorType>(Flavor::all_lower_flavors, flavors);
 	}
-	constexpr bool is_upper_flavor(const FlavorType flavor) {
+	constexpr bool is_upper_flavor(const FlavorType flavor) noexcept {
 		return flavor != 0 && flavor % 2 == 0;
 	}
-	constexpr bool is_lower_flavor(const FlavorType flavor) {
+	constexpr bool is_lower_flavor(const FlavorType flavor) noexcept {
 		return flavor % 2 == 1;
 	}
-	constexpr bool is_antiflavor(const FlavorType flavor) {
+	constexpr bool is_antiflavor(const FlavorType flavor) noexcept {
 		return flavor < 0;
 	}
-	constexpr bool is_gluon(const FlavorType flavor) {
+	constexpr bool is_gluon(const FlavorType flavor) noexcept {
 		return flavor == Flavor::Gluon;
 	}
 
-	constexpr FlavorType reflect_flavor(const FlavorType flavor) {
+	constexpr FlavorType reflect_flavor(const FlavorType flavor) noexcept {
 		if (is_antiflavor(flavor)) {
 			return conjugate_flavor(reflect_flavor(conjugate_flavor(flavor)));
 		}
@@ -74,7 +74,7 @@ namespace Flavor {
 		}
 		return flavor;
 	}
-	void reflect_flavors(FlavorVector &flavors) {
+	void reflect_flavors(FlavorVector &flavors) noexcept {
 		for (FlavorType &flavor : flavors) {
 			flavor = reflect_flavor(flavor);
 		}

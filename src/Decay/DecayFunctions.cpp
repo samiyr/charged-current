@@ -12,9 +12,24 @@ namespace DecayFunctions {
 		{ decay_function(x, z, Q2, z_min, parametrization, resonance, hadron) } -> std::same_as<double>;
 	};
 
-	static auto trivial = []([[maybe_unused]] const double x, [[maybe_unused]] const double z, [[maybe_unused]] const double Q2, [[maybe_unused]] const double z_min, [[maybe_unused]] const DecayParametrization &decay, [[maybe_unused]] const Particle &resonance, [[maybe_unused]] const Particle &hadron) { return 1.0; };
+	static auto trivial = [](
+		[[maybe_unused]] const double x, 
+		[[maybe_unused]] const double z, 
+		[[maybe_unused]] const double Q2, 
+		[[maybe_unused]] const double z_min, 
+		[[maybe_unused]] const DecayParametrization &decay, 
+		[[maybe_unused]] const Particle &resonance, 
+		[[maybe_unused]] const Particle &hadron) noexcept { return 1.0; };
 
-	constexpr double decay_function(const double x, const double z, const double Q2, const double z_min, const DecayParametrization &parametrization, const Particle &resonance, const Particle &hadron) {
+	constexpr double decay_function(
+		const double x, 
+		const double z, 
+		const double Q2, 
+		const double z_min, 
+		const DecayParametrization &parametrization, 
+		const Particle &resonance, 
+		const Particle &hadron) {
+			
 		if (z < z_min) { return 0.0; }
 		const double alpha = parametrization.alpha;
 		const double beta = parametrization.beta;

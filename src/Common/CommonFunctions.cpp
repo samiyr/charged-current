@@ -13,7 +13,7 @@ namespace CommonFunctions {
 		if (y < 0 || y > 1) { return std::nullopt; }
 		return y;
 	}
-	constexpr double cross_section_prefactor(const TRFKinematics &kinematics) {
+	constexpr double cross_section_prefactor(const TRFKinematics &kinematics) noexcept {
 		constexpr double numerator = POW2(Constants::fermi_coupling) * POW4(Constants::Particles::W.mass);
 		const double denominator = 2.0 * std::numbers::pi * POW2(kinematics.Q2 + POW2(Constants::Particles::W.mass));
 
@@ -31,7 +31,15 @@ namespace CommonFunctions {
 	constexpr static double xy_jacobian(const TRFKinematics &kinematics, const Process &process) {
 		return (kinematics.s - std::pow(process.target.mass, 2) - std::pow(process.projectile.mass, 2)) * kinematics.x;
 	}
-	constexpr double make_cross_section_variable(const double x, const double Q2, const double s, const Process process, const double f2, const double fL, const double xf3) {
+	constexpr double make_cross_section_variable(
+		const double x, 
+		const double Q2, 
+		const double s, 
+		const Process process, 
+		const double f2, 
+		const double fL, 
+		const double xf3) {
+
 		const std::optional<double> y_opt = CommonFunctions::compute_y(x, Q2, s, process.target.mass, process.projectile.mass);
 
 		if (!y_opt.has_value()) { return 0.0; }

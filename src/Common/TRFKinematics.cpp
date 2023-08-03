@@ -34,7 +34,7 @@ struct TRFKinematics {
 		return TRFKinematics::Q2_s(x, Q2, sqrt_s * sqrt_s, target_mass, projectile_mass, mass_scale);
 	}
 
-	constexpr bool is_valid() const {
+	constexpr bool is_valid() const noexcept {
 		return (y >= 0.0 && y <= 1.0);
 	}
 

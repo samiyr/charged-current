@@ -17,25 +17,22 @@ class LHAInterface {
 	int set_member_number;
 
 	private:
-	LHAInterface(const std::string _set_name, const int _set_member_number, const bool _use_multipliers, const std::vector<double> _multipliers)
+	LHAInterface(const std::string _set_name, const int _set_member_number, const bool _use_multipliers, const std::vector<double> _multipliers) noexcept
 	: set_name(_set_name), 
 	set_member_number(_set_member_number), 
 	use_multipliers(_use_multipliers), 
 	multipliers(_multipliers),
 	flavor_values(TOTAL_FLAVORS, 0.0),
 	prev_x(-1.0),
-	prev_Q2(-1.0) {
-		if constexpr (Globals::LHAInterfaceCacheStats) {
-			total_hits = 0;
-			cache_hits = 0;
-		}
-	}
+	prev_Q2(-1.0),
+	total_hits(0),
+	cache_hits(0) { }
 
 	public:
-	LHAInterface(std::string _set_name, const std::vector<double> _multipliers, int _set_member_number = 0)
+	LHAInterface(std::string _set_name, const std::vector<double> _multipliers, int _set_member_number = 0) noexcept
 	: LHAInterface(_set_name, _set_member_number, _multipliers.size() == TOTAL_FLAVORS, _multipliers) { }
 
-	LHAInterface(std::string _set_name, int _set_member_number = 0)
+	LHAInterface(std::string _set_name, int _set_member_number = 0) noexcept
 	: LHAInterface(_set_name, _set_member_number, false, {}) { }
 
 	void activate() const {
@@ -50,7 +47,7 @@ class LHAInterface {
 		activated = true;
 	}
 
-	LHAInterface(const LHAInterface &o) : LHAInterface(o.set_name, o.set_member_number, o.use_multipliers, o.multipliers) { }
+	LHAInterface(const LHAInterface &o) noexcept : LHAInterface(o.set_name, o.set_member_number, o.use_multipliers, o.multipliers) { }
 
 	static void disable_verbosity() {
 		LHAPDF::Info &cfg = LHAPDF::getConfig();
@@ -61,7 +58,8 @@ class LHAInterface {
 		activate();
 
 		if constexpr (Globals::LHAInterfaceCacheStats) {
-			std::cout << "Cache hit ratio: " << 100 * double(cache_hits) / double(total_hits) << " (cache hits: " << cache_hits << ", total hits: " << total_hits << ")" << IO::endl;
+			std::cout << "Cache hit ratio: " << 100 * double(cache_hits) / double(total_hits);
+			std::cout << " (cache hits: " << cache_hits << ", total hits: " << total_hits << ")" << IO::endl;
 			total_hits++;
 		}
 		if (x == prev_x && Q2 == prev_Q2) { 

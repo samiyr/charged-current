@@ -11,10 +11,17 @@ struct FragmentationConfiguration {
 	const std::vector<Interface> interfaces;
 	const std::vector<Decay<DecayFunction>> decays;
 
-	FragmentationConfiguration(const std::vector<Interface> _interfaces) : interfaces(_interfaces), decays(interfaces.size(), TrivialDecay) {}
-	FragmentationConfiguration(const std::initializer_list<Interface> _interfaces) : interfaces(_interfaces), decays(interfaces.size(), TrivialDecay) {}
-	FragmentationConfiguration(const std::vector<Interface> _interfaces, const std::vector<Decay<DecayFunction>> _decays) : interfaces(_interfaces), decays(_decays) {}
-	FragmentationConfiguration(const std::initializer_list<Interface> _interfaces, const std::initializer_list<Decay<DecayFunction>> _decays) : interfaces(_interfaces), decays(_decays) {}
+	FragmentationConfiguration(const std::vector<Interface> _interfaces) noexcept 
+	: interfaces(_interfaces), decays(interfaces.size(), TrivialDecay) {}
+
+	FragmentationConfiguration(const std::initializer_list<Interface> _interfaces) noexcept 
+	: interfaces(_interfaces), decays(interfaces.size(), TrivialDecay) {}
+
+	FragmentationConfiguration(const std::vector<Interface> _interfaces, const std::vector<Decay<DecayFunction>> _decays) noexcept
+	: interfaces(_interfaces), decays(_decays) {}
+
+	FragmentationConfiguration(const std::initializer_list<Interface> _interfaces, const std::initializer_list<Decay<DecayFunction>> _decays) noexcept
+	: interfaces(_interfaces), decays(_decays) {}
 
 	void evaluate(const double x, const double Q2) const {
 		for (auto &interface : interfaces) {
