@@ -39,10 +39,12 @@ target_compile_options(${PROJECT_NAME} PRIVATE -ffast-math -Wall -Wconversion -W
 # target_compile_options(${PROJECT_NAME} PRIVATE -ffast-math -Weverything -Wno-c++98-compat -Wno-padded -Wno-unsafe-buffer-usage -Wno-ctad-maybe-unsupported -Wno-float-equal -Wno-c++98-compat-pedantic -Wno-missing-prototypes -Wpedantic $<$<CONFIG:Release>:-O3> -g)
 # target_compile_options(${PROJECT_NAME} PRIVATE -ffast-math -Weverything $<$<CONFIG:Release>:-O3> -g)
 
+set(CMAKE_C_COMPILER clang)
+set(CMAKE_CXX_COMPILER clang++)
+
 # OpenMP
 if (APPLE)
-	set(CMAKE_C_COMPILER clang)
-	set(CMAKE_CXX_COMPILER clang++)
+	target_link_directories(${PROJECT_NAME} PRIVATE /opt/homebrew/lib /opt/homebrew/opt/llvm/lib)
 
 	if (CMAKE_C_COMPILER_ID MATCHES "Clang\$")
 		set(OpenMP_C_FLAGS "-Xpreprocessor -fopenmp")
@@ -56,7 +58,6 @@ if (APPLE)
 		set(OpenMP_omp_LIBRARY omp)
 	endif()
 
-	target_link_directories(${PROJECT_NAME} PRIVATE /opt/homebrew/lib /opt/homebrew/opt/llvm/lib)
 endif()
 
 find_package(OpenMP REQUIRED)
@@ -93,3 +94,5 @@ endif()
 # Unset cached values
 unset(USE_THREAD_SANITIZER CACHE)
 unset(USE_ADDRESS_SANITIZER CACHE)
+
+message("Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")

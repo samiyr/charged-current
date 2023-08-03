@@ -97,6 +97,7 @@
 		"unordered_set": "cpp",
 		"valarray": "cpp",
 		"cfenv": "cpp",
-		"filesystem": "cpp"
+		"filesystem": "cpp",
+		"simd": "cpp"
 	}
 }

@@ -7,7 +7,7 @@
 #include "Utility/Utility.cpp"
 #include "Common/Constants.cpp"
 
-#define TOTAL_FLAVORS 13
+static constexpr std::size_t TOTAL_FLAVORS = 13;
 
 using FlavorType = int;
 using FlavorVector = std::vector<FlavorType>;

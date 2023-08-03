@@ -9,15 +9,12 @@
 #include "Common/CKM.cpp"
 #include "Common/Process.cpp"
 #include "PDF/ZeroExtrapolator.cpp"
-
-#define CACHE_STATS false
+#include "Utility/Globals.cpp"
 
 class LHAInterface {
 	public:
 	std::string set_name;
 	int set_member_number;
-
-	FlavorVector available_flavors;
 
 	private:
 	LHAInterface(const std::string _set_name, const int _set_member_number, const bool _use_multipliers, const std::vector<double> _multipliers)
@@ -28,31 +25,11 @@ class LHAInterface {
 	flavor_values(TOTAL_FLAVORS, 0.0),
 	prev_x(-1.0),
 	prev_Q2(-1.0) {
-		#if CACHE_STATS
-		total_hits = 0;
-		cache_hits = 0;
-		#endif
+		if constexpr (Globals::LHAInterfaceCacheStats) {
+			total_hits = 0;
+			cache_hits = 0;
+		}
 	}
-	// LHAInterface(const std::string _set_name, const int _set_member_number, const bool _use_multipliers, const std::vector<double> _multipliers)
-	// : set_name(_set_name), 
-	// set_member_number(_set_member_number), 
-	// use_multipliers(_use_multipliers), 
-	// multipliers(_multipliers),
-	// pdf(LHAPDF::mkPDF(set_name, set_member_number)),
-	// flavor_values(TOTAL_FLAVORS, 0.0),
-	// prev_x(-1.0),
-	// prev_Q2(-1.0) {
-	// 	available_flavors = pdf->flavors();
-
-	// 	LHAPDF::GridPDF *grid_pdf = static_cast<LHAPDF::GridPDF *>(pdf.get());
-	// 	LHAPDF::Extrapolator *zero_extrapolator = new ZeroExtrapolator();
-	// 	grid_pdf->setExtrapolator(zero_extrapolator);
-
-	// 	#if CACHE_STATS
-	// 	total_hits = 0;
-	// 	cache_hits = 0;
-	// 	#endif
-	// }
 
 	public:
 	LHAInterface(std::string _set_name, const std::vector<double> _multipliers, int _set_member_number = 0)
@@ -61,12 +38,10 @@ class LHAInterface {
 	LHAInterface(std::string _set_name, int _set_member_number = 0)
 	: LHAInterface(_set_name, _set_member_number, false, {}) { }
 
-
 	void activate() const {
 		if (activated) { return; }
 
 		pdf = std::unique_ptr<LHAPDF::PDF>(LHAPDF::mkPDF(set_name, set_member_number));
-		// available_flavors = pdf->flavors();
 
 		LHAPDF::GridPDF *grid_pdf = static_cast<LHAPDF::GridPDF *>(pdf.get());
 		LHAPDF::Extrapolator *zero_extrapolator = new ZeroExtrapolator();
@@ -85,15 +60,15 @@ class LHAInterface {
 	void evaluate(const double x, const double Q2) const {
 		activate();
 
-		#if CACHE_STATS
-		std::cout << "Cache hit ratio: " << 100 * double(cache_hits) / double(total_hits) << " (cache hits: " << cache_hits << ", total hits: " << total_hits << ")" << IO::endl;
-		total_hits++;
-		#endif
+		if constexpr (Globals::LHAInterfaceCacheStats) {
+			std::cout << "Cache hit ratio: " << 100 * double(cache_hits) / double(total_hits) << " (cache hits: " << cache_hits << ", total hits: " << total_hits << ")" << IO::endl;
+			total_hits++;
+		}
 		if (x == prev_x && Q2 == prev_Q2) { 
-			#if CACHE_STATS
-			cache_hits++; 
-			#endif
-			return; 
+			if constexpr (Globals::LHAInterfaceCacheStats) {
+				cache_hits++; 
+			}
+			return;
 		}
 
 		pdf->xfxQ2(x, Q2, flavor_values);
@@ -133,10 +108,8 @@ class LHAInterface {
 	mutable double prev_x = -1.0;
 	mutable double prev_Q2 = -1.0;
 
-	#if CACHE_STATS
 	mutable size_t total_hits = 0;
 	mutable size_t cache_hits = 0;
-	#endif
 };
 
 #endif

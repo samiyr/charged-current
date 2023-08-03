@@ -7,9 +7,17 @@
 #include <thread>
 #include <limits>
 #include <algorithm>
+#include <ranges>
 
-#define POW2(x) (x) * (x)
-#define POW4(x) (x) * (x) * (x) * (x)
+template <typename T>
+static constexpr T POW2(const T x) {
+	return x * x;
+}
+
+template <typename T>
+static constexpr T POW4(const T x) {
+	return x * x * x * x;
+}
 
 namespace IO {
 	inline std::ostream& endl(std::ostream& os) {
@@ -37,6 +45,31 @@ namespace Collections {
 			v1[i] *= v2[i];
 		}
 	}
+}
+
+template <typename Type, std::size_t Size>
+constexpr std::array<Type, Size> operator*(const std::array<Type, Size> &lhs, const std::array<Type, Size> &rhs) {
+	std::array<Type, Size> output{};
+
+	for (const auto &[lhs_value, rhs_value, output_value] : std::views::zip(lhs, rhs, output)) {
+		output_value = lhs_value * rhs_value;
+	}
+
+	return output;
+}
+
+template <typename T>
+constexpr std::vector<T> operator+(const std::vector<T> &lhs, const T &rhs) {
+	std::vector<T> output(lhs.size());
+	std::transform(lhs.begin(), lhs.end(), output.begin(), [&rhs](const T &current) { return current + rhs; });
+	return output;
+}
+
+template <typename T>
+constexpr std::vector<T> operator-(const std::vector<T> &lhs, const T &rhs) {
+	std::vector<T> output(lhs.size());
+	std::transform(lhs.begin(), lhs.end(), output.begin(), [&rhs](const T &current) { return current - rhs; });
+	return output;
 }
 
 namespace Conversion {
