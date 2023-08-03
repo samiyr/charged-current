@@ -101,7 +101,7 @@ struct FlavorInfo {
 	}
 
 	constexpr double mass(const FlavorType flavor) const {
-		return flavor_masses[size_t(flavor + 6)];
+		return flavor_masses[std::size_t(flavor + 6)];
 	}
 };
 

@@ -13,7 +13,7 @@ class GSLIntegrator {
 		Function function;
 		void *params;
 
-		static double invoke(double input[], size_t dim, void *p) {
+		static double invoke(double input[], std::size_t dim, void *p) {
 			Functor *functor = static_cast<Functor *>(p);
 			return functor->function(input, dim, functor->params);
 		}
@@ -29,7 +29,7 @@ class GSLIntegrator {
 	std::vector<double> upper;
 	gsl_monte_function function;
 
-	const size_t points;
+	const std::size_t points;
 	void *params;
 	const double max_chi_squared_deviation;
 	const double max_relative_error;
@@ -42,7 +42,7 @@ class GSLIntegrator {
 		Integrand _integrand, 
 		std::vector<double> _lower, 
 		std::vector<double> _upper, 
-		const size_t _points, 
+		const std::size_t _points, 
 		void *_params, 
 		const double _max_chi_squared_deviation, 
 		const double _max_relative_error,
@@ -95,7 +95,7 @@ class GSLIntegrator {
 		gsl_monte_vegas_params_set(state, &vegas_params);
 
 		if (grid_warmup) {
-			gsl_monte_vegas_integrate(&function, lower.data(), upper.data(), dim, std::max(points / 1000, size_t(10)), rng, state, &integral, &error);
+			gsl_monte_vegas_integrate(&function, lower.data(), upper.data(), dim, std::max(points / 1000, std::size_t(10)), rng, state, &integral, &error);
 		}
 
 		unsigned int iteration = 0;

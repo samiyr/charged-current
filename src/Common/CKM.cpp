@@ -22,11 +22,11 @@ struct CKM {
 	};
 	public:
 	constexpr static double squared(const FlavorType flavor1, FlavorType flavor2) {
-		const size_t f1 = static_cast<size_t>(std::abs(flavor1));
-		const size_t f2 = static_cast<size_t>(std::abs(flavor2));
-		const size_t row = f1 - 1;
-		const size_t column = f2 - 1;
-		const size_t column_count = 6; 
+		const std::size_t f1 = static_cast<std::size_t>(std::abs(flavor1));
+		const std::size_t f2 = static_cast<std::size_t>(std::abs(flavor2));
+		const std::size_t row = f1 - 1;
+		const std::size_t column = f2 - 1;
+		const std::size_t column_count = 6; 
 		return _ckm_full_matrix[row * column_count + column];
 	}
 };

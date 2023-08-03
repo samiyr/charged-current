@@ -8,7 +8,7 @@
 // 	double value;
 // 	double error;
 // 	double chi_squared;
-// 	size_t iterations;
+// 	std::size_t iterations;
 
 // 	friend std::ostream& operator<<(std::ostream& os, Row const & r) {
 // 		return os << r.x << "," << r.value << "," << r.error << "," << r.chi_squared << "," << r.iterations;

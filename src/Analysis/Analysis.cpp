@@ -238,8 +238,8 @@ namespace Analysis {
 				std::vector<bool> incoming_vector(TOTAL_FLAVORS, false);
 				std::vector<bool> outgoing_vector(TOTAL_FLAVORS, false);
 
-				incoming_vector[size_t(incoming + 6)] = true;
-				outgoing_vector[size_t(outgoing + 6)] = true;
+				incoming_vector[std::size_t(incoming + 6)] = true;
+				outgoing_vector[std::size_t(outgoing + 6)] = true;
 
 				Analysis::SemiInclusive::ChannelDecomposition::muon_pair_production_separated_channels(x_bins, y_bins, E_beam_bins, filename, incoming_vector, outgoing_vector, comment);
 			}

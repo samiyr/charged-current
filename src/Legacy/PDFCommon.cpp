@@ -90,7 +90,7 @@
 // 	// const bool quark_minus, 
 // 	// const Process &process) {
 // 	// 	double sum = 0.0;
-// 	// 	for (size_t i = 0; i < ffs.size(); i++) {
+// 	// 	for (std::size_t i = 0; i < ffs.size(); i++) {
 // 	// 		FFInterface &ff = ffs[i];
 // 	// 		const double coefficient = ffs.coefficients[i];
 // 	// 		sum += coefficient * PDFCommon::xq_zq_sum(pdf, ff, flavors, quark_minus, process);
@@ -117,7 +117,7 @@
 // 	// const bool quark_minus, 
 // 	// const Process &process) {
 // 	// 	double sum = 0.0;
-// 	// 	for (size_t i = 0; i < ffs.size(); i++) {
+// 	// 	for (std::size_t i = 0; i < ffs.size(); i++) {
 // 	// 		FFInterface &ff = ffs[i];
 // 	// 		const double coefficient = ffs.coefficients[i];
 // 	// 		sum += coefficient * PDFCommon::xq_zg_sum(pdf, ff, flavors, quark_minus, process);
@@ -144,7 +144,7 @@
 // 	// const bool quark_minus, 
 // 	// const Process &process) {
 // 	// 	double sum = 0.0;
-// 	// 	for (size_t i = 0; i < ffs.size(); i++) {
+// 	// 	for (std::size_t i = 0; i < ffs.size(); i++) {
 // 	// 		FFInterface &ff = ffs[i];
 // 	// 		const double coefficient = ffs.coefficients[i];
 // 	// 		sum += coefficient * PDFCommon::xg_zq_sum(pdf, ff, flavors, quark_minus, process);

@@ -5,7 +5,7 @@
 #include "Constants.cpp"
 
 struct Coupling {
-	static double alpha_s(const double Q2, const size_t nf, const double lambda_QCD = Constants::lambda_QCD) {
+	static double alpha_s(const double Q2, const std::size_t nf, const double lambda_QCD = Constants::lambda_QCD) {
 		const double b0 = Coupling::beta_0(Q2, nf);
 		const double b1 = Coupling::beta_1(Q2, nf);
 		const double log = Coupling::L(Q2, lambda_QCD);
@@ -15,10 +15,10 @@ struct Coupling {
 	}
 
 	private:
-	static double beta_0(const double Q2, const size_t nf) {
+	static double beta_0(const double Q2, const std::size_t nf) {
 		return (33.0 - 2.0 * nf) / (12 * std::numbers::pi);
 	}
-	static double beta_1(const double Q2, const size_t nf) {
+	static double beta_1(const double Q2, const std::size_t nf) {
 		return (153.0 - 19.0 * nf) / (24 * std::numbers::pi * std::numbers::pi);
 	}
 	static double L(const double Q2, const double lambda_QCD) {

@@ -10,7 +10,7 @@ namespace Math {
 	template <typename T> int sgn(T val) {
 		return (T(0) < val) - (val < T(0));
 	}
-	
+
 	constexpr double log1m(const double x) {
 		return std::log(1 - x);
 		// return std::log1p(-x);

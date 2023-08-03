@@ -84,7 +84,7 @@ class LHAInterface {
 		return pdf->xfxQ2(flavor, x, Q2);
 	}
 	constexpr double xf(const FlavorType flavor) const {
-		return flavor_values[size_t(flavor + 6)];
+		return flavor_values[std::size_t(flavor + 6)];
 	}
 	constexpr double xg() const {
 		return xf(Flavor::Gluon);
@@ -106,8 +106,8 @@ class LHAInterface {
 	mutable double prev_x = -1.0;
 	mutable double prev_Q2 = -1.0;
 
-	mutable size_t total_hits = 0;
-	mutable size_t cache_hits = 0;
+	mutable std::size_t total_hits = 0;
+	mutable std::size_t cache_hits = 0;
 };
 
 #endif

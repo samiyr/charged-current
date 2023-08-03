@@ -185,18 +185,18 @@ struct SIDIS {
 	}
 
 	void differential_cross_section_xQ2(const std::vector<double> x_bins, const std::vector<double> z_bins, const std::vector<double> Q2_bins, const FilePath output) {
-		const size_t x_step_count = x_bins.size();
-		const size_t z_step_count = z_bins.size();
-		const size_t Q2_step_count = Q2_bins.size();
+		const std::size_t x_step_count = x_bins.size();
+		const std::size_t z_step_count = z_bins.size();
+		const std::size_t Q2_step_count = Q2_bins.size();
 
 		int calculated_values = 0;
 
 		std::ofstream file(output.path());
 
 		#pragma omp parallel for if(parallelize) num_threads(number_of_threads) collapse(3)
-		for (size_t i = 0; i < x_step_count; i++) {
-			for (size_t j = 0; j < Q2_step_count; j++) {
-				for (size_t k = 0; k < z_step_count; k++) {
+		for (std::size_t i = 0; i < x_step_count; i++) {
+			for (std::size_t j = 0; j < Q2_step_count; j++) {
+				for (std::size_t k = 0; k < z_step_count; k++) {
 					const double x = x_bins[i];
 					const double z = z_bins[k];
 					const double Q2 = Q2_bins[j];
@@ -226,9 +226,9 @@ struct SIDIS {
 		const FilePath output, 
 		const std::string comment = "") {
 
-		const size_t x_step_count = x_bins.size();
-		const size_t y_step_count = y_bins.size();
-		const size_t E_beam_step_count = E_beam_bins.size();
+		const std::size_t x_step_count = x_bins.size();
+		const std::size_t y_step_count = y_bins.size();
+		const std::size_t E_beam_step_count = E_beam_bins.size();
 
 		int calculated_values = 0;
 
@@ -242,9 +242,9 @@ struct SIDIS {
 		#pragma omp parallel if(parallelize) num_threads(number_of_threads) firstprivate(sidis)
 		{
 			#pragma omp for collapse(3) schedule(guided)
-			for (size_t i = 0; i < x_step_count; i++) {
-				for (size_t j = 0; j < E_beam_step_count; j++) {
-					for (size_t k = 0; k < y_step_count; k++) {
+			for (std::size_t i = 0; i < x_step_count; i++) {
+				for (std::size_t j = 0; j < E_beam_step_count; j++) {
+					for (std::size_t k = 0; k < y_step_count; k++) {
 						const double x = x_bins[i];
 						const double y = y_bins[k];
 						const double E_beam = E_beam_bins[j];

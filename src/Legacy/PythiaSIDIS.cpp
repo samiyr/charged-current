@@ -11,7 +11,7 @@
 
 
 namespace PythiaSIDIS {
-	void cross_section(const size_t events, const std::string filename) {
+	void cross_section(const std::size_t events, const std::string filename) {
 		using namespace Pythia8;
 		using namespace boost::histogram;
 		PythiaParallel pythia;
@@ -36,7 +36,7 @@ namespace PythiaSIDIS {
 
 			std::vector<Particle> D_mesons;
 
-			for (size_t i_particle = 1; i_particle < event.size(); i_particle++) {
+			for (std::size_t i_particle = 1; i_particle < event.size(); i_particle++) {
 				const auto particle = event[i_particle];
 
 				if (particle.idAbs() == 421) {

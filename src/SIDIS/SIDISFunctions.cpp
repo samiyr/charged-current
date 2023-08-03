@@ -755,9 +755,9 @@ namespace SIDISFunctions::Evaluation {
 	}
 	template <PDFConcept PDFInterface, PDFConcept FFInterface, DecayFunctions::Concept DecayFunction, typename Signature>
 	constexpr static double construct(const double input[], const Parameters<PDFInterface, FFInterface, DecayFunction> &params, const Signature signature, const bool xi_int, const bool xip_int, const bool z_int, const int sign, const FFInterface &ff1, const FFInterface &ff2, const Decay<DecayFunction> &decay, const double z_min) {
-		const size_t xi_index = 0;
-		const size_t xip_index = size_t(xi_int);
-		const size_t z_index = size_t(xi_int) + size_t(xip_int);
+		const std::size_t xi_index = 0;
+		const std::size_t xip_index = std::size_t(xi_int);
+		const std::size_t z_index = std::size_t(xi_int) + std::size_t(xip_int);
 
 		const double xi = xi_int ? input[xi_index] : 1.0;
 		const double xip = xip_int ? input[xip_index] : 1.0;

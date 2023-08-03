@@ -88,7 +88,7 @@ class DISComputation {
 		
 		const double lo = x * DISFunctions::Evaluation::construct<PDFInterface>({}, &params, DISFunctions::Integrands::F2x_lo_integrand, false, 1);
 
-		Integrator nlo_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		Integrator nlo_integrator([](double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
 			return DISFunctions::Evaluation::construct<PDFInterface>(input, params_in, DISFunctions::Integrands::F2x_nlo_integrand, true, 1);
 		}, {x}, {1.0}, &params);
 		auto nlo_result = nlo_integrator.integrate();
@@ -120,7 +120,7 @@ class DISComputation {
 			factorization_scale_log
 		};
 
-		Integrator nlo_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		Integrator nlo_integrator([](double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
 			return DISFunctions::Evaluation::construct<PDFInterface>(input, params_in, DISFunctions::Integrands::FLx_nlo_integrand, true, 1);
 		}, {x}, {1.0}, &params);
 		auto nlo_result = nlo_integrator.integrate();
@@ -153,7 +153,7 @@ class DISComputation {
 
 		const double lo = x * DISFunctions::Evaluation::construct<PDFInterface>({}, &params, DISFunctions::Integrands::F3_lo_integrand, false, -1);
 
-		Integrator nlo_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		Integrator nlo_integrator([](double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
 			return DISFunctions::Evaluation::construct<PDFInterface>(input, params_in, DISFunctions::Integrands::F3_nlo_integrand, true, -1);
 		}, {x}, {1.0}, &params);
 		auto nlo_result = nlo_integrator.integrate();
@@ -221,7 +221,7 @@ class DISComputation {
 			false
 		);
 
-		Integrator nlo_integrator([](double input[], [[maybe_unused]] size_t dim, void *params_in) {
+		Integrator nlo_integrator([](double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
 			return DISFunctions::Evaluation::cross_section<PDFInterface>(input, params_in, 
 				DISFunctions::Integrands::F2x_nlo_integrand, DISFunctions::Integrands::FLx_nlo_integrand, DISFunctions::Integrands::F3_nlo_integrand,
 				true

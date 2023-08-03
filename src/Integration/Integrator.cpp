@@ -20,24 +20,23 @@ struct Integrator {
 		void *params;
 		const double *lower;
 		const double *upper;
+		const double jacobian;
 
 		static int invoke(const int *ndim, const double x[], [[maybe_unused]] const int *ncomp, double f[], void *userdata) {
 			CubaFunctor *functor = static_cast<CubaFunctor *>(userdata);
-			const size_t dim = size_t(*ndim);
+			const std::size_t dim = std::size_t(*ndim);
 
 			const double *lower_limits = functor->lower;
 			const double *upper_limits = functor->upper;
+			const double jacobian = functor->jacobian;
 
 			double *input = new double[dim];
 
-			double jacobian = 1.0;
-
-			for (size_t i = 0; i < dim; i++) {
+			for (std::size_t i = 0; i < dim; i++) {
 				const double lower = lower_limits[i];
 				const double upper = upper_limits[i];
 				const double range = upper - lower;
 
-				jacobian *= range;
 				input[i] = lower + x[i] * range;
 			}
 
@@ -53,7 +52,7 @@ struct Integrator {
 		Function function;
 		void *params;
 
-		static double invoke(double input[], size_t dim, void *p) {
+		static double invoke(double input[], std::size_t dim, void *p) {
 			GSLFunctor *functor = static_cast<GSLFunctor *>(p);
 			return functor->function(input, dim, functor->params);
 		}
@@ -152,6 +151,16 @@ struct Integrator {
 		return flag_value;
 	}
 
+	double compute_jacobian(const std::vector<double> &lower_bounds, const std::vector<double> &upper_bounds) {
+		double jacobian = 1.0;
+
+		for (auto [lower, upper] : std::views::zip(lower_bounds, upper_bounds)) {
+			jacobian *= upper - lower;
+		}
+
+		return jacobian;
+	}
+
 	Result cuba_vegas_integrate() {
 		disable_cuba_parallelization();
 
@@ -164,7 +173,7 @@ struct Integrator {
 		double error[] = {0.0};
 		double chi_squared_probability[] = {0.0};
 
-		CubaFunctor<Integrand> functor { integrand, params, lower.data(), upper.data() };
+		CubaFunctor<Integrand> functor { integrand, params, lower.data(), upper.data(), compute_jacobian(lower, upper) };
 		auto cuba_integrand = &CubaFunctor<Integrand>::invoke;
 
 		int neval, fail;
@@ -193,7 +202,7 @@ struct Integrator {
 		double error[] = {0.0};
 		double chi_squared_probability[] = {0.0};
 
-		CubaFunctor<Integrand> functor { integrand, params, lower.data(), upper.data() };
+		CubaFunctor<Integrand> functor { integrand, params, lower.data(), upper.data(), compute_jacobian(lower, upper) };
 		auto cuba_integrand = &CubaFunctor<Integrand>::invoke;
 
 		int nregions, neval, fail;
@@ -222,7 +231,7 @@ struct Integrator {
 		double error[] = {0.0};
 		double chi_squared_probability[] = {0.0};
 
-		CubaFunctor<Integrand> functor { integrand, params, lower.data(), upper.data() };
+		CubaFunctor<Integrand> functor { integrand, params, lower.data(), upper.data(), compute_jacobian(lower, upper) };
 		auto cuba_integrand = &CubaFunctor<Integrand>::invoke;
 
 		int nregions, neval, fail;
@@ -266,7 +275,7 @@ struct Integrator {
 		double *upper_ptr = upper_copy.data();
 
 		if (gsl.grid_warmup) {
-			gsl_monte_vegas_integrate(&gsl_function, lower_ptr, upper_ptr, dim, std::max(gsl.points / 1000, size_t(10)), rng, state, &integral, &error);
+			gsl_monte_vegas_integrate(&gsl_function, lower_ptr, upper_ptr, dim, std::max(gsl.points / 1000, std::size_t(10)), rng, state, &integral, &error);
 		}
 
 		unsigned int iteration = 0;

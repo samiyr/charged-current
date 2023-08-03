@@ -12,7 +12,7 @@
 
 namespace Tests {
 	using namespace Comparison;
-	
+
 	/// Checks that LHAInterface evaluates to correct values at various values of x using the CT18NLO PDF set.
 	/// Checks are done against hard-coded values.
 	bool pdf_evaluation_tests() {
@@ -96,14 +96,14 @@ namespace Tests {
 		flag &= double_comparison(CKM::squared(Flavor::Bottom, Flavor::Top), Constants::V_tb, tol);
 
 		const FlavorVector upper = {Flavor::Up, Flavor::Charm, Flavor::Top};
-		for (size_t i = 0; i < upper.size(); i++) {
-			for (size_t j = 0; j < upper.size(); j++) {
+		for (std::size_t i = 0; i < upper.size(); i++) {
+			for (std::size_t j = 0; j < upper.size(); j++) {
 				flag &= double_comparison(CKM::squared(upper[i], upper[j]), 0, tol);
 			}
 		}
 		const FlavorVector lower = {Flavor::Down, Flavor::Strange, Flavor::Bottom};
-		for (size_t i = 0; i < lower.size(); i++) {
-			for (size_t j = 0; j < lower.size(); j++) {
+		for (std::size_t i = 0; i < lower.size(); i++) {
+			for (std::size_t j = 0; j < lower.size(); j++) {
 				flag &= double_comparison(CKM::squared(lower[i], lower[j]), 0, tol);
 			}
 		}
@@ -142,8 +142,8 @@ namespace Tests {
 		};
 
 		#pragma omp parallel for collapse(2)
-		for (size_t i = 0; i < x_values.size(); i++) {
-			for (size_t j = 0; j < Q2_values.size(); j++) {
+		for (std::size_t i = 0; i < x_values.size(); i++) {
+			for (std::size_t j = 0; j < Q2_values.size(); j++) {
 				const double x = x_values[i];
 				const double Q2 = Q2_values[j];
 
@@ -220,8 +220,8 @@ namespace Tests {
 		};
 
 		#pragma omp parallel for collapse(2)
-		for (size_t i = 0; i < xz_values.size(); i++) {
-			for (size_t j = 0; j < xz_values.size(); j++) {
+		for (std::size_t i = 0; i < xz_values.size(); i++) {
+			for (std::size_t j = 0; j < xz_values.size(); j++) {
 				const double x = xz_values[i];
 				const double z = xz_values[j];
 
@@ -299,8 +299,8 @@ namespace Tests {
 		};
 
 		#pragma omp parallel for collapse(2)
-		for (size_t i = 0; i < xz_values.size(); i++) {
-			for (size_t j = 0; j < xz_values.size(); j++) {
+		for (std::size_t i = 0; i < xz_values.size(); i++) {
+			for (std::size_t j = 0; j < xz_values.size(); j++) {
 				const double x = xz_values[i];
 				const double z = xz_values[j];
 
@@ -377,8 +377,8 @@ namespace Tests {
 		};
 
 		#pragma omp parallel for collapse(2)
-		for (size_t i = 0; i < xz_values.size(); i++) {
-			for (size_t j = 0; j < xz_values.size(); j++) {
+		for (std::size_t i = 0; i < xz_values.size(); i++) {
+			for (std::size_t j = 0; j < xz_values.size(); j++) {
 				const double x = xz_values[i];
 				const double z = xz_values[j];
 
@@ -457,8 +457,8 @@ namespace Tests {
 		};
 
 		#pragma omp parallel for collapse(2)
-		for (size_t i = 0; i < xz_values.size(); i++) {
-			for (size_t j = 0; j < xz_values.size(); j++) {
+		for (std::size_t i = 0; i < xz_values.size(); i++) {
+			for (std::size_t j = 0; j < xz_values.size(); j++) {
 				const double x = xz_values[i];
 				const double z = xz_values[j];
 
@@ -536,8 +536,8 @@ namespace Tests {
 		};
 
 		#pragma omp parallel for collapse(2)
-		for (size_t i = 0; i < xz_values.size(); i++) {
-			for (size_t j = 0; j < xz_values.size(); j++) {
+		for (std::size_t i = 0; i < xz_values.size(); i++) {
+			for (std::size_t j = 0; j < xz_values.size(); j++) {
 				const double x = xz_values[i];
 				const double z = xz_values[j];
 
@@ -683,7 +683,7 @@ namespace Tests {
 		);
 		sidis2.global_sqrt_s = sqrt_s;
 
-		Integrator integrator([&](const double input[], [[maybe_unused]] const size_t dim, [[maybe_unused]] void *params) {
+		Integrator integrator([&](const double input[], [[maybe_unused]] const std::size_t dim, [[maybe_unused]] void *params) {
 			const double z = input[0];
 
 			const double differential_cs_1 = sidis1.differential_cross_section_xQ2(z, kinematics).lo;
@@ -764,7 +764,7 @@ namespace Tests {
 		);
 		sidis2.global_sqrt_s = sqrt_s;
 
-		Integrator integrator([&](const double input[], [[maybe_unused]] const size_t dim, [[maybe_unused]] void *params) {
+		Integrator integrator([&](const double input[], [[maybe_unused]] const std::size_t dim, [[maybe_unused]] void *params) {
 			const double z = input[0];
 
 			const double differential_cs_1 = sidis1.differential_cross_section_xQ2(z, kinematics).nlo;
@@ -823,7 +823,7 @@ namespace Tests {
 		std::cout << "Lepton-pair cross section value (DIS) = " << result_dis.lo << IO::endl;
 		std::cout << "Lepton-pair cross section value (SIDIS integrated) = " << result_sidis.lo << IO::endl;
 
-		Integrator integrator([&](const double input[], [[maybe_unused]] const size_t dim, [[maybe_unused]] void *params) {
+		Integrator integrator([&](const double input[], [[maybe_unused]] const std::size_t dim, [[maybe_unused]] void *params) {
 			const double z = input[0];
 			return sidis2.differential_cross_section_xQ2(z, kinematics).lo;
 		}, {0}, {1});
@@ -865,7 +865,7 @@ namespace Tests {
 	void evaluate_pdf(PDFInterface pdf, const std::vector<double> Q2_list, const std::string filename, const bool divide_by_x = false) {
 		std::ofstream file(filename);
 		for (auto const Q2 : Q2_list) {	
-			for (size_t i = 0; i < 999; i++) {
+			for (std::size_t i = 0; i < 999; i++) {
 				const double x = double(i + 1) * 0.001;
 				
 				file << x << ", " << Q2;

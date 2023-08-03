@@ -73,9 +73,9 @@ constexpr std::vector<T> operator-(const std::vector<T> &lhs, const T &rhs) {
 }
 
 namespace Conversion {
-	constexpr int size_to_int(const size_t input) {
+	constexpr int size_to_int(const std::size_t input) {
 		if (input > std::numeric_limits<int>::max()) {
-			throw std::runtime_error("Cannot cast size_t larger than std::numeric_limits<int>::max() to int");
+			throw std::runtime_error("Cannot cast std::size_t larger than std::numeric_limits<int>::max() to int");
 		}
 		return static_cast<int>(input);
 	}

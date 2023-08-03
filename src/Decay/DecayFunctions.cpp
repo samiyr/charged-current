@@ -29,7 +29,7 @@ namespace DecayFunctions {
 		const DecayParametrization &parametrization, 
 		const Particle &resonance, 
 		const Particle &hadron) {
-			
+
 		if (z < z_min) { return 0.0; }
 		const double alpha = parametrization.alpha;
 		const double beta = parametrization.beta;
@@ -59,7 +59,7 @@ namespace DecayFunctions {
 		return result;
 	}
 
-	constexpr double decay_function_integrand(double input[], [[maybe_unused]] size_t dim, void *params_in) {
+	constexpr double decay_function_integrand(double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
 		const double rho = input[0];
 		const double cos = input[1];
 

@@ -19,14 +19,14 @@ class FunctionalFormInterface {
 	void evaluate(const double x, const double Q2) const {
 		for (auto const flavor : available_flavors) {
 			const double function_value = function(flavor, x, Q2);
-			flavor_values[size_t(flavor + 6)] = function_value;
+			flavor_values[std::size_t(flavor + 6)] = function_value;
 		}
 	}
 	constexpr double xf_evaluate(const FlavorType flavor, const double x, const double Q2) const {
 		return function(flavor, x, Q2);
 	}
 	constexpr double xf(const FlavorType flavor) const {
-		return flavor_values[size_t(flavor + 6)];
+		return flavor_values[std::size_t(flavor + 6)];
 	}
 	constexpr double xg() const {
 		return xf(Flavor::Gluon);

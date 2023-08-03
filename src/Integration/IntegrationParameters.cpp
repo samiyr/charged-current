@@ -61,7 +61,7 @@ struct IntegrationParameters {
 	};
 
 	struct GSL {
-		size_t points = 200'000;
+		std::size_t points = 200'000;
 		double max_chi_squared_deviation = 0.2;
 		double max_relative_error = 1e-3;
 		unsigned int iter_max = 5;
