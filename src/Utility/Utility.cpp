@@ -8,21 +8,17 @@
 #include <limits>
 #include <algorithm>
 #include <ranges>
-
-template <typename T>
-static constexpr T POW2(const T x) {
-	return x * x;
-}
-
-template <typename T>
-static constexpr T POW4(const T x) {
-	return x * x * x * x;
-}
+#include <filesystem>
 
 namespace IO {
 	inline std::ostream& endl(std::ostream& os) {
 		os.put(os.widen('\n'));
 		return os;
+	}
+
+	bool create_directory_tree(const std::filesystem::path &path) {
+		const auto directory = path.parent_path();
+		return std::filesystem::create_directories(directory);
 	}
 }
 
@@ -86,6 +82,9 @@ namespace Conversion {
 }
 
 namespace Comparison {
+	bool relative_comparison(double x, double y, double epsilon) {
+ 	   return std::abs(x - y) <= epsilon * std::max(std::abs(x), std::abs(y));
+	}
 	bool double_comparison(double a, double b, double tolerance = 1e-5) {
 		bool flag = abs(a - b) < tolerance;
 		// const bool flag = std::abs(a - b) <= std::max(std::abs(a), std::abs(b)) * tolerance;
@@ -147,7 +146,7 @@ namespace Utility {
 		~Traced() = default;
 	};
 
-	static unsigned int get_default_thread_count() {
+	static inline unsigned int get_default_thread_count() {
 		const unsigned int hardware = std::thread::hardware_concurrency();
 		return std::max(1U, hardware);
 	}

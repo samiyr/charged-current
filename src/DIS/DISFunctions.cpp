@@ -10,6 +10,10 @@
 #include "Common/CKM.cpp"
 #include "PDF/PDFConcept.cpp"
 
+#include "DIS/Coefficients/F2.cpp"
+#include "DIS/Coefficients/FL.cpp"
+#include "DIS/Coefficients/F3.cpp"
+
 namespace DISFunctions {
 	template <PDFConcept PDFInterface>
 	struct Parameters {
@@ -26,11 +30,6 @@ namespace DISFunctions {
 		const double factorization_scale;
 		const double factorization_scale_log;
 	};
-
-	static constexpr double delta_contribution(const double x) {
-		const double log = std::log(1 - x);
-		return -2.0 * Constants::C_F * (9.0 / 2.0 + (std::numbers::pi * std::numbers::pi) / 3.0 - log * log + 1.5 * log) / x;
-	}
 
 	namespace Evaluation {
 		template <PDFConcept PDFInterface, typename Signature>
@@ -119,72 +118,72 @@ namespace DISFunctions {
 		}
 
 		template <PDFConcept PDFInterface, typename Signature>
-		constexpr static double cross_section(const double input[], void *params_in, const Signature F2, const Signature FL, const Signature xF3, const bool xi_int) {
+		constexpr static double cross_section(const double input[], void *params_in, const Signature F2, const Signature FL, const Signature F3, const bool xi_int) {
 			const struct Parameters<PDFInterface> &params = *static_cast<Parameters<PDFInterface> *>(params_in);
 			
 			const double f2 = construct<PDFInterface>(input, params_in, F2, xi_int, 1);
 			const double fL = construct<PDFInterface>(input, params_in, FL, xi_int, 1);
-			const double xf3 = construct<PDFInterface>(input, params_in, xF3, xi_int, -1);
+			const double f3 = construct<PDFInterface>(input, params_in, F3, xi_int, -1);
 
-			const double cs = CommonFunctions::make_cross_section_variable(params.kinematics.x, params.kinematics.Q2, params.kinematics.s, params.process, f2, fL, xf3);
+			const double cs = CommonFunctions::make_cross_section_variable(params.kinematics, params.process, f2, fL, f3);
 
 			return cs;
 		}
 	}
 
-	namespace Integrands {
-		static constexpr double F2x_lo_integrand([[maybe_unused]] const double xi, const double x, [[maybe_unused]] const double factorization_scale_log, const double xq, [[maybe_unused]] const double xq_hat, [[maybe_unused]] const double xg_hat) {
-			return 2 * xq / x;
-		}
-		static constexpr double F2x_delta_integrand([[maybe_unused]] const double xi, const double x, const double factorization_scale_log, const double xq, [[maybe_unused]] const double xq_hat, [[maybe_unused]] const double xg_hat) {
-			const double term1 = DISFunctions::delta_contribution(x) * xq;
-			return term1;
-		}
-		static constexpr double F2x_nlo_integrand(const double xi, const double x, const double factorization_scale_log, const double xq, const double xq_hat, const double xg_hat) {
-			const double term1 = std::log(1 - xi) * ((1 + xi * xi) * xq_hat - 2 * xq) / (1 - xi);
-			const double term2 = (xq_hat - xq) / (1 - xi);
-			const double term3 = xq_hat * (- (1 + xi * xi) * std::log(xi) / (1 - xi) + 3 + 2 * xi);
+	// namespace Integrands {
+	// 	static constexpr double F2x_lo_integrand([[maybe_unused]] const double xi, const double x, [[maybe_unused]] const double factorization_scale_log, const double xq, [[maybe_unused]] const double xq_hat, [[maybe_unused]] const double xg_hat) {
+	// 		return 2 * xq / x;
+	// 	}
+	// 	static constexpr double F2x_delta_integrand([[maybe_unused]] const double xi, const double x, const double factorization_scale_log, const double xq, [[maybe_unused]] const double xq_hat, [[maybe_unused]] const double xg_hat) {
+	// 		const double term1 = DISFunctions::delta_contribution(x) * xq;
+	// 		return term1;
+	// 	}
+	// 	static constexpr double F2x_nlo_integrand(const double xi, const double x, const double factorization_scale_log, const double xq, const double xq_hat, const double xg_hat) {
+	// 		const double term1 = std::log(1 - xi) * ((1 + xi * xi) * xq_hat - 2 * xq) / (1 - xi);
+	// 		const double term2 = (xq_hat - xq) / (1 - xi);
+	// 		const double term3 = xq_hat * (- (1 + xi * xi) * std::log(xi) / (1 - xi) + 3 + 2 * xi);
 
-			const double quark_contribution = Constants::C_F * (term1 - 1.5 * term2 + term3);
+	// 		const double quark_contribution = Constants::C_F * (term1 - 1.5 * term2 + term3);
 
-			const double term4 = (xi * xi + (1 - xi) * (1 - xi)) * std::log((1 - xi) / xi);
-			const double term5 = -1 + 8 * xi * (1 - xi);
+	// 		const double term4 = (xi * xi + (1 - xi) * (1 - xi)) * std::log((1 - xi) / xi);
+	// 		const double term5 = -1 + 8 * xi * (1 - xi);
 
-			const double gluon_contribution = 0.5 * xg_hat * (term4 + term5);
+	// 		const double gluon_contribution = 0.5 * xg_hat * (term4 + term5);
 
-			const double total_contribution = 2 * (quark_contribution + gluon_contribution) / x;
-			return total_contribution;
-		}
+	// 		const double total_contribution = 2 * (quark_contribution + gluon_contribution) / x;
+	// 		return total_contribution;
+	// 	}
 
-		static constexpr double FLx_lo_integrand([[maybe_unused]] const double xi, [[maybe_unused]] const double x, [[maybe_unused]] const double factorization_scale_log, [[maybe_unused]] const double xq, [[maybe_unused]] const double xq_hat, [[maybe_unused]] const double xg_hat) {
-			return 0.0;
-		}
-		static constexpr double FLx_delta_integrand([[maybe_unused]] const double xi, [[maybe_unused]] const double x, [[maybe_unused]] const double factorization_scale_log, [[maybe_unused]] const double xq, [[maybe_unused]] const double xq_hat, [[maybe_unused]] const double xg_hat) {
-			return 0.0;
-		}
-		static constexpr double FLx_nlo_integrand(const double xi, const double x, [[maybe_unused]] const double factorization_scale_log, [[maybe_unused]] const double xq, const double xq_hat, const double xg_hat) {
-			const double quark_contribution = Constants::C_F * xq_hat * 2 * xi;
-			const double gluon_contribution = 2 * xi * (1 - xi) * xg_hat;
+	// 	static constexpr double FLx_lo_integrand([[maybe_unused]] const double xi, [[maybe_unused]] const double x, [[maybe_unused]] const double factorization_scale_log, [[maybe_unused]] const double xq, [[maybe_unused]] const double xq_hat, [[maybe_unused]] const double xg_hat) {
+	// 		return 0.0;
+	// 	}
+	// 	static constexpr double FLx_delta_integrand([[maybe_unused]] const double xi, [[maybe_unused]] const double x, [[maybe_unused]] const double factorization_scale_log, [[maybe_unused]] const double xq, [[maybe_unused]] const double xq_hat, [[maybe_unused]] const double xg_hat) {
+	// 		return 0.0;
+	// 	}
+	// 	static constexpr double FLx_nlo_integrand(const double xi, const double x, [[maybe_unused]] const double factorization_scale_log, [[maybe_unused]] const double xq, const double xq_hat, const double xg_hat) {
+	// 		const double quark_contribution = Constants::C_F * xq_hat * 2 * xi;
+	// 		const double gluon_contribution = 2 * xi * (1 - xi) * xg_hat;
 
-			const double total_contribution = 2 * (quark_contribution + gluon_contribution) / x;
-			return total_contribution;
-		}
-		static constexpr double F3_lo_integrand([[maybe_unused]] const double xi, const double x, [[maybe_unused]] const double factorization_scale_log, const double xq, [[maybe_unused]] const double xq_hat, [[maybe_unused]] const double xg_hat) {
-			return 2 * xq / x;
-		}
-		static constexpr double F3x_delta_integrand(const double xi, const double x, const double factorization_scale_log, const double xq, const double xq_hat, const double xg_hat) {
-			return F2x_delta_integrand(xi, x, factorization_scale_log, xq, xq_hat, xg_hat);
-		}
-		static constexpr double F3_nlo_integrand(const double xi, const double x, const double factorization_scale_log, const double xq, const double xq_hat, [[maybe_unused]] const double xg_hat) {
-			const double term1 = std::log(1 - xi) * ((1 + xi * xi) * xq_hat - 2 * xq) / (1 - xi);
-			const double term2 = (xq_hat - xq) / (1 - xi);
-			const double term3 = xq_hat * (- (1 + xi * xi) * std::log(xi) / (1 - xi) + 2 + xi);
+	// 		const double total_contribution = 2 * (quark_contribution + gluon_contribution) / x;
+	// 		return total_contribution;
+	// 	}
+	// 	static constexpr double F3_lo_integrand([[maybe_unused]] const double xi, const double x, [[maybe_unused]] const double factorization_scale_log, const double xq, [[maybe_unused]] const double xq_hat, [[maybe_unused]] const double xg_hat) {
+	// 		return 2 * xq / x;
+	// 	}
+	// 	static constexpr double F3x_delta_integrand(const double xi, const double x, const double factorization_scale_log, const double xq, const double xq_hat, const double xg_hat) {
+	// 		return F2x_delta_integrand(xi, x, factorization_scale_log, xq, xq_hat, xg_hat);
+	// 	}
+	// 	static constexpr double F3_nlo_integrand(const double xi, const double x, const double factorization_scale_log, const double xq, const double xq_hat, [[maybe_unused]] const double xg_hat) {
+	// 		const double term1 = std::log(1 - xi) * ((1 + xi * xi) * xq_hat - 2 * xq) / (1 - xi);
+	// 		const double term2 = (xq_hat - xq) / (1 - xi);
+	// 		const double term3 = xq_hat * (- (1 + xi * xi) * std::log(xi) / (1 - xi) + 2 + xi);
 
-			const double quark_contribution = 2 * Constants::C_F * (term1 - 1.5 * term2 + term3) / x;
+	// 		const double quark_contribution = 2 * Constants::C_F * (term1 - 1.5 * term2 + term3) / x;
 
-			return quark_contribution;
-		}
-	}
+	// 		return quark_contribution;
+	// 	}
+	// }
 }
 
 #endif

@@ -6,6 +6,7 @@
 #include "Flavor.cpp"
 #include <optional>
 #include <numbers>
+#include "TRFKinematics.cpp"
 
 namespace CommonFunctions {
 	constexpr std::optional<double> compute_y(const double x, const double Q2, const double s, const double target_mass, const double projectile_mass = 0.0) {
@@ -13,51 +14,48 @@ namespace CommonFunctions {
 		if (y < 0 || y > 1) { return std::nullopt; }
 		return y;
 	}
-	constexpr double cross_section_prefactor(const TRFKinematics &kinematics) noexcept {
-		constexpr double numerator = POW2(Constants::fermi_coupling) * POW4(Constants::Particles::W.mass);
-		const double denominator = 2.0 * std::numbers::pi * POW2(kinematics.Q2 + POW2(Constants::Particles::W.mass));
+	template <typename Kinematics>
+	constexpr double cross_section_prefactor(const Kinematics &kinematics) noexcept {
+		constexpr double numerator = Math::pow2(Constants::fermi_coupling) * Math::pow4(Constants::Particles::W.mass);
+		const double denominator = 2.0 * std::numbers::pi * Math::pow2(kinematics.Q2 + Math::pow2(Constants::Particles::W.mass));
 
 		return numerator / denominator;
 	}
-	constexpr double cross_section_modified_prefactor(const TRFKinematics &kinematics) {
-		constexpr double numerator = 50.0 * POW4(Constants::Particles::W.mass);
-		const double denominator = POW2(kinematics.Q2 + POW2(Constants::Particles::W.mass)) * kinematics.target_mass * kinematics.E_beam;
+	template <typename Kinematics>
+	constexpr double cross_section_modified_prefactor(const Kinematics &kinematics) {
+		constexpr double numerator = 50.0 * Math::pow4(Constants::Particles::W.mass);
+		const double denominator = Math::pow2(kinematics.Q2 + Math::pow2(Constants::Particles::W.mass)) * kinematics.target_mass * kinematics.E_beam;
 
 		return numerator / denominator;
 	}
 	constexpr double compute_momentum_fraction_mass_correction(const double x_0, const double Q2, const double mass_scale, const double target_mass) {
 		return x_0 * (1 + std::pow(mass_scale, 2) / Q2) * (1 - std::pow(x_0 * target_mass, 2) / Q2);
 	}
-	constexpr static double xy_jacobian(const TRFKinematics &kinematics, const Process &process) {
+	template <typename Kinematics>
+	constexpr static double xy_jacobian(const Kinematics &kinematics, const Process &process) {
 		return (kinematics.s - std::pow(process.target.mass, 2) - std::pow(process.projectile.mass, 2)) * kinematics.x;
 	}
-	constexpr double make_cross_section_variable(
-		const double x, 
-		const double Q2, 
-		const double s, 
-		const Process process, 
-		const double f2, 
-		const double fL, 
-		const double xf3) {
+	template <typename Kinematics, typename T>
+	constexpr T make_cross_section_variable(
+		const Kinematics &kinematics, 
+		const Process &process, 
+		const T f2, 
+		const T fL, 
+		const T f3) {
 
-		const std::optional<double> y_opt = CommonFunctions::compute_y(x, Q2, s, process.target.mass, process.projectile.mass);
-
-		if (!y_opt.has_value()) { return 0.0; }
-
-		const double y = *y_opt;
+		const double x = kinematics.x;
+		const double y = kinematics.y;
+		const double s = kinematics.s;
 		const double M2 = std::pow(process.target.mass, 2);
 
 		const double term1 = 1 - y + 0.5 * y * y - (x * y * M2) / (s - M2);
 		const double term2 = - 0.5 * y * y;
 		const double term3 = y * (1 - 0.5 * y);
 
-		// const double x_mass = CommonFunctions::compute_momentum_fraction_mass_correction(x, Q2, Flavor::mass(Flavor::Charm), 0.0);
-
-		const double result = term1 * f2 + term2 * fL + double(process.W_sign()) * term3 * xf3;
+		const T result = (term1 * f2 + term2 * fL) / x + double(process.W_sign()) * term3 * f3;
 
 		return result;
 	}
 }
-
 
 #endif

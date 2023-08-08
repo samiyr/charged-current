@@ -40,5 +40,14 @@
 			"cwd": "${workspaceFolder}",
 			"preLaunchTask": "cmakeChargedCurrentDISASAN"
 		}
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "ChargedCurrentDIS (CMake UBSAN)",
+			"program": "${workspaceFolder}/ChargedCurrentDIS",
+			"args": [],
+			"cwd": "${workspaceFolder}",
+			"preLaunchTask": "cmakeChargedCurrentDISUBSAN"
+		}
 	]
 }

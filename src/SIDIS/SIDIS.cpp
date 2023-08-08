@@ -11,7 +11,7 @@
 #include <optional>
 #include "Common/CommonFunctions.cpp"
 #include "PDF/PDFConcept.cpp"
-#include "Legacy/FilePath.cpp"
+#include <filesystem>
 
 template <
 	PDFConcept PDFInterface, 
@@ -86,7 +86,7 @@ struct SIDIS {
 			global_sqrt_s, active_flavors, 
 			{
 				top_mass, bottom_mass, charm_mass, strange_mass, up_mass, down_mass, 0.0, down_mass, up_mass, strange_mass, charm_mass, bottom_mass, top_mass
-			}, 
+			},
 			pdf, ff,
 			integration_parameters,
 			process, 
@@ -141,8 +141,8 @@ struct SIDIS {
 	PerturbativeQuantity FL(const double z, const TRFKinematics kinematics) const {
 		return compute_structure_function(StructureFunction::FL, z, kinematics);
 	}
-	PerturbativeQuantity xF3(const double z, const TRFKinematics kinematics) const {
-		return compute_structure_function(StructureFunction::xF3, z, kinematics);
+	PerturbativeQuantity F3(const double z, const TRFKinematics kinematics) const {
+		return compute_structure_function(StructureFunction::F3, z, kinematics);
 	}
 
 	PerturbativeQuantity F2(const double x, const double z, const double Q2) const {
@@ -151,8 +151,8 @@ struct SIDIS {
 	PerturbativeQuantity FL(const double x, const double z, const double Q2) const {
 		return compute_structure_function(StructureFunction::FL, x, z, Q2);
 	}
-	PerturbativeQuantity xF3(const double x, const double z, const double Q2) const {
-		return compute_structure_function(StructureFunction::xF3, x, z, Q2);
+	PerturbativeQuantity F3(const double x, const double z, const double Q2) const {
+		return compute_structure_function(StructureFunction::F3, x, z, Q2);
 	}
 
 	PerturbativeQuantity differential_cross_section_xQ2(const double z, const TRFKinematics kinematics) const {
@@ -184,14 +184,20 @@ struct SIDIS {
 		return xQ2 * jacobian;
 	}
 
-	void differential_cross_section_xQ2(const std::vector<double> x_bins, const std::vector<double> z_bins, const std::vector<double> Q2_bins, const FilePath output) {
+	void differential_cross_section_xQ2(
+		const std::vector<double> x_bins, 
+		const std::vector<double> z_bins, 
+		const std::vector<double> Q2_bins, 
+		const std::filesystem::path output) {
+
 		const std::size_t x_step_count = x_bins.size();
 		const std::size_t z_step_count = z_bins.size();
 		const std::size_t Q2_step_count = Q2_bins.size();
 
 		int calculated_values = 0;
 
-		std::ofstream file(output.path());
+		IO::create_directory_tree(output);
+		std::ofstream file(output);
 
 		#pragma omp parallel for if(parallelize) num_threads(number_of_threads) collapse(3)
 		for (std::size_t i = 0; i < x_step_count; i++) {
@@ -223,7 +229,7 @@ struct SIDIS {
 		const std::vector<double> x_bins, 
 		const std::vector<double> y_bins, 
 		const std::vector<double> E_beam_bins, 
-		const FilePath output, 
+		const std::filesystem::path output, 
 		const std::string comment = "") {
 
 		const std::size_t x_step_count = x_bins.size();
@@ -232,7 +238,8 @@ struct SIDIS {
 
 		int calculated_values = 0;
 
-		std::ofstream file(output.path());
+		IO::create_directory_tree(output);
+		std::ofstream file(output);
 
 		output_run_info(file, comment);
 

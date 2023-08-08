@@ -86,17 +86,17 @@ class DISComputation {
 			factorization_scale_log
 		};
 		
-		const double lo = x * DISFunctions::Evaluation::construct<PDFInterface>({}, &params, DISFunctions::Integrands::F2x_lo_integrand, false, 1);
+		const double lo = DISFunctions::Evaluation::construct<PDFInterface>({}, &params, DISFunctions::F2::LO::integrand, false, 1);
 
 		Integrator nlo_integrator([](double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
-			return DISFunctions::Evaluation::construct<PDFInterface>(input, params_in, DISFunctions::Integrands::F2x_nlo_integrand, true, 1);
-		}, {x}, {1.0}, &params);
+			return DISFunctions::Evaluation::construct<PDFInterface>(input, params_in, DISFunctions::F2::NLO::integrand, true, 1);
+		}, {x}, {1.0}, integration_parameters, &params);
 		auto nlo_result = nlo_integrator.integrate();
 		const double nlo_value = nlo_result.value;
 
-		const double nlo_delta = DISFunctions::Evaluation::construct<PDFInterface>({}, &params, DISFunctions::Integrands::F2x_delta_integrand, false, 1);
+		const double nlo_delta = DISFunctions::Evaluation::construct<PDFInterface>({}, &params, DISFunctions::F2::NLO::delta, false, 1);
 
-		const double nlo = nlo_coefficient * x * (nlo_value + nlo_delta);
+		const double nlo = nlo_coefficient * (nlo_value + nlo_delta);
 
 		return PerturbativeQuantity {lo, lo + nlo};
 	}
@@ -120,17 +120,19 @@ class DISComputation {
 			factorization_scale_log
 		};
 
+		// TODO: LO etc mass correction integrals
+
 		Integrator nlo_integrator([](double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
-			return DISFunctions::Evaluation::construct<PDFInterface>(input, params_in, DISFunctions::Integrands::FLx_nlo_integrand, true, 1);
-		}, {x}, {1.0}, &params);
+			return DISFunctions::Evaluation::construct<PDFInterface>(input, params_in, DISFunctions::FL::NLO::integrand, true, 1);
+		}, {x}, {1.0}, integration_parameters, &params);
 		auto nlo_result = nlo_integrator.integrate();
 		const double nlo_value = nlo_result.value;
 
-		const double nlo = nlo_coefficient * x * nlo_value;
+		const double nlo = nlo_coefficient * nlo_value;
 
 		return PerturbativeQuantity {0.0, nlo};
 	}
-	PerturbativeQuantity xF3(const TRFKinematics &kinematics) const {
+	PerturbativeQuantity F3(const TRFKinematics &kinematics) const {
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
 
@@ -151,17 +153,17 @@ class DISComputation {
 			factorization_scale_log
 		};
 
-		const double lo = x * DISFunctions::Evaluation::construct<PDFInterface>({}, &params, DISFunctions::Integrands::F3_lo_integrand, false, -1);
+		const double lo = DISFunctions::Evaluation::construct<PDFInterface>({}, &params, DISFunctions::F3::LO::integrand, false, -1);
 
 		Integrator nlo_integrator([](double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
-			return DISFunctions::Evaluation::construct<PDFInterface>(input, params_in, DISFunctions::Integrands::F3_nlo_integrand, true, -1);
-		}, {x}, {1.0}, &params);
+			return DISFunctions::Evaluation::construct<PDFInterface>(input, params_in, DISFunctions::F3::NLO::integrand, true, -1);
+		}, {x}, {1.0}, integration_parameters, &params);
 		auto nlo_result = nlo_integrator.integrate();
 		const double nlo_value = nlo_result.value;
 
-		const double nlo_delta = DISFunctions::Evaluation::construct<PDFInterface>({}, &params, DISFunctions::Integrands::F3x_delta_integrand, false, -1);
+		const double nlo_delta = DISFunctions::Evaluation::construct<PDFInterface>({}, &params, DISFunctions::F3::NLO::delta, false, -1);
 
-		const double nlo = nlo_coefficient * x * (nlo_value + nlo_delta);
+		const double nlo = nlo_coefficient * (nlo_value + nlo_delta);
 
 		return PerturbativeQuantity {lo, lo + nlo};
 	}
@@ -169,14 +171,11 @@ class DISComputation {
 		switch (F) {
 		case StructureFunction::F2: return F2(kinematics);
 		case StructureFunction::FL: return FL(kinematics);
-		case StructureFunction::xF3: return xF3(kinematics);
+		case StructureFunction::F3: return F3(kinematics);
 		}
 	}
 
 	PerturbativeQuantity differential_cross_section_xQ2_direct(const TRFKinematics &kinematics) const {
-		const double x = kinematics.x;
-		const double y = kinematics.y;
-
 		if (!kinematics.is_valid()) { return PerturbativeQuantity {0.0, 0.0}; }
 
 		const double prefactor = use_modified_cross_section_prefactor 
@@ -185,13 +184,10 @@ class DISComputation {
 
 		const PerturbativeQuantity f2 = F2(kinematics);
 		const PerturbativeQuantity fL = FL(kinematics);
-		const PerturbativeQuantity xf3 = xF3(kinematics);
+		const PerturbativeQuantity f3 = F3(kinematics);
 
-		const double term1 = 1 - y + 0.5 * y * y;
-		const double term2 = - 0.5 * y * y;
-		const double term3 = y * (1 - 0.5 * y);
+		const PerturbativeQuantity result = prefactor * CommonFunctions::make_cross_section_variable(kinematics, process, f2, fL, f3);
 
-		const PerturbativeQuantity result = prefactor * (term1 * f2 + term2 * fL + double(process.W_sign()) * term3 * xf3) / x;
 		return result;
 	}
 
@@ -217,21 +213,21 @@ class DISComputation {
 		};
 
 		const double lo = DISFunctions::Evaluation::cross_section<PDFInterface>({}, &params, 
-			DISFunctions::Integrands::F2x_lo_integrand, DISFunctions::Integrands::FLx_lo_integrand, DISFunctions::Integrands::F3_lo_integrand,
+			DISFunctions::F2::LO::integrand, DISFunctions::FL::LO::integrand, DISFunctions::F3::LO::integrand,
 			false
 		);
 
 		Integrator nlo_integrator([](double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
 			return DISFunctions::Evaluation::cross_section<PDFInterface>(input, params_in, 
-				DISFunctions::Integrands::F2x_nlo_integrand, DISFunctions::Integrands::FLx_nlo_integrand, DISFunctions::Integrands::F3_nlo_integrand,
+				DISFunctions::F2::NLO::integrand, DISFunctions::FL::NLO::integrand, DISFunctions::F3::NLO::integrand,
 				true
 			);
-		}, {x}, {1.0}, &params);
+		}, {x}, {1.0}, integration_parameters, &params);
 		const auto nlo_result = nlo_integrator.integrate();
 		const double nlo_integral = nlo_result.value;
 
 		const double delta_contribution = DISFunctions::Evaluation::cross_section<PDFInterface>({}, &params,
-			DISFunctions::Integrands::F2x_delta_integrand, DISFunctions::Integrands::FLx_delta_integrand, DISFunctions::Integrands::F3x_delta_integrand, 
+			DISFunctions::F2::NLO::delta, DISFunctions::FL::NLO::delta, DISFunctions::F3::NLO::delta, 
 			false
 		);
 

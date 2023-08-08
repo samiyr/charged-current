@@ -8,6 +8,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED YES)
 # Load .cmake files
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
+enable_testing()
+
 # Source files
 set(SOURCE_FILES src/ChargedCurrentDIS.cpp)
 
@@ -17,19 +19,41 @@ if (${USE_THREAD_SANITIZER})
 	add_compile_options(-fPIE -pie -g)
 	add_compile_options(-fsanitize=thread -DLIBOMP_TSAN_SUPPORT=TRUE)
 	add_link_options(-fsanitize=thread)
-endif()
-
-# Address sanitizer
-SET(USE_ADDRESS_SANITIZER FALSE CACHE BOOL "Enable address sanitizer")
-if (${USE_ADDRESS_SANITIZER})
+	message("Thread sanitizer enabled")
+	endif()
+	
+	# Address sanitizer
+	SET(USE_ADDRESS_SANITIZER FALSE CACHE BOOL "Enable address sanitizer")
+	if (${USE_ADDRESS_SANITIZER})
 	add_compile_options(-fPIE -pie -g)
 	add_compile_options(-fsanitize=address)
 	add_link_options(-fsanitize=address)
+	message("Address sanitizer enabled")
+	endif()
+	
+	# UB sanitizer
+	SET(USE_UB_SANITIZER FALSE CACHE BOOL "Enable UB sanitizer")
+	if (${USE_UB_SANITIZER})
+	add_compile_options(-fPIE -pie -g)
+	add_compile_options(-fsanitize=undefined)
+	add_link_options(-fsanitize=undefined)
+	message("Undefined behavior sanitizer enabled")
 endif()
 
 # Executable
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+
+# Link-time optimization
+include(CheckIPOSupported)
+check_ipo_supported(RESULT ipo_supported OUTPUT ipo_error)
+
+# if (ipo_supported)
+#     message(STATUS "IPO / LTO enabled")
+#     set_property(TARGET ${PROJECT_NAME} PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+# else()
+#     message(STATUS "IPO / LTO not supported: <${ipo_error}>")
+# endif()
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
@@ -41,6 +65,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE -ffast-math -Wall -Wconversion -W
 
 set(CMAKE_C_COMPILER clang)
 set(CMAKE_CXX_COMPILER clang++)
+message("Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
 
 # OpenMP
 if (APPLE)
@@ -90,9 +115,17 @@ if (Cuba_FOUND)
 	target_include_directories(${PROJECT_NAME} PRIVATE ${Cuba_INCLUDE_DIRS})
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${Cuba_LIBRARIES})
 endif()
+	
+# GoogleTest
+# find_package(GTest REQUIRED)
+# 	if (GTest_FOUND)
+# 	target_include_directories(${PROJECT_NAME} PRIVATE ${GTEST_INCLUDE_DIRS})
+# 	target_link_libraries(${PROJECT_NAME} PRIVATE GTest::gtest_main)
+# endif()
+# include(GoogleTest)
+# gtest_discover_tests(${PROJECT_NAME})
 
 # Unset cached values
 unset(USE_THREAD_SANITIZER CACHE)
 unset(USE_ADDRESS_SANITIZER CACHE)
-
-message("Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
+unset(USE_UB_SANITIZER CACHE)

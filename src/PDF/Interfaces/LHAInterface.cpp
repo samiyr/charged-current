@@ -35,8 +35,11 @@ class LHAInterface {
 	LHAInterface(std::string _set_name, int _set_member_number = 0) noexcept
 	: LHAInterface(_set_name, _set_member_number, false, {}) { }
 
+	LHAInterface(const LHAInterface &o) noexcept : LHAInterface(o.set_name, o.set_member_number, o.use_multipliers, o.multipliers) { }
+	LHAInterface(LHAInterface &&o) = default;
+
 	void activate() const {
-		if (activated) { return; }
+		if (activated) [[likely]] { return; }
 
 		pdf = std::unique_ptr<LHAPDF::PDF>(LHAPDF::mkPDF(set_name, set_member_number));
 
@@ -47,7 +50,6 @@ class LHAInterface {
 		activated = true;
 	}
 
-	LHAInterface(const LHAInterface &o) noexcept : LHAInterface(o.set_name, o.set_member_number, o.use_multipliers, o.multipliers) { }
 
 	static void disable_verbosity() {
 		LHAPDF::Info &cfg = LHAPDF::getConfig();

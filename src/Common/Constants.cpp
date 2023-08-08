@@ -4,6 +4,7 @@
 #include "Utility/Utility.cpp"
 #include "Common/Particle.cpp"
 #include <limits>
+#include "Utility/Math.cpp"
 
 namespace Constants {
 	constexpr double C_F = 4.0 / 3.0;
@@ -11,17 +12,17 @@ namespace Constants {
 	constexpr double fermi_coupling = 1.1663787e-5;
 	constexpr double lambda_QCD = 0.226;
 
-	constexpr static double V_ud = POW2(0.97435);
-	constexpr static double V_us = POW2(0.22500);
-	constexpr static double V_ub = POW2(0.00369);
+	constexpr static double V_ud = Math::pow2(0.97435);
+	constexpr static double V_us = Math::pow2(0.22500);
+	constexpr static double V_ub = Math::pow2(0.00369);
 
-	constexpr static double V_cd = POW2(0.22486);
-	constexpr static double V_cs = POW2(0.97349);
-	constexpr static double V_cb = POW2(0.04182);
+	constexpr static double V_cd = Math::pow2(0.22486);
+	constexpr static double V_cs = Math::pow2(0.97349);
+	constexpr static double V_cb = Math::pow2(0.04182);
 
-	constexpr static double V_td = POW2(0.00857);
-	constexpr static double V_ts = POW2(0.04110);
-	constexpr static double V_tb = POW2(0.999112);
+	constexpr static double V_td = Math::pow2(0.00857);
+	constexpr static double V_ts = Math::pow2(0.04110);
+	constexpr static double V_tb = Math::pow2(0.999112);
 
 	namespace Particles {
 		constexpr static Particle Proton = Particle(0.938272);

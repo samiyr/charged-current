@@ -2,7 +2,7 @@
 #define STRUCTURE_FUNCTION_H
 
 enum class StructureFunction {
-	F2, FL, xF3
+	F2, FL, F3
 };
 
 #endif

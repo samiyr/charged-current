@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include "Constants.cpp"
+#include <numbers>
 
 struct Coupling {
 	static double alpha_s(const double Q2, const std::size_t nf, const double lambda_QCD = Constants::lambda_QCD) {

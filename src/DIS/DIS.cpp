@@ -4,9 +4,9 @@
 #include "PDF/PDFConcept.cpp"
 #include <fstream>
 #include <string>
+#include <filesystem>
 #include "DIS/DISComputation.cpp"
 #include "Common/ScaleDependence.cpp"
-#include "Legacy/FilePath.cpp"
 
 template <
 	PDFConcept PDFInterface, 
@@ -111,8 +111,8 @@ struct DIS {
 	PerturbativeQuantity FL(const TRFKinematics kinematics) const {
 		return compute_structure_function(StructureFunction::FL, kinematics);
 	}
-	PerturbativeQuantity xF3(const TRFKinematics kinematics) const {
-		return compute_structure_function(StructureFunction::xF3, kinematics);
+	PerturbativeQuantity F3(const TRFKinematics kinematics) const {
+		return compute_structure_function(StructureFunction::F3, kinematics);
 	}
 
 	PerturbativeQuantity F2(const double x, const double Q2) const {
@@ -121,8 +121,8 @@ struct DIS {
 	PerturbativeQuantity FL(const double x, const double Q2) const {
 		return compute_structure_function(StructureFunction::FL, x, Q2);
 	}
-	PerturbativeQuantity xF3(const double x, const double Q2) const {
-		return compute_structure_function(StructureFunction::xF3, x, Q2);
+	PerturbativeQuantity F3(const double x, const double Q2) const {
+		return compute_structure_function(StructureFunction::F3, x, Q2);
 	}
 
 	PerturbativeQuantity differential_cross_section_xQ2(const TRFKinematics kinematics) const {
@@ -144,7 +144,7 @@ struct DIS {
 		const std::vector<double> x_bins, 
 		const std::vector<double> y_bins, 
 		const std::vector<double> E_beam_bins, 
-		const FilePath output, 
+		const std::filesystem::path output, 
 		const std::string comment = "") {
 
 		const std::size_t x_step_count = x_bins.size();
@@ -153,7 +153,8 @@ struct DIS {
 
 		int calculated_values = 0;
 
-		std::ofstream file(output.path());
+		IO::create_directory_tree(output);
+		std::ofstream file(output);
 
 		output_run_info(file, comment);
 
