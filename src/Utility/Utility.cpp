@@ -24,23 +24,25 @@ namespace IO {
 
 namespace Collections {
 	template <typename T>
-	constexpr std::vector<T> vector_intersection(std::vector<T> &v1, std::vector<T> &v2) {
-		std::vector<T> v3;
+	constexpr T intersection(T &v1, T &v2) {
+		T v3;
 
-		std::sort(v1.begin(), v1.end());
-		std::sort(v2.begin(), v2.end());
+		std::sort(std::begin(v1), std::end(v1));
+		std::sort(std::begin(v2), std::end(v2));
 
-		std::set_intersection(v1.begin(),v1.end(), v2.begin(),v2.end(), std::back_inserter(v3));
+		std::set_intersection(std::begin(v1), std::end(v1), std::begin(v2), std::end(v2), std::back_inserter(v3));
 
 		return v3;
 	}
 
-	template <typename T>
-	static void multiply(std::vector<T> &v1, const std::vector<T> &v2) {
-		for (typename std::vector<T>::size_type i = 0; i < v1.size(); i++) {
-			v1[i] *= v2[i];
-		}
+}
+
+template <typename T, typename U>
+constexpr T& operator*=(T &v1, U &&v2) {
+	for (const auto &[e1, e2] : std::views::zip(v1, std::forward<U>(v2))) {
+		e1 *= e2;
 	}
+	return v1;
 }
 
 template <typename Type, std::size_t Size>
@@ -69,10 +71,9 @@ constexpr std::vector<T> operator-(const std::vector<T> &lhs, const T &rhs) {
 }
 
 namespace Conversion {
-	constexpr int size_to_int(const std::size_t input) {
-		if (input > std::numeric_limits<int>::max()) {
-			throw std::runtime_error("Cannot cast std::size_t larger than std::numeric_limits<int>::max() to int");
-		}
+	/// Casts a std::size_t to an int with no bounds checking. Supplying a value larger than
+	/// std::numeric_limits<int>::max() results in implementation-defined behavior.
+	constexpr int size_to_int(const std::size_t input) noexcept {
 		return static_cast<int>(input);
 	}
 
@@ -85,47 +86,47 @@ namespace Comparison {
 	bool relative_comparison(double x, double y, double epsilon) {
  	   return std::abs(x - y) <= epsilon * std::max(std::abs(x), std::abs(y));
 	}
-	bool double_comparison(double a, double b, double tolerance = 1e-5) {
-		bool flag = abs(a - b) < tolerance;
-		// const bool flag = std::abs(a - b) <= std::max(std::abs(a), std::abs(b)) * tolerance;
+	// bool double_comparison(double a, double b, double tolerance = 1e-5) {
+	// 	bool flag = abs(a - b) < tolerance;
+	// 	// const bool flag = std::abs(a - b) <= std::max(std::abs(a), std::abs(b)) * tolerance;
 
-		std::cout << "Floating-point comparison between " << a << " and " << b << ": ";
-		if (flag) {
-			std::cout << "PASS" << IO::endl;
-		} else {
-			std::cout << "FAIL" << IO::endl;
-		}
-		return flag;
-	}
-	bool double_comparison_rel(double a, double b, double tolerance = 1e-5) {
-		const bool flag = std::abs(a - b) <= std::max(std::abs(a), std::abs(b)) * tolerance;
+	// 	std::cout << "Floating-point comparison between " << a << " and " << b << ": ";
+	// 	if (flag) {
+	// 		std::cout << "PASS" << IO::endl;
+	// 	} else {
+	// 		std::cout << "FAIL" << IO::endl;
+	// 	}
+	// 	return flag;
+	// }
+	// bool double_comparison_rel(double a, double b, double tolerance = 1e-5) {
+	// 	const bool flag = std::abs(a - b) <= std::max(std::abs(a), std::abs(b)) * tolerance;
 
-		std::cout << "Floating-point comparison between " << a << " and " << b << ": ";
-		if (flag) {
-			std::cout << "PASS" << IO::endl;
-		} else {
-			std::cout << "FAIL" << IO::endl;
-		}
-		return flag;
-	}
+	// 	std::cout << "Floating-point comparison between " << a << " and " << b << ": ";
+	// 	if (flag) {
+	// 		std::cout << "PASS" << IO::endl;
+	// 	} else {
+	// 		std::cout << "FAIL" << IO::endl;
+	// 	}
+	// 	return flag;
+	// }
 
-	double order_of_magnitude(const double x) {
-		return std::log10(std::abs(x));
-	}
+	// double order_of_magnitude(const double x) {
+	// 	return std::log10(std::abs(x));
+	// }
 
-	bool double_comparison_digits(double a, double b, int digits = 5) {
-		const double difference = order_of_magnitude(a - b);
-		const double original = order_of_magnitude(a);
-		bool flag = abs(difference - original) >= double(digits);
+	// bool double_comparison_digits(double a, double b, int digits = 5) {
+	// 	const double difference = order_of_magnitude(a - b);
+	// 	const double original = order_of_magnitude(a);
+	// 	bool flag = abs(difference - original) >= double(digits);
 
-		std::cout << "Floating-point comparison between " << a << " and " << b << ": ";
-		if (flag) {
-			std::cout << "PASS" << IO::endl;
-		} else {
-			std::cout << "FAIL" << IO::endl;
-		}
-		return flag;
-	}
+	// 	std::cout << "Floating-point comparison between " << a << " and " << b << ": ";
+	// 	if (flag) {
+	// 		std::cout << "PASS" << IO::endl;
+	// 	} else {
+	// 		std::cout << "FAIL" << IO::endl;
+	// 	}
+	// 	return flag;
+	// }
 }
 
 namespace Utility {

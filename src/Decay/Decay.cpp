@@ -5,7 +5,7 @@
 #include "Decay/DecayFunctions.cpp"
 #include "Common/Particle.cpp"
 
-template <DecayFunctions::Concept DecayFunction>
+template <DecayFunctions::Concept DecayFunction = decltype(DecayFunctions::trivial)>
 struct Decay {
 	const DecayParametrization parametrization;
 	const Particle resonance;
@@ -29,15 +29,14 @@ struct Decay {
 	lepton_momentum_min(_lepton_momentum_min), 
 	z_min_cutoff(_z_min_cutoff) {}
 
+	constexpr Decay() noexcept : Decay(DecayParametrization(), Particle(), Particle(), DecayFunctions::trivial, 0.0) { }
+
 	constexpr double operator()(const double x, const double z, const double Q2, const double z_min) const noexcept(noexcept(decay_function)) {
 		if (x != prev_x || z != prev_z || Q2 != prev_Q2 || z_min != prev_z_min) {
 			prev_x = x;
 			prev_z = z;
 			prev_Q2 = Q2;
 			prev_z_min = z_min;
-
-			// #pragma omp critical
-			// std::cout << x << ", " << z << ", " << Q2 << ", " << z_min << ", " << this << IO::endl;
 
 			prev_value = decay_function(x, z, Q2, z_min, parametrization, resonance, hadron);
 		}
@@ -52,6 +51,6 @@ struct Decay {
 	mutable double prev_value = 0.0;
 };
 
-constexpr static auto TrivialDecay = Decay(DecayParametrization(), Particle(), Particle(), DecayFunctions::trivial, 0.0);
+// constexpr static auto TrivialDecay = Decay(DecayParametrization(), Particle(), Particle(), DecayFunctions::trivial, 0.0);
 
 #endif

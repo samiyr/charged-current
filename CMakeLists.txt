@@ -58,10 +58,11 @@ check_ipo_supported(RESULT ipo_supported OUTPUT ipo_error)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # Flags
-target_compile_options(${PROJECT_NAME} PRIVATE -ffast-math -Wall -Wconversion -Wextra -Wpedantic $<$<CONFIG:Release>:-O3> -g)
-# target_compile_options(${PROJECT_NAME} PRIVATE -ffast-math -Wall -Wconversion -Wextra -Wpedantic $<$<CONFIG:Release>:-O3> $<$<CONFIG:Debug>:-g>)
-# target_compile_options(${PROJECT_NAME} PRIVATE -ffast-math -Weverything -Wno-c++98-compat -Wno-padded -Wno-unsafe-buffer-usage -Wno-ctad-maybe-unsupported -Wno-float-equal -Wno-c++98-compat-pedantic -Wno-missing-prototypes -Wpedantic $<$<CONFIG:Release>:-O3> -g)
-# target_compile_options(${PROJECT_NAME} PRIVATE -ffast-math -Weverything $<$<CONFIG:Release>:-O3> -g)
+target_compile_options(
+	${PROJECT_NAME} PRIVATE 
+	-Wall -Wconversion -Wextra -Wpedantic -g
+	$<$<CONFIG:Release>:-O3 -ffinite-math-only -fno-signed-zeros -fno-trapping-math -fno-math-errno>
+)
 
 set(CMAKE_C_COMPILER clang)
 set(CMAKE_CXX_COMPILER clang++)

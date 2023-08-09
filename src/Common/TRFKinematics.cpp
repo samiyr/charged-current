@@ -16,21 +16,29 @@ struct TRFKinematics {
 	double s;
 	double Q2;
 
-	constexpr static TRFKinematics y_E_beam(const double x, const double y, const double E_beam, const double target_mass, const double projectile_mass, const double mass_scale = Constants::Charm::Mass) {
+	constexpr static TRFKinematics y_E_beam(
+		const double x, const double y, const double E_beam, 
+		const double target_mass, const double projectile_mass, const double mass_scale = Constants::Charm::Mass) {
+
 		const double s = TRFKinematics::s_from_beam_energy(E_beam, target_mass, projectile_mass);
 		const double Q2 = TRFKinematics::Q2_from_y(x, y, E_beam, target_mass);
 		const double xi = TRFKinematics::xi_from_x(x, Q2, mass_scale);
 
 		return TRFKinematics {x, xi, y, E_beam, target_mass, projectile_mass, s, Q2};
 	}
-	constexpr static TRFKinematics Q2_s(const double x, const double Q2, const double s, const double target_mass, const double projectile_mass, const double mass_scale = Constants::Charm::Mass) {
+	constexpr static TRFKinematics Q2_s(
+		const double x, const double Q2, const double s, 
+		const double target_mass, const double projectile_mass, const double mass_scale = Constants::Charm::Mass) {
+
 		const double y = y_from_Q2(x, Q2, s, target_mass, projectile_mass);
 		const double E_beam = beam_energy_from_s(s, target_mass, projectile_mass);
 		const double xi = TRFKinematics::xi_from_x(x, Q2, mass_scale);
 
 		return TRFKinematics {x, xi, y, E_beam, target_mass, projectile_mass, s, Q2};
 	}
-	constexpr static TRFKinematics Q2_sqrt_s(const double x, const double Q2, const double sqrt_s, const double target_mass, const double projectile_mass, const double mass_scale = Constants::Charm::Mass) {
+	constexpr static TRFKinematics Q2_sqrt_s(
+		const double x, const double Q2, const double sqrt_s, 
+		const double target_mass, const double projectile_mass, const double mass_scale = Constants::Charm::Mass) {
 		return TRFKinematics::Q2_s(x, Q2, sqrt_s * sqrt_s, target_mass, projectile_mass, mass_scale);
 	}
 

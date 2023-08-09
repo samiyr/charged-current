@@ -157,12 +157,13 @@ namespace SIDISFunctions::F3 {
 			const double Q2) {
 
 			const double F2_value = F2::NLO::xi_xip_integrand(
-										xi, xip, x, z, 
-										factorization_scale_log, fragmentation_scale_log, 
-										xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, 
-										xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat, 
-										log1mx, log1mz, logxi, logxip, log1mxi, log1mxip,
-										m2, Q2);
+				xi, xip, x, z, 
+				factorization_scale_log, fragmentation_scale_log, 
+				xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, 
+				xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat, 
+				log1mx, log1mz, logxi, logxip, log1mxi, log1mxip,
+				m2, Q2
+			);
 			const double term1 = Constants::C_F * xq_hat_zq_hat * (6 * xi * xip + 2 * (1 - xi - xip));
 			const double term2 = Constants::C_F * xq_hat_zg_hat * (4 * xi * (1 - xip) + 2 * (1 - xi) * xip);
 			const double term3 = Constants::T_R * xg_hat_zq_hat * (12 * xi * (1 - xi) + 2 * (1 - 2 * xi * (1 - xi)) / xip - 2);

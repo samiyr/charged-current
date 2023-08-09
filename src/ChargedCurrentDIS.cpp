@@ -18,7 +18,7 @@ int enable_testing(int, char **);
 #endif
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
-	LHAInterface::disable_verbosity();
+	LHAInterface<>::disable_verbosity();
 
 	#if RUN_TESTS
 	enable_testing(argc, argv);
@@ -29,12 +29,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 	Analysis analysis;
 
-	// analysis.dis().charm_production(AnalysisSet::NuTeV_old, x_bins, "Data/DIS/CharmProduction/nutev_old.csv");
-	// analysis.dis().charm_production(AnalysisSet::NuTeV, x_bins, "Data/DIS/CharmProduction/nutev_new.csv");
-	// analysis.dis().charm_production(AnalysisSet::CCFR, x_bins, "Data/DIS/CharmProduction/ccfr.csv");
+	analysis.dis().charm_production(AnalysisSet::NuTeV_old, x_bins, "Data/DIS/CharmProduction/nutev_old.csv");
+	analysis.dis().charm_production(AnalysisSet::NuTeV, x_bins, "Data/DIS/CharmProduction/nutev_new.csv");
+	analysis.dis().charm_production(AnalysisSet::CCFR, x_bins, "Data/DIS/CharmProduction/ccfr.csv");
 
 	analysis.sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/nutev_old.csv");
-	return 0;
 	analysis.sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/nutev_new.csv");
 	analysis.sidis().muon_pair_production(AnalysisSet::CCFR, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/ccfr.csv");
 

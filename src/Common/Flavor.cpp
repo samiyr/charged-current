@@ -34,7 +34,7 @@ namespace Flavor {
 	constexpr FlavorType conjugate_flavor(const FlavorType flavor) noexcept {
 		return -flavor;
 	}
-	constexpr FlavorVector conjugate_flavors(const FlavorVector &flavors) {
+	constexpr FlavorVector conjugate_flavors(const FlavorVector &flavors) noexcept {
 		FlavorVector conjugated(flavors.size());
 		std::transform(flavors.begin(), flavors.end(), conjugated.begin(), conjugate_flavor);
 		// for (auto const &flavor : flavors) {
@@ -44,10 +44,10 @@ namespace Flavor {
 	}
 
 	constexpr FlavorVector upper_flavors(FlavorVector &flavors) {
-		return Collections::vector_intersection<FlavorType>(Flavor::all_upper_flavors, flavors);
+		return Collections::intersection(Flavor::all_upper_flavors, flavors);
 	}
 	constexpr FlavorVector lower_flavors(FlavorVector &flavors) {
-		return Collections::vector_intersection<FlavorType>(Flavor::all_lower_flavors, flavors);
+		return Collections::intersection(Flavor::all_lower_flavors, flavors);
 	}
 	constexpr bool is_upper_flavor(const FlavorType flavor) noexcept {
 		return flavor != 0 && flavor % 2 == 0;

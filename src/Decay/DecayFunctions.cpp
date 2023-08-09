@@ -3,12 +3,14 @@
 
 #include "Utility/Math.cpp"
 #include "Decay/Decay.cpp"
-#include <any>
 #include <concepts>
+#include <numbers>
 
 namespace DecayFunctions {
 	template <typename T>
-	concept Concept = requires(T decay_function, const double x, const double z, const double Q2, const double z_min, const DecayParametrization &parametrization, const Particle &resonance, const Particle &hadron) {
+	concept Concept = requires(
+		T decay_function, const double x, const double z, const double Q2, const double z_min, 
+		const DecayParametrization &parametrization, const Particle &resonance, const Particle &hadron) {
 		{ decay_function(x, z, Q2, z_min, parametrization, resonance, hadron) } -> std::same_as<double>;
 	};
 

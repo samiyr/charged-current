@@ -56,9 +56,9 @@ struct SIDISAnalysis {
 			FragmentationConfiguration(
 				{
 					LHAInterface("kkks08_opal_d0___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
-					LHAInterface("kkks08_opal_d+___mas"), 
-					LHAInterface("bkk05_D3_d_s_nlo"), 
-					LHAInterface("bkk05_D3_lambda_c_nlo")
+					LHAInterface("kkks08_opal_d+___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
+					LHAInterface("bkk05_D3_d_s_nlo", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
+					1.14 * LHAInterface("bkk05_D3_lambda_c_nlo", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0})
 				},
 				{
 					Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),
@@ -115,18 +115,18 @@ struct SIDISAnalysis {
 		const std::vector<double> incoming_multipliers(incoming.begin(), incoming.end());
 		const std::vector<double> outgoing_multipliers(outgoing.begin(), outgoing.end());
 
-		std::vector<double> d0_multipliers(outgoing.begin(), outgoing.end());
-		Collections::multiply(d0_multipliers, {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0});
+		std::vector<double> multipliers(outgoing.begin(), outgoing.end());
+		multipliers *= std::vector{1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0};
 
 		muon_pair_production(
 			x_bins, y_bins, E_beam_bins, filename,
 			LHAInterface(params.pdf_set, incoming_multipliers),
 			FragmentationConfiguration(
 				{
-					LHAInterface("kkks08_opal_d0___mas", d0_multipliers), 
-					LHAInterface("kkks08_opal_d+___mas", outgoing_multipliers), 
-					LHAInterface("bkk05_D3_d_s_nlo", outgoing_multipliers), 
-					LHAInterface("bkk05_D3_lambda_c_nlo", outgoing_multipliers)
+					LHAInterface("kkks08_opal_d0___mas", multipliers), 
+					LHAInterface("kkks08_opal_d+___mas", multipliers), 
+					LHAInterface("bkk05_D3_d_s_nlo", multipliers), 
+					1.14 * LHAInterface("bkk05_D3_lambda_c_nlo", multipliers)
 				},
 				{
 					Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),

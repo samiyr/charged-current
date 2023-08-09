@@ -12,10 +12,10 @@ struct FragmentationConfiguration {
 	const std::vector<Decay<DecayFunction>> decays;
 
 	FragmentationConfiguration(const std::vector<Interface> _interfaces) noexcept 
-	: interfaces(_interfaces), decays(interfaces.size(), TrivialDecay) {}
+	: interfaces(_interfaces), decays(interfaces.size(), Decay()) {}
 
 	FragmentationConfiguration(const std::initializer_list<Interface> _interfaces) noexcept 
-	: interfaces(_interfaces), decays(interfaces.size(), TrivialDecay) {}
+	: interfaces(_interfaces), decays(interfaces.size(), Decay()) {}
 
 	FragmentationConfiguration(const std::vector<Interface> _interfaces, const std::vector<Decay<DecayFunction>> _decays) noexcept
 	: interfaces(_interfaces), decays(_decays) {}
@@ -23,39 +23,12 @@ struct FragmentationConfiguration {
 	FragmentationConfiguration(const std::initializer_list<Interface> _interfaces, const std::initializer_list<Decay<DecayFunction>> _decays) noexcept
 	: interfaces(_interfaces), decays(_decays) {}
 
-	void evaluate(const double x, const double Q2) const {
-		for (auto &interface : interfaces) {
-			interface.evaluate(x, Q2);
-		}
-	}
-
 	void activate() const {
 		if constexpr (PDFConceptActivation<Interface>) {
-			for (auto &interface : interfaces) {
+			for (const auto &interface : interfaces) {
 				interface.activate();
 			}
 		}
-	}
-
-	typename std::vector<Interface>::iterator begin() {
-		return interfaces.begin();
-    }
-    typename std::vector<Interface>::iterator end() {
-    	return interfaces.end();
-    }
-    typename std::vector<Interface>::const_iterator cbegin() const {
-    	return interfaces.cbegin();
-    }
-    typename std::vector<Interface>::const_iterator cend() const {
-    	return interfaces.cend();
-    }
-
-	typename std::vector<Interface>::size_type size() const {
-		return interfaces.size();
-	}
-
-	const Interface &operator[](const typename std::vector<Interface>::size_type index) const {
-		return interfaces[index];
 	}
 };
 

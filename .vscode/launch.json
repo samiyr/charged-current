@@ -39,7 +39,7 @@
 			"args": [],
 			"cwd": "${workspaceFolder}",
 			"preLaunchTask": "cmakeChargedCurrentDISASAN"
-		}
+		},
 		{
 			"type": "lldb",
 			"request": "launch",

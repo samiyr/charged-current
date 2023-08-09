@@ -95,15 +95,14 @@ namespace SIDISFunctions {
 		const double xq_hat_zg_hat = xq_hat * zg_hat + sign * anti_xq_hat * zg_hat;
 		const double xg_hat_zq_hat = xg_hat * zq_hat + sign * xg_hat * anti_zq_hat;
 
-		const double value = integrand(
-								xi, xip, x, z, 
-								params.factorization_scale_log, params.fragmentation_scale_log, 
-								xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, 
-								xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat, 
-								log1mx, log1mz, logxi, logxip, log1mxi, log1mxip,
-								m2, Q2);
-
-		return value;
+		return integrand(
+			xi, xip, x, z, 
+			params.factorization_scale_log, params.fragmentation_scale_log, 
+			xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, 
+			xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat, 
+			log1mx, log1mz, logxi, logxip, log1mxi, log1mxip,
+			m2, Q2
+		);
 	}
 	template <PDFConcept PDFInterface, PDFConcept FFInterface, DecayFunctions::Concept DecayFunction, typename Signature>
 	constexpr static double construct(
@@ -187,11 +186,12 @@ namespace SIDISFunctions {
 
 				const double V_ckm = CKM::squared(incoming, outgoing);
 				const double total_value = construct(
-											x_mass, z, xi, xip, 
-											params, signature, sign, ff1, ff2, 
-											incoming, outgoing, anti_incoming, anti_outgoing, 
-											log1mx, log1mz, logxi, logxip, log1mxi, log1mxip,
-											std::pow(mass, 2), Q2);
+					x_mass, z, xi, xip, 
+					params, signature, sign, ff1, ff2, 
+					incoming, outgoing, anti_incoming, anti_outgoing, 
+					log1mx, log1mz, logxi, logxip, log1mxi, log1mxip,
+					std::pow(mass, 2), Q2
+				);
 				const double summand = V_ckm * total_value;
 
 				sum += summand;
