@@ -10,10 +10,21 @@
 #include "PDF/Interfaces/LHAInterface.cpp"
 #include "SIDIS/SIDIS.cpp"
 
+template <
+	ScaleDependence::Concept RenormalizationScale,
+	ScaleDependence::Concept FactorizationScale,
+	ScaleDependence::Concept FragmentationScale
+>
 struct SIDISAnalysis {
 	const AnalysisParameters params;
+	const RenormalizationScale renormalization;
+	const FactorizationScale factorization;
+	const FragmentationScale fragmentation;
 
-	SIDISAnalysis(const AnalysisParameters params) : params(params) { }
+	SIDISAnalysis(
+		const AnalysisParameters params, 
+		const RenormalizationScale renormalization, const FactorizationScale factorization, const FragmentationScale fragmentation
+	) : params(params), renormalization(renormalization), factorization(factorization), fragmentation(fragmentation) { }
 
 	template <PDFConcept PDFInterface, PDFConcept FFInterface, DecayFunctions::Concept DecayFunction>
 	void muon_pair_production(
@@ -27,7 +38,8 @@ struct SIDISAnalysis {
 		SIDIS sidis(
 			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
 			pdf, ff,
-			params.process				
+			params.process,
+			renormalization, factorization, fragmentation
 		);
 
 		sidis.charm_mass = params.charm_mass;
@@ -342,7 +354,8 @@ struct SIDISAnalysis {
 					Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),
 				}
 			),
-			params.process
+			params.process,
+			renormalization, factorization, fragmentation
 		);
 
 		sidis.charm_mass = params.charm_mass;

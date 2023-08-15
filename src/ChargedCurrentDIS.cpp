@@ -28,6 +28,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	const std::vector<double> x_bins = {0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05, 0.055, 0.06, 0.065, 0.07, 0.075, 0.08, 0.09, 0.1, 0.15, 0.2, 0.25, 0.3};
 
 	Analysis analysis;
+	analysis.params.charm_mass = 1.3;
 
 	analysis.dis().charm_production(AnalysisSet::NuTeV_old, x_bins, "Data/DIS/CharmProduction/nutev_old.csv");
 	analysis.dis().charm_production(AnalysisSet::NuTeV, x_bins, "Data/DIS/CharmProduction/nutev_new.csv");
@@ -61,6 +62,18 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		"Data/SIDIS/MuonPairProduction/CharmedHadrons/FragmentationDecomposition/nutev_new"
 	);
 
+	Analysis analysis2;
+	analysis2.params.pdf_set = "CT14nnlo_NF3";
+
+	analysis2.dis().charm_production_mass_scaling_comparison(
+		1.3, 1.5, AnalysisSet::NuTeV_old, x_bins, "Data/DIS/CharmProduction/MassScaling/", "nutev_old_13.csv", "nutev_old_15.csv"
+	);
+	analysis2.dis().charm_production_mass_scaling_comparison(
+		1.3, 1.5, AnalysisSet::NuTeV, x_bins, "Data/DIS/CharmProduction/MassScaling/", "nutev_new_13.csv", "nutev_new_15.csv"
+	);
+	analysis2.dis().charm_production_mass_scaling_comparison(
+		1.3, 1.5, AnalysisSet::CCFR, x_bins, "Data/DIS/CharmProduction/MassScaling/", "ccfr_13.csv", "ccfr_15.csv"
+	);
 
 	return 0;
 }
