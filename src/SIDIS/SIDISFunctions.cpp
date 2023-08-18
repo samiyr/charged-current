@@ -18,7 +18,7 @@
 #include "SIDIS/Coefficients/F3.cpp"
 
 namespace SIDISFunctions {
-	template <PDFConcept PDFInterface, PDFConcept FFInterface, DecayFunctions::Concept DecayFunction>
+	template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction>
 	struct Parameters {
 		const PDFInterface &pdf1;
 		const FragmentationConfiguration<FFInterface, DecayFunction> &ff1;
@@ -40,10 +40,49 @@ namespace SIDISFunctions {
 		const double factorization_scale_log;
 		const double fragmentation_scale_log;
 	};
+
+	struct EvaluationParameters {
+		const double xi;
+		const double xip; 
+		const double x;
+		const double z;
+
+		const double factorization_scale_log;
+		const double fragmentation_scale_log;
+
+		const double xq;
+		const double xq_hat;
+		const double xg_hat;
+
+		const double zq;
+		const double zq_hat;
+		const double zg_hat;
+		
+		const double sign;
+
+		const double xq_zq;
+		const double xq_hat_zq; 
+		const double xq_zq_hat;
+		const double xq_hat_zq_hat;
+		const double xq_zg_hat;
+		const double xg_hat_zq;
+		const double xq_hat_zg_hat;
+		const double xg_hat_zq_hat;
+
+		const double log1mx;
+		const double log1mz;
+		const double logxi;
+		const double logxip;
+		const double log1mxi;
+		const double log1mxip;
+
+		const double m2;
+		const double Q2;
+	};
 }
 
 namespace SIDISFunctions {
-	template <PDFConcept PDFInterface, PDFConcept FFInterface, DecayFunctions::Concept DecayFunction, typename Signature>
+	template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction, typename Signature>
 	constexpr static double construct(
 		const double x, 
 		const double z, 
@@ -104,7 +143,7 @@ namespace SIDISFunctions {
 			m2, Q2
 		);
 	}
-	template <PDFConcept PDFInterface, PDFConcept FFInterface, DecayFunctions::Concept DecayFunction, typename Signature>
+	template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction, typename Signature>
 	constexpr static double construct(
 		const double input[], 
 		const Parameters<PDFInterface, FFInterface, DecayFunction> &params, 
@@ -203,7 +242,7 @@ namespace SIDISFunctions {
 		return sum;
 	}
 
-	template <PDFConcept PDFInterface, PDFConcept FFInterface, DecayFunctions::Concept DecayFunction = decltype(DecayFunctions::trivial), typename Signature>
+	template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction = decltype(DecayFunctions::trivial), typename Signature>
 	constexpr static double construct(
 		const double input[], void *params_in, const Signature integrand, 
 		const bool xi_int, const bool xip_int, const bool z_int, const int sign) {
@@ -237,7 +276,7 @@ namespace SIDISFunctions {
 		return sum;
 	}
 
-	template <PDFConcept PDFInterface, PDFConcept FFInterface, DecayFunctions::Concept DecayFunction, typename Signature>
+	template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction, typename Signature>
 	constexpr static double cross_section(
 		const double input[], void *params_in, 
 		const Signature F2, const Signature FL, const Signature F3, 

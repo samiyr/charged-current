@@ -51,7 +51,7 @@ struct IntegrationParameters {
 		int minimum_evaluations = 0;
 		int maximum_evaluations = 1'000'000;
 
-		double maximum_relative_error = 1e-2;
+		double maximum_relative_error = 1e-3;
 		double maximum_absolute_error = 1e-12;
 
 		bool use_all_samples = true;

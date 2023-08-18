@@ -11,9 +11,9 @@
 #include "SIDIS/SIDIS.cpp"
 
 template <
-	ScaleDependence::Concept RenormalizationScale,
-	ScaleDependence::Concept FactorizationScale,
-	ScaleDependence::Concept FragmentationScale
+	is_scale_dependence RenormalizationScale,
+	is_scale_dependence FactorizationScale,
+	is_scale_dependence FragmentationScale
 >
 struct SIDISAnalysis {
 	const AnalysisParameters params;
@@ -26,7 +26,7 @@ struct SIDISAnalysis {
 		const RenormalizationScale renormalization, const FactorizationScale factorization, const FragmentationScale fragmentation
 	) : params(params), renormalization(renormalization), factorization(factorization), fragmentation(fragmentation) { }
 
-	template <PDFConcept PDFInterface, PDFConcept FFInterface, DecayFunctions::Concept DecayFunction>
+	template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction>
 	void muon_pair_production(
 		const std::vector<double> x_bins, 
 		const std::vector<double> y_bins, 
@@ -278,7 +278,7 @@ struct SIDISAnalysis {
 		FRAGMENTATION DECOMPOSITION
 	*/
 
-	template <PDFConcept FFInterface, DecayFunctions::Concept DecayFunction>
+	template <is_pdf_interface FFInterface, is_decay_function DecayFunction>
 	void muon_pair_production_fragmentation_channel(
 		const std::vector<double> x_bins, 
 		const std::vector<double> y_bins, 
@@ -348,7 +348,7 @@ struct SIDISAnalysis {
 			LHAInterface(params.pdf_set),
 			FragmentationConfiguration(
 				{
-					LHAInterface("kkks08_opal_d0___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
+					2.3065 * LHAInterface("kkks08_opal_d0___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
 				},
 				{
 					Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),

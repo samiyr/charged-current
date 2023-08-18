@@ -13,12 +13,12 @@
 #include "PDF/PDFConcept.cpp"
 
 template <
-	PDFConcept PDFInterface, 
-	PDFConcept FFInterface, 
-	DecayFunctions::Concept DecayFunction, 
-	ScaleDependence::Concept RenormalizationScale,
-	ScaleDependence::Concept FactorizationScale, 
-	ScaleDependence::Concept FragmentationScale
+	is_pdf_interface PDFInterface, 
+	is_pdf_interface FFInterface, 
+	is_decay_function DecayFunction, 
+	is_scale_dependence RenormalizationScale,
+	is_scale_dependence FactorizationScale, 
+	is_scale_dependence FragmentationScale
 >
 class SIDISComputation/* : Utility::Traced<SIDISComputation<PDFInterface, FFInterface, DecayFunction, FactorizationScaleFunction, FragmentationScaleFunction>> */ {
 	public:

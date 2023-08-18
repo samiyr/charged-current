@@ -37,7 +37,6 @@ class LHAInterface {
 	total_hits(0),
 	cache_hits(0) { }
 
-
 	public:
 	LHAInterface(std::string _set_name, const std::vector<double> _multipliers, int _set_member_number = 0) noexcept
 	: LHAInterface(_set_name, _set_member_number, _multipliers.size() == TOTAL_FLAVORS, _multipliers) { }
@@ -70,7 +69,6 @@ class LHAInterface {
 
 		activated = true;
 	}
-
 
 	static void disable_verbosity() {
 		LHAPDF::Info &config = LHAPDF::getConfig();

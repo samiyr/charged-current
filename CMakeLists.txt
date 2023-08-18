@@ -61,7 +61,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/s
 target_compile_options(
 	${PROJECT_NAME} PRIVATE 
 	-Wall -Wconversion -Wextra -Wpedantic -g
-	$<$<CONFIG:Release>:-O3 -ffinite-math-only -fno-signed-zeros -fno-trapping-math -fno-math-errno>
+	$<$<CONFIG:Release>:-O3 -DNDEBUG -ffinite-math-only -fno-signed-zeros -fno-trapping-math -fno-math-errno>
 )
 
 set(CMAKE_C_COMPILER clang)

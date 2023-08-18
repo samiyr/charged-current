@@ -13,9 +13,9 @@
 #include "Common/Constants.cpp"
 
 template <
-	ScaleDependence::Concept RenormalizationScale = decltype(ScaleDependence::trivial),
-	ScaleDependence::Concept FactorizationScale = decltype(ScaleDependence::trivial),
-	ScaleDependence::Concept FragmentationScale = decltype(ScaleDependence::trivial)
+	is_scale_dependence RenormalizationScale = decltype(ScaleDependence::trivial),
+	is_scale_dependence FactorizationScale = decltype(ScaleDependence::trivial),
+	is_scale_dependence FragmentationScale = decltype(ScaleDependence::trivial)
 >
 struct Analysis {
 	AnalysisParameters params;

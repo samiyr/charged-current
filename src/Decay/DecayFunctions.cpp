@@ -6,14 +6,14 @@
 #include <concepts>
 #include <numbers>
 
-namespace DecayFunctions {
-	template <typename T>
-	concept Concept = requires(
-		T decay_function, const double x, const double z, const double Q2, const double z_min, 
-		const DecayParametrization &parametrization, const Particle &resonance, const Particle &hadron) {
-		{ decay_function(x, z, Q2, z_min, parametrization, resonance, hadron) } -> std::same_as<double>;
-	};
+template <typename T>
+concept is_decay_function = requires(
+	T decay_function, const double x, const double z, const double Q2, const double z_min, 
+	const DecayParametrization &parametrization, const Particle &resonance, const Particle &hadron) {
+	{ decay_function(x, z, Q2, z_min, parametrization, resonance, hadron) } -> std::same_as<double>;
+};
 
+namespace DecayFunctions {
 	static auto trivial = [](
 		[[maybe_unused]] const double x, 
 		[[maybe_unused]] const double z, 

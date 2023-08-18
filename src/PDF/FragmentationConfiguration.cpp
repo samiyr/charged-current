@@ -6,7 +6,7 @@
 #include "Decay/DecayFunctions.cpp"
 #include "PDFConcept.cpp"
 
-template <PDFConcept Interface, DecayFunctions::Concept DecayFunction>
+template <is_pdf_interface Interface, is_decay_function DecayFunction>
 struct FragmentationConfiguration {
 	const std::vector<Interface> interfaces;
 	const std::vector<Decay<DecayFunction>> decays;
@@ -24,7 +24,7 @@ struct FragmentationConfiguration {
 	: interfaces(_interfaces), decays(_decays) {}
 
 	void activate() const {
-		if constexpr (PDFConceptActivation<Interface>) {
+		if constexpr (has_pdf_activation<Interface>) {
 			for (const auto &interface : interfaces) {
 				interface.activate();
 			}

@@ -3,6 +3,7 @@
 
 #include "SIDIS/Coefficients/Scale.cpp"
 #include "SIDIS/Coefficients/Helper.cpp"
+#include "SIDIS/Coefficients/NearThreshold.cpp"
 
 namespace SIDISFunctions::F2 {
 	namespace LO {
@@ -248,6 +249,73 @@ namespace SIDISFunctions::F2 {
 			);
 		}
 	}
+
+	// namespace NNLO_NLP {
+	// 	static constexpr double LP_CF(
+	// 		const double xi,
+	// 		const double xip, 
+	// 		const double x, 
+	// 		const double z, 
+	// 		const double factorization_scale_log,
+	// 		const double fragmentation_scale_log,
+	// 		const double xq_zq,
+	// 		const double xq_hat_zq, 
+	// 		const double xq_zq_hat,
+	// 		const double xq_hat_zq_hat, 
+	// 		const double xq_zg_hat,
+	// 		const double xg_hat_zq,
+	// 		const double xq_hat_zg_hat,
+	// 		const double xg_hat_zq_hat,
+	// 		const double log1mx,
+	// 		const double log1mz,
+	// 		const double logxi,
+	// 		const double logxip,
+	// 		const double log1mxi,
+	// 		const double log1mxip,
+	// 		const double m2,
+	// 		const double Q2) {
+			
+	// 		const double dx = d(x, xq);
+	// 		const double dz = d(z, )
+
+	// 		const double term1 = d(x, xq) * D<3>(z, xip, )
+	// 	}
+		
+	// 	static constexpr double total_integrand(
+	// 		const double xi,
+	// 		const double xip, 
+	// 		const double x, 
+	// 		const double z, 
+	// 		const double factorization_scale_log,
+	// 		const double fragmentation_scale_log,
+	// 		const double xq_zq,
+	// 		const double xq_hat_zq, 
+	// 		const double xq_zq_hat,
+	// 		const double xq_hat_zq_hat, 
+	// 		const double xq_zg_hat,
+	// 		const double xg_hat_zq,
+	// 		const double xq_hat_zg_hat,
+	// 		const double xg_hat_zq_hat,
+	// 		const double log1mx,
+	// 		const double log1mz,
+	// 		const double logxi,
+	// 		const double logxip,
+	// 		const double log1mxi,
+	// 		const double log1mxip,
+	// 		const double m2,
+	// 		const double Q2) {
+			
+	// 		return Helper::make_nlo_integrand(
+	// 			F2::NLO::delta_integrand, F2::NLO::xi_integrand, F2::NLO::xip_integrand, F2::NLO::xi_xip_integrand, 
+	// 			xi, xip, x, z, 
+	// 			factorization_scale_log, fragmentation_scale_log, 
+	// 			xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, 
+	// 			xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat, 
+	// 			log1mx, log1mz, logxi, logxip, log1mxi, log1mxip,
+	// 			m2, Q2
+	// 		);
+	// 	}
+	// }
 }
 
 #endif

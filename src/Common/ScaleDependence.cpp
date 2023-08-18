@@ -5,13 +5,13 @@
 #include <optional>
 #include <concepts>
 
-namespace ScaleDependence {
-	template <typename T>
-	concept Concept = requires(T scale_function, const TRFKinematics &kinematics) {
-		{ scale_function(kinematics) } -> std::same_as<double>;
-	};
+template <typename T>
+concept is_scale_dependence = requires(T scale_function, const TRFKinematics &kinematics) {
+	{ scale_function(kinematics) } -> std::same_as<double>;
+};
 
-	template <Concept FunctionType>
+namespace ScaleDependence {
+	template <is_scale_dependence FunctionType>
 	struct Function {
 		using type = FunctionType;
 

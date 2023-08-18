@@ -15,7 +15,7 @@
 #include "DIS/Coefficients/F3.cpp"
 
 namespace DISFunctions {
-	template <PDFConcept PDFInterface>
+	template <is_pdf_interface PDFInterface>
 	struct Parameters {
 		const PDFInterface &pdf1;
 		const PDFInterface &pdf2;
@@ -31,7 +31,7 @@ namespace DISFunctions {
 		const double factorization_scale_log;
 	};
 
-	template <PDFConcept PDFInterface, typename Signature>
+	template <is_pdf_interface PDFInterface, typename Signature>
 	constexpr static double construct(
 		const double x, const double xi, 
 		const Parameters<PDFInterface> &params, const Signature integrand, const int sign, 
@@ -60,7 +60,7 @@ namespace DISFunctions {
 			m2, Q2
 		);
 	}
-	template <PDFConcept PDFInterface, typename Signature>
+	template <is_pdf_interface PDFInterface, typename Signature>
 	constexpr static double construct(
 		const double input[], const Parameters<PDFInterface> &params, const Signature signature, 
 		const bool xi_int, const int sign) {
@@ -117,7 +117,7 @@ namespace DISFunctions {
 		return sum;
 	}
 
-	template <PDFConcept PDFInterface, typename Signature>
+	template <is_pdf_interface PDFInterface, typename Signature>
 	constexpr static double construct(const double input[], void *params_in, const Signature integrand, const bool xi_int, const int sign) {
 		const Parameters<PDFInterface> &params = *static_cast<Parameters<PDFInterface> *>(params_in);
 		const TRFKinematics &kinematics = params.kinematics;
@@ -134,7 +134,7 @@ namespace DISFunctions {
 		return value;
 	}
 
-	template <PDFConcept PDFInterface, typename Signature>
+	template <is_pdf_interface PDFInterface, typename Signature>
 	constexpr static double cross_section(
 		const double input[], void *params_in,
 		const Signature F2, const Signature FL, const Signature F3, 

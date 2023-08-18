@@ -12,8 +12,8 @@
 #include "DIS/DIS.cpp"
 
 template <
-	ScaleDependence::Concept RenormalizationScale,
-	ScaleDependence::Concept FactorizationScale
+	is_scale_dependence RenormalizationScale,
+	is_scale_dependence FactorizationScale
 >
 struct DISAnalysis {
 	AnalysisParameters params;
@@ -23,7 +23,7 @@ struct DISAnalysis {
 	DISAnalysis(const AnalysisParameters params, const RenormalizationScale renormalization, const FactorizationScale factorization) 
 	: params(params), renormalization(renormalization), factorization(factorization) { }
 
-	template <ScaleDependence::Concept Renormalization, ScaleDependence::Concept Factorization>
+	template <is_scale_dependence Renormalization, is_scale_dependence Factorization>
 	void charm_production(
 		const std::vector<double> x_bins, 
 		const std::vector<double> y_bins, 
@@ -58,7 +58,7 @@ struct DISAnalysis {
 		charm_production(x_bins, y_bins, E_beam_bins, filename, comment, renormalization, factorization);
 	}
 
-	template <ScaleDependence::Concept Renormalization = RenormalizationScale, ScaleDependence::Concept Factorization = FactorizationScale>
+	template <is_scale_dependence Renormalization = RenormalizationScale, is_scale_dependence Factorization = FactorizationScale>
 	void charm_production(
 		const AnalysisSet set, const std::vector<double> x_bins, const std::filesystem::path filename, const std::string comment,
 		const Renormalization renormalization_scale,

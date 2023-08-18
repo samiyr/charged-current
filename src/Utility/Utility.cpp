@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <ranges>
 #include <filesystem>
+#include <sstream>
+#include <iomanip>
 
 namespace IO {
 	inline std::ostream& endl(std::ostream& os) {
@@ -19,6 +21,13 @@ namespace IO {
 	bool create_directory_tree(const std::filesystem::path &path) {
 		const auto directory = path.parent_path();
 		return std::filesystem::create_directories(directory);
+	}
+
+	template <typename Integer> requires std::is_integral_v<Integer>
+	std::string leading_zeroes(const Integer i, const int width) {
+		std::stringstream ss;
+		ss << std::setw(width) << std::setfill('0') << i;
+		return ss.str();
 	}
 }
 
@@ -44,6 +53,13 @@ constexpr T& operator*=(T &v1, U &&v2) {
 	}
 	return v1;
 }
+
+template<class Specialization, template<typename> class TemplateClass,
+         typename ...PartialSpecialisation>
+concept is_instance = requires (Specialization s) {
+    []<typename ...TemplateArgs>(
+        TemplateClass<PartialSpecialisation..., TemplateArgs...>&){}(s);
+};
 
 template <typename Type, std::size_t Size>
 constexpr std::array<Type, Size> operator*(const std::array<Type, Size> &lhs, const std::array<Type, Size> &rhs) {

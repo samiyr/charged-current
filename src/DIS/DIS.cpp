@@ -9,9 +9,9 @@
 #include "Common/ScaleDependence.cpp"
 
 template <
-	PDFConcept PDFInterface, 
-	ScaleDependence::Concept RenormalizationScale = decltype(ScaleDependence::trivial)::type,
-	ScaleDependence::Concept FactorizationScale = decltype(ScaleDependence::trivial)::type
+	is_pdf_interface PDFInterface, 
+	is_scale_dependence RenormalizationScale = decltype(ScaleDependence::trivial)::type,
+	is_scale_dependence FactorizationScale = decltype(ScaleDependence::trivial)::type
 >
 struct DIS {
 	const FlavorVector active_flavors;

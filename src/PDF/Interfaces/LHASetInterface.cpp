@@ -1,0 +1,75 @@
+#ifndef LHASET_INTERFACE_H
+#define LHASET_INTERFACE_H
+
+#include <string>
+
+#include "PDF/Interfaces/LHAInterface.cpp"
+#include "PDF/PDFConcept.cpp"
+#include "LHAPDF/LHAPDF.h"
+
+template <std::derived_from<LHAPDF::Extrapolator> Extrapolator = ZeroExtrapolator>
+class LHASetInterface {
+	public:
+	using size_type = unsigned int;
+
+	const std::string set_name;
+
+	LHASetInterface(
+		const std::string set_name,		
+		const bool _use_multipliers, 
+		const std::vector<double> _multipliers,
+		const bool _use_global_multiplier = false,
+		const double _global_multiplier = 1.0) noexcept 
+		: set_name(set_name), 
+		use_multipliers(_use_multipliers), 
+		multipliers(_multipliers), 
+		use_global_multiplier(_use_global_multiplier), 
+		global_multiplier(_global_multiplier) {
+			
+		std::unique_ptr<LHAPDF::PDFInfo> info(LHAPDF::mkPDFInfo(set_name, 0));
+		member_count = info->get_entry_as<size_type>("NumMembers");
+	}
+
+	LHAInterface<Extrapolator> operator[](const int member) const {
+		return LHAInterface<Extrapolator>(set_name, member, use_multipliers, multipliers, use_global_multiplier, global_multiplier);
+	}
+
+	LHAInterface<Extrapolator> central() const {
+		return this->operator[](0);
+	}
+
+	class iterator {
+		public:
+		iterator(const int member, const LHASetInterface<Extrapolator> *set) : member(member), set(set) {}
+		iterator operator++() { member++; return *this; }
+		bool operator!=(const iterator &other) { return member != other.member; }
+		const LHAInterface<Extrapolator> operator*() const { return set->operator[](member); }
+
+		private:
+		int member;
+		const LHASetInterface<Extrapolator> *set;
+	};
+
+	size_type size() const {
+		return member_count;
+	}
+
+	iterator begin() const {
+		return iterator(0, this);
+	}
+
+	iterator end() const {
+		return iterator(member_count - 1, this);
+	}
+
+	private:
+	size_type member_count;
+
+	const bool use_multipliers;
+	const std::vector<double> multipliers;
+
+	bool use_global_multiplier = false;
+	double global_multiplier = 1.0;
+};
+
+#endif

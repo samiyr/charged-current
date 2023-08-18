@@ -11,9 +11,9 @@ struct Process {
 		AntiLeptonToAntiNeutrino
 	};
 
-	const Type type;
-	const Particle target;
-	const Particle projectile;
+	Type type;
+	Particle target;
+	Particle projectile;
 
 	constexpr Process(Type type, Particle target, Particle projectile) noexcept : type(type), target(target), projectile(projectile) { }
 

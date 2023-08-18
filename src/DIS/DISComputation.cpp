@@ -14,9 +14,9 @@
 #include "Common/ScaleDependence.cpp"
 
 template <
-	PDFConcept PDFInterface, 
-	ScaleDependence::Concept RenormalizationScale,
-	ScaleDependence::Concept FactorizationScale
+	is_pdf_interface PDFInterface, 
+	is_scale_dependence RenormalizationScale,
+	is_scale_dependence FactorizationScale
 >
 class DISComputation {
 	public:
