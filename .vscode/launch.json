@@ -48,6 +48,15 @@
 			"args": [],
 			"cwd": "${workspaceFolder}",
 			"preLaunchTask": "cmakeChargedCurrentDISUBSAN"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "ChargedCurrentDIS (CMake clang-tidy)",
+			"program": "${workspaceFolder}/ChargedCurrentDIS",
+			"args": [],
+			"cwd": "${workspaceFolder}",
+			"preLaunchTask": "cmakeChargedCurrentDISclangtidy"
 		}
 	]
 }

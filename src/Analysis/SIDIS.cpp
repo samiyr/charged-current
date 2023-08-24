@@ -2,12 +2,16 @@
 #define ANALYSIS_SIDIS_H
 
 #include <vector>
+
 #include "Analysis/Parameters.cpp"
 #include "Analysis/Constants.cpp"
+
 #include "Common/Flavor.cpp"
 #include "Common/Constants.cpp"
 #include "Common/Process.cpp"
+
 #include "PDF/Interfaces/LHAInterface.cpp"
+
 #include "SIDIS/SIDIS.cpp"
 
 template <
@@ -46,6 +50,10 @@ struct SIDISAnalysis {
 
 		sidis.combine_integrals = true;
 		sidis.use_modified_cross_section_prefactor = true;
+		sidis.scale_variation = params.scale_variation;
+		sidis.order = params.order;
+
+		sidis.integration_parameters = params.integration;
 
 		sidis.lepton_pair_cross_section_xy(x_bins, y_bins, E_beam_bins, filename, comment);
 	}
@@ -84,25 +92,11 @@ struct SIDISAnalysis {
 	}
 
 	void muon_pair_production(const AnalysisSet set, const std::vector<double> x_bins, const std::filesystem::path filename, const std::string comment = "") {
-		switch (set) {
-		case AnalysisSet::NuTeV:
-			return muon_pair_production(x_bins, AnalysisConstants::NuTeV::New::y_bins, AnalysisConstants::NuTeV::New::E_bins, filename, comment);
-		case AnalysisSet::NuTeV_old:
-			return muon_pair_production(x_bins, AnalysisConstants::NuTeV::Old::y_bins, AnalysisConstants::NuTeV::Old::E_bins, filename, comment);
-		case AnalysisSet::CCFR:
-			return muon_pair_production(x_bins, AnalysisConstants::CCFR::y_bins, AnalysisConstants::CCFR::E_bins, filename, comment);
-		}
+		return muon_pair_production(x_bins, AnalysisConstants::get_y_bins(set, params.process), AnalysisConstants::get_E_bins(set, params.process), filename, comment);
 	}
 
 	void muon_pair_production_only_D0(const AnalysisSet set, const std::vector<double> x_bins, const std::filesystem::path filename, const std::string comment = "") {
-		switch (set) {
-		case AnalysisSet::NuTeV:
-			return muon_pair_production_only_D0(x_bins, AnalysisConstants::NuTeV::New::y_bins, AnalysisConstants::NuTeV::New::E_bins, filename, comment);
-		case AnalysisSet::NuTeV_old:
-			return muon_pair_production_only_D0(x_bins, AnalysisConstants::NuTeV::Old::y_bins, AnalysisConstants::NuTeV::Old::E_bins, filename, comment);
-		case AnalysisSet::CCFR:
-			return muon_pair_production_only_D0(x_bins, AnalysisConstants::CCFR::y_bins, AnalysisConstants::CCFR::E_bins, filename, comment);
-		}
+		return muon_pair_production_only_D0(x_bins, AnalysisConstants::get_y_bins(set, params.process), AnalysisConstants::get_E_bins(set, params.process), filename, comment);
 	}
 
 	/*

@@ -6,6 +6,7 @@
 #include <cuba.h>
 #include <iostream>
 #include <gsl/gsl_monte_vegas.h>
+
 #include "Integration/IntegrationParameters.cpp"
 
 enum class IntegrationMethod {
@@ -14,16 +15,34 @@ enum class IntegrationMethod {
 
 template <typename Integrand>
 struct Integrator {
+	/// The purpose of this functor is to enable passing arbitrary callable types to the integration routine.
+	/// By default, both Cuba and GSL integration libraries take a function pointer as the integrand.
+	/// Non-capturing lambdas can be implicitly converted to a function pointer, but capturing lambdas
+	/// cannot be. To support capturing lambdas, this trick with a functor is used. The idea is to pass a functor
+	/// instance as the arbitrary parameter void* to the integration routine. The actual integration parameters are then
+	/// stored inside the functor, alongside the actual integrand function and potentially other data as well.
+	/// At the integration callsite, instead of passing the actual integrand, the invoke method is passed instead.
+	/// Inside the invoke method, the functor instance previously passed as the arbitrary parameter of type void*
+	/// is obtained. Using the functor instance the actual integrand function stored in it can then be called.
 	template <typename Function>
 	struct CubaFunctor {
+		// Integrand function
 		Function function;
+		// Abitrary integration parameters
 		void *params;
+		// An array of lower bounds of the integral, length must be equal to the dimension of the integral
 		const double *lower;
+		// An array of upper bounds of the integral, length must be equal to the dimension of the integral
 		const double *upper;
+		// The jacobian of the integration bounds, i.e. the volume of the integration region
 		const double jacobian;
 
+		// This static method is the one that should be passed as a function pointer to the integration routines.
+		// This method will then handle calling the actual integrand and passing any arbitrary void* parameters.
 		static int invoke(const int *ndim, const double x[], [[maybe_unused]] const int *ncomp, double f[], void *userdata) {
+			// Obtain the functor passed onto the integration routine as an arbitrary void* parameter
 			CubaFunctor *functor = static_cast<CubaFunctor *>(userdata);
+
 			const std::size_t dim = std::size_t(*ndim);
 
 			const double *lower_limits = functor->lower;
@@ -32,6 +51,8 @@ struct Integrator {
 
 			double *input = new double[dim];
 
+			// For Cuba, the integration is always done in a unit hypercube. This loop maps the input
+			// to the actual input vector, which may not lie in the unit hypercube.
 			for (std::size_t i = 0; i < dim; i++) {
 				const double lower = lower_limits[i];
 				const double upper = upper_limits[i];
@@ -40,13 +61,18 @@ struct Integrator {
 				input[i] = lower + x[i] * range;
 			}
 
+			// Call the actual integrand function with the appropriate parameters
 			const double function_value = jacobian * functor->function(input, dim, functor->params);
+			// Fill the output vector, which here is just a scalar
 			f[0] = function_value;
+
+			delete[] input;
 
 			return 0;
 		}
 	};
 
+	// See CubaFunctor.
 	template <typename Function>
 	struct GSLFunctor {
 		Function function;

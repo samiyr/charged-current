@@ -3,12 +3,16 @@
 
 #include <string>
 #include <stdexcept>
+
 #include "LHAPDF/LHAPDF.h"
 #include "LHAPDF/GridPDF.h"
+
 #include "Common/Flavor.cpp"
 #include "Common/CKM.cpp"
 #include "Common/Process.cpp"
+
 #include "PDF/ZeroExtrapolator.cpp"
+
 #include "Utility/Globals.cpp"
 
 template <std::derived_from<LHAPDF::Extrapolator> Extrapolator = ZeroExtrapolator>
@@ -65,6 +69,7 @@ class LHAInterface {
 
 		LHAPDF::GridPDF *grid_pdf = static_cast<LHAPDF::GridPDF *>(pdf.get());
 		LHAPDF::Extrapolator *extrapolator = new Extrapolator();
+		// Ownership of extrapolator is passed to LHAPDF::GridPDF, it handles deletion.
 		grid_pdf->setExtrapolator(extrapolator);
 
 		activated = true;

@@ -12,6 +12,8 @@
 #include <sstream>
 #include <iomanip>
 
+#include "Utility/Math.cpp"
+
 namespace IO {
 	inline std::ostream& endl(std::ostream& os) {
 		os.put(os.widen('\n'));
@@ -24,9 +26,9 @@ namespace IO {
 	}
 
 	template <typename Integer> requires std::is_integral_v<Integer>
-	std::string leading_zeroes(const Integer i, const int width) {
+	std::string leading_zeroes(const Integer i, const unsigned int width) {
 		std::stringstream ss;
-		ss << std::setw(width) << std::setfill('0') << i;
+		ss << std::setw(static_cast<int>(width)) << std::setfill('0') << i;
 		return ss.str();
 	}
 }
@@ -44,6 +46,23 @@ namespace Collections {
 		return v3;
 	}
 
+	/// Generates n-tuples from a given list. Implicitly assumes that 0 < n <= input.size().
+	template <typename T>
+	constexpr std::vector<std::vector<T>> tuples(const std::vector<T> input, const std::size_t n) {
+		const std::size_t count = Math::ipow(input.size(), n);
+		std::vector<std::vector<T>> output(count, std::vector<T>(n));
+
+		for (std::size_t outer = 0; outer < count; outer++) {
+			std::size_t current = outer;
+			for (std::size_t inner = 0; inner < n; inner++) {
+				const std::size_t index = current % input.size();
+				output[outer][n - inner - 1] = input[index];
+				current /= n;
+			}
+		}
+
+		return output;
+	}
 }
 
 template <typename T, typename U>
@@ -54,11 +73,9 @@ constexpr T& operator*=(T &v1, U &&v2) {
 	return v1;
 }
 
-template<class Specialization, template<typename> class TemplateClass,
-         typename ...PartialSpecialisation>
+template<class Specialization, template<typename> class TemplateClass, typename ...PartialSpecialisation>
 concept is_instance = requires (Specialization s) {
-    []<typename ...TemplateArgs>(
-        TemplateClass<PartialSpecialisation..., TemplateArgs...>&){}(s);
+    []<typename ...TemplateArgs>(TemplateClass<PartialSpecialisation..., TemplateArgs...>&){}(s);
 };
 
 template <typename Type, std::size_t Size>

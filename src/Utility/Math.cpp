@@ -44,6 +44,26 @@ namespace Math {
 	static constexpr T pow4(const T x) {
 		return x * x * x * x;
 	}
+
+	template <std::integral T>
+	T ipow(T base, T exp) {
+		T result{1};
+		for (;;) {
+			if (exp & T{1}) {
+				result *= base;
+			}
+			exp >>= T{1};
+			if (!exp) { break; }
+			base *= base;
+		}
+
+		return result;
+	}
+
+	template <typename T>
+	unsigned int number_of_digits(const T x) {
+		return static_cast<unsigned int>(std::log10(static_cast<double>(x)) + 1.0);
+	}
 }
 
 #endif

@@ -1,17 +1,22 @@
 #ifndef DIS_COMPUTATION_H
 #define DIS_COMPUTATION_H
 
-#include "Integration/Integrator.cpp"
+#include <optional>
+
 #include "Common/Constants.cpp"
-#include "Utility/Utility.cpp"
 #include "Common/PerturbativeQuantity.cpp"
 #include "Common/Process.cpp"
 #include "Common/StructureFunction.cpp"
-#include "DIS/DISFunctions.cpp"
 #include "Common/CommonFunctions.cpp"
-#include <optional>
-#include "PDF/PDFConcept.cpp"
 #include "Common/ScaleDependence.cpp"
+
+#include "Integration/Integrator.cpp"
+
+#include "Utility/Utility.cpp"
+
+#include "DIS/DISFunctions.cpp"
+
+#include "PDF/PDFConcept.cpp"
 
 template <
 	is_pdf_interface PDFInterface, 

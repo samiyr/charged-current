@@ -1,21 +1,26 @@
 #ifndef SIDIS_FUNCTIONS_H
 #define SIDIS_FUNCTIONS_H
 
-#include "Common/Constants.cpp"
 #include <cmath>
-#include "Common/Flavor.cpp"
-#include "Decay/Decay.cpp"
-#include "PDF/FragmentationConfiguration.cpp"
-#include "Common/TRFKinematics.cpp"
-#include "Decay/DecayFunctions.cpp"
-#include "Common/CKM.cpp"
-#include "PDF/PDFConcept.cpp"
 #include <ranges>
+
+#include "Common/Constants.cpp"
+#include "Common/Flavor.cpp"
+#include "Common/TRFKinematics.cpp"
+#include "Common/CKM.cpp"
+
+#include "Decay/Decay.cpp"
+#include "Decay/DecayFunctions.cpp"
+
+#include "PDF/FragmentationConfiguration.cpp"
+#include "PDF/PDFConcept.cpp"
+
 #include "Utility/Math.cpp"
 
 #include "SIDIS/Coefficients/F2.cpp"
 #include "SIDIS/Coefficients/FL.cpp"
 #include "SIDIS/Coefficients/F3.cpp"
+#include "SIDIS/Coefficients/EvaluationParameters.cpp"
 
 namespace SIDISFunctions {
 	template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction>
@@ -34,50 +39,13 @@ namespace SIDISFunctions {
 
 		const double z;
 
+		const double renormalization_scale;
 		const double factorization_scale;
 		const double fragmentation_scale;
 
+		const double renormalization_scale_log;
 		const double factorization_scale_log;
 		const double fragmentation_scale_log;
-	};
-
-	struct EvaluationParameters {
-		const double xi;
-		const double xip; 
-		const double x;
-		const double z;
-
-		const double factorization_scale_log;
-		const double fragmentation_scale_log;
-
-		const double xq;
-		const double xq_hat;
-		const double xg_hat;
-
-		const double zq;
-		const double zq_hat;
-		const double zg_hat;
-		
-		const double sign;
-
-		const double xq_zq;
-		const double xq_hat_zq; 
-		const double xq_zq_hat;
-		const double xq_hat_zq_hat;
-		const double xq_zg_hat;
-		const double xg_hat_zq;
-		const double xq_hat_zg_hat;
-		const double xg_hat_zq_hat;
-
-		const double log1mx;
-		const double log1mz;
-		const double logxi;
-		const double logxip;
-		const double log1mxi;
-		const double log1mxip;
-
-		const double m2;
-		const double Q2;
 	};
 }
 
@@ -134,14 +102,20 @@ namespace SIDISFunctions {
 		const double xq_hat_zg_hat = xq_hat * zg_hat + sign * anti_xq_hat * zg_hat;
 		const double xg_hat_zq_hat = xg_hat * zq_hat + sign * xg_hat * anti_zq_hat;
 
-		return integrand(
-			xi, xip, x, z, 
-			params.factorization_scale_log, params.fragmentation_scale_log, 
-			xq_zq, xq_hat_zq, xq_zq_hat, xq_hat_zq_hat, xq_zg_hat, 
-			xg_hat_zq, xq_hat_zg_hat, xg_hat_zq_hat, 
-			log1mx, log1mz, logxi, logxip, log1mxi, log1mxip,
-			m2, Q2
-		);
+		return integrand({
+			.xi = xi, .xip = xip, .x = x, .z = z,
+			.renormalization_scale_log = params.renormalization_scale_log,
+			.factorization_scale_log = params.factorization_scale_log, .fragmentation_scale_log = params.fragmentation_scale_log,
+			.xq = xq, .xq_hat = xq_hat, .xg_hat = xg_hat,
+			.zq = zq, .zq_hat = zq_hat, .zg_hat = zg_hat,
+			.anti_xq = anti_xq, .anti_xq_hat = anti_xq_hat,
+			.anti_zq = anti_zq, .anti_zq_hat = anti_zq_hat,
+			.sign = static_cast<double>(sign),
+			.xq_zq = xq_zq, .xq_hat_zq = xq_hat_zq, .xq_zq_hat = xq_zq_hat, .xq_hat_zq_hat = xq_hat_zq_hat, .xq_zg_hat = xq_zg_hat,
+			.xg_hat_zq = xg_hat_zq, .xq_hat_zg_hat = xq_hat_zg_hat, .xg_hat_zq_hat = xg_hat_zq_hat,
+			.log1mx = log1mx, .log1mz = log1mz, .logxi = logxi, .logxip = logxip, .log1mxi = log1mxi, .log1mxip = log1mxip,
+			.m2 = m2, .Q2 = Q2
+		});
 	}
 	template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction, typename Signature>
 	constexpr static double construct(

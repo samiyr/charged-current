@@ -2,13 +2,17 @@
 #define ANALYSIS_DIS_H
 
 #include <vector>
+
 #include "Analysis/Parameters.cpp"
 #include "Analysis/Constants.cpp"
+
 #include "Common/Flavor.cpp"
 #include "Common/Constants.cpp"
 #include "Common/Process.cpp"
 #include "Common/ScaleDependence.cpp"
+
 #include "PDF/Interfaces/LHAInterface.cpp"
+
 #include "DIS/DIS.cpp"
 
 template <
@@ -63,23 +67,11 @@ struct DISAnalysis {
 		const AnalysisSet set, const std::vector<double> x_bins, const std::filesystem::path filename, const std::string comment,
 		const Renormalization renormalization_scale,
 		const Factorization factorization_scale) {
-		switch (set) {
-		case AnalysisSet::NuTeV:
-			return charm_production(
-				x_bins, AnalysisConstants::NuTeV::New::y_bins, AnalysisConstants::NuTeV::New::E_bins, 
-				filename, comment, renormalization_scale, factorization_scale
-			);
-		case AnalysisSet::NuTeV_old:
-			return charm_production(
-				x_bins, AnalysisConstants::NuTeV::Old::y_bins, AnalysisConstants::NuTeV::Old::E_bins, 
-				filename, comment, renormalization_scale, factorization_scale
-			);
-		case AnalysisSet::CCFR:
-			return charm_production(
-				x_bins, AnalysisConstants::CCFR::y_bins, AnalysisConstants::CCFR::E_bins, 
-				filename, comment, renormalization_scale, factorization_scale
-			);
-		}
+
+		return charm_production(
+			x_bins, AnalysisConstants::get_y_bins(set, params.process), AnalysisConstants::get_E_bins(set, params.process),
+			filename, comment, renormalization_scale, factorization_scale
+		);
 	}
 
 	void charm_production(const AnalysisSet set, const std::vector<double> x_bins, const std::filesystem::path filename, const std::string comment = "") {

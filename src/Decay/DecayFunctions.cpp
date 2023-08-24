@@ -1,10 +1,12 @@
 #ifndef DECAY_FUNCTIONS_H
 #define DECAY_FUNCTIONS_H
 
-#include "Utility/Math.cpp"
-#include "Decay/Decay.cpp"
 #include <concepts>
 #include <numbers>
+
+#include "Utility/Math.cpp"
+
+#include "Decay/Decay.cpp"
 
 template <typename T>
 concept is_decay_function = requires(

@@ -2,8 +2,10 @@
 #define FRAGMENTATION_CONFIGURATION_H
 
 #include <vector>
+
 #include "Decay/Decay.cpp"
 #include "Decay/DecayFunctions.cpp"
+
 #include "PDFConcept.cpp"
 
 template <is_pdf_interface Interface, is_decay_function DecayFunction>

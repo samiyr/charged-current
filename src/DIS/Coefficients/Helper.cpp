@@ -2,6 +2,7 @@
 #define DIS_FUNCTIONS_HELPER_H
 
 #include <numbers>
+
 #include "Common/Constants.cpp"
 
 namespace DISFunctions::Helper {

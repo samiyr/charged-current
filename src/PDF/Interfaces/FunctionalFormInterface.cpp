@@ -1,8 +1,9 @@
 #ifndef FUNCTIONAL_FORM_H
 #define FUNCTIONAL_FORM_H
 
-#include "Common/Flavor.cpp"
 #include <functional>
+
+#include "Common/Flavor.cpp"
 
 template <typename Signature>
 class FunctionalFormInterface {

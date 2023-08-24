@@ -3,9 +3,10 @@
 
 #include <string>
 
+#include "LHAPDF/LHAPDF.h"
+
 #include "PDF/Interfaces/LHAInterface.cpp"
 #include "PDF/PDFConcept.cpp"
-#include "LHAPDF/LHAPDF.h"
 
 template <std::derived_from<LHAPDF::Extrapolator> Extrapolator = ZeroExtrapolator>
 class LHASetInterface {

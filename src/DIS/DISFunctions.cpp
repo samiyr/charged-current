@@ -1,13 +1,15 @@
 #ifndef DIS_FUNCTIONS_H
 #define DIS_FUNCTIONS_H
 
-#include "Common/Constants.cpp"
 #include <cmath>
-#include "Common/Flavor.cpp"
 #include <functional>
+
+#include "Common/Constants.cpp"
+#include "Common/Flavor.cpp"
 #include "Common/TRFKinematics.cpp"
 #include "Common/CommonFunctions.cpp"
 #include "Common/CKM.cpp"
+
 #include "PDF/PDFConcept.cpp"
 
 #include "DIS/Coefficients/F2.cpp"

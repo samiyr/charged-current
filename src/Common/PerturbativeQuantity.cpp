@@ -3,6 +3,12 @@
 
 #include <iostream>
 
+// The perturbative order, from leading order (LO) to next-to-next-to leading order (NNLO).
+enum class PerturbativeOrder {
+	LO = 0, NLO = 1, NNLO = 2
+};
+
+// A quantity with LO, NLO and NNLO contributions. Supports basic arithmetic operations and printing. The NNLO contribution is by default zero.
 struct PerturbativeQuantity {
 	double lo;
 	double nlo;

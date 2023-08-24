@@ -3,6 +3,7 @@
 
 #include "Decay/DecayParametrization.cpp"
 #include "Decay/DecayFunctions.cpp"
+
 #include "Common/Particle.cpp"
 
 template <is_decay_function DecayFunction = decltype(DecayFunctions::trivial)>

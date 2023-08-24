@@ -1,16 +1,28 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#include "Utility/Utility.cpp"
-#include "Common/Particle.cpp"
 #include <limits>
+
+#include "Common/Particle.cpp"
+
+#include "Utility/Utility.cpp"
 #include "Utility/Math.cpp"
 
+// Provides access to certain physical constants.
 namespace Constants {
+	// QCD color factor (fundamental representation).
 	constexpr double C_F = 4.0 / 3.0;
+	// QCD color factor (adjoint representation).
+	constexpr double C_A = 3.0;
+	// Number of quark flavors.
+	constexpr double N_f = 6.0;
+	// QCD normalization of tr(t^a t^b) = T_R δ^ab in the fundamental representation.
 	constexpr double T_R = 0.5;
+	// Fermi coupling constant.
 	constexpr double fermi_coupling = 1.1663787e-5;
-	constexpr double lambda_QCD = 0.226;
+	// constexpr double lambda_QCD = 0.226;
+
+	// The squared CKM matrix elements.
 
 	constexpr static double V_ud = Math::pow2(0.97435);
 	constexpr static double V_us = Math::pow2(0.22500);
@@ -37,6 +49,9 @@ namespace Constants {
 	namespace Charm {
 		constexpr static double Mass = 1.3;
 	}
+
+	// Value of the Riemann zeta function ζ(3).
+	static constexpr double zeta3 = 1.20205690315959428539973816151;
 } 
 
 #endif

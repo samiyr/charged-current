@@ -40,6 +40,14 @@
 			},
 			"command": "cmake CMakeLists.txt -B build -DCMAKE_BUILD_TYPE=Debug -DUSE_UB_SANITIZER:BOOL=TRUE && make -C build"
 		},
+		{
+			"type": "shell",
+			"label": "cmakeChargedCurrentDISclangtidy",
+			"options": {
+
+			},
+			"command": "cmake CMakeLists.txt -B build -DCMAKE_BUILD_TYPE=Debug -DUSE_CLANG_TIDY:BOOL=TRUE && make -C build"
+		},
     ],
     "version": "2.0.0"
 }

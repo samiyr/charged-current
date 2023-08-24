@@ -2,6 +2,7 @@
 #define INTEGRATION_PARAMETERS_H
 
 #include <iostream>
+
 #include "Utility/Utility.cpp"
 
 struct IntegrationParameters {

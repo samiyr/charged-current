@@ -4,13 +4,17 @@
 #include <filesystem>
 
 #include "DIS/DIS.cpp"
+
 #include "SIDIS/SIDIS.cpp"
+
 #include "PDF/Interfaces/LHAInterface.cpp"
+
 #include "Common/Particle.cpp"
+#include "Common/Constants.cpp"
+
 #include "Analysis/DIS.cpp"
 #include "Analysis/SIDIS.cpp"
 #include "Analysis/Parameters.cpp"
-#include "Common/Constants.cpp"
 
 template <
 	is_scale_dependence RenormalizationScale = decltype(ScaleDependence::trivial),
