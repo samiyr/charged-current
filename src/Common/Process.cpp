@@ -1,6 +1,8 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
+#include <iostream>
+
 #include "Common/Particle.cpp"
 
 // A structure encapsulating a reaction process.
@@ -38,6 +40,20 @@ struct Process {
 	// Checks whether the sign of the process is positive or not; see Process::W_sign.
 	constexpr bool positive_W() const noexcept {
 		return W_sign() == +1;
+	}
+
+	friend std::ostream& operator<<(std::ostream &os, const Process &o) {
+		std::string type_string;
+		switch (o.type) {
+		case Type::NeutrinoToLepton:
+			type_string = "neutrino to lepton";
+			break;
+		case Type::AntiNeutrinoToAntiLepton:
+			type_string = "antineutrino to antilepton";
+			break;
+		}
+
+		return os << type_string << " [target = (" << o.target << ") | projectile = (" << o.projectile << ")]";
 	}
 };
 

@@ -49,6 +49,9 @@ struct DISAnalysis {
 
 		dis.charm_mass = params.charm_mass;
 
+		dis.parallelize = params.parallelize;
+		dis.number_of_threads = params.number_of_threads;
+
 		dis.differential_cross_section_xy(x_bins, y_bins, E_beam_bins, filename, comment);
 	}
 

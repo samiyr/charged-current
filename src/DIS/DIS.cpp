@@ -81,6 +81,7 @@ struct DIS {
 		file << IO::endl;
 		
 		file << "#pdf = " << pdf.set_name << IO::endl;
+		file << "#process = " << process << IO::endl;
 
 		file << "#parallelize = " << Conversion::bool_to_string(parallelize) << IO::endl;
 		file << "#number_of_threads = " << number_of_threads << IO::endl;

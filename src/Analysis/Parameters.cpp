@@ -20,11 +20,15 @@ struct AnalysisParameters {
 	double minimum_lepton_momentum = 5.0;
 
 	ScaleVariation scale_variation = ScaleVariation::None;
+	bool pdf_error_sets = false;
 
 	PerturbativeOrder order = PerturbativeOrder::NLO;
 	bool use_nlp_nlo = false;
 
 	IntegrationParameters integration;
+
+	bool parallelize = true;
+	unsigned int number_of_threads = Utility::get_default_thread_count();
 };
 
 #endif

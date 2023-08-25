@@ -15,6 +15,7 @@ class LHASetInterface {
 
 	const std::string set_name;
 
+	private:
 	LHASetInterface(
 		const std::string set_name,		
 		const bool _use_multipliers, 
@@ -31,8 +32,15 @@ class LHASetInterface {
 		member_count = info->get_entry_as<size_type>("NumMembers");
 	}
 
-	LHAInterface<Extrapolator> operator[](const int member) const {
-		return LHAInterface<Extrapolator>(set_name, member, use_multipliers, multipliers, use_global_multiplier, global_multiplier);
+	public:
+	LHASetInterface(std::string _set_name, const std::vector<double> _multipliers) noexcept
+	: LHASetInterface(_set_name, _multipliers.size() == TOTAL_FLAVORS, _multipliers) { }
+
+	LHASetInterface(std::string _set_name) noexcept
+	: LHASetInterface(_set_name, false, {}) { }
+
+	LHAInterface<Extrapolator> operator[](const size_type member) const {
+		return LHAInterface<Extrapolator>(set_name, static_cast<int>(member), use_multipliers, multipliers, use_global_multiplier, global_multiplier);
 	}
 
 	LHAInterface<Extrapolator> central() const {

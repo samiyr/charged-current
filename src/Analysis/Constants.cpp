@@ -43,7 +43,7 @@ namespace AnalysisConstants {
 		}
 	}
 
-	static std::vector<double> get_y_bins(AnalysisSet set, Process process) {
+	static inline std::vector<double> get_y_bins(AnalysisSet set, Process process) {
 		switch (set) {
 		case AnalysisSet::NuTeV:
 			return process.type == Process::Type::NeutrinoToLepton ? NuTeV::New::Neutrino::y_bins : NuTeV::New::Antineutrino::y_bins;		
@@ -53,7 +53,7 @@ namespace AnalysisConstants {
 			return process.type == Process::Type::NeutrinoToLepton ? CCFR::Neutrino::y_bins : CCFR::Antineutrino::y_bins;		
 		}
 	}
-	static std::vector<double> get_E_bins(AnalysisSet set, Process process) {
+	static inline std::vector<double> get_E_bins(AnalysisSet set, Process process) {
 		switch (set) {
 		case AnalysisSet::NuTeV:
 			return process.type == Process::Type::NeutrinoToLepton ? NuTeV::New::Neutrino::E_bins : NuTeV::New::Antineutrino::E_bins;		
