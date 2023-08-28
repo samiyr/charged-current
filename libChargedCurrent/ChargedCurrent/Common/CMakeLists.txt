@@ -1,0 +1,13 @@
+target_sources(${LIBRARY_NAME} 
+	PRIVATE 
+		CKM.cpp
+		CommonFunctions.cpp
+		Constants.cpp
+		Flavor.cpp
+		Particle.cpp
+		PerturbativeQuantity.cpp
+		Process.cpp
+		ScaleDependence.cpp
+		StructureFunction.cpp
+		TRFKinematics.cpp
+)

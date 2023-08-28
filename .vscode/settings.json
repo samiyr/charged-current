@@ -98,6 +98,7 @@
 		"valarray": "cpp",
 		"cfenv": "cpp",
 		"filesystem": "cpp",
-		"simd": "cpp"
+		"simd": "cpp",
+		"any": "cpp"
 	}
 }

@@ -1,0 +1,10 @@
+target_sources(${LIBRARY_NAME} 
+	PRIVATE 
+		EvaluationParameters.cpp
+		F2.cpp
+		F3.cpp
+		FL.cpp
+		Helper.cpp
+		NearThreshold.cpp
+		Scale.cpp
+)
