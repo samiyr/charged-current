@@ -11,11 +11,6 @@ add_subdirectory(ChargedCurrent/PDF)
 add_subdirectory(ChargedCurrent/SIDIS)
 add_subdirectory(ChargedCurrent/Utility)
 
-# enable_testing()
-
-# # Source files
-# set(SOURCE_FILES src/ChargedCurrentDIS.cpp)
-
 # Thread sanitizer
 SET(USE_THREAD_SANITIZER FALSE CACHE BOOL "Enable thread sanitizer")
 if (${USE_THREAD_SANITIZER})
@@ -52,10 +47,6 @@ if (${USE_CLANG_TIDY})
 	)
 	message("clang-tidy enabled")
 endif()
-
-# # Executable
-# set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-# add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
 # Link-time optimization
 include(CheckIPOSupported)
@@ -100,6 +91,8 @@ endif()
 find_package(OpenMP REQUIRED)
 if (OpenMP_CXX_FOUND)
     target_link_libraries(${LIBRARY_NAME} PUBLIC OpenMP::OpenMP_CXX)
+else()
+	target_compile_options(${LIBRARY_NAME} PUBLIC -fopenmp)
 endif()
 
 # GSL
@@ -128,15 +121,6 @@ if (Cuba_FOUND)
 	target_link_libraries(${LIBRARY_NAME} PUBLIC ${Cuba_LIBRARIES})
 endif()
 	
-# GoogleTest
-# find_package(GTest REQUIRED)
-# 	if (GTest_FOUND)
-# 	target_include_directories(${PROJECT_NAME} PUBLIC ${GTEST_INCLUDE_DIRS})
-# 	target_link_libraries(${PROJECT_NAME} PUBLIC GTest::gtest_main)
-# endif()
-# include(GoogleTest)
-# gtest_discover_tests(${PROJECT_NAME})
-
 # Unset cached values
 unset(USE_THREAD_SANITIZER CACHE)
 unset(USE_ADDRESS_SANITIZER CACHE)
