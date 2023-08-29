@@ -103,16 +103,16 @@ endif()
 # LHAPDF
 find_package(LHAPDF REQUIRED)
 if (LHAPDF_FOUND)
-	target_link_libraries(${LIBRARY_NAME} PUBLIC LHAPDF)
+	target_link_libraries(${LIBRARY_NAME} PUBLIC ${LHAPDF_LIBRARY})
 	target_include_directories(${LIBRARY_NAME} PUBLIC ${LHAPDF_INCLUDE_DIR})
 endif()
 
 # Pythia
-find_package(Pythia8 REQUIRED)
-if (PYTHIA8_FOUND)
-	target_include_directories(${LIBRARY_NAME} PUBLIC ${PYTHIA8_INCLUDE_DIRS})
-	target_link_libraries(${LIBRARY_NAME} PUBLIC ${PYTHIA8_LIBRARIES})
-endif()
+# find_package(Pythia8 REQUIRED)
+# if (PYTHIA8_FOUND)
+# 	target_include_directories(${LIBRARY_NAME} PUBLIC ${PYTHIA8_INCLUDE_DIRS})
+# 	target_link_libraries(${LIBRARY_NAME} PUBLIC ${PYTHIA8_LIBRARIES})
+# endif()
 
 # Cuba
 find_package(Cuba REQUIRED)
