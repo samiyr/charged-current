@@ -163,6 +163,7 @@ class SIDISComputation {
 		case StructureFunction::F2: return F2(z, kinematics);
 		case StructureFunction::FL: return FL(z, kinematics);
 		case StructureFunction::F3: return F3(z, kinematics);
+		default: return PerturbativeQuantity{0.0, 0.0};
 		}
 	}
 
