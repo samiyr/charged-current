@@ -88,16 +88,10 @@ if (APPLE)
 
 endif()
 
-SET(OMP_OVERRIDE FALSE CACHE BOOL "Override find_package(OpenMP)")
-if(OMP_OVERRIDE)
-	target_compile_options(${LIBRARY_NAME} PUBLIC -fopenmp)
-else()
-	find_package(OpenMP REQUIRED)
-	if (OpenMP_CXX_FOUND)
-		target_link_libraries(${LIBRARY_NAME} PUBLIC OpenMP::OpenMP_CXX)
-	else()
-		target_compile_options(${LIBRARY_NAME} PUBLIC -fopenmp)
-	endif()
+# OpenMP
+find_package(OpenMP REQUIRED)
+if (OpenMP_CXX_FOUND)
+	target_link_libraries(${LIBRARY_NAME} PUBLIC OpenMP::OpenMP_CXX)
 endif()
 
 # GSL
@@ -110,6 +104,7 @@ endif()
 find_package(LHAPDF REQUIRED)
 if (LHAPDF_FOUND)
 	target_link_libraries(${LIBRARY_NAME} PUBLIC LHAPDF)
+	target_include_directories(${LIBRARY_NAME} PUBLIC ${LHAPDF_INCLUDE_DIR})
 endif()
 
 # Pythia
@@ -126,9 +121,14 @@ if (Cuba_FOUND)
 	target_link_libraries(${LIBRARY_NAME} PUBLIC ${Cuba_LIBRARIES})
 endif()
 	
+# Boost
+find_package(Boost REQUIRED)
+if (Boost_FOUND)
+    target_link_libraries(${LIBRARY_NAME} PUBLIC Boost::headers)
+endif()
+
 # Unset cached values
 unset(USE_THREAD_SANITIZER CACHE)
 unset(USE_ADDRESS_SANITIZER CACHE)
 unset(USE_UB_SANITIZER CACHE)
 unset(USE_CLANG_TIDY CACHE)
-unset(OMP_OVERRIDE CACHE)

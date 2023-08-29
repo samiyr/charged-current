@@ -50,7 +50,8 @@ namespace AnalysisConstants {
 		case AnalysisSet::NuTeV_old:
 			return process.type == Process::Type::NeutrinoToLepton ? NuTeV::Old::Neutrino::y_bins : NuTeV::Old::Antineutrino::y_bins;		
 		case AnalysisSet::CCFR:
-			return process.type == Process::Type::NeutrinoToLepton ? CCFR::Neutrino::y_bins : CCFR::Antineutrino::y_bins;		
+			return process.type == Process::Type::NeutrinoToLepton ? CCFR::Neutrino::y_bins : CCFR::Antineutrino::y_bins;
+		default: return {};
 		}
 	}
 	inline std::vector<double> get_E_bins(AnalysisSet set, Process process) {
@@ -61,6 +62,7 @@ namespace AnalysisConstants {
 			return process.type == Process::Type::NeutrinoToLepton ? NuTeV::Old::Neutrino::E_bins : NuTeV::Old::Antineutrino::E_bins;		
 		case AnalysisSet::CCFR:
 			return process.type == Process::Type::NeutrinoToLepton ? CCFR::Neutrino::E_bins : CCFR::Antineutrino::E_bins;		
+		default: return {};
 		}
 	}
 }

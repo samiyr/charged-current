@@ -6,11 +6,11 @@
 
 
 find_path(Cuba_INCLUDE_DIR cuba.h
-          HINTS /usr/include
+          HINTS /usr/include $ENV{CUBA_ROOT}/include
           PATH_SUFFIXES Cuba )
 
 find_library(Cuba_LIBRARY NAMES cuba Cuba
-             HINTS /usr/lib64 )
+             HINTS /usr/lib64 $ENV{CUBA_ROOT}/lib)
 
 set(Cuba_LIBRARIES ${Cuba_LIBRARY} )
 set(Cuba_INCLUDE_DIRS ${Cuba_INCLUDE_DIR} )

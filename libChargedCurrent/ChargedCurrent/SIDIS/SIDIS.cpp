@@ -436,7 +436,7 @@ struct SIDIS {
 		const double min_scale = *std::min_element(scale_factors.begin(), scale_factors.end());
 		const double max_scale = *std::max_element(scale_factors.begin(), scale_factors.end());
 
-		std::erase_if(scales, [=](const std::vector<double> tuple) {
+		std::erase_if(scales, [=, this](const std::vector<double> tuple) {
 			const double renormalization = tuple[0];
 			const double factorization = tuple[1];
 			const double fragmentation = tuple[2];
@@ -451,6 +451,7 @@ struct SIDIS {
 				return !(factorization_condition && fragmentation_condition);
 			case ScaleVariation::RenormalizationFactorization:
 				return !(factorization_condition && factorization == fragmentation);
+			default: return true;
 			}
 		});
 

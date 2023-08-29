@@ -140,6 +140,7 @@ struct Integrator {
 		case IntegrationMethod::CubaSuave: return cuba_suave_integrate();
 		case IntegrationMethod::CubaCuhre: return cuba_cuhre_integrate();
 		case IntegrationMethod::GSLVegas: return gsl_vegas_integrate();
+		default: return Result{0.0, 0.0, 0.0};
 		}
 	}
 
