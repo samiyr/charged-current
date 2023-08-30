@@ -466,12 +466,12 @@ struct SIDIS {
 			{
 				#pragma omp for collapse(4) schedule(guided)
 				for (std::size_t scale_index = 0; scale_index < scale_count; scale_index++) {
-					const std::vector<double> scale = scales[scale_index];
-					SIDISComputation sidis = construct_computation_scale_variation(scale);
-
 					for (std::size_t i = 0; i < x_step_count; i++) {
 						for (std::size_t j = 0; j < E_beam_step_count; j++) {
 							for (std::size_t k = 0; k < y_step_count; k++) {
+								const std::vector<double> scale = scales[scale_index];
+								SIDISComputation sidis = construct_computation_scale_variation(scale);
+								
 								const double x = x_bins[i];
 								const double y = y_bins[k];
 								const double E_beam = E_beam_bins[j];
