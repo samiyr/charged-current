@@ -2,3 +2,5 @@
 *.csv
 build/*
 Data/*
+ChargedCurrentDIS
+ChargedCurrentDISTests
