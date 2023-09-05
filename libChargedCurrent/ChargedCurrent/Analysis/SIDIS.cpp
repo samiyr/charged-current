@@ -11,6 +11,8 @@
 #include "Common/Process.cpp"
 
 #include "PDF/Interfaces/LHAInterface.cpp"
+#include "PDF/Interfaces/LHASetInterface.cpp"
+#include "PDF/Interfaces/LHANuclearInterface.cpp"
 
 #include "SIDIS/SIDIS.cpp"
 
@@ -52,6 +54,7 @@ struct SIDISAnalysis {
 		sidis.use_modified_cross_section_prefactor = true;
 		sidis.scale_variation = params.scale_variation;
 		sidis.order = params.order;
+		sidis.use_nlp_nlo = params.use_nlp_nlo;
 
 		sidis.integration_parameters = params.integration;
 
@@ -128,10 +131,11 @@ struct SIDISAnalysis {
 
 		if (params.pdf_error_sets) {
 			muon_pair_production_lambda(LHASetInterface(params.pdf_set));
+		} else if (params.enable_unity_nuclear_corrections) {
+			muon_pair_production_lambda(LHANuclearInterface(params.pdf_set, params.Z, params.A));
 		} else {
 			muon_pair_production_lambda(LHAInterface(params.pdf_set));
 		}
-
 	}
 
 	void muon_pair_production(const AnalysisSet set, const std::vector<double> x_bins, const std::filesystem::path filename, const std::string comment = "") {

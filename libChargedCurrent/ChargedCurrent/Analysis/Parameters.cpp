@@ -13,6 +13,9 @@
 
 struct AnalysisParameters {
 	std::string pdf_set = "EPPS21nlo_CT18Anlo_Fe56";
+	bool enable_unity_nuclear_corrections = false;
+	double Z = 1.0;
+	double A = 1.0;
 
 	Process process = Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino);
 

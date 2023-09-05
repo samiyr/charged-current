@@ -20,6 +20,7 @@
 #include "PDF/FragmentationConfiguration.cpp"
 #include "PDF/PDFConcept.cpp"
 #include "PDF/Interfaces/LHASetInterface.cpp"
+#include "PDF/Interfaces/LHANuclearInterface.cpp"
 
 template <
 	typename PDFInterface,
@@ -160,7 +161,7 @@ struct SIDIS {
 		}
 		file << IO::endl;
 		
-		file << "#pdf = " << pdf.set_name << IO::endl;
+		file << "#pdf = " << pdf.set_name << " [" << typeid(pdf).name() << "]" << IO::endl;
 		file << "#ff = ";
 		for (const auto &frag : ff.interfaces) {
 			file << frag.set_name << " ";
@@ -168,6 +169,7 @@ struct SIDIS {
 		file << IO::endl;
 
 		file << "#process = " << process << IO::endl;
+		file << "#use_nlp_nlo = " << Conversion::bool_to_string(use_nlp_nlo) << IO::endl;
 		file << "#parallelize = " << Conversion::bool_to_string(parallelize) << IO::endl;
 		file << "#number_of_threads = " << number_of_threads << IO::endl;
 		file << "#up_mass = " << up_mass << IO::endl;

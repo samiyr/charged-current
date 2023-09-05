@@ -10,7 +10,7 @@
 template <std::derived_from<LHAPDF::Extrapolator> Extrapolator = ZeroExtrapolator>
 class LHANuclearInterface {
 	public:
-	const std::string proton_set_name;
+	const std::string set_name;
 	const double Z;
 	const double A;
 
@@ -18,7 +18,7 @@ class LHANuclearInterface {
 		const std::string proton_set_name,
 		const double Z,
 		const double A
-	) noexcept : proton_set_name(proton_set_name), Z(Z), A(A), proton(proton_set_name), flavor_values(TOTAL_FLAVORS, 0.0) { }
+	) noexcept : set_name(proton_set_name), Z(Z), A(A), proton(proton_set_name), flavor_values(TOTAL_FLAVORS, 0.0) { }
 
 	void evaluate(const double x, const double Q2) const {
 		if (x == prev_x && Q2 == prev_Q2) {	return;	}
@@ -96,6 +96,6 @@ class LHANuclearInterface {
 	void set_flavor(const FlavorType flavor, const double value) const {
 		flavor_values[static_cast<std::size_t>(flavor + 6)] = value;
 	}
-}
+};
 
 #endif
