@@ -143,17 +143,26 @@ class SIDISComputation {
 
 	PerturbativeQuantity F2(const double z, const TRFKinematics &kinematics) const {
 		return structure_function(
-			z, kinematics, SIDISFunctions::F2::LO::integrand, SIDISFunctions::F2::NLO::total_integrand, SIDISFunctions::F2::NNLO_NLP::total_integrand, 1
+			z, kinematics, 
+			SIDISFunctions::F2::LO::integrand, 
+			use_nlp_nlo ? SIDISFunctions::F2::NLO_NLP::total_integrand : SIDISFunctions::F2::NLO::total_integrand, 
+			SIDISFunctions::F2::NNLO_NLP::total_integrand, 1
 		);
 	}
 	PerturbativeQuantity FL(const double z, const TRFKinematics &kinematics) const {
 		return structure_function(
-			z, kinematics, SIDISFunctions::FL::LO::integrand, SIDISFunctions::FL::NLO::total_integrand, SIDISFunctions::FL::NNLO_NLP::total_integrand, 1
+			z, kinematics, 
+			SIDISFunctions::FL::LO::integrand, 
+			use_nlp_nlo ? SIDISFunctions::F2::NLO_NLP::total_integrand : SIDISFunctions::F2::NLO::total_integrand, 
+			SIDISFunctions::FL::NNLO_NLP::total_integrand, 1
 		);
 	}
 	PerturbativeQuantity F3(const double z, const TRFKinematics &kinematics) const {
 		return structure_function(
-			z, kinematics, SIDISFunctions::F3::LO::integrand, SIDISFunctions::F3::NLO::total_integrand, SIDISFunctions::F3::NNLO_NLP::total_integrand, -1
+			z, kinematics, 
+			SIDISFunctions::F3::LO::integrand, 
+			use_nlp_nlo ? SIDISFunctions::F2::NLO_NLP::total_integrand : SIDISFunctions::F2::NLO::total_integrand, 
+			SIDISFunctions::F3::NNLO_NLP::total_integrand, -1
 		);
 	}
 

@@ -2,11 +2,69 @@
 #define DECAY_PARAMETRIZATION_H
 
 #include "Utility/Math.cpp"
+#include "Utility/Utility.cpp"
+
 
 struct DecayParametrization {
-	static DecayParametrization fit1() noexcept {
+	using Set = std::vector<DecayParametrization>;
+
+	constexpr static DecayParametrization fit1() noexcept {
 		return DecayParametrization(7.365, 1.4, 2.276, 2.04);
 	}
+	constexpr static DecayParametrization fit2() noexcept {
+		return DecayParametrization(4.62698, 1.17383, 2.06030, 2.05650);
+	}
+
+	consteval static DecayParametrization::Set fits() noexcept {
+		const double N 		= 4.62698;
+		const double alpha 	= 1.17383;
+		const double beta 	= 2.06030;
+		const double gamma 	= 2.05650;
+
+		const double N_sigma 		= 1.61876;
+		const double alpha_sigma 	= 0.149058;
+		const double beta_sigma 	= 0.273986;
+		const double gamma_sigma 	= 0.0580984;
+
+		const std::vector<std::vector<int>> multiplicative_factors{
+			{-1, -1, -1, -1}, {-1, -1, -1, 0}, {-1, -1, -1, 1}, 
+			{-1, -1, 0, -1}, {-1, -1, 0, 0}, {-1, -1, 0, 1}, 
+			{-1, -1, 1, -1}, {-1, -1, 1, 0}, {-1, -1, 1, 1}, 
+			{-1, 0, -1, -1}, {-1, 0, -1, 0}, {-1, 0, -1, 1}, 
+			{-1, 0, 0, -1}, {-1, 0, 0, 0}, {-1, 0, 0, 1}, 
+			{-1, 0, 1, -1}, {-1, 0, 1, 0}, {-1, 0, 1, 1}, 
+			{-1, 1, -1, -1}, {-1, 1, -1, 0}, {-1, 1, -1, 1}, 
+			{-1, 1, 0, -1}, {-1, 1, 0, 0}, {-1, 1, 0, 1}, 
+			{-1, 1, 1, -1}, {-1, 1, 1, 0}, {-1, 1, 1, 1}, 
+			{0, -1, -1, -1}, {0, -1, -1, 0}, {0, -1, -1, 1}, 
+			{0, -1, 0, -1}, {0, -1, 0, 0}, {0, -1, 0, 1}, 
+			{0, -1, 1, -1}, {0, -1, 1, 0}, {0, -1, 1, 1}, 
+			{0, 0, -1, -1}, {0, 0, -1, 0}, {0, 0, -1, 1}, 
+			{0, 0, 0, -1}, {0, 0, 0, 0}, {0, 0, 0, 1}, 
+			{0, 0, 1, -1}, {0, 0, 1, 0}, {0, 0, 1, 1}, 
+			{0, 1, -1, -1}, {0, 1, -1, 0}, {0, 1, -1, 1}, 
+			{0, 1, 0, -1}, {0, 1, 0, 0}, {0, 1, 0, 1}, 
+			{0, 1, 1, -1}, {0, 1, 1, 0}, {0, 1, 1, 1}, 
+			{1, -1, -1, -1}, {1, -1, -1, 0}, {1, -1, -1, 1}, 
+			{1, -1, 0, -1}, {1, -1, 0, 0}, {1, -1, 0, 1}, 
+			{1, -1, 1, -1}, {1, -1, 1, 0}, {1, -1, 1, 1}, 
+			{1, 0, -1, -1}, {1, 0, -1, 0}, {1, 0, -1, 1}, 
+			{1, 0, 0, -1}, {1, 0, 0, 0}, {1, 0, 0, 1}, 
+			{1, 0, 1, -1}, {1, 0, 1, 0}, {1, 0, 1, 1}, 
+			{1, 1, -1, -1}, {1, 1, -1, 0}, {1, 1, -1, 1}, 
+			{1, 1, 0, -1}, {1, 1, 0, 0}, {1, 1, 0, 1}, 
+			{1, 1, 1, -1}, {1, 1, 1, 0}, {1, 1, 1, 1}
+		};
+
+		std::vector<DecayParametrization> parametrizations;
+
+		for (const std::vector<int> &set : multiplicative_factors) {
+			parametrizations.emplace_back(N + set[0] * N_sigma, alpha + set[1] * alpha_sigma, beta + set[2] * beta_sigma, gamma + set[3] * gamma_sigma);
+		}
+
+		return parametrizations;
+	}
+
 	const double N;
 	const double alpha;
 	const double beta;

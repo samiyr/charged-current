@@ -18,31 +18,31 @@ class LHANuclearInterface {
 		const std::string proton_set_name,
 		const double Z,
 		const double A
-	) noexcept : set_name(proton_set_name), Z(Z), A(A), proton(proton_set_name), flavor_values(TOTAL_FLAVORS, 0.0) { }
+	) noexcept : set_name(proton_set_name), Z(Z), A(A), base(proton_set_name), flavor_values(TOTAL_FLAVORS, 0.0) { }
 
 	void evaluate(const double x, const double Q2) const {
 		if (x == prev_x && Q2 == prev_Q2) {	return;	}
 
-		proton.evaluate(x, Q2);
+		base.evaluate(x, Q2);
 
 		const double Z_factor = Z / A;
 		const double N_factor = (A - Z) / A;
 
-		const double xtbar = proton.xf(Flavor::AntiTop);
-		const double xbbar = proton.xf(Flavor::AntiBottom);
-		const double xcbar = proton.xf(Flavor::AntiCharm);
-		const double xsbar = proton.xf(Flavor::AntiStrange);
-		const double xubar = proton.xf(Flavor::AntiUp);
-		const double xdbar = proton.xf(Flavor::AntiDown);
+		const double xtbar = base.xf(Flavor::AntiTop);
+		const double xbbar = base.xf(Flavor::AntiBottom);
+		const double xcbar = base.xf(Flavor::AntiCharm);
+		const double xsbar = base.xf(Flavor::AntiStrange);
+		const double xubar = base.xf(Flavor::AntiUp);
+		const double xdbar = base.xf(Flavor::AntiDown);
 
-		const double xg = proton.xg();
+		const double xg = base.xg();
 		
-		const double xd = proton.xf(Flavor::Down);
-		const double xu = proton.xf(Flavor::Up);
-		const double xs = proton.xf(Flavor::Strange);
-		const double xc = proton.xf(Flavor::Charm);
-		const double xb = proton.xf(Flavor::Bottom);
-		const double xt = proton.xf(Flavor::Top);
+		const double xd = base.xf(Flavor::Down);
+		const double xu = base.xf(Flavor::Up);
+		const double xs = base.xf(Flavor::Strange);
+		const double xc = base.xf(Flavor::Charm);
+		const double xb = base.xf(Flavor::Bottom);
+		const double xt = base.xf(Flavor::Top);
 
 		set_flavor(Flavor::AntiTop, xtbar);
 		set_flavor(Flavor::AntiBottom, xbbar);
@@ -83,11 +83,11 @@ class LHANuclearInterface {
 		return xf(Flavor::Gluon);
 	}
 	double alpha_s(const double Q2) const {
-		return proton.alpha_s(Q2);
+		return base.alpha_s(Q2);
 	}
 
 	private:
-	const LHAInterface<Extrapolator> proton;
+	const LHAInterface<Extrapolator> base;
 	mutable std::vector<double> flavor_values;
 
 	mutable double prev_x = -1.0;

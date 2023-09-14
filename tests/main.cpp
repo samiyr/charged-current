@@ -607,6 +607,57 @@ TEST(SIDIS, QuarksGluonsScaleLogs) {
 	}
 }
 
+TEST(SIDIS, NLP_NLO) {
+	SIDIS sidis(
+		{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+		FunctionalFormInterface([](const FlavorType flavor, const double x, [[maybe_unused]] const double Q2) {
+			if (Flavor::is_gluon(flavor)) { return 0.0; }
+			return x * (1.0 - x);
+		}),
+		FunctionalFormInterface([](const FlavorType flavor, const double x, [[maybe_unused]] const double Q2) {
+			if (Flavor::is_gluon(flavor)) { return 0.0; }
+			return x * x * (1.0 - x) * (1.0 - x);
+		}),
+		Process(Process::Type::NeutrinoToLepton, Particle(), Particle())
+	);
+	sidis.integration_parameters.cuba.maximum_relative_error = 1e-4;
+	sidis.integration_parameters.cuba.maximum_evaluations = 1e7;
+	sidis.use_nlp_nlo = true;
+
+	const std::vector<double> xz_values = {0.001, 0.01, 0.1, 0.2, 0.5, 0.9, 0.99};
+
+	const std::vector<std::vector<double>> F2_comparison_values = {
+		{-0.00500687124087974, -0.00492667681071168, -0.00402114511100014, -0.00295872733458728, -0.000434477236632795, 0.000145994937376069, 0.00000462605878323169}, 
+		{-0.030664263892688, -0.0304046417192099, -0.0260248774595358, -0.0195182226892999, -0.00165156870090749, 0.00151001062748, 0.0000466401783927277}, 
+		{-0.119672903665602, -0.123000682507636, -0.120979786230807, -0.089843040365119, 0.0226592883644994, 0.0165412001891432, 0.000469928634426459}, 
+		{-0.139232695724362, -0.149076306094322, -0.160223016985906, -0.109376209215753, 0.0802688152528374, 0.0338211046085205, 0.000908809574764928}, 
+		{-0.0872428834351584, -0.113093776547933, -0.133520254046538, -0.0209601923144391, 0.30599864653425, 0.0743629393734263, 0.00177035617521789}, 
+		{-0.00735496833066532, -0.0190090851342912, 0.0290292442093449, 0.142375203964101, 0.321084375902963, 0.0502041461154573, 0.00099628414076184}, 
+		{-0.000459515355650635, -0.000916896137499497, 0.0214245719758692, 0.0503577457347183, 0.0793126647476172, 0.0098579196178551, 0.000171337147799585}
+	};
+
+	#pragma omp parallel for collapse(2)
+	for (std::size_t i = 0; i < xz_values.size(); i++) {
+		for (std::size_t j = 0; j < xz_values.size(); j++) {
+			const double x = xz_values[i];
+			const double z = xz_values[j];
+
+			const double comparison_value_F2 = F2_comparison_values[i][j];
+
+			const double computed_value_F2 = sidis.F2(x, z, 1).nlo;
+
+			#pragma omp critical
+			{
+				if (std::abs(comparison_value_F2) < 1e-12) {
+					EXPECT_NEAR(computed_value_F2, comparison_value_F2, 1e-12);
+				} else {
+					EXPECT_REL_NEAR(computed_value_F2, comparison_value_F2, 1.1e-3);
+				}
+			}
+		}
+	}
+}
+
 /// Tests the evaluation of DecayFunctions::decay_function against a set of values computed with Mathematica.
 
 TEST(Decay, AnalyticalComparison) {

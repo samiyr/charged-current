@@ -99,6 +99,7 @@
 		"cfenv": "cpp",
 		"filesystem": "cpp",
 		"simd": "cpp",
-		"any": "cpp"
+		"any": "cpp",
+		"ranges": "cpp"
 	}
 }

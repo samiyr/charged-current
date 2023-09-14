@@ -520,6 +520,86 @@ struct SIDIS {
 			file.close();
 		}
 	}
+
+	// void lepton_pair_cross_section_xy_ff_variations(
+	// 	const std::vector<double> x_bins, 
+	// 	const std::vector<double> y_bins, 
+	// 	const std::vector<double> E_beam_bins, 
+	// 	const std::filesystem::path base_output, 
+	// 	const std::string comment = "") requires is_pdf_interface<PDFInterface> {
+
+	// 	const std::size_t x_step_count = x_bins.size();
+	// 	const std::size_t y_step_count = y_bins.size();
+	// 	const std::size_t E_beam_step_count = E_beam_bins.size();
+
+	// 	int calculated_values = 0;
+
+	// 	const auto ff_variations = std::get<std::vector<FragmentationConfiguration<FFInterface, DecayFunction>>>(ff);
+
+	// 	const std::size_t variation_count = ff_variations.size();
+
+	// 	for (std::size_t variation_index = 0; variation_index < variation_count; variation_index++) {
+	// 		const FragmentationConfiguration<FFInterface, DecayFunction> ff_variation = ff_variations[variation_index];
+	// 		SIDISComputation sidis = construct_computation_ff_variation(ff_variation);
+
+	// 		const std::string path_trail = "variation_" + std::to_string(variation_index);
+	// 		std::filesystem::path full_filename = base_output.stem();
+	// 		full_filename /= path_trail;
+	// 		full_filename.replace_extension(base_output.extension());
+	// 		std::filesystem::path output = base_output;
+	// 		output.replace_filename(full_filename);
+
+	// 		IO::create_directory_tree(output);
+	// 		std::ofstream file(output);
+
+	// 		output_run_info(file, comment);
+	// 		file << "#N = " << ff_variation.decays.front().parametrization.N << IO::endl;
+	// 		file << "#alpha = " << ff_variation.decays.front().parametrization.alpha << IO::endl;
+	// 		file << "#beta = " << ff_variation.decays.front().parametrization.beta << IO::endl;
+	// 		file << "#gamma = " << ff_variation.decays.front().parametrization.gamma << IO::endl;
+
+	// 		file << "x,y,E,LO,NLO,NNLO,Q2,renormalization_scale,factorization_scale,fragmentation_scale" << IO::endl;
+
+	// 		#pragma omp parallel if(parallelize) num_threads(number_of_threads) firstprivate(sidis)
+	// 		{
+	// 			#pragma omp for collapse(3) schedule(guided)
+	// 			for (std::size_t i = 0; i < x_step_count; i++) {
+	// 				for (std::size_t j = 0; j < E_beam_step_count; j++) {
+	// 					for (std::size_t k = 0; k < y_step_count; k++) {
+	// 						const double x = x_bins[i];
+	// 						const double y = y_bins[k];
+	// 						const double E_beam = E_beam_bins[j];
+							
+	// 						TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, process.target.mass, process.projectile.mass);
+	// 						const PerturbativeQuantity cross_section_xQ2 = sidis.lepton_pair_cross_section_xQ2(kinematics);
+	// 						const double jacobian = CommonFunctions::xy_jacobian(kinematics, process);
+	// 						const PerturbativeQuantity cross_section_xy = cross_section_xQ2 * jacobian;
+
+	// 						const double Q2 = kinematics.Q2;
+	// 						const double renormalization_scale = sidis.renormalization_scale_function(kinematics);
+	// 						const double factorization_scale = sidis.factorization_scale_function(kinematics);
+	// 						const double fragmentation_scale = sidis.fragmentation_scale_function(kinematics);
+
+	// 						#pragma omp critical
+	// 						{
+	// 							file << x << ", " << y << ", " << E_beam << ", " << cross_section_xy.lo << ", " << cross_section_xy.nlo << ", " << cross_section_xy.nnlo;
+	// 							file << ", " << Q2 << ", " << renormalization_scale << ", " << factorization_scale << ", " << fragmentation_scale << IO::endl;
+	// 							file.flush();
+
+	// 							calculated_values++;
+	// 							std::cout << "Calculated value " << calculated_values << " / " << variation_count * x_step_count * y_step_count * E_beam_step_count;
+	// 							std::cout << " [" << "variation " << IO::leading_zeroes(variation_index + 1, Math::number_of_digits(variation_count)) << " / " << variation_count << "]";
+	// 							std::cout << ": " << cross_section_xy;
+	// 							std::cout << " (x = " << x << ", y = " << y << ", s = " << kinematics.s << ", E_beam = " << E_beam << ", Q2 = " << kinematics.Q2 << ")";
+	// 							std::cout << IO::endl;
+	// 						}
+	// 					}
+	// 				}
+	// 			}
+	// 		}
+	// 		file.close();
+	// 	}
+	// }
 };
 
 #endif

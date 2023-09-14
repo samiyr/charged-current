@@ -124,6 +124,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	for (const auto &pdf_set_name : error_set_pdfs) {
 		Analysis errors = base;
 		errors.params.pdf_error_sets = true;
+		errors.params.pdf_set = pdf_set_name;
 
 		const std::string output_folder = "Data/SIDIS/MuonPairProduction/CharmedHadrons/ErrorSets/" + pdf_set_name + "/";
 
