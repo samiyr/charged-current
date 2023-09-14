@@ -71,6 +71,7 @@ struct SIDIS {
 	bool use_nlp_nlo = false;
 
 	ScaleVariation scale_variation = ScaleVariation::None;
+	bool decay_variation = false;
 
 	SIDIS (
 		const FlavorVector _active_flavors, 
@@ -153,7 +154,21 @@ struct SIDIS {
 		);
 		return sidis;
 	}
-	void output_run_info(std::ofstream &file, const std::string comment) {
+	auto construct_computation_ff_variation(const FragmentationConfiguration<FFInterface, DecayFunction> ff_variation) const requires is_pdf_interface<PDFInterface> {
+		SIDISComputation sidis(
+			active_flavors, 
+			{
+				top_mass, bottom_mass, charm_mass, strange_mass, up_mass, down_mass, 0.0, down_mass, up_mass, strange_mass, charm_mass, bottom_mass, top_mass
+			},
+			pdf, ff_variation,
+			integration_parameters,
+			process, 
+			renormalization_scale, factorization_scale, fragmentation_scale,
+			use_modified_cross_section_prefactor, order, use_nlp_nlo
+		);
+		return sidis;
+	}
+	void output_run_info(std::ofstream &file, const auto &sidis, const std::string comment) {
 		file << "#cross_section = d^2s/dxdy" << IO::endl;
 		file << "#active_flavors = ";
 		for (const FlavorType flavor : active_flavors) {
@@ -163,8 +178,9 @@ struct SIDIS {
 		
 		file << "#pdf = " << pdf.set_name << " [" << typeid(pdf).name() << "]" << IO::endl;
 		file << "#ff = ";
-		for (const auto &frag : ff.interfaces) {
-			file << frag.set_name << " ";
+		for (const auto &[frag, decay] : std::views::zip(sidis.ff1.interfaces, sidis.ff1.decays)) {
+			const DecayParametrization p = decay.parametrization;
+			file << frag.set_name << " [N = " << p.N << " | alpha = " << p.alpha << " | beta = " << p.beta << " | gamma = " << p.gamma << "] ";
 		}
 		file << IO::endl;
 
@@ -289,6 +305,7 @@ struct SIDIS {
 		const std::string comment = "") requires is_pdf_interface<PDFInterface> {
 
 		if (scale_variation != ScaleVariation::None) { return lepton_pair_cross_section_xy_scale_variations(x_bins, y_bins, E_beam_bins, output, comment); }
+		if (decay_variation) { return lepton_pair_cross_section_xy_ff_variations(x_bins, y_bins, E_beam_bins, output, comment); }
 
 		const std::size_t x_step_count = x_bins.size();
 		const std::size_t y_step_count = y_bins.size();
@@ -299,11 +316,12 @@ struct SIDIS {
 		IO::create_directory_tree(output);
 		std::ofstream file(output);
 
-		output_run_info(file, comment);
+		SIDISComputation sidis = construct_computation();
+
+		output_run_info(file, sidis, comment);
 
 		file << "x,y,E,LO,NLO,NNLO,Q2,renormalization_scale,factorization_scale,fragmentation_scale" << IO::endl;
 
-		SIDISComputation sidis = construct_computation();
 		#pragma omp parallel if(parallelize) num_threads(number_of_threads) firstprivate(sidis)
 		{
 			#pragma omp for collapse(3) schedule(guided)
@@ -371,7 +389,7 @@ struct SIDIS {
 			IO::create_directory_tree(output);
 			std::ofstream file(output);
 
-			output_run_info(file, comment);
+			output_run_info(file, sidis, comment);
 			file << "#pdf_member = " << member_index << IO::endl;
 
 			file << "x,y,E,LO,NLO,NNLO,Q2,renormalization_scale,factorization_scale,fragmentation_scale" << IO::endl;
@@ -473,7 +491,7 @@ struct SIDIS {
 			IO::create_directory_tree(output);
 			std::ofstream file(output);
 
-			output_run_info(file, comment);
+			output_run_info(file, sidis, comment);
 			file << "#renormalization_scale = " << scale[0] << IO::endl;
 			file << "#factorization_scale = " << scale[1] << IO::endl;
 			file << "#fragmentation_scale = " << scale[2] << IO::endl;
@@ -521,85 +539,131 @@ struct SIDIS {
 		}
 	}
 
-	// void lepton_pair_cross_section_xy_ff_variations(
-	// 	const std::vector<double> x_bins, 
-	// 	const std::vector<double> y_bins, 
-	// 	const std::vector<double> E_beam_bins, 
-	// 	const std::filesystem::path base_output, 
-	// 	const std::string comment = "") requires is_pdf_interface<PDFInterface> {
+	void lepton_pair_cross_section_xy_ff_variations(
+		const std::vector<double> x_bins, 
+		const std::vector<double> y_bins, 
+		const std::vector<double> E_beam_bins, 
+		const std::filesystem::path base_output, 
+		const std::string comment = "") requires is_pdf_interface<PDFInterface> {
 
-	// 	const std::size_t x_step_count = x_bins.size();
-	// 	const std::size_t y_step_count = y_bins.size();
-	// 	const std::size_t E_beam_step_count = E_beam_bins.size();
+		const std::size_t x_step_count = x_bins.size();
+		const std::size_t y_step_count = y_bins.size();
+		const std::size_t E_beam_step_count = E_beam_bins.size();
 
-	// 	int calculated_values = 0;
+		int calculated_values = 0;
 
-	// 	const auto ff_variations = std::get<std::vector<FragmentationConfiguration<FFInterface, DecayFunction>>>(ff);
+		const std::vector<std::vector<int>> multiplicative_factors{
+			{-1, -1, -1, -1}, {-1, -1, -1, 0}, {-1, -1, -1, 1}, 
+			{-1, -1, 0, -1}, {-1, -1, 0, 0}, {-1, -1, 0, 1}, 
+			{-1, -1, 1, -1}, {-1, -1, 1, 0}, {-1, -1, 1, 1}, 
+			{-1, 0, -1, -1}, {-1, 0, -1, 0}, {-1, 0, -1, 1}, 
+			{-1, 0, 0, -1}, {-1, 0, 0, 0}, {-1, 0, 0, 1}, 
+			{-1, 0, 1, -1}, {-1, 0, 1, 0}, {-1, 0, 1, 1}, 
+			{-1, 1, -1, -1}, {-1, 1, -1, 0}, {-1, 1, -1, 1}, 
+			{-1, 1, 0, -1}, {-1, 1, 0, 0}, {-1, 1, 0, 1}, 
+			{-1, 1, 1, -1}, {-1, 1, 1, 0}, {-1, 1, 1, 1}, 
+			{0, -1, -1, -1}, {0, -1, -1, 0}, {0, -1, -1, 1}, 
+			{0, -1, 0, -1}, {0, -1, 0, 0}, {0, -1, 0, 1}, 
+			{0, -1, 1, -1}, {0, -1, 1, 0}, {0, -1, 1, 1}, 
+			{0, 0, -1, -1}, {0, 0, -1, 0}, {0, 0, -1, 1}, 
+			{0, 0, 0, -1}, {0, 0, 0, 0}, {0, 0, 0, 1}, 
+			{0, 0, 1, -1}, {0, 0, 1, 0}, {0, 0, 1, 1}, 
+			{0, 1, -1, -1}, {0, 1, -1, 0}, {0, 1, -1, 1}, 
+			{0, 1, 0, -1}, {0, 1, 0, 0}, {0, 1, 0, 1}, 
+			{0, 1, 1, -1}, {0, 1, 1, 0}, {0, 1, 1, 1}, 
+			{1, -1, -1, -1}, {1, -1, -1, 0}, {1, -1, -1, 1}, 
+			{1, -1, 0, -1}, {1, -1, 0, 0}, {1, -1, 0, 1}, 
+			{1, -1, 1, -1}, {1, -1, 1, 0}, {1, -1, 1, 1}, 
+			{1, 0, -1, -1}, {1, 0, -1, 0}, {1, 0, -1, 1}, 
+			{1, 0, 0, -1}, {1, 0, 0, 0}, {1, 0, 0, 1}, 
+			{1, 0, 1, -1}, {1, 0, 1, 0}, {1, 0, 1, 1}, 
+			{1, 1, -1, -1}, {1, 1, -1, 0}, {1, 1, -1, 1}, 
+			{1, 1, 0, -1}, {1, 1, 0, 0}, {1, 1, 0, 1}, 
+			{1, 1, 1, -1}, {1, 1, 1, 0}, {1, 1, 1, 1}
+		};
 
-	// 	const std::size_t variation_count = ff_variations.size();
+		const std::size_t variation_count = multiplicative_factors.size();
 
-	// 	for (std::size_t variation_index = 0; variation_index < variation_count; variation_index++) {
-	// 		const FragmentationConfiguration<FFInterface, DecayFunction> ff_variation = ff_variations[variation_index];
-	// 		SIDISComputation sidis = construct_computation_ff_variation(ff_variation);
+		for (std::size_t variation_index = 0; variation_index < variation_count; variation_index++) {
+			const std::vector<int> factors = multiplicative_factors[variation_index];
+			FragmentationConfiguration ff_variation = ff;
 
-	// 		const std::string path_trail = "variation_" + std::to_string(variation_index);
-	// 		std::filesystem::path full_filename = base_output.stem();
-	// 		full_filename /= path_trail;
-	// 		full_filename.replace_extension(base_output.extension());
-	// 		std::filesystem::path output = base_output;
-	// 		output.replace_filename(full_filename);
+			for (auto &decay : ff_variation.decays) {
+				const DecayParametrization current = decay.parametrization;
+				const DecayParametrization new_parametrization(
+					current.N + factors[0] * current.N_sigma,
+					current.alpha + factors[1] * current.alpha_sigma,
+					current.beta + factors[2] * current.beta_sigma,
+					current.gamma + factors[3] * current.gamma_sigma,
+					current.N_sigma,
+					current.alpha_sigma,
+					current.beta_sigma,
+					current.gamma_sigma
+				);
 
-	// 		IO::create_directory_tree(output);
-	// 		std::ofstream file(output);
+				decay.parametrization = new_parametrization;
+			}
 
-	// 		output_run_info(file, comment);
-	// 		file << "#N = " << ff_variation.decays.front().parametrization.N << IO::endl;
-	// 		file << "#alpha = " << ff_variation.decays.front().parametrization.alpha << IO::endl;
-	// 		file << "#beta = " << ff_variation.decays.front().parametrization.beta << IO::endl;
-	// 		file << "#gamma = " << ff_variation.decays.front().parametrization.gamma << IO::endl;
+			SIDISComputation sidis = construct_computation_ff_variation(ff_variation);
 
-	// 		file << "x,y,E,LO,NLO,NNLO,Q2,renormalization_scale,factorization_scale,fragmentation_scale" << IO::endl;
+			const std::string path_trail = "variation_" + std::to_string(variation_index);
+			std::filesystem::path full_filename = base_output.stem();
+			full_filename /= path_trail;
+			full_filename.replace_extension(base_output.extension());
+			std::filesystem::path output = base_output;
+			output.replace_filename(full_filename);
 
-	// 		#pragma omp parallel if(parallelize) num_threads(number_of_threads) firstprivate(sidis)
-	// 		{
-	// 			#pragma omp for collapse(3) schedule(guided)
-	// 			for (std::size_t i = 0; i < x_step_count; i++) {
-	// 				for (std::size_t j = 0; j < E_beam_step_count; j++) {
-	// 					for (std::size_t k = 0; k < y_step_count; k++) {
-	// 						const double x = x_bins[i];
-	// 						const double y = y_bins[k];
-	// 						const double E_beam = E_beam_bins[j];
+			IO::create_directory_tree(output);
+			std::ofstream file(output);
+
+			output_run_info(file, sidis, comment);
+			file << "#N = " << ff_variation.decays.front().parametrization.N << IO::endl;
+			file << "#alpha = " << ff_variation.decays.front().parametrization.alpha << IO::endl;
+			file << "#beta = " << ff_variation.decays.front().parametrization.beta << IO::endl;
+			file << "#gamma = " << ff_variation.decays.front().parametrization.gamma << IO::endl;
+
+			file << "x,y,E,LO,NLO,NNLO,Q2,renormalization_scale,factorization_scale,fragmentation_scale" << IO::endl;
+
+			#pragma omp parallel if(parallelize) num_threads(number_of_threads) firstprivate(sidis)
+			{
+				#pragma omp for collapse(3) schedule(guided)
+				for (std::size_t i = 0; i < x_step_count; i++) {
+					for (std::size_t j = 0; j < E_beam_step_count; j++) {
+						for (std::size_t k = 0; k < y_step_count; k++) {
+							const double x = x_bins[i];
+							const double y = y_bins[k];
+							const double E_beam = E_beam_bins[j];
 							
-	// 						TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, process.target.mass, process.projectile.mass);
-	// 						const PerturbativeQuantity cross_section_xQ2 = sidis.lepton_pair_cross_section_xQ2(kinematics);
-	// 						const double jacobian = CommonFunctions::xy_jacobian(kinematics, process);
-	// 						const PerturbativeQuantity cross_section_xy = cross_section_xQ2 * jacobian;
+							TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, process.target.mass, process.projectile.mass);
+							const PerturbativeQuantity cross_section_xQ2 = sidis.lepton_pair_cross_section_xQ2(kinematics);
+							const double jacobian = CommonFunctions::xy_jacobian(kinematics, process);
+							const PerturbativeQuantity cross_section_xy = cross_section_xQ2 * jacobian;
 
-	// 						const double Q2 = kinematics.Q2;
-	// 						const double renormalization_scale = sidis.renormalization_scale_function(kinematics);
-	// 						const double factorization_scale = sidis.factorization_scale_function(kinematics);
-	// 						const double fragmentation_scale = sidis.fragmentation_scale_function(kinematics);
+							const double Q2 = kinematics.Q2;
+							const double renormalization_scale = sidis.renormalization_scale_function(kinematics);
+							const double factorization_scale = sidis.factorization_scale_function(kinematics);
+							const double fragmentation_scale = sidis.fragmentation_scale_function(kinematics);
 
-	// 						#pragma omp critical
-	// 						{
-	// 							file << x << ", " << y << ", " << E_beam << ", " << cross_section_xy.lo << ", " << cross_section_xy.nlo << ", " << cross_section_xy.nnlo;
-	// 							file << ", " << Q2 << ", " << renormalization_scale << ", " << factorization_scale << ", " << fragmentation_scale << IO::endl;
-	// 							file.flush();
+							#pragma omp critical
+							{
+								file << x << ", " << y << ", " << E_beam << ", " << cross_section_xy.lo << ", " << cross_section_xy.nlo << ", " << cross_section_xy.nnlo;
+								file << ", " << Q2 << ", " << renormalization_scale << ", " << factorization_scale << ", " << fragmentation_scale << IO::endl;
+								file.flush();
 
-	// 							calculated_values++;
-	// 							std::cout << "Calculated value " << calculated_values << " / " << variation_count * x_step_count * y_step_count * E_beam_step_count;
-	// 							std::cout << " [" << "variation " << IO::leading_zeroes(variation_index + 1, Math::number_of_digits(variation_count)) << " / " << variation_count << "]";
-	// 							std::cout << ": " << cross_section_xy;
-	// 							std::cout << " (x = " << x << ", y = " << y << ", s = " << kinematics.s << ", E_beam = " << E_beam << ", Q2 = " << kinematics.Q2 << ")";
-	// 							std::cout << IO::endl;
-	// 						}
-	// 					}
-	// 				}
-	// 			}
-	// 		}
-	// 		file.close();
-	// 	}
-	// }
+								calculated_values++;
+								std::cout << "Calculated value " << calculated_values << " / " << variation_count * x_step_count * y_step_count * E_beam_step_count;
+								std::cout << " [" << "variation " << IO::leading_zeroes(variation_index + 1, Math::number_of_digits(variation_count)) << " / " << variation_count << "]";
+								std::cout << ": " << cross_section_xy;
+								std::cout << " (x = " << x << ", y = " << y << ", s = " << kinematics.s << ", E_beam = " << E_beam << ", Q2 = " << kinematics.Q2 << ")";
+								std::cout << IO::endl;
+							}
+						}
+					}
+				}
+			}
+			file.close();
+		}
+	}
 };
 
 #endif

@@ -9,6 +9,8 @@
 #include "Common/ScaleDependence.cpp"
 #include "Common/PerturbativeQuantity.cpp"
 
+#include "Decay/DecayParametrization.cpp"
+
 #include "Integration/IntegrationParameters.cpp"
 
 struct AnalysisParameters {
@@ -32,6 +34,9 @@ struct AnalysisParameters {
 
 	bool parallelize = true;
 	unsigned int number_of_threads = Utility::get_default_thread_count();
+
+	DecayParametrization decay_parametrization = DecayParametrization::fit1();
+	bool decay_variation = false;
 };
 
 #endif

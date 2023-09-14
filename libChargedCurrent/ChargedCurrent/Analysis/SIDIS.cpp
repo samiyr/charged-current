@@ -58,6 +58,8 @@ struct SIDISAnalysis {
 
 		sidis.integration_parameters = params.integration;
 
+		sidis.decay_variation = params.decay_variation;
+
 		sidis.parallelize = params.parallelize;
 		sidis.number_of_threads = params.number_of_threads;
 
@@ -67,33 +69,7 @@ struct SIDISAnalysis {
 			sidis.lepton_pair_cross_section_xy_error_sets(x_bins, y_bins, E_beam_bins, filename, comment);
 		}
 	}
-	// template <typename PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction>
-	// void muon_pair_production_error_sets(
-	// 	const std::vector<double> x_bins, 
-	// 	const std::vector<double> y_bins, 
-	// 	const std::vector<double> E_beam_bins, 
-	// 	const std::filesystem::path filename, 
-	// 	const PDFInterface &pdf,
-	// 	const FragmentationConfiguration<FFInterface, DecayFunction> &ff,
-	// 	const std::string comment = "") requires is_instance<PDFInterface, LHASetInterface> {
-	// 	SIDIS sidis(
-	// 		{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
-	// 		pdf, ff,
-	// 		params.process,
-	// 		renormalization, factorization, fragmentation
-	// 	);
 
-	// 	sidis.charm_mass = params.charm_mass;
-
-	// 	sidis.combine_integrals = true;
-	// 	sidis.use_modified_cross_section_prefactor = true;
-	// 	sidis.scale_variation = params.scale_variation;
-	// 	sidis.order = params.order;
-
-	// 	sidis.integration_parameters = params.integration;
-
-	// 	sidis.lepton_pair_cross_section_xy(x_bins, y_bins, E_beam_bins, filename, comment);
-	// }
 	void muon_pair_production(
 		const std::vector<double> x_bins, 
 		const std::vector<double> y_bins, 
@@ -105,7 +81,7 @@ struct SIDISAnalysis {
 		const Particle target = Constants::Particles::Proton;
 		const auto decay_function = DecayFunctions::decay_function;
 
-		const DecayParametrization parametrization = DecayParametrization::fit1();
+		const DecayParametrization parametrization = params.decay_parametrization;
 
 		const auto muon_pair_production_lambda = [&]<typename PDF>(PDF &&pdf) {
 			muon_pair_production(

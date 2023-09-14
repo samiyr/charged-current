@@ -10,8 +10,8 @@
 
 template <is_pdf_interface Interface, is_decay_function DecayFunction>
 struct FragmentationConfiguration {
-	const std::vector<Interface> interfaces;
-	const std::vector<Decay<DecayFunction>> decays;
+	std::vector<Interface> interfaces;
+	std::vector<Decay<DecayFunction>> decays;
 
 	FragmentationConfiguration(const std::vector<Interface> _interfaces) noexcept 
 	: interfaces(_interfaces), decays(interfaces.size(), Decay()) {}

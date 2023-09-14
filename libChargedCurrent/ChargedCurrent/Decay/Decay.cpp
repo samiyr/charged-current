@@ -8,7 +8,7 @@
 
 template <is_decay_function DecayFunction = decltype(DecayFunctions::trivial)>
 struct Decay {
-	const DecayParametrization parametrization;
+	DecayParametrization parametrization;
 	const Particle resonance;
 	const Particle hadron;
 	const DecayFunction decay_function;
