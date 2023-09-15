@@ -36,6 +36,7 @@ struct AnalysisParameters {
 	unsigned int number_of_threads = Utility::get_default_thread_count();
 
 	DecayParametrization decay_parametrization = DecayParametrization::fit1();
+	std::vector<DecayParametrization> decay_parametrization_set = {};
 	bool decay_variation = false;
 };
 

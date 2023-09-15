@@ -58,6 +58,7 @@ struct SIDISAnalysis {
 
 		sidis.integration_parameters = params.integration;
 
+		sidis.decay_variations = params.decay_parametrization_set;
 		sidis.decay_variation = params.decay_variation;
 
 		sidis.parallelize = params.parallelize;

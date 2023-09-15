@@ -174,7 +174,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	// );
 
 	Analysis decay = base;
-	decay.params.decay_parametrization = DecayParametrization::fit2();
+	decay.params.decay_parametrization_set = DecayParametrization::fit2_set();
 	decay.params.decay_variation = true;
 
 	decay.sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins_2, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/nutev_old_neutrino.csv");

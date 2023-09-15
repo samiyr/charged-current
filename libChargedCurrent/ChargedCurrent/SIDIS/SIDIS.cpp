@@ -71,6 +71,8 @@ struct SIDIS {
 	bool use_nlp_nlo = false;
 
 	ScaleVariation scale_variation = ScaleVariation::None;
+
+	std::vector<DecayParametrization> decay_variations{};
 	bool decay_variation = false;
 
 	SIDIS (
@@ -552,56 +554,14 @@ struct SIDIS {
 
 		int calculated_values = 0;
 
-		const std::vector<std::vector<int>> multiplicative_factors{
-			{-1, -1, -1, -1}, {-1, -1, -1, 0}, {-1, -1, -1, 1}, 
-			{-1, -1, 0, -1}, {-1, -1, 0, 0}, {-1, -1, 0, 1}, 
-			{-1, -1, 1, -1}, {-1, -1, 1, 0}, {-1, -1, 1, 1}, 
-			{-1, 0, -1, -1}, {-1, 0, -1, 0}, {-1, 0, -1, 1}, 
-			{-1, 0, 0, -1}, {-1, 0, 0, 0}, {-1, 0, 0, 1}, 
-			{-1, 0, 1, -1}, {-1, 0, 1, 0}, {-1, 0, 1, 1}, 
-			{-1, 1, -1, -1}, {-1, 1, -1, 0}, {-1, 1, -1, 1}, 
-			{-1, 1, 0, -1}, {-1, 1, 0, 0}, {-1, 1, 0, 1}, 
-			{-1, 1, 1, -1}, {-1, 1, 1, 0}, {-1, 1, 1, 1}, 
-			{0, -1, -1, -1}, {0, -1, -1, 0}, {0, -1, -1, 1}, 
-			{0, -1, 0, -1}, {0, -1, 0, 0}, {0, -1, 0, 1}, 
-			{0, -1, 1, -1}, {0, -1, 1, 0}, {0, -1, 1, 1}, 
-			{0, 0, -1, -1}, {0, 0, -1, 0}, {0, 0, -1, 1}, 
-			{0, 0, 0, -1}, {0, 0, 0, 0}, {0, 0, 0, 1}, 
-			{0, 0, 1, -1}, {0, 0, 1, 0}, {0, 0, 1, 1}, 
-			{0, 1, -1, -1}, {0, 1, -1, 0}, {0, 1, -1, 1}, 
-			{0, 1, 0, -1}, {0, 1, 0, 0}, {0, 1, 0, 1}, 
-			{0, 1, 1, -1}, {0, 1, 1, 0}, {0, 1, 1, 1}, 
-			{1, -1, -1, -1}, {1, -1, -1, 0}, {1, -1, -1, 1}, 
-			{1, -1, 0, -1}, {1, -1, 0, 0}, {1, -1, 0, 1}, 
-			{1, -1, 1, -1}, {1, -1, 1, 0}, {1, -1, 1, 1}, 
-			{1, 0, -1, -1}, {1, 0, -1, 0}, {1, 0, -1, 1}, 
-			{1, 0, 0, -1}, {1, 0, 0, 0}, {1, 0, 0, 1}, 
-			{1, 0, 1, -1}, {1, 0, 1, 0}, {1, 0, 1, 1}, 
-			{1, 1, -1, -1}, {1, 1, -1, 0}, {1, 1, -1, 1}, 
-			{1, 1, 0, -1}, {1, 1, 0, 0}, {1, 1, 0, 1}, 
-			{1, 1, 1, -1}, {1, 1, 1, 0}, {1, 1, 1, 1}
-		};
-
-		const std::size_t variation_count = multiplicative_factors.size();
+		const std::size_t variation_count = decay_variations.size();
 
 		for (std::size_t variation_index = 0; variation_index < variation_count; variation_index++) {
-			const std::vector<int> factors = multiplicative_factors[variation_index];
+			const DecayParametrization parametrization = decay_variations[variation_index];
 			FragmentationConfiguration ff_variation = ff;
 
 			for (auto &decay : ff_variation.decays) {
-				const DecayParametrization current = decay.parametrization;
-				const DecayParametrization new_parametrization(
-					current.N + factors[0] * current.N_sigma,
-					current.alpha + factors[1] * current.alpha_sigma,
-					current.beta + factors[2] * current.beta_sigma,
-					current.gamma + factors[3] * current.gamma_sigma,
-					current.N_sigma,
-					current.alpha_sigma,
-					current.beta_sigma,
-					current.gamma_sigma
-				);
-
-				decay.parametrization = new_parametrization;
+				decay.parametrization = parametrization;
 			}
 
 			SIDISComputation sidis = construct_computation_ff_variation(ff_variation);
@@ -652,7 +612,9 @@ struct SIDIS {
 
 								calculated_values++;
 								std::cout << "Calculated value " << calculated_values << " / " << variation_count * x_step_count * y_step_count * E_beam_step_count;
-								std::cout << " [" << "variation " << IO::leading_zeroes(variation_index + 1, Math::number_of_digits(variation_count)) << " / " << variation_count << "]";
+								std::cout << " [" << "variation ";
+								std::cout << IO::leading_zeroes(variation_index + 1, Math::number_of_digits(variation_count)) << " / " << variation_count;
+								std::cout << "]";
 								std::cout << ": " << cross_section_xy;
 								std::cout << " (x = " << x << ", y = " << y << ", s = " << kinematics.s << ", E_beam = " << E_beam << ", Q2 = " << kinematics.Q2 << ")";
 								std::cout << IO::endl;
