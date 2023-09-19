@@ -173,17 +173,29 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	// 	1.3, 1.5, AnalysisSet::CCFR, x_bins, "Data/DIS/CharmProduction/MassScaling/", "ccfr_13.csv", "ccfr_15.csv"
 	// );
 
-	Analysis decay = base;
-	decay.params.decay_parametrization_set = DecayParametrization::fit2_set();
-	decay.params.decay_variation = true;
+	Analysis decay1 = base;
+	decay1.params.decay_parametrization_set = DecayParametrization::fit_set_1();
+	decay1.params.decay_variation = true;
 
-	decay.sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins_2, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/nutev_old_neutrino.csv");
-	decay.sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins_2, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/nutev_new_neutrino.csv");
-	decay.sidis().muon_pair_production(AnalysisSet::CCFR, x_bins_2, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/ccfr_neutrino.csv");
+	decay1.sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins_2, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet1/nutev_old_neutrino.csv");
+	decay1.sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins_2, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet1/nutev_new_neutrino.csv");
+	decay1.sidis().muon_pair_production(AnalysisSet::CCFR, x_bins_2, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet1/ccfr_neutrino.csv");
 
-	bar(decay).sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins_2, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/nutev_old_antineutrino.csv");
-	bar(decay).sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins_2, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/nutev_new_antineutrino.csv");
-	bar(decay).sidis().muon_pair_production(AnalysisSet::CCFR, x_bins_2, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/ccfr_antineutrino.csv");
+	bar(decay1).sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins_2, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet1/nutev_old_antineutrino.csv");
+	bar(decay1).sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins_2, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet1/nutev_new_antineutrino.csv");
+	bar(decay1).sidis().muon_pair_production(AnalysisSet::CCFR, x_bins_2, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet1/ccfr_antineutrino.csv");
+
+	Analysis decay2 = base;
+	decay2.params.decay_parametrization_set = DecayParametrization::fit_set_2();
+	decay2.params.decay_variation = true;
+
+	decay2.sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins_2, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet2/nutev_old_neutrino.csv");
+	decay2.sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins_2, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet2/nutev_new_neutrino.csv");
+	decay2.sidis().muon_pair_production(AnalysisSet::CCFR, x_bins_2, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet2/ccfr_neutrino.csv");
+
+	bar(decay2).sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins_2, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet2/nutev_old_antineutrino.csv");
+	bar(decay2).sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins_2, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet2/nutev_new_antineutrino.csv");
+	bar(decay2).sidis().muon_pair_production(AnalysisSet::CCFR, x_bins_2, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet2/ccfr_antineutrino.csv");
 
 	return 0;
 }
