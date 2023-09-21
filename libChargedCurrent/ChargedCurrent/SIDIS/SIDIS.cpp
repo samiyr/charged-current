@@ -393,6 +393,8 @@ struct SIDIS {
 
 		int calculated_values = 0;
 
+		std::streamsize original_precision = std::cout.precision();
+
 		for (typename decltype(pdf)::size_type member_index = 0; member_index < member_count; member_index++) {
 			const auto &pdf_member = pdf[member_index];
 			SIDISComputation sidis = construct_computation(pdf_member);
@@ -411,7 +413,6 @@ struct SIDIS {
 			file << "#pdf_member = " << member_index << IO::endl;
 
 			file << "x,y,E,LO,NLO,NNLO,Q2,renormalization_scale,factorization_scale,fragmentation_scale" << IO::endl;
-			std::streamsize original_precision = std::cout.precision();
 
 			#pragma omp parallel if(parallelize) num_threads(number_of_threads) firstprivate(sidis)
 			{
@@ -463,9 +464,8 @@ struct SIDIS {
 				}
 			}
 			file.close();
-
-			std::cout << std::setprecision(static_cast<int>(original_precision)) << IO::endl;
 		}
+		std::cout << std::setprecision(static_cast<int>(original_precision)) << IO::endl;
 	}
 
 	private:
@@ -511,6 +511,8 @@ struct SIDIS {
 
 		const std::size_t total_count = scale_count * x_step_count * y_step_count * E_beam_step_count;
 
+		std::streamsize original_precision = std::cout.precision();
+
 		for (std::size_t scale_index = 0; scale_index < scale_count; scale_index++) {
 			const std::vector<double> scale = scales[scale_index];
 			SIDISComputation sidis = construct_computation_scale_variation(scale);
@@ -531,7 +533,6 @@ struct SIDIS {
 			file << "#fragmentation_scale = " << scale[2] << IO::endl;
 
 			file << "x,y,E,LO,NLO,NNLO,Q2,renormalization_scale,factorization_scale,fragmentation_scale" << IO::endl;
-			std::streamsize original_precision = std::cout.precision();
 
 			#pragma omp parallel if(parallelize) num_threads(number_of_threads) firstprivate(sidis)
 			{
@@ -583,9 +584,8 @@ struct SIDIS {
 				}
 			}
 			file.close();
-
-			std::cout << std::setprecision(static_cast<int>(original_precision)) << IO::endl;
 		}
+		std::cout << std::setprecision(static_cast<int>(original_precision)) << IO::endl;
 	}
 
 	void lepton_pair_cross_section_xy_ff_variations(
@@ -602,6 +602,8 @@ struct SIDIS {
 		const std::size_t total_count = variation_count * x_step_count * y_step_count * E_beam_step_count;
 
 		int calculated_values = 0;
+
+		std::streamsize original_precision = std::cout.precision();
 
 		for (std::size_t variation_index = 0; variation_index < variation_count; variation_index++) {
 			const DecayParametrization parametrization = decay_variations[variation_index];
@@ -630,7 +632,6 @@ struct SIDIS {
 			file << "#gamma = " << ff_variation.decays.front().parametrization.gamma << IO::endl;
 
 			file << "x,y,E,LO,NLO,NNLO,Q2,renormalization_scale,factorization_scale,fragmentation_scale" << IO::endl;
-			std::streamsize original_precision = std::cout.precision();
 
 			#pragma omp parallel if(parallelize) num_threads(number_of_threads) firstprivate(sidis)
 			{
@@ -683,9 +684,8 @@ struct SIDIS {
 				}
 			}
 			file.close();
-
-			std::cout << std::setprecision(static_cast<int>(original_precision)) << IO::endl;
 		}
+		std::cout << std::setprecision(static_cast<int>(original_precision)) << IO::endl;
 	}
 };
 
