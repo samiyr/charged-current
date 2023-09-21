@@ -154,6 +154,7 @@ struct DIS {
 		const std::size_t x_step_count = x_bins.size();
 		const std::size_t y_step_count = y_bins.size();
 		const std::size_t E_beam_step_count = E_beam_bins.size();
+		const std::size_t total_count = x_step_count * y_step_count * E_beam_step_count;
 
 		int calculated_values = 0;
 
@@ -163,6 +164,7 @@ struct DIS {
 		output_run_info(file, comment);
 
 		file << "x,y,E,LO,NLO,Q2,factorization_scale" << IO::endl;
+		std::streamsize original_precision = std::cout.precision();
 
 		DISComputation dis = construct_computation();
 		#pragma omp parallel if(parallelize) num_threads(number_of_threads) firstprivate(dis)
@@ -192,16 +194,29 @@ struct DIS {
 							file.flush();
 
 							calculated_values++;
-							std::cout << "Calculated value " << calculated_values << " / " << x_step_count * y_step_count * E_beam_step_count ;
-							std::cout << ": " << cross_section_xy.lo << ", " << cross_section_xy.nlo;
-							std::cout << " (x = " << x << ", y = " << y << ", s = " << kinematics.s << ", E_beam = " << E_beam << ", Q2 = " << kinematics.Q2 << ")";
-							std::cout << IO::endl;
+
+							const int base_precision = 5;
+							const int s_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(kinematics.s)));
+							const int E_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(E_beam)));
+							const int Q2_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(kinematics.Q2)));
+
+							std::cout << std::fixed << std::setprecision(base_precision);
+							std::cout << "[DIS] " << IO::leading_zeroes(calculated_values, Math::number_of_digits(total_count));
+							std::cout << " / " << total_count;
+							std::cout << ": " << cross_section_xy;
+							std::cout << " (x = " << x << ", y = " << y;
+							std::cout << std::setprecision(s_precision) << ", s = " << kinematics.s;
+							std::cout << std::setprecision(E_precision) << ", E_beam = " << E_beam;
+							std::cout << std::setprecision(Q2_precision) << ", Q2 = " << kinematics.Q2 << ")";
+							std::cout << "\r" << std::flush;
 						}
 					}
 				}
 			}
 		}
 		file.close();
+
+		std::cout << std::setprecision(static_cast<int>(original_precision)) << IO::endl;
 	}
 };
 

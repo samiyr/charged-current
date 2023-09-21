@@ -63,6 +63,11 @@ namespace Collections {
 
 		return output;
 	}
+
+	template <typename T, typename S>
+	bool contains(const T &collection, const S &value) {
+		return std::find(std::begin(collection), std::end(collection), value) != std::end(collection);
+	}
 }
 
 template <typename T, typename U>

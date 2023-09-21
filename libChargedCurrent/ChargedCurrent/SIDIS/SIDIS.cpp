@@ -312,6 +312,7 @@ struct SIDIS {
 		const std::size_t x_step_count = x_bins.size();
 		const std::size_t y_step_count = y_bins.size();
 		const std::size_t E_beam_step_count = E_beam_bins.size();
+		const std::size_t total_count = x_step_count * y_step_count * E_beam_step_count;
 
 		int calculated_values = 0;
 
@@ -323,6 +324,7 @@ struct SIDIS {
 		output_run_info(file, sidis, comment);
 
 		file << "x,y,E,LO,NLO,NNLO,Q2,renormalization_scale,factorization_scale,fragmentation_scale" << IO::endl;
+		std::streamsize original_precision = std::cout.precision();
 
 		#pragma omp parallel if(parallelize) num_threads(number_of_threads) firstprivate(sidis)
 		{
@@ -351,16 +353,29 @@ struct SIDIS {
 							file.flush();
 
 							calculated_values++;
-							std::cout << "Calculated value " << calculated_values << " / " << x_step_count * y_step_count * E_beam_step_count ;
+
+							const int base_precision = 5;
+							const int s_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(kinematics.s)));
+							const int E_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(E_beam)));
+							const int Q2_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(kinematics.Q2)));
+
+							std::cout << std::fixed << std::setprecision(base_precision);
+							std::cout << "[SIDIS] " << IO::leading_zeroes(calculated_values, Math::number_of_digits(total_count));
+							std::cout << " / " << total_count;
 							std::cout << ": " << cross_section_xy;
-							std::cout << " (x = " << x << ", y = " << y << ", s = " << kinematics.s << ", E_beam = " << E_beam << ", Q2 = " << kinematics.Q2 << ")";
-							std::cout << IO::endl;
+							std::cout << " (x = " << x << ", y = " << y;
+							std::cout << std::setprecision(s_precision) << ", s = " << kinematics.s;
+							std::cout << std::setprecision(E_precision) << ", E_beam = " << E_beam;
+							std::cout << std::setprecision(Q2_precision) << ", Q2 = " << kinematics.Q2 << ")";
+							std::cout << "\r" << std::flush;
 						}
 					}
 				}
 			}
 		}
 		file.close();
+
+		std::cout << std::setprecision(static_cast<int>(original_precision)) << IO::endl;
 	}
 
 	void lepton_pair_cross_section_xy_error_sets(
@@ -374,6 +389,7 @@ struct SIDIS {
 		const std::size_t x_step_count = x_bins.size();
 		const std::size_t y_step_count = y_bins.size();
 		const std::size_t E_beam_step_count = E_beam_bins.size();
+		const std::size_t total_count = member_count * x_step_count * y_step_count * E_beam_step_count;
 
 		int calculated_values = 0;
 
@@ -395,6 +411,7 @@ struct SIDIS {
 			file << "#pdf_member = " << member_index << IO::endl;
 
 			file << "x,y,E,LO,NLO,NNLO,Q2,renormalization_scale,factorization_scale,fragmentation_scale" << IO::endl;
+			std::streamsize original_precision = std::cout.precision();
 
 			#pragma omp parallel if(parallelize) num_threads(number_of_threads) firstprivate(sidis)
 			{
@@ -423,18 +440,31 @@ struct SIDIS {
 								file.flush();
 
 								calculated_values++;
-								std::cout << "Calculated value " << calculated_values << " / " << member_count * x_step_count * y_step_count * E_beam_step_count;
+
+								const int base_precision = 5;
+								const int s_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(kinematics.s)));
+								const int E_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(E_beam)));
+								const int Q2_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(kinematics.Q2)));
+
+								std::cout << std::fixed << std::setprecision(base_precision);
+								std::cout << "[SIDIS] " << IO::leading_zeroes(calculated_values, Math::number_of_digits(total_count));
+								std::cout << " / " << total_count;
 								std::cout << " [" << "pdf member " << IO::leading_zeroes(member_index + 1, Math::number_of_digits(member_count));
 								std::cout << " / " << member_count << "]";
 								std::cout << ": " << cross_section_xy;
-								std::cout << " (x = " << x << ", y = " << y << ", s = " << kinematics.s << ", E_beam = " << E_beam << ", Q2 = " << kinematics.Q2 << ")";
-								std::cout << IO::endl;
+								std::cout << " (x = " << x << ", y = " << y;
+								std::cout << std::setprecision(s_precision) << ", s = " << kinematics.s;
+								std::cout << std::setprecision(E_precision) << ", E_beam = " << E_beam;
+								std::cout << std::setprecision(Q2_precision) << ", Q2 = " << kinematics.Q2 << ")";
+								std::cout << "\r" << std::flush;
 							}
 						}
 					}
 				}
 			}
 			file.close();
+
+			std::cout << std::setprecision(static_cast<int>(original_precision)) << IO::endl;
 		}
 	}
 
@@ -479,6 +509,8 @@ struct SIDIS {
 
 		const std::size_t scale_count = scales.size();
 
+		const std::size_t total_count = scale_count * x_step_count * y_step_count * E_beam_step_count;
+
 		for (std::size_t scale_index = 0; scale_index < scale_count; scale_index++) {
 			const std::vector<double> scale = scales[scale_index];
 			SIDISComputation sidis = construct_computation_scale_variation(scale);
@@ -499,6 +531,7 @@ struct SIDIS {
 			file << "#fragmentation_scale = " << scale[2] << IO::endl;
 
 			file << "x,y,E,LO,NLO,NNLO,Q2,renormalization_scale,factorization_scale,fragmentation_scale" << IO::endl;
+			std::streamsize original_precision = std::cout.precision();
 
 			#pragma omp parallel if(parallelize) num_threads(number_of_threads) firstprivate(sidis)
 			{
@@ -527,17 +560,31 @@ struct SIDIS {
 								file.flush();
 
 								calculated_values++;
-								std::cout << "Calculated value " << calculated_values << " / " << scale_count * x_step_count * y_step_count * E_beam_step_count;
+
+								const int base_precision = 5;
+								const int s_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(kinematics.s)));
+								const int E_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(E_beam)));
+								const int Q2_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(kinematics.Q2)));
+
+								std::cout << std::fixed << std::setprecision(base_precision);
+								std::cout << "[SIDIS] " << IO::leading_zeroes(calculated_values, Math::number_of_digits(total_count));
+								std::cout << " / " << total_count;
 								std::cout << " [" << "scale " << IO::leading_zeroes(scale_index + 1, Math::number_of_digits(scale_count)) << " / " << scale_count << "]";
 								std::cout << ": " << cross_section_xy;
-								std::cout << " (x = " << x << ", y = " << y << ", s = " << kinematics.s << ", E_beam = " << E_beam << ", Q2 = " << kinematics.Q2 << ")";
-								std::cout << IO::endl;
+								std::cout << " (x = " << x << ", y = " << y;
+								std::cout << std::setprecision(s_precision) << ", s = " << kinematics.s;
+								std::cout << std::setprecision(E_precision) << ", E_beam = " << E_beam;
+								std::cout << std::setprecision(Q2_precision) << ", Q2 = " << kinematics.Q2 << ")";
+								std::cout << "\r" << std::flush;
+
 							}
 						}
 					}
 				}
 			}
 			file.close();
+
+			std::cout << std::setprecision(static_cast<int>(original_precision)) << IO::endl;
 		}
 	}
 
@@ -551,10 +598,10 @@ struct SIDIS {
 		const std::size_t x_step_count = x_bins.size();
 		const std::size_t y_step_count = y_bins.size();
 		const std::size_t E_beam_step_count = E_beam_bins.size();
+		const std::size_t variation_count = decay_variations.size();
+		const std::size_t total_count = variation_count * x_step_count * y_step_count * E_beam_step_count;
 
 		int calculated_values = 0;
-
-		const std::size_t variation_count = decay_variations.size();
 
 		for (std::size_t variation_index = 0; variation_index < variation_count; variation_index++) {
 			const DecayParametrization parametrization = decay_variations[variation_index];
@@ -583,6 +630,7 @@ struct SIDIS {
 			file << "#gamma = " << ff_variation.decays.front().parametrization.gamma << IO::endl;
 
 			file << "x,y,E,LO,NLO,NNLO,Q2,renormalization_scale,factorization_scale,fragmentation_scale" << IO::endl;
+			std::streamsize original_precision = std::cout.precision();
 
 			#pragma omp parallel if(parallelize) num_threads(number_of_threads) firstprivate(sidis)
 			{
@@ -611,19 +659,32 @@ struct SIDIS {
 								file.flush();
 
 								calculated_values++;
-								std::cout << "Calculated value " << calculated_values << " / " << variation_count * x_step_count * y_step_count * E_beam_step_count;
+
+								const int base_precision = 5;
+								const int s_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(kinematics.s)));
+								const int E_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(E_beam)));
+								const int Q2_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(kinematics.Q2)));
+
+								std::cout << std::fixed << std::setprecision(base_precision);
+								std::cout << "[SIDIS] " << IO::leading_zeroes(calculated_values, Math::number_of_digits(total_count));
+								std::cout << " / " << total_count;
 								std::cout << " [" << "variation ";
 								std::cout << IO::leading_zeroes(variation_index + 1, Math::number_of_digits(variation_count)) << " / " << variation_count;
 								std::cout << "]";
 								std::cout << ": " << cross_section_xy;
-								std::cout << " (x = " << x << ", y = " << y << ", s = " << kinematics.s << ", E_beam = " << E_beam << ", Q2 = " << kinematics.Q2 << ")";
-								std::cout << IO::endl;
+								std::cout << " (x = " << x << ", y = " << y;
+								std::cout << std::setprecision(s_precision) << ", s = " << kinematics.s;
+								std::cout << std::setprecision(E_precision) << ", E_beam = " << E_beam;
+								std::cout << std::setprecision(Q2_precision) << ", Q2 = " << kinematics.Q2 << ")";
+								std::cout << "\r" << std::flush;
 							}
 						}
 					}
 				}
 			}
 			file.close();
+
+			std::cout << std::setprecision(static_cast<int>(original_precision)) << IO::endl;
 		}
 	}
 };
