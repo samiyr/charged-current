@@ -15,7 +15,7 @@
 
 struct AnalysisParameters {
 	std::string pdf_set = "EPPS21nlo_CT18Anlo_Fe56";
-	bool enable_unity_nuclear_corrections = false;
+	bool explicit_isospin = false;
 	double Z = 1.0;
 	double A = 1.0;
 

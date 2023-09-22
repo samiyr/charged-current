@@ -20,7 +20,6 @@
 #include "PDF/FragmentationConfiguration.cpp"
 #include "PDF/PDFConcept.cpp"
 #include "PDF/Interfaces/LHASetInterface.cpp"
-#include "PDF/Interfaces/LHANuclearInterface.cpp"
 
 template <
 	typename PDFInterface,

@@ -12,7 +12,6 @@
 
 #include "PDF/Interfaces/LHAInterface.cpp"
 #include "PDF/Interfaces/LHASetInterface.cpp"
-#include "PDF/Interfaces/LHANuclearInterface.cpp"
 
 #include "SIDIS/SIDIS.cpp"
 
@@ -106,12 +105,27 @@ struct SIDISAnalysis {
 			);
 		};
 
+		const double Z = params.Z;
+		const double A = params.A;
+
 		if (params.pdf_error_sets) {
-			muon_pair_production_lambda(LHASetInterface(params.pdf_set));
-		} else if (params.enable_unity_nuclear_corrections) {
-			muon_pair_production_lambda(LHANuclearInterface(params.pdf_set, params.Z, params.A));
+			if (params.explicit_isospin) {
+				LHASetInterface<std::true_type> pdf(params.pdf_set);
+				pdf.Z = Z;
+				pdf.A = A;
+				muon_pair_production_lambda(pdf);
+			} else {
+				muon_pair_production_lambda(LHASetInterface<std::false_type>(params.pdf_set));
+			}
 		} else {
-			muon_pair_production_lambda(LHAInterface(params.pdf_set));
+			if (params.explicit_isospin) {
+				LHAInterface<std::true_type> pdf(params.pdf_set);
+				pdf.Z = Z;
+				pdf.A = A;
+				muon_pair_production_lambda(pdf);
+			} else {
+				muon_pair_production_lambda(LHAInterface<std::false_type>(params.pdf_set));
+			}
 		}
 	}
 

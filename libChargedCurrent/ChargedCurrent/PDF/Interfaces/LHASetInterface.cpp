@@ -8,12 +8,15 @@
 #include "PDF/Interfaces/LHAInterface.cpp"
 #include "PDF/PDFConcept.cpp"
 
-template <std::derived_from<LHAPDF::Extrapolator> Extrapolator = ZeroExtrapolator>
+template <typename explicit_isospin = std::false_type, std::derived_from<LHAPDF::Extrapolator> Extrapolator = ZeroExtrapolator>
 class LHASetInterface {
 	public:
 	using size_type = unsigned int;
 
 	const std::string set_name;
+
+	double Z = 1.0;
+	double A = 1.0;
 
 	private:
 	LHASetInterface(
@@ -39,24 +42,28 @@ class LHASetInterface {
 	LHASetInterface(std::string _set_name) noexcept
 	: LHASetInterface(_set_name, false, {}) { }
 
-	LHAInterface<Extrapolator> operator[](const size_type member) const {
-		return LHAInterface<Extrapolator>(set_name, static_cast<int>(member), use_multipliers, multipliers, use_global_multiplier, global_multiplier);
+	LHAInterface<explicit_isospin, Extrapolator> operator[](const size_type member) const {
+		LHAInterface<explicit_isospin, Extrapolator> pdf_member(set_name, static_cast<int>(member), use_multipliers, multipliers, use_global_multiplier, global_multiplier);
+		pdf_member.Z = Z;
+		pdf_member.A = A;
+
+		return pdf_member;
 	}
 
-	LHAInterface<Extrapolator> central() const {
+	LHAInterface<explicit_isospin, Extrapolator> central() const {
 		return this->operator[](0);
 	}
 
 	class iterator {
 		public:
-		iterator(const int member, const LHASetInterface<Extrapolator> *set) : member(member), set(set) {}
+		iterator(const int member, const LHASetInterface<explicit_isospin, Extrapolator> *set) : member(member), set(set) {}
 		iterator operator++() { member++; return *this; }
 		bool operator!=(const iterator &other) { return member != other.member; }
-		const LHAInterface<Extrapolator> operator*() const { return set->operator[](member); }
+		const LHAInterface<explicit_isospin, Extrapolator> operator*() const { return set->operator[](member); }
 
 		private:
 		int member;
-		const LHASetInterface<Extrapolator> *set;
+		const LHASetInterface<explicit_isospin, Extrapolator> *set;
 	};
 
 	size_type size() const {

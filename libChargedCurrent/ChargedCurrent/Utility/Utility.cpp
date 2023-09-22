@@ -78,7 +78,7 @@ constexpr T& operator*=(T &v1, U &&v2) {
 	return v1;
 }
 
-template<class Specialization, template<typename> class TemplateClass, typename ...PartialSpecialisation>
+template<class Specialization, template<typename...> class TemplateClass, typename ...PartialSpecialisation>
 concept is_instance = requires (Specialization s) {
     []<typename ...TemplateArgs>(TemplateClass<PartialSpecialisation..., TemplateArgs...>&){}(s);
 };
