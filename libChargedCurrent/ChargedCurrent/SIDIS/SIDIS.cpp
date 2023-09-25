@@ -21,6 +21,17 @@
 #include "PDF/PDFConcept.cpp"
 #include "PDF/Interfaces/LHASetInterface.cpp"
 
+/// @brief 
+/// @tparam PDFInterface The type used for PDFs. Must be either a type that satisfies the is_pdf_interface concept or a specialization of LHASetInterface.
+/// @tparam FFInterface The type used for fragmentation functions. Must be a type that satisfies the is_pdf_interface concept.
+/// @tparam DecayFunction The type for the decay function, most likely a lambda. Must satisfy the is_decay_function concept. 
+/// Defaults to the type of DecayFunctions::trivial.
+/// @tparam RenormalizationScale The type for the renormalization scale function, most likely a lambda. Must satisfy the is_scale_dependence concept.
+/// Defaults to the type of ScaleDependence::trivial::type.
+/// @tparam FactorizationScale The type for the factorization scale function, most likely a lambda. Must satisfy the is_scale_dependence concept.
+/// Defaults to the type of ScaleDependence::trivial::type.
+/// @tparam FragmentationScale The type for the fragmentation scale function, most likely a lambda. Must satisfy the is_scale_dependence concept.
+/// Defaults to the type of ScaleDependence::trivial::type.
 template <
 	typename PDFInterface,
 	is_pdf_interface FFInterface, 
@@ -30,6 +41,8 @@ template <
 	is_scale_dependence FragmentationScale = decltype(ScaleDependence::trivial)::type
 > requires is_pdf_interface<PDFInterface> || is_instance<PDFInterface, LHASetInterface>
 struct SIDIS {
+	// Compile-time constant that tells whether the PDF type (PDFInterface) is a specialization of LHASetInterface,
+	// which implies that PDF error sets are available.
 	static constexpr bool has_pdf_error_sets = is_instance<PDFInterface, LHASetInterface>;
 
 	const FlavorVector active_flavors;
@@ -45,12 +58,13 @@ struct SIDIS {
 	IntegrationParameters integration_parameters = IntegrationParameters();
 	// The physical process considered, whether it's neutrino or antineutrino scattering and what are the target and projectile particles.
 	const Process process;
-
+	// Global square root of Mandelstam s, used for some kinematics when not everything is specified.
 	double global_sqrt_s;
-
 	// A wrapped function that computes the renormalization scale in a given kinematical point.
 	const ScaleDependence::Function<RenormalizationScale> renormalization_scale;
+	// A wrapped function that computes the factorization scale in a given kinematical point.
 	const ScaleDependence::Function<FactorizationScale> factorization_scale;
+	// A wrapped function that computes the fragmentation scale in a given kinematical point.
 	const ScaleDependence::Function<FragmentationScale> fragmentation_scale;
 
 	bool maintain_order_separation = true;

@@ -88,12 +88,19 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	Analysis scale = base;
 	scale.params.scale_variation = ScaleVariation::All;
 
-	Analysis unity_nuclear = base;
-	unity_nuclear.params.pdf_error_sets = true;
-	unity_nuclear.params.pdf_set = "CT18ANLO";
-	unity_nuclear.params.explicit_isospin = true;
-	unity_nuclear.params.Z = 26.0;
-	unity_nuclear.params.A = 56.0;
+	Analysis unity_nuclear_epps = base;
+	unity_nuclear_epps.params.pdf_error_sets = true;
+	unity_nuclear_epps.params.pdf_set = "CT18ANLO";
+	unity_nuclear_epps.params.explicit_isospin = true;
+	unity_nuclear_epps.params.Z = 26.0;
+	unity_nuclear_epps.params.A = 56.0;
+
+	Analysis unity_nuclear_ncteq = unity_nuclear_epps;
+	unity_nuclear_ncteq.params.pdf_error_sets = false;
+	unity_nuclear_ncteq.params.pdf_set = "nCTEQ15HQ_FullNuc_1_1";
+
+	Analysis unity_nuclear_nnnpdf = unity_nuclear_epps;
+	unity_nuclear_nnnpdf.params.pdf_set = "nNNPDF30_nlo_as_0118_p";
 
 	if (run("dis_charm")) {
 		std::cout << "========= DIS charm production =========" << IO::endl;
@@ -147,13 +154,33 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << "========= SIDIS unity nuclear ==========" << IO::endl;
 
 		measure([&] {
-			unity_nuclear.sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/UnityNuclear/nutev_old_neutrino.csv");
-			unity_nuclear.sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/UnityNuclear/nutev_new_neutrino.csv");
-			unity_nuclear.sidis().muon_pair_production(AnalysisSet::CCFR, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/UnityNuclear/ccfr_neutrino.csv");
+			unity_nuclear_epps.sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/UnityNuclear/CT18ANLO/nutev_old_neutrino.csv");
+			unity_nuclear_epps.sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/UnityNuclear/CT18ANLO/nutev_new_neutrino.csv");
+			unity_nuclear_epps.sidis().muon_pair_production(AnalysisSet::CCFR, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/UnityNuclear/CT18ANLO/ccfr_neutrino.csv");
 
-			bar(unity_nuclear).sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/UnityNuclear/nutev_old_antineutrino.csv");
-			bar(unity_nuclear).sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/UnityNuclear/nutev_new_antineutrino.csv");
-			bar(unity_nuclear).sidis().muon_pair_production(AnalysisSet::CCFR, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/UnityNuclear/ccfr_antineutrino.csv");
+			bar(unity_nuclear_epps).sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/UnityNuclear/CT18ANLO/nutev_old_antineutrino.csv");
+			bar(unity_nuclear_epps).sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/UnityNuclear/CT18ANLO/nutev_new_antineutrino.csv");
+			bar(unity_nuclear_epps).sidis().muon_pair_production(AnalysisSet::CCFR, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/UnityNuclear/CT18ANLO/ccfr_antineutrino.csv");
+		});
+
+		measure([&] {
+			unity_nuclear_ncteq.sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/UnityNuclear/nCTEQ15HQ_FullNuc_1_1/nutev_old_neutrino.csv");
+			unity_nuclear_ncteq.sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/UnityNuclear/nCTEQ15HQ_FullNuc_1_1/nutev_new_neutrino.csv");
+			unity_nuclear_ncteq.sidis().muon_pair_production(AnalysisSet::CCFR, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/UnityNuclear/nCTEQ15HQ_FullNuc_1_1/ccfr_neutrino.csv");
+
+			bar(unity_nuclear_ncteq).sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/UnityNuclear/nCTEQ15HQ_FullNuc_1_1/nutev_old_antineutrino.csv");
+			bar(unity_nuclear_ncteq).sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/UnityNuclear/nCTEQ15HQ_FullNuc_1_1/nutev_new_antineutrino.csv");
+			bar(unity_nuclear_ncteq).sidis().muon_pair_production(AnalysisSet::CCFR, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/UnityNuclear/nCTEQ15HQ_FullNuc_1_1/ccfr_antineutrino.csv");
+		});
+
+		measure([&] {
+			unity_nuclear_nnnpdf.sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/UnityNuclear/nNNPDF30_nlo_as_0118_p/nutev_old_neutrino.csv");
+			unity_nuclear_nnnpdf.sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/UnityNuclear/nNNPDF30_nlo_as_0118_p/nutev_new_neutrino.csv");
+			unity_nuclear_nnnpdf.sidis().muon_pair_production(AnalysisSet::CCFR, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/UnityNuclear/nNNPDF30_nlo_as_0118_p/ccfr_neutrino.csv");
+
+			bar(unity_nuclear_nnnpdf).sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/UnityNuclear/nNNPDF30_nlo_as_0118_p/nutev_old_antineutrino.csv");
+			bar(unity_nuclear_nnnpdf).sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/UnityNuclear/nNNPDF30_nlo_as_0118_p/nutev_new_antineutrino.csv");
+			bar(unity_nuclear_nnnpdf).sidis().muon_pair_production(AnalysisSet::CCFR, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/UnityNuclear/nNNPDF30_nlo_as_0118_p/ccfr_antineutrino.csv");
 		});
 
 		std::cout << separator << IO::endl;
