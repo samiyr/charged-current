@@ -14,6 +14,7 @@
 
 #include "Analysis/DIS.cpp"
 #include "Analysis/SIDIS.cpp"
+#include "Analysis/Utility.cpp"
 #include "Analysis/Parameters.cpp"
 
 template <
@@ -38,6 +39,9 @@ struct Analysis {
 	}
 	auto sidis() {
 		return SIDISAnalysis(params, renormalization, factorization, fragmentation);
+	}
+	auto utility() {
+		return UtilityAnalysis(params);
 	}
 };
 

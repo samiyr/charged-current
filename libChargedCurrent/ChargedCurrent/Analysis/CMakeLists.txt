@@ -5,4 +5,5 @@ target_sources(${LIBRARY_NAME}
 		DIS.cpp
 		Parameters.cpp
 		SIDIS.cpp
+		Utility.cpp
 )

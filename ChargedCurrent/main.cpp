@@ -43,6 +43,26 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		0.3, 0.325, 0.35, 0.375, 
 		0.4
 	};
+	const std::vector<double> x_bins_all = {
+		1e-6, 2e-6, 3e-6, 4e-6, 5e-6, 6e-6, 7e-6, 8e-6, 9e-6,
+		1e-5, 2e-5, 3e-5, 4e-5, 5e-5, 6e-5, 7e-5, 8e-5, 9e-5,
+		1e-4, 2e-4, 3e-4, 4e-4, 5e-4, 6e-4, 7e-4, 8e-4, 9e-4,
+		1e-3, 2e-3, 3e-3, 4e-3, 5e-3, 6e-3, 7e-3, 8e-3, 9e-3,
+		0.01, 0.01125, 0.0125, 0.01375, 0.015, 0.01625, 0.0175, 0.01875, 
+		0.02, 0.02125, 0.0225, 0.02375, 0.025, 0.02625, 0.0275, 0.02875, 
+		0.03, 0.03125, 0.0325, 0.03375, 0.035, 0.03625, 0.0375, 0.03875, 
+		0.04, 0.04125, 0.0425, 0.04375, 0.045, 0.04625, 0.0475, 0.04875,
+		0.05, 0.0625, 0.075, 0.0875, 
+		0.1, 0.125, 0.15, 0.175, 
+		0.2, 0.225, 0.25, 0.275, 
+		0.3, 0.325, 0.35, 0.375, 
+		0.4, 0.425, 0.45, 0.475, 
+		0.5, 0.525, 0.55, 0.575, 
+		0.6, 0.625, 0.65, 0.675, 
+		0.7, 0.725, 0.75, 0.775, 
+		0.8, 0.825, 0.85, 0.875, 
+		0.9, 0.925, 0.95, 0.975, 
+	};
 
 	const auto bar = []<
 		is_scale_dependence RenormalizationScale, is_scale_dependence FactorizationScale, is_scale_dependence FragmentationScale
@@ -63,10 +83,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << "Took " << elapsed.count() << " seconds" << IO::endl;
     };
 
-	const std::vector<std::string> error_set_pdfs = {
+	const std::vector<std::string> pdfs = {
 		"EPPS21nlo_CT18Anlo_Fe56",
 		"nCTEQ15_56_26",
 		"nNNPDF30_nlo_as_0118_A56_Z26"
+	};
+	const std::vector<std::string> free_pdfs = {
+		"CT18ANLO",
+		"nCTEQ15HQ_FullNuc_1_1",
+		"nNNPDF30_nlo_as_0118_p"
 	};
 
 	Analysis base;
@@ -220,7 +245,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 	if (run("errors")) {
 		std::cout << "=========== SIDIS error sets ===========" << IO::endl;
-		for (const auto &pdf_set_name : error_set_pdfs) {
+		for (const auto &pdf_set_name : pdfs) {
 			std::cout << "PDF set: " << pdf_set_name << IO::endl;
 
 			Analysis errors = base;
@@ -342,6 +367,29 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			bar(decay2).sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet2/nutev_old_antineutrino.csv");
 			bar(decay2).sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet2/nutev_new_antineutrino.csv");
 			bar(decay2).sidis().muon_pair_production(AnalysisSet::CCFR, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet2/ccfr_antineutrino.csv");
+		});
+
+		std::cout << separator << IO::endl;
+	}
+
+	if (run("pdf_values")) {
+		std::cout << "============== PDF values ==============" << IO::endl;
+
+		std::vector<std::string> all_pdfs;
+		all_pdfs.append_range(pdfs);
+		all_pdfs.append_range(free_pdfs);
+		all_pdfs.push_back("nNNPDF30_nlo_as_0118_A208_Z82");
+		all_pdfs.push_back("EPPS21nlo_CT18Anlo_Pb208");
+
+		measure([&] {
+			for (const auto &pdf_set_name : all_pdfs) {
+				Analysis analysis;
+				analysis.params.pdf_set = pdf_set_name;
+
+				const std::string output_folder = "Data/PDF/" + pdf_set_name + "/xf.csv";
+
+				analysis.utility().pdf_values(x_bins_all, {10.0, 100.0}, output_folder);
+			}
 		});
 
 		std::cout << separator << IO::endl;
