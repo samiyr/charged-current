@@ -13,10 +13,11 @@
 #include "Common/Process.cpp"
 
 #include "PDF/ZeroExtrapolator.cpp"
+#include "PDF/FreezeExtrapolator.cpp"
 
 #include "Utility/Globals.cpp"
 
-template <typename explicit_isospin = std::false_type, std::derived_from<LHAPDF::Extrapolator> Extrapolator = ZeroExtrapolator>
+template <typename explicit_isospin = std::false_type, std::derived_from<LHAPDF::Extrapolator> Extrapolator = FreezeExtrapolator>
 class LHAInterface {
 	public:
 	std::string set_name;
@@ -110,39 +111,17 @@ class LHAInterface {
 			const double Z_factor = Z / A;
 			const double N_factor = (A - Z) / A;
 
-			// const double xtbar = xf(Flavor::AntiTop);
-			// const double xbbar = xf(Flavor::AntiBottom);
-			// const double xcbar = xf(Flavor::AntiCharm);
-			// const double xsbar = xf(Flavor::AntiStrange);
 			const double xubar = xf(Flavor::AntiUp);
 			const double xdbar = xf(Flavor::AntiDown);
-
-			// const double xg = xf(Flavor::Gluon);
 			
 			const double xd = xf(Flavor::Down);
 			const double xu = xf(Flavor::Up);
-			// const double xs = xf(Flavor::Strange);
-			// const double xc = xf(Flavor::Charm);
-			// const double xb = xf(Flavor::Bottom);
-			// const double xt = xf(Flavor::Top);
-
-			// set_flavor(Flavor::AntiTop, xtbar);
-			// set_flavor(Flavor::AntiBottom, xbbar);
-			// set_flavor(Flavor::AntiCharm, xcbar);
-			// set_flavor(Flavor::AntiStrange, xsbar);
 
 			set_flavor(Flavor::AntiUp, Z_factor * xubar + N_factor * xdbar);
 			set_flavor(Flavor::AntiDown, Z_factor * xdbar + N_factor * xubar);
 
-			// set_flavor(Flavor::Gluon, xg);
-
 			set_flavor(Flavor::Down, Z_factor * xd + N_factor * xu);
 			set_flavor(Flavor::Up, Z_factor * xu + N_factor * xd);
-
-			// set_flavor(Flavor::Strange, xs);
-			// set_flavor(Flavor::Charm, xc);
-			// set_flavor(Flavor::Bottom, xb);
-			// set_flavor(Flavor::Top, xt);
 		}
 
 		if (use_multipliers) {

@@ -85,7 +85,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 	const std::vector<std::string> pdfs = {
 		"EPPS21nlo_CT18Anlo_Fe56",
-		"nCTEQ15_56_26",
+		"nCTEQ15HQ_FullNuc_56_26",
 		"nNNPDF30_nlo_as_0118_A56_Z26"
 	};
 	const std::vector<std::string> free_pdfs = {
