@@ -377,8 +377,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << "============== PDF values ==============" << IO::endl;
 
 		std::vector<std::string> all_pdfs;
-		all_pdfs.append_range(pdfs);
-		all_pdfs.append_range(free_pdfs);
+		all_pdfs.insert(all_pdfs.end(), pdfs.begin(), pdfs.end());
+		all_pdfs.insert(all_pdfs.end(), free_pdfs.begin(), free_pdfs.end());
 		all_pdfs.push_back("nNNPDF30_nlo_as_0118_A208_Z82");
 		all_pdfs.push_back("EPPS21nlo_CT18Anlo_Pb208");
 
