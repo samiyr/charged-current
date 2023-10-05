@@ -17,7 +17,7 @@
 
 #include "Utility/Globals.cpp"
 
-template <typename explicit_isospin = std::false_type, std::derived_from<LHAPDF::Extrapolator> Extrapolator = FreezeExtrapolator>
+template <typename explicit_isospin = std::false_type, std::derived_from<LHAPDF::Extrapolator> Extrapolator = ZeroExtrapolator>
 class LHAInterface {
 	public:
 	std::string set_name;
@@ -151,6 +151,15 @@ class LHAInterface {
 	}
 	const std::vector<double> &get_flavor_values() const {
 		return flavor_values;
+	}
+
+	double Q2_min() const {
+		activate();
+		return pdf->q2Min();
+	}
+	double Q2_max() const {
+		activate();
+		return pdf->q2Max();
 	}
 
 	private:

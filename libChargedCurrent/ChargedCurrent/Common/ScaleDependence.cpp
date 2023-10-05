@@ -3,6 +3,7 @@
 
 #include <optional>
 #include <concepts>
+#include <algorithm>
 
 #include "Common/TRFKinematics.cpp"
 
@@ -52,6 +53,11 @@ namespace ScaleDependence {
 	// Scale dependence function wrapper that returns Q^2 multiplied by a constant value.
 	[[maybe_unused]] constexpr inline auto multiplicative(const double factor) {
 		return Function([factor](const TRFKinematics &kinematics) noexcept { return kinematics.Q2 * factor; });
+	}
+	// Scale dependence function wrapper that returns Q^2 multiplied by a constant value, in such a way that the multiplied value is clamped
+	// between a minimum and maximum Q^2 value.
+	[[maybe_unused]] constexpr inline auto clamped_multiplicative(const double factor, const double Q2_min, const double Q2_max) {
+		return Function([factor, Q2_min, Q2_max](const TRFKinematics &kinematics) noexcept { return std::clamp(kinematics.Q2 * factor, Q2_min, Q2_max); });
 	}
 }
 

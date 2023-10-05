@@ -63,6 +63,9 @@ struct SIDISAnalysis {
 		sidis.parallelize = params.parallelize;
 		sidis.number_of_threads = params.number_of_threads;
 
+		sidis.freeze_factorization_scale = params.freeze_Q2;
+		sidis.freeze_fragmentation_scale = params.freeze_Q2;
+
 		if constexpr (is_pdf_interface<PDFInterface>) {
 			sidis.lepton_pair_cross_section_xy(x_bins, y_bins, E_beam_bins, filename, comment);
 		} else if constexpr (is_instance<PDFInterface, LHASetInterface>) {
@@ -397,6 +400,9 @@ struct SIDISAnalysis {
 
 		sidis.parallelize = params.parallelize;
 		sidis.number_of_threads = params.number_of_threads;
+
+		sidis.freeze_factorization_scale = params.freeze_Q2;
+		sidis.freeze_fragmentation_scale = params.freeze_Q2;
 
 		sidis.lepton_pair_cross_section_xy(x_bins, y_bins, E_beam_bins, filename, comment);
 	}

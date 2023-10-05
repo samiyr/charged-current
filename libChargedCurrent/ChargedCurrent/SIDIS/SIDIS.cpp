@@ -6,6 +6,7 @@
 #include <sstream>
 #include <iomanip>
 #include <fstream>
+#include <limits>
 
 #include "SIDIS/SIDISComputation.cpp"
 
@@ -66,6 +67,9 @@ struct SIDIS {
 	const ScaleDependence::Function<FactorizationScale> factorization_scale;
 	// A wrapped function that computes the fragmentation scale in a given kinematical point.
 	const ScaleDependence::Function<FragmentationScale> fragmentation_scale;
+
+	bool freeze_factorization_scale;
+	bool freeze_fragmentation_scale;
 
 	bool maintain_order_separation = true;
 	bool combine_integrals = false;
@@ -152,9 +156,15 @@ struct SIDIS {
 		return sidis;
 	}
 	auto construct_computation_scale_variation(const std::vector<double> scales) const requires is_pdf_interface<PDFInterface> {
+		const double pdf_Q2_min = freeze_factorization_scale ? pdf.Q2_min() : std::numeric_limits<double>::min();
+		const double pdf_Q2_max = freeze_factorization_scale ? pdf.Q2_max() : std::numeric_limits<double>::max();
+
+		const double ff_Q2_min = freeze_fragmentation_scale ? ff.Q2_min() : std::numeric_limits<double>::min();
+		const double ff_Q2_max = freeze_fragmentation_scale ? ff.Q2_max() : std::numeric_limits<double>::max();
+
 		const auto renormalization = ScaleDependence::multiplicative(scales[0]);
-		const auto factorization = ScaleDependence::multiplicative(scales[1]);
-		const auto fragmentation = ScaleDependence::multiplicative(scales[2]);
+		const auto factorization = ScaleDependence::clamped_multiplicative(scales[1], pdf_Q2_min, pdf_Q2_max);
+		const auto fragmentation = ScaleDependence::clamped_multiplicative(scales[2], ff_Q2_min, ff_Q2_max);
 
 		SIDISComputation sidis(
 			active_flavors, 

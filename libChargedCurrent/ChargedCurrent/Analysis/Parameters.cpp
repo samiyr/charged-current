@@ -38,6 +38,8 @@ struct AnalysisParameters {
 	DecayParametrization decay_parametrization = DecayParametrization::fit1();
 	std::vector<DecayParametrization> decay_parametrization_set = {};
 	bool decay_variation = false;
+
+	bool freeze_Q2 = false;
 };
 
 #endif

@@ -112,6 +112,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 	Analysis scale = base;
 	scale.params.scale_variation = ScaleVariation::All;
+	scale.params.freeze_Q2 = true;
 
 	Analysis unity_nuclear_epps = base;
 	unity_nuclear_epps.params.pdf_error_sets = true;
