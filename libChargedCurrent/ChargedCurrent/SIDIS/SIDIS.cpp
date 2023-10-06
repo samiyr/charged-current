@@ -638,7 +638,7 @@ struct SIDIS {
 
 			SIDISComputation sidis = construct_computation_ff_variation(ff_variation);
 
-			const std::string path_trail = "variation_" + std::to_string(variation_index);
+			const std::string path_trail = IO::leading_zeroes(variation_index, 4);<
 			std::filesystem::path full_filename = base_output.stem();
 			full_filename /= path_trail;
 			full_filename.replace_extension(base_output.extension());
