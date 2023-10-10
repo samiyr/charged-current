@@ -112,7 +112,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 	Analysis scale = base;
 	scale.params.scale_variation = ScaleVariation::All;
-	scale.params.freeze_Q2 = true;
+	scale.params.freeze_factorization = true;
+
+	Analysis epps_errors = base;
+	epps_errors.params.pdf_error_sets = true;
 
 	Analysis unity_nuclear_epps = base;
 	unity_nuclear_epps.params.pdf_error_sets = true;
@@ -128,17 +131,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	Analysis unity_nuclear_nnnpdf = unity_nuclear_epps;
 	unity_nuclear_nnnpdf.params.pdf_set = "nNNPDF30_nlo_as_0118_p";
 
-	if (run("dis_charm")) {
+	if (run("charmproduction")) {
 		std::cout << "========= DIS charm production =========" << IO::endl;
 		
 		measure([&] {
-			nlo.dis().charm_production(AnalysisSet::NuTeV_old, x_bins, "Data/DIS/CharmProduction/nutev_old_neutrino.csv");
-			nlo.dis().charm_production(AnalysisSet::NuTeV, x_bins, "Data/DIS/CharmProduction/nutev_new_neutrino.csv");
-			nlo.dis().charm_production(AnalysisSet::CCFR, x_bins, "Data/DIS/CharmProduction/ccfr_neutrino.csv");
+			epps_errors.dis().charm_production(AnalysisSet::NuTeV_old, x_bins, "Data/DIS/CharmProduction/nutev_old_neutrino.csv");
+			epps_errors.dis().charm_production(AnalysisSet::NuTeV, x_bins, "Data/DIS/CharmProduction/nutev_new_neutrino.csv");
+			epps_errors.dis().charm_production(AnalysisSet::CCFR, x_bins, "Data/DIS/CharmProduction/ccfr_neutrino.csv");
 
-			bar(nlo).dis().charm_production(AnalysisSet::NuTeV_old, x_bins, "Data/DIS/CharmProduction/nutev_old_antineutrino.csv");
-			bar(nlo).dis().charm_production(AnalysisSet::NuTeV, x_bins, "Data/DIS/CharmProduction/nutev_new_antineutrino.csv");
-			bar(nlo).dis().charm_production(AnalysisSet::CCFR, x_bins, "Data/DIS/CharmProduction/ccfr_antineutrino.csv");
+			bar(epps_errors).dis().charm_production(AnalysisSet::NuTeV_old, x_bins, "Data/DIS/CharmProduction/nutev_old_antineutrino.csv");
+			bar(epps_errors).dis().charm_production(AnalysisSet::NuTeV, x_bins, "Data/DIS/CharmProduction/nutev_new_antineutrino.csv");
+			bar(epps_errors).dis().charm_production(AnalysisSet::CCFR, x_bins, "Data/DIS/CharmProduction/ccfr_antineutrino.csv");
 		});
 
 		std::cout << separator << IO::endl;
@@ -160,7 +163,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << separator << IO::endl;
 	}
 
-	if (run("nlo_nlp")) {
+	if (run("nlonlp")) {
 		std::cout << "============ SIDIS NLO NLP =============" << IO::endl;
 
 		measure([&] {
@@ -176,7 +179,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << separator << IO::endl;
 	}
 
-	if (run("unity_nuclear")) {
+	if (run("unitynuclear")) {
 		std::cout << "========= SIDIS unity nuclear ==========" << IO::endl;
 
 		measure([&] {
@@ -212,7 +215,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << separator << IO::endl;
 	}
 
-	if (run("nnlo_d0")) {
+	if (run("nnlod0")) {
 		std::cout << "========== SIDIS NNLO D0 only ==========" << IO::endl;
 
 		measure([&] {
@@ -322,7 +325,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	nlo.params.order = PerturbativeOrder::NLO;
 	nlo.params.number_of_threads = number_of_threads;
 
-	if (run("mass_scaling")) {
+	if (run("massscaling")) {
 		std::cout << "========== SIDIS mass scaling ==========" << IO::endl;
 
 		measure([&] {
@@ -373,7 +376,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << separator << IO::endl;
 	}
 
-	if (run("pdf_values")) {
+	if (run("pdfvalues")) {
 		std::cout << "============== PDF values ==============" << IO::endl;
 
 		std::vector<std::string> all_pdfs;

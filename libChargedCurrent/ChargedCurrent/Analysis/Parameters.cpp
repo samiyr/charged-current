@@ -39,7 +39,8 @@ struct AnalysisParameters {
 	std::vector<DecayParametrization> decay_parametrization_set = {};
 	bool decay_variation = false;
 
-	bool freeze_Q2 = false;
+	bool freeze_factorization = false;
+	bool freeze_fragmentation = true;
 };
 
 #endif

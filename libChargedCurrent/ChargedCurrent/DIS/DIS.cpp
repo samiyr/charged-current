@@ -4,19 +4,26 @@
 #include <fstream>
 #include <string>
 #include <filesystem>
+#include <chrono>
+#include <format>
 
 #include "PDF/PDFConcept.cpp"
+#include "PDF/Interfaces/LHASetInterface.cpp"
 
 #include "DIS/DISComputation.cpp"
 
 #include "Common/ScaleDependence.cpp"
 
 template <
-	is_pdf_interface PDFInterface, 
+	typename PDFInterface, 
 	is_scale_dependence RenormalizationScale = decltype(ScaleDependence::trivial)::type,
 	is_scale_dependence FactorizationScale = decltype(ScaleDependence::trivial)::type
->
+> requires is_pdf_interface<PDFInterface> || is_instance<PDFInterface, LHASetInterface>
 struct DIS {
+	// Compile-time constant that tells whether the PDF type (PDFInterface) is a specialization of LHASetInterface,
+	// which implies that PDF error sets are available.
+	static constexpr bool has_pdf_error_sets = is_instance<PDFInterface, LHASetInterface>;
+
 	const FlavorVector active_flavors;
 
 	const PDFInterface pdf;
@@ -58,7 +65,7 @@ struct DIS {
 	factorization_scale(_factorization_scale) { }
 
 	private:
-	auto construct_computation() const {
+	auto construct_computation() const requires is_pdf_interface<PDFInterface> {
 		DISComputation dis(
 			global_sqrt_s, active_flavors, 
 			{
@@ -72,15 +79,33 @@ struct DIS {
 		);
 		return dis;
 	}
+
+	template <is_pdf_interface PDF>
+	auto construct_computation(const PDF pdf_member) const requires has_pdf_error_sets {
+		DISComputation sidis(
+			global_sqrt_s, active_flavors, 
+			{
+				top_mass, bottom_mass, charm_mass, strange_mass, up_mass, down_mass, 0.0, down_mass, up_mass, strange_mass, charm_mass, bottom_mass, top_mass
+			}, 
+			pdf_member,
+			integration_parameters,
+			process, 
+			momentum_fraction_mass_corrections, renormalization_scale, factorization_scale,
+			use_modified_cross_section_prefactor
+		);
+		return sidis;
+	}
+
 	void output_run_info(std::ofstream &file, const std::string comment) {
-		file << "#cross_section = ds/dxdy" << IO::endl;
+		file << "#timestamp = " << std::format("{:%d-%m-%Y %H:%M:%OS}", std::chrono::system_clock::now()) << IO::endl;
+		file << "#cross_section = d^2s/dxdy" << IO::endl;
 		file << "#active_flavors = ";
 		for (const FlavorType flavor : active_flavors) {
 			file << flavor << " ";
 		}
 		file << IO::endl;
 		
-		file << "#pdf = " << pdf.set_name << IO::endl;
+		file << "#pdf = " << pdf.set_name << " [" << typeid(pdf).name() << "]" << IO::endl;
 		file << "#process = " << process << IO::endl;
 
 		file << "#parallelize = " << Conversion::bool_to_string(parallelize) << IO::endl;
@@ -216,6 +241,95 @@ struct DIS {
 		}
 		file.close();
 
+		std::cout << std::setprecision(static_cast<int>(original_precision)) << IO::endl;
+	}
+
+	void differential_cross_section_xy_error_sets(
+		const std::vector<double> x_bins, 
+		const std::vector<double> y_bins, 
+		const std::vector<double> E_beam_bins, 
+		const std::filesystem::path base_output, 
+		const std::string comment = "") requires has_pdf_error_sets {
+
+		const std::size_t member_count = pdf.size();
+		const std::size_t x_step_count = x_bins.size();
+		const std::size_t y_step_count = y_bins.size();
+		const std::size_t E_beam_step_count = E_beam_bins.size();
+		const std::size_t total_count = member_count * x_step_count * y_step_count * E_beam_step_count;
+
+		int calculated_values = 0;
+
+		std::streamsize original_precision = std::cout.precision();
+
+		for (typename decltype(pdf)::size_type member_index = 0; member_index < member_count; member_index++) {
+			const auto &pdf_member = pdf[member_index];
+			DISComputation dis = construct_computation(pdf_member);
+
+			const std::string path_trail = IO::leading_zeroes(pdf_member.set_member_number, 4);
+			std::filesystem::path full_filename = base_output.stem();
+			full_filename /= path_trail;
+			full_filename.replace_extension(base_output.extension());
+			std::filesystem::path output = base_output;
+			output.replace_filename(full_filename);
+
+			IO::create_directory_tree(output);
+			std::ofstream file(output);
+
+			output_run_info(file, comment);
+			file << "#pdf_member = " << member_index << IO::endl;
+
+			file << "x,y,E,LO,NLO,Q2,renormalization_scale,factorization_scale" << IO::endl;
+
+			#pragma omp parallel if(parallelize) num_threads(number_of_threads) firstprivate(dis)
+			{
+				#pragma omp for collapse(3) schedule(guided)
+				for (std::size_t i = 0; i < x_step_count; i++) {
+					for (std::size_t j = 0; j < E_beam_step_count; j++) {
+						for (std::size_t k = 0; k < y_step_count; k++) {
+							const double x = x_bins[i];
+							const double y = y_bins[k];
+							const double E_beam = E_beam_bins[j];
+							
+							TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, process.target.mass, process.projectile.mass);
+							const PerturbativeQuantity cross_section_xQ2 = dis.differential_cross_section_xQ2_indirect(kinematics);
+							const double jacobian = CommonFunctions::xy_jacobian(kinematics, process);
+							const PerturbativeQuantity cross_section_xy = cross_section_xQ2 * jacobian;
+
+							const double Q2 = kinematics.Q2;
+							const double renormalization_scale = dis.renormalization_scale_function(kinematics);
+							const double factorization_scale = dis.factorization_scale_function(kinematics);
+
+							#pragma omp critical
+							{
+								file << x << ", " << y << ", " << E_beam << ", " << cross_section_xy.lo << ", " << cross_section_xy.nlo << ", " << cross_section_xy.nnlo;
+								file << ", " << Q2 << ", " << renormalization_scale << ", " << factorization_scale << IO::endl;
+								file.flush();
+
+								calculated_values++;
+
+								const int base_precision = 5;
+								const int s_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(kinematics.s)));
+								const int E_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(E_beam)));
+								const int Q2_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(kinematics.Q2)));
+
+								std::cout << std::fixed << std::setprecision(base_precision);
+								std::cout << "[DIS] " << IO::leading_zeroes(calculated_values, Math::number_of_digits(total_count));
+								std::cout << " / " << total_count;
+								std::cout << " [" << "pdf member " << IO::leading_zeroes(member_index + 1, Math::number_of_digits(member_count));
+								std::cout << " / " << member_count << "]";
+								std::cout << ": " << cross_section_xy;
+								std::cout << " (x = " << x << ", y = " << y;
+								std::cout << std::setprecision(s_precision) << ", s = " << kinematics.s;
+								std::cout << std::setprecision(E_precision) << ", E_beam = " << E_beam;
+								std::cout << std::setprecision(Q2_precision) << ", Q2 = " << kinematics.Q2 << ")";
+								std::cout << "\r" << std::flush;
+							}
+						}
+					}
+				}
+			}
+			file.close();
+		}
 		std::cout << std::setprecision(static_cast<int>(original_precision)) << IO::endl;
 	}
 };

@@ -77,7 +77,6 @@ namespace DISFunctions {
 		const double factorization_scale = params.factorization_scale;
 
 		if (xi_int) {
-			// if (xi < x) { return 0; }
 			if (xi == 1.0) { return 0.0; }
 		}
 

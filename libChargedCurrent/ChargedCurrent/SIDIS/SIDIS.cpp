@@ -7,6 +7,8 @@
 #include <iomanip>
 #include <fstream>
 #include <limits>
+#include <chrono>
+#include <format>
 
 #include "SIDIS/SIDISComputation.cpp"
 
@@ -68,8 +70,16 @@ struct SIDIS {
 	// A wrapped function that computes the fragmentation scale in a given kinematical point.
 	const ScaleDependence::Function<FragmentationScale> fragmentation_scale;
 
-	bool freeze_factorization_scale;
-	bool freeze_fragmentation_scale;
+	// If enabled, factorization scale will be frozen to the smallest value determined by the PDF.
+	// Requesting the value of the PDF at a smaller Q^2 value will then give the value with the smallest
+	// allowed Q^2 instead. Additionally, scale logarithms will be frozen as well. In essence,
+	// f(x, Q^2 < Q^2_min) = f(x, Q^2_min) and the same for scale logarithms.
+	bool freeze_factorization_scale = false;
+	// If enabled, fragmentation scale will be frozen to the smallest value determined by the FF.
+	// Requesting the value of the FF at a smaller Q^2 value will then give the value with the smallest
+	// allowed Q^2 instead. Additionally, scale logarithms will be frozen as well. In essence,
+	// f(x, Q^2 < Q^2_min) = f(x, Q^2_min) and the same for scale logarithms.
+	bool freeze_fragmentation_scale = true;
 
 	bool maintain_order_separation = true;
 	bool combine_integrals = false;
@@ -194,6 +204,7 @@ struct SIDIS {
 		return sidis;
 	}
 	void output_run_info(std::ofstream &file, const auto &sidis, const std::string comment) {
+		file << "#timestamp = " << std::format("{:%d-%m-%Y %H:%M:%OS}", std::chrono::system_clock::now()) << IO::endl;
 		file << "#cross_section = d^2s/dxdy" << IO::endl;
 		file << "#active_flavors = ";
 		for (const FlavorType flavor : active_flavors) {
@@ -213,6 +224,8 @@ struct SIDIS {
 		file << "#use_nlp_nlo = " << Conversion::bool_to_string(use_nlp_nlo) << IO::endl;
 		file << "#parallelize = " << Conversion::bool_to_string(parallelize) << IO::endl;
 		file << "#number_of_threads = " << number_of_threads << IO::endl;
+		file << "#freeze_factorization_scale = " << freeze_factorization_scale << IO::endl;
+		file << "#freeze_fragmentation_scale = " << freeze_fragmentation_scale << IO::endl;
 		file << "#up_mass = " << up_mass << IO::endl;
 		file << "#down_mass = " << down_mass << IO::endl;
 		file << "#charm_mass = " << charm_mass << IO::endl;
