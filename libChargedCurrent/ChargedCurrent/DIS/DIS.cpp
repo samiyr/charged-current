@@ -188,7 +188,7 @@ struct DIS {
 
 		output_run_info(file, comment);
 
-		file << "x,y,E,LO,NLO,Q2,factorization_scale" << IO::endl;
+		file << "x,y,E,LO,NLO,NNLO,Q2,factorization_scale" << IO::endl;
 		std::streamsize original_precision = std::cout.precision();
 
 		DISComputation dis = construct_computation();
@@ -278,7 +278,7 @@ struct DIS {
 			output_run_info(file, comment);
 			file << "#pdf_member = " << member_index << IO::endl;
 
-			file << "x,y,E,LO,NLO,Q2,renormalization_scale,factorization_scale" << IO::endl;
+			file << "x,y,E,LO,NLO,NNLO,Q2,renormalization_scale,factorization_scale" << IO::endl;
 
 			#pragma omp parallel if(parallelize) num_threads(number_of_threads) firstprivate(dis)
 			{
