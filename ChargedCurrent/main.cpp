@@ -165,7 +165,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << "====== SIDIS integrated inclusive ======" << IO::endl;
 		
 		measure([&] {
-			nomad_errors.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, "Data/SIDIS/MuonPairProduction/Integrated/nomad_neutrino.csv");
+			nomad_errors.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, "Data/SIDIS/MuonPairProduction/CharmedHadrons/Integrated/nomad_neutrino.csv");
 		});
 
 		std::cout << separator << IO::endl;
