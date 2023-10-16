@@ -141,6 +141,113 @@ struct SIDISAnalysis {
 	}
 
 	/*
+		INTEGRATED MUON PAIR PRODUCTION
+	*/
+
+	template <typename PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction>
+	void integrated_muon_pair_production(
+		const std::vector<double> E_beam_bins,
+		const double Q2_min,
+		const std::filesystem::path filename, 
+		const PDFInterface &pdf,
+		const FragmentationConfiguration<FFInterface, DecayFunction> &ff,
+		const std::string comment = "") requires is_pdf_interface<PDFInterface> || is_instance<PDFInterface, LHASetInterface> {
+		SIDIS sidis(
+			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+			pdf, ff,
+			params.process,
+			renormalization, factorization, fragmentation
+		);
+
+		sidis.charm_mass = params.charm_mass;
+
+		sidis.combine_integrals = true;
+		sidis.use_modified_cross_section_prefactor = true;
+		sidis.scale_variation = params.scale_variation;
+		sidis.order = params.order;
+		sidis.use_nlp_nlo = params.use_nlp_nlo;
+
+		sidis.integration_parameters = params.integration;
+
+		sidis.decay_variations = params.decay_parametrization_set;
+		sidis.decay_variation = params.decay_variation;
+
+		sidis.parallelize = params.parallelize;
+		sidis.number_of_threads = params.number_of_threads;
+
+		sidis.freeze_factorization_scale = params.freeze_factorization;
+		sidis.freeze_fragmentation_scale = params.freeze_fragmentation;
+
+		if constexpr (is_pdf_interface<PDFInterface>) {
+			sidis.integrated_lepton_pair_cross_section(E_beam_bins, Q2_min, filename, comment);
+		} else if constexpr (is_instance<PDFInterface, LHASetInterface>) {
+			sidis.integrated_lepton_pair_cross_section_error_sets(E_beam_bins, Q2_min, filename, comment);
+		}
+	}
+
+	void integrated_muon_pair_production(
+		const std::vector<double> E_beam_bins,
+		const double Q2_min,
+		const std::filesystem::path filename, 
+		const std::string comment = "") {
+		
+		const double minimum_lepton_momentum = params.minimum_lepton_momentum;
+		const Particle target = Constants::Particles::Proton;
+		const auto decay_function = DecayFunctions::decay_function;
+
+		const DecayParametrization parametrization = params.decay_parametrization;
+
+		const auto muon_pair_production_lambda = [&]<typename PDF>(PDF &&pdf) {
+			integrated_muon_pair_production(
+				E_beam_bins, Q2_min, filename,
+				pdf,
+				FragmentationConfiguration(
+					{
+						LHAInterface("kkks08_opal_d0___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
+						LHAInterface("kkks08_opal_d+___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
+						LHAInterface("bkk05_D3_d_s_nlo", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
+						1.14 * LHAInterface("bkk05_D3_lambda_c_nlo", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0})
+					},
+					{
+						Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),
+						Decay(parametrization, Constants::Particles::Dp, target, decay_function, minimum_lepton_momentum),
+						Decay(parametrization, Constants::Particles::Ds, target, decay_function, minimum_lepton_momentum),
+						Decay(parametrization, Constants::Particles::LambdaC, target, decay_function, minimum_lepton_momentum)
+					}
+				),
+				comment
+			);
+		};
+
+		const double Z = params.Z;
+		const double A = params.A;
+
+		if (params.pdf_error_sets) {
+			if (params.explicit_isospin) {
+				LHASetInterface<std::true_type> pdf(params.pdf_set);
+				pdf.Z = Z;
+				pdf.A = A;
+				muon_pair_production_lambda(pdf);
+			} else {
+				muon_pair_production_lambda(LHASetInterface<std::false_type>(params.pdf_set));
+			}
+		} else {
+			if (params.explicit_isospin) {
+				LHAInterface<std::true_type> pdf(params.pdf_set);
+				pdf.Z = Z;
+				pdf.A = A;
+				muon_pair_production_lambda(pdf);
+			} else {
+				muon_pair_production_lambda(LHAInterface<std::false_type>(params.pdf_set));
+			}
+		}
+	}
+
+	void integrated_muon_pair_production(const AnalysisSet set, const std::filesystem::path filename, const std::string comment = "") {
+		return integrated_muon_pair_production(AnalysisConstants::get_E_bins(set, params.process), params.Q2_min, filename, comment);
+	}
+
+	/*
 		FLAVOR CHANNEL DECOMPOSITION
 	*/
 

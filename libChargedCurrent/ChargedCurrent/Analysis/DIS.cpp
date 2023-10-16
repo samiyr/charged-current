@@ -157,7 +157,7 @@ struct DISAnalysis {
 	}
 
 	template <typename PDFInterface, is_scale_dependence Renormalization, is_scale_dependence Factorization>
-	void inclusive(
+	void integrated(
 		const std::vector<double> E_beam_bins,
 		const double Q2_min,
 		const std::filesystem::path filename, 
@@ -187,7 +187,7 @@ struct DISAnalysis {
 		}
 	}
 
-	void inclusive(
+	void integrated(
 		const std::vector<double> E_beam_bins,
 		const double Q2_min,
 		const std::filesystem::path filename, 
@@ -201,18 +201,18 @@ struct DISAnalysis {
 				LHASetInterface<std::true_type> pdf(params.pdf_set);
 				pdf.Z = Z;
 				pdf.A = A;
-				inclusive(E_beam_bins, Q2_min, filename, comment, pdf, renormalization, factorization);
+				integrated(E_beam_bins, Q2_min, filename, comment, pdf, renormalization, factorization);
 			} else {
-				inclusive(E_beam_bins, Q2_min, filename, comment, LHASetInterface<std::false_type>(params.pdf_set), renormalization, factorization);
+				integrated(E_beam_bins, Q2_min, filename, comment, LHASetInterface<std::false_type>(params.pdf_set), renormalization, factorization);
 			}
 		} else {
 			if (params.explicit_isospin) {
 				LHAInterface<std::true_type> pdf(params.pdf_set);
 				pdf.Z = Z;
 				pdf.A = A;
-				inclusive(E_beam_bins, Q2_min, filename, comment, pdf, renormalization, factorization);
+				integrated(E_beam_bins, Q2_min, filename, comment, pdf, renormalization, factorization);
 			} else {
-				inclusive(E_beam_bins, Q2_min, filename, comment, LHAInterface<std::false_type>(params.pdf_set), renormalization, factorization);
+				integrated(E_beam_bins, Q2_min, filename, comment, LHAInterface<std::false_type>(params.pdf_set), renormalization, factorization);
 			}
 		}
 	}
@@ -259,8 +259,8 @@ struct DISAnalysis {
 	// 	}
 	// }
 
-	void inclusive(const AnalysisSet set, const std::filesystem::path filename, const std::string comment = "") {
-		inclusive(AnalysisConstants::get_E_bins(set, params.process), params.Q2_min, filename, comment);
+	void integrated(const AnalysisSet set, const std::filesystem::path filename, const std::string comment = "") {
+		integrated(AnalysisConstants::get_E_bins(set, params.process), params.Q2_min, filename, comment);
 	}
 };
 

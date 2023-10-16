@@ -256,7 +256,7 @@ class DISComputation {
 										? CommonFunctions::cross_section_modified_prefactor(kinematics) 
 										: CommonFunctions::cross_section_prefactor(kinematics);
 
-			return prefactor * differential_cross_section;
+			return prefactor * nlo_coefficient * differential_cross_section;
 		};
 
 		const double target_mass = placeholder_kinematics.target_mass;

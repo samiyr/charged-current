@@ -151,11 +151,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << separator << IO::endl;
 	}
 
-	if (run("inclusive")) {
+	if (run("disintegrated")) {
 		std::cout << "======= DIS integrated inclusive =======" << IO::endl;
 		
 		measure([&] {
-			nomad_errors.dis().inclusive(AnalysisSet::NOMAD, "Data/DIS/Inclusive/nomad_neutrino.csv");
+			nomad_errors.dis().integrated(AnalysisSet::NOMAD, "Data/DIS/Integrated/nomad_neutrino.csv");
+		});
+
+		std::cout << separator << IO::endl;
+	}
+	
+	if (run("sidisintegrated")) {
+		std::cout << "====== SIDIS integrated inclusive ======" << IO::endl;
+		
+		measure([&] {
+			nomad_errors.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, "Data/SIDIS/MuonPairProduction/Integrated/nomad_neutrino.csv");
 		});
 
 		std::cout << separator << IO::endl;
