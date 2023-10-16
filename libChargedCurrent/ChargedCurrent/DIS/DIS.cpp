@@ -41,8 +41,6 @@ struct DIS {
 	const ScaleDependence::Function<RenormalizationScale> renormalization_scale;
 	const ScaleDependence::Function<FactorizationScale> factorization_scale;
 
-	bool compute_differential_cross_section_directly = false;
-
 	double up_mass = 0.0;
 	double down_mass = 0.0;
 	double charm_mass = 0.0;
@@ -156,11 +154,7 @@ struct DIS {
 
 	PerturbativeQuantity differential_cross_section_xQ2(const TRFKinematics kinematics) const {
 		DISComputation dis = construct_computation();
-		if (compute_differential_cross_section_directly) {
-			return dis.differential_cross_section_xQ2_direct(kinematics);
-		} else {
-			return dis.differential_cross_section_xQ2_indirect(kinematics);
-		}
+		return dis.differential_cross_section_xQ2(kinematics);
 	}
 
 	PerturbativeQuantity differential_cross_section_xy(const TRFKinematics kinematics) const {
@@ -203,9 +197,7 @@ struct DIS {
 						const double E_beam = E_beam_bins[j];
 						
 						TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, process.target.mass, process.projectile.mass);
-						const PerturbativeQuantity cross_section_xQ2 = compute_differential_cross_section_directly 
-																		? dis.differential_cross_section_xQ2_direct(kinematics) 
-																		: dis.differential_cross_section_xQ2_indirect(kinematics);
+						const PerturbativeQuantity cross_section_xQ2 = dis.differential_cross_section_xQ2(kinematics);
 						const double jacobian = CommonFunctions::xy_jacobian(kinematics, process);
 						const PerturbativeQuantity cross_section_xy = cross_section_xQ2 * jacobian;
 
@@ -238,6 +230,59 @@ struct DIS {
 					}
 				}
 			}
+		}
+		file.close();
+
+		std::cout << std::setprecision(static_cast<int>(original_precision)) << IO::endl;
+	}
+
+	void integrated_cross_section(
+		const std::vector<double> E_beam_bins,
+		const double Q2_min,
+		const std::filesystem::path output, 
+		const std::string comment = "") {
+
+		const std::size_t E_beam_step_count = E_beam_bins.size();
+		const std::size_t total_count = E_beam_step_count;
+
+		int calculated_values = 0;
+
+		IO::create_directory_tree(output);
+		std::ofstream file(output);
+
+		output_run_info(file, comment);
+
+		file << "E,LO,NLO,NNLO" << IO::endl;
+		std::streamsize original_precision = std::cout.precision();
+
+		DISComputation dis = construct_computation();
+		#pragma omp parallel if(parallelize) num_threads(number_of_threads) firstprivate(dis)
+		{
+			#pragma omp for
+			for (std::size_t i = 0; i < E_beam_step_count; i++) {
+				const double E_beam = E_beam_bins[i];
+				
+				const TRFKinematics placeholder_kinematics = TRFKinematics::y_E_beam(-1.0, -1.0, E_beam, process.target.mass, process.projectile.mass);
+				const PerturbativeQuantity cross_section = dis.integrated_cross_section(placeholder_kinematics, Q2_min);
+
+				#pragma omp critical
+				{
+					file << E_beam << ", " << cross_section << IO::endl;
+					file.flush();
+
+					calculated_values++;
+
+					const int base_precision = 5;
+					const int E_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(E_beam)));
+
+					std::cout << std::fixed << std::setprecision(base_precision);
+					std::cout << "[DIS] " << IO::leading_zeroes(calculated_values, Math::number_of_digits(total_count));
+					std::cout << " / " << total_count;
+					std::cout << ": " << cross_section;
+					std::cout << std::setprecision(E_precision) << " (E_beam = " << E_beam << ")";
+					std::cout << "\r" << std::flush;
+				}
+			}			
 		}
 		file.close();
 
@@ -291,7 +336,7 @@ struct DIS {
 							const double E_beam = E_beam_bins[j];
 							
 							TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, process.target.mass, process.projectile.mass);
-							const PerturbativeQuantity cross_section_xQ2 = dis.differential_cross_section_xQ2_indirect(kinematics);
+							const PerturbativeQuantity cross_section_xQ2 = dis.differential_cross_section_xQ2(kinematics);
 							const double jacobian = CommonFunctions::xy_jacobian(kinematics, process);
 							const PerturbativeQuantity cross_section_xy = cross_section_xQ2 * jacobian;
 
@@ -325,6 +370,74 @@ struct DIS {
 								std::cout << "\r" << std::flush;
 							}
 						}
+					}
+				}
+			}
+			file.close();
+		}
+		std::cout << std::setprecision(static_cast<int>(original_precision)) << IO::endl;
+	}
+
+	void integrated_cross_section_error_sets(
+		const std::vector<double> E_beam_bins,
+		const double Q2_min,
+		const std::filesystem::path base_output, 
+		const std::string comment = "") requires has_pdf_error_sets {
+
+		const std::size_t member_count = pdf.size();
+		const std::size_t E_beam_step_count = E_beam_bins.size();
+		const std::size_t total_count = member_count * E_beam_step_count;
+
+		int calculated_values = 0;
+
+		std::streamsize original_precision = std::cout.precision();
+
+		for (typename decltype(pdf)::size_type member_index = 0; member_index < member_count; member_index++) {
+			const auto &pdf_member = pdf[member_index];
+			DISComputation dis = construct_computation(pdf_member);
+
+			const std::string path_trail = IO::leading_zeroes(pdf_member.set_member_number, 4);
+			std::filesystem::path full_filename = base_output.stem();
+			full_filename /= path_trail;
+			full_filename.replace_extension(base_output.extension());
+			std::filesystem::path output = base_output;
+			output.replace_filename(full_filename);
+
+			IO::create_directory_tree(output);
+			std::ofstream file(output);
+
+			output_run_info(file, comment);
+			file << "#pdf_member = " << member_index << IO::endl;
+
+			file << "E,LO,NLO,NNLO" << IO::endl;
+
+			#pragma omp parallel if(parallelize) num_threads(number_of_threads) firstprivate(dis)
+			{
+				#pragma omp for
+				for (std::size_t i = 0; i < E_beam_step_count; i++) {
+					const double E_beam = E_beam_bins[i];
+					
+					TRFKinematics placeholder_kinematics = TRFKinematics::y_E_beam(-1.0, -1.0, E_beam, process.target.mass, process.projectile.mass);
+					const PerturbativeQuantity cross_section = dis.integrated_cross_section(placeholder_kinematics, Q2_min);
+
+					#pragma omp critical
+					{
+						file << E_beam << ", " << cross_section << IO::endl;
+						file.flush();
+
+						calculated_values++;
+
+						const int base_precision = 5;
+						const int E_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(E_beam)));
+
+						std::cout << std::fixed << std::setprecision(base_precision);
+						std::cout << "[DIS] " << IO::leading_zeroes(calculated_values, Math::number_of_digits(total_count));
+						std::cout << " / " << total_count;
+						std::cout << " [" << "pdf member " << IO::leading_zeroes(member_index + 1, Math::number_of_digits(member_count));
+						std::cout << " / " << member_count << "]";
+						std::cout << ": " << cross_section;
+						std::cout << std::setprecision(E_precision) << " (E_beam = " << E_beam << ")";
+						std::cout << "\r" << std::flush;
 					}
 				}
 			}

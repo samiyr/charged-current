@@ -41,6 +41,8 @@ struct AnalysisParameters {
 
 	bool freeze_factorization = false;
 	bool freeze_fragmentation = true;
+
+	double Q2_min = 1.0;
 };
 
 #endif

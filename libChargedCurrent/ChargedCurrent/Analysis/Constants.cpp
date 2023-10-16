@@ -6,7 +6,7 @@
 #include "Common/Process.cpp"
 
 enum class AnalysisSet {
-	NuTeV, NuTeV_old, CCFR
+	NuTeV, NuTeV_old, CCFR, NOMAD
 };
 
 namespace AnalysisConstants {
@@ -42,6 +42,11 @@ namespace AnalysisConstants {
 			const static std::vector<double> E_bins = {87.40, 160.52, 265.76};
 		}
 	}
+	namespace NOMAD {
+		const static std::vector<double> E_bins = {
+			15.91, 24.38, 28.85, 32.88, 37.31, 41.78, 46.23, 51.17, 56.73, 62.87, 69.70, 77.29, 85.78, 95.01, 105.4, 117.6, 133.0, 155.4, 205.5
+		};
+	}
 
 	inline std::vector<double> get_y_bins(AnalysisSet set, Process process) {
 		switch (set) {
@@ -61,7 +66,9 @@ namespace AnalysisConstants {
 		case AnalysisSet::NuTeV_old:
 			return process.type == Process::Type::NeutrinoToLepton ? NuTeV::Old::Neutrino::E_bins : NuTeV::Old::Antineutrino::E_bins;		
 		case AnalysisSet::CCFR:
-			return process.type == Process::Type::NeutrinoToLepton ? CCFR::Neutrino::E_bins : CCFR::Antineutrino::E_bins;		
+			return process.type == Process::Type::NeutrinoToLepton ? CCFR::Neutrino::E_bins : CCFR::Antineutrino::E_bins;
+		case AnalysisSet::NOMAD:
+			return NOMAD::E_bins;
 		default: return {};
 		}
 	}

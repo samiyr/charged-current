@@ -113,61 +113,6 @@ TEST(CKM, Evaluation) {
 	}
 }
 
-TEST(DIS, CrossSection) {
-	DIS dis1(
-		{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
-		LHAInterface("CT18ANLO"),
-		Process(Process::Type::NeutrinoToLepton, Particle(), Particle())
-	);
-
-	dis1.compute_differential_cross_section_directly = true;
-
-	DIS dis2(
-		{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
-		LHAInterface("CT18ANLO"),
-		Process(Process::Type::NeutrinoToLepton, Particle(), Particle())
-	);
-
-	dis2.compute_differential_cross_section_directly = false;
-
-	const double sqrt_s = 318.0;
-	const std::vector<double> x_values = {0.002, 0.1, 0.2, 0.5};
-	const std::vector<double> Q2_values = {50.0, 500.0, 1000.0, 10'000.0};
-
-	const std::vector<std::vector<double>> comparison_values = {
-		{0.0000000384639, 0, 0, 0}, 
-		{0.000000000240341, 0.000000000203083, 0.000000000171673, 0.0000000000271489}, 
-		{0.0000000000765554, 0.0000000000596697, 0.0000000000500484, 0.00000000000854444}, 
-		{0.00000000000522944, 0.00000000000328736, 0.00000000000262646, 0.000000000000416598}
-	};
-
-	#pragma omp parallel for collapse(2)
-	for (std::size_t i = 0; i < x_values.size(); i++) {
-		for (std::size_t j = 0; j < Q2_values.size(); j++) {
-			const double x = x_values[i];
-			const double Q2 = Q2_values[j];
-
-			const double comparison_value = comparison_values[i][j];
-
-			const TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, 0.0, 0.0);
-
-			const double computed_value_1 = dis1.differential_cross_section_xQ2(kinematics).nlo;
-			const double computed_value_2 = dis2.differential_cross_section_xQ2(kinematics).nlo;
-
-			#pragma omp critical 
-			{
-				if (comparison_value == 0.0) {
-					EXPECT_NEAR(computed_value_1, comparison_value, 2e-11);
-					EXPECT_NEAR(computed_value_2, comparison_value, 2e-5);
-				} else {
-					EXPECT_NEAR(computed_value_1, comparison_value, 2e-11);
-					EXPECT_NEAR(computed_value_2, comparison_value, 2e-11);
-				}
-			}
-		}
-	}
-}
-
 /// Checks SIDIS cross section values against analytically computed values (with Mathematica) for several values of x and z.
 /// To obtain analytical results, simple functional forms are chosen for PDFs and FFs. These forms include flavor-dependence.
 /// Here, only quarks are active (gluon PDFs and FFs = 0).

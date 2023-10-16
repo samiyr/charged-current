@@ -99,6 +99,7 @@ namespace DISFunctions {
 				const double x_mass = CommonFunctions::compute_momentum_fraction_mass_correction(x, Q2, mass, 0.0);
 
 				if (xi_int && xi < x_mass) { continue; }
+				if (x_mass >= 1.0) { continue; }
 				pdf1.evaluate(x_mass, factorization_scale);
 				pdf2.evaluate(x_mass / xi, factorization_scale);
 

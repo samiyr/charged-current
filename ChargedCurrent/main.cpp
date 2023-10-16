@@ -117,6 +117,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	Analysis epps_errors = base;
 	epps_errors.params.pdf_error_sets = true;
 
+	Analysis nomad_errors = epps_errors;
+	nomad_errors.params.Q2_min = 1.69;
+	nomad_errors.params.minimum_lepton_momentum = 3.0;
+
 	Analysis unity_nuclear_epps = base;
 	unity_nuclear_epps.params.pdf_error_sets = true;
 	unity_nuclear_epps.params.pdf_set = "CT18ANLO";
@@ -142,6 +146,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			bar(epps_errors).dis().charm_production(AnalysisSet::NuTeV_old, x_bins, "Data/DIS/CharmProduction/nutev_old_antineutrino.csv");
 			bar(epps_errors).dis().charm_production(AnalysisSet::NuTeV, x_bins, "Data/DIS/CharmProduction/nutev_new_antineutrino.csv");
 			bar(epps_errors).dis().charm_production(AnalysisSet::CCFR, x_bins, "Data/DIS/CharmProduction/ccfr_antineutrino.csv");
+		});
+
+		std::cout << separator << IO::endl;
+	}
+
+	if (run("inclusive")) {
+		std::cout << "======= DIS integrated inclusive =======" << IO::endl;
+		
+		measure([&] {
+			nomad_errors.dis().inclusive(AnalysisSet::NOMAD, "Data/DIS/Inclusive/nomad_neutrino.csv");
 		});
 
 		std::cout << separator << IO::endl;
