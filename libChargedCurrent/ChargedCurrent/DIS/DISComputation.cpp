@@ -238,7 +238,7 @@ class DISComputation {
 			DISFunctions::Parameters<PDFInterface> params {
 				pdf1, pdf2,
 				flavors,
-				nlo_coefficient,
+				0.0,
 				process, kinematics,
 				factorization_scale,
 				factorization_scale_log

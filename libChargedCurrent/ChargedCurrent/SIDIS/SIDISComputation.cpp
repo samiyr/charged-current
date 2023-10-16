@@ -412,7 +412,7 @@ class SIDISComputation {
 			SIDISFunctions::Parameters<PDFInterface, FFInterface, DecayFunction> params {
 				pdf1, ff1, pdf2, ff2,
 				flavors,
-				nlo_coefficient,
+				0.0,
 				process, kinematics,
 				0.0,
 				renormalization_scale, factorization_scale, fragmentation_scale,
@@ -430,7 +430,7 @@ class SIDISComputation {
 							? CommonFunctions::cross_section_modified_prefactor(kinematics) 
 							: CommonFunctions::cross_section_prefactor(kinematics);
 
-			return prefactor * differential_cross_section;
+			return prefactor * nlo_coefficient * differential_cross_section;
 		};
 
 		// input = [xi, xip, z, x, Q2]
