@@ -117,9 +117,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	Analysis epps_errors = base;
 	epps_errors.params.pdf_error_sets = true;
 
-	Analysis nomad_errors = epps_errors;
-	nomad_errors.params.Q2_min = 1.69;
-	nomad_errors.params.minimum_lepton_momentum = 3.0;
+	Analysis nomad_errors_169 = epps_errors;
+	nomad_errors_169.params.Q2_min = 1.69;
+	nomad_errors_169.params.minimum_lepton_momentum = 3.0;
+
+	Analysis nomad_errors_225 = nomad_errors_169;
+	nomad_errors_225.params.Q2_min = 2.25;
 
 	Analysis unity_nuclear_epps = base;
 	unity_nuclear_epps.params.pdf_error_sets = true;
@@ -155,7 +158,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << "======= DIS integrated inclusive =======" << IO::endl;
 		
 		measure([&] {
-			nomad_errors.dis().integrated(AnalysisSet::NOMAD, "Data/DIS/Integrated/nomad_neutrino.csv");
+			nomad_errors_169.dis().integrated(AnalysisSet::NOMAD, "Data/DIS/Integrated/nomad_neutrino_169.csv");
+			nomad_errors_225.dis().integrated(AnalysisSet::NOMAD, "Data/DIS/Integrated/nomad_neutrino_225.csv");
 		});
 
 		std::cout << separator << IO::endl;
@@ -165,7 +169,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << "====== SIDIS integrated inclusive ======" << IO::endl;
 		
 		measure([&] {
-			nomad_errors.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, "Data/SIDIS/MuonPairProduction/CharmedHadrons/Integrated/nomad_neutrino.csv");
+			nomad_errors_169.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, "Data/SIDIS/MuonPairProduction/CharmedHadrons/Integrated/nomad_neutrino_169.csv");
+			nomad_errors_225.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, "Data/SIDIS/MuonPairProduction/CharmedHadrons/Integrated/nomad_neutrino_225.csv");
 		});
 
 		std::cout << separator << IO::endl;

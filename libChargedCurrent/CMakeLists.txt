@@ -1,6 +1,7 @@
 set(LIBRARY_NAME libChargedCurrent)
 add_library(${LIBRARY_NAME} STATIC "")
 target_include_directories(${LIBRARY_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ChargedCurrent)
+set_target_properties(${LIBRARY_NAME} PROPERTIES PREFIX "")
 
 add_subdirectory(ChargedCurrent/Analysis)
 add_subdirectory(ChargedCurrent/Common)
