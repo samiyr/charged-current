@@ -278,6 +278,15 @@ struct SIDIS {
 		return sidis.differential_cross_section_xQ2(z, kinematics);
 	}
 
+	PerturbativeQuantity integrated_lepton_pair_cross_section(const double E_beam, const double Q2_min) const {
+		SIDISComputation sidis = construct_computation();
+
+		const TRFKinematics placeholder_kinematics = TRFKinematics::y_E_beam(-1.0, -1.0, E_beam, process.target.mass, process.projectile.mass);
+		const PerturbativeQuantity cross_section = sidis.integrated_lepton_pair_cross_section(placeholder_kinematics, Q2_min);
+
+		return cross_section;
+	}
+
 	PerturbativeQuantity differential_cross_section_xy(const double z, const TRFKinematics kinematics) const requires is_pdf_interface<PDFInterface> {
 		const PerturbativeQuantity xQ2 = differential_cross_section_xQ2(z, kinematics);
 		const double jacobian = CommonFunctions::xy_jacobian(kinematics, process);

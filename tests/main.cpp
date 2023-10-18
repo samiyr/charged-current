@@ -897,56 +897,97 @@ TEST(SIDIS, LOCrossSectionIntegration) {
 	EXPECT_REL_NEAR(result_dis.lo, result2.value, 1e-1);
 }
 
-// 	bool run_tests() {
-// 		bool flag = true;
-// 		flag &= pdf_evaluation_tests();
-// 		flag &= pdf_comparison_tests();
-// 		flag &= ckm_tests();
-// 		flag &= dis_cross_section_tests();
-// 		flag &= sidis_structure_function_only_quarks_tests();
-// 		flag &= sidis_structure_function_only_gluons_tests_1();
-// 		flag &= sidis_structure_function_only_gluons_tests_2();
-// 		flag &= sidis_structure_function_quarks_gluons_tests();
-// 		flag &= sidis_structure_function_quarks_gluons_scale_logs_tests();
-// 		flag &= decay_function_tests_1();
-// 		flag &= decay_function_tests_2();
+TEST(DIS, NLOIntegratedCrossSection) {
+	const double E_beam = 100.0;
+	const double Q2_min = 1.69;
 
-// 		return flag;
-// 	}
+	const Process process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino);
 
-// 	bool run_heavy_tests() {
-// 		bool flag = true;
-// 		flag &= lepton_pair_lo_cross_section_integration_tests();
-// 		flag &= lepton_pair_nlo_cross_section_integration_tests();
-// 		flag &= sidis_lo_cross_section_integration_test();
+	const DIS dis(
+		{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+		LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
+		process
+	);
 
-// 		return flag;
-// 	}
+	const double integrated_cross_section = dis.integrated_cross_section(E_beam, Q2_min).nlo;
 
-// 	template <PDFConcept PDFInterface>
-// 	void evaluate_pdf(PDFInterface pdf, const std::vector<double> Q2_list, const std::string filename, const bool divide_by_x = false) {
-// 		std::ofstream file(filename);
-// 		for (auto const Q2 : Q2_list) {	
-// 			for (std::size_t i = 0; i < 999; i++) {
-// 				const double x = double(i + 1) * 0.001;
-				
-// 				file << x << ", " << Q2;
+	std::cout << "DIS integrated cross section [1] = " << integrated_cross_section << IO::endl;
 
-// 				for (auto const flavor : pdf.available_flavors) {
-// 					double pdf_value = pdf.xf_evaluate(flavor, x, Q2);
-// 					if (divide_by_x) {
-// 						pdf_value /= x;
-// 					}
-// 					file << ", " << pdf_value;
-// 				}
+	const double x_min = Q2_min / (2.0 * process.target.mass * E_beam);
+	const double Q2_upper_bound = 2.0 * process.target.mass * E_beam;
 
-// 				file << IO::endl;
-// 			}
-// 		}
+	Integrator integrator([&](const double input[], const std::size_t, void *) {
+		const double x = input[0];
+		const double Q2 = input[1];
 
-// 		file.close();
-// 	}
-// }
+		const double Q2_max = 2.0 * process.target.mass * E_beam * x;
+		if (Q2 >= Q2_max) { return 0.0; }
+
+		const double y = Q2 / (2.0 * x * process.target.mass * E_beam);
+		const TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, process.target.mass, process.projectile.mass);
+		return dis.differential_cross_section_xQ2(kinematics).nlo;
+	}, {x_min, Q2_min}, {1.0, Q2_upper_bound}, nullptr, IntegrationMethod::GSLVegas);
+	integrator.gsl.points = 1000;
+	integrator.verbose = true;
+
+	const auto result = integrator.integrate();
+	std::cout << "DIS integrated cross section [2] = " << result << IO::endl;
+
+	EXPECT_REL_NEAR(integrated_cross_section, result.value, 1e-1);
+}
+TEST(SIDIS, NLOIntegratedCrossSection) {
+	const double E_beam = 100.0;
+	const double Q2_min = 1.69;
+
+	const Process process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino);
+
+	const double minimum_lepton_momentum = 3.0;
+	const Particle target = Constants::Particles::Proton;
+	const auto decay_function = DecayFunctions::decay_function;
+
+	const auto decay = Decay(DecayParametrization::fit1(), Constants::Particles::D0, target, decay_function, minimum_lepton_momentum);
+
+	const SIDIS sidis(
+		{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+		LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
+		FragmentationConfiguration(
+			{
+				LHAInterface("kkks08_opal_d0___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0})
+			},
+			{
+				decay
+			}
+		),
+		process
+	);
+
+	const double integrated_cross_section = sidis.integrated_lepton_pair_cross_section(E_beam, Q2_min).nlo;
+
+	std::cout << "SIDIS integrated cross section [1] = " << integrated_cross_section << IO::endl;
+
+	const double x_min = Q2_min / (2.0 * process.target.mass * E_beam);
+	const double Q2_upper_bound = 2.0 * process.target.mass * E_beam;
+
+	Integrator integrator([&](const double input[], const std::size_t, void *) {
+		const double x = input[0];
+		const double Q2 = input[1];
+
+		const double Q2_max = 2.0 * process.target.mass * E_beam * x;
+		if (Q2 >= Q2_max) { return 0.0; }
+
+		const double y = Q2 / (2.0 * x * process.target.mass * E_beam);
+		const TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, process.target.mass, process.projectile.mass);
+
+		return sidis.lepton_pair_cross_section_xQ2(kinematics).nlo;
+	}, {x_min, Q2_min}, {1.0, Q2_upper_bound}, nullptr, IntegrationMethod::GSLVegas);
+	integrator.gsl.points = 1000;
+	integrator.verbose = true;
+
+	const auto result = integrator.integrate();
+	std::cout << "SIDIS integrated cross section [2] = " << result << IO::endl;
+
+	EXPECT_REL_NEAR(integrated_cross_section, result.value, 1e-1);
+}
 
 int main(int argc, char **argv) {
 	LHAInterface<>::disable_verbosity();

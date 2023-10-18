@@ -163,6 +163,15 @@ struct DIS {
 		return xQ2 * jacobian;
 	}
 
+	PerturbativeQuantity integrated_cross_section(const double E_beam, const double Q2_min) const {
+		DISComputation dis = construct_computation();
+
+		const TRFKinematics placeholder_kinematics = TRFKinematics::y_E_beam(-1.0, -1.0, E_beam, process.target.mass, process.projectile.mass);
+		const PerturbativeQuantity cross_section = dis.integrated_cross_section(placeholder_kinematics, Q2_min);
+
+		return cross_section;
+	}
+
 	void differential_cross_section_xy(
 		const std::vector<double> x_bins, 
 		const std::vector<double> y_bins, 
