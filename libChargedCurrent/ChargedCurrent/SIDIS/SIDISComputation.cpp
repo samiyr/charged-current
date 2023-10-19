@@ -375,12 +375,7 @@ class SIDISComputation {
 							? CommonFunctions::cross_section_modified_prefactor(kinematics) 
 							: CommonFunctions::cross_section_prefactor(kinematics);
 
-			const double a = 0.097;
-			const double b = 6.7;
-			const double branching_fraction = a / (1.0 + b / E_beam);
-			const double correction = 0.093 / branching_fraction;
-
-			return correction * prefactor * differential_cross_section;
+			return prefactor * differential_cross_section;
 		};
 
 		// input = [xi, xip, z, x, Q2]
