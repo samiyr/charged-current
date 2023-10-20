@@ -43,6 +43,9 @@ struct AnalysisParameters {
 	bool freeze_fragmentation = true;
 
 	double Q2_min = 1.0;
+
+	double primary_muon_min_energy = 0.0;
+	double hadronic_min_energy = 0.0;
 };
 
 #endif

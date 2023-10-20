@@ -50,6 +50,14 @@ struct DIS {
 
 	bool use_modified_cross_section_prefactor = false;
 
+	// Sets the minimum energy required for the muon coming out of the neutrino --> W + muon vertex, which introduces a maximum y value y_max = 1 - min / E_beam.
+	// Enforced only in the integrated cross section.
+	double primary_muon_min_energy = 0.0;
+
+	// Sets the minimum hadronic energy (E_had = E_beam - E_primary muon), which introduces a minimum y value y_min = min / E_beam.
+	// Enforced only in the integrated cross section.
+	double hadronic_min_energy = 0.0;
+
 	DIS(
 		const FlavorVector _active_flavors,
 		const PDFInterface _pdf,
@@ -73,7 +81,8 @@ struct DIS {
 			integration_parameters,
 			process, 
 			momentum_fraction_mass_corrections, renormalization_scale, factorization_scale,
-			use_modified_cross_section_prefactor
+			use_modified_cross_section_prefactor,
+			primary_muon_min_energy, hadronic_min_energy
 		);
 		return dis;
 	}
@@ -89,7 +98,8 @@ struct DIS {
 			integration_parameters,
 			process, 
 			momentum_fraction_mass_corrections, renormalization_scale, factorization_scale,
-			use_modified_cross_section_prefactor
+			use_modified_cross_section_prefactor,
+			primary_muon_min_energy, hadronic_min_energy
 		);
 		return sidis;
 	}

@@ -66,6 +66,8 @@ struct SIDISAnalysis {
 		sidis.freeze_factorization_scale = params.freeze_factorization;
 		sidis.freeze_fragmentation_scale = params.freeze_fragmentation;
 
+		sidis.primary_muon_min_energy = params.primary_muon_min_energy;
+
 		if constexpr (is_pdf_interface<PDFInterface>) {
 			sidis.lepton_pair_cross_section_xy(x_bins, y_bins, E_beam_bins, filename, comment);
 		} else if constexpr (is_instance<PDFInterface, LHASetInterface>) {
@@ -177,6 +179,8 @@ struct SIDISAnalysis {
 
 		sidis.freeze_factorization_scale = params.freeze_factorization;
 		sidis.freeze_fragmentation_scale = params.freeze_fragmentation;
+
+		sidis.primary_muon_min_energy = params.primary_muon_min_energy;
 
 		if constexpr (is_pdf_interface<PDFInterface>) {
 			sidis.integrated_lepton_pair_cross_section(E_beam_bins, Q2_min, filename, comment);
@@ -510,6 +514,8 @@ struct SIDISAnalysis {
 
 		sidis.freeze_factorization_scale = params.freeze_factorization;
 		sidis.freeze_fragmentation_scale = params.freeze_fragmentation;
+
+		sidis.primary_muon_min_energy = params.primary_muon_min_energy;
 
 		sidis.lepton_pair_cross_section_xy(x_bins, y_bins, E_beam_bins, filename, comment);
 	}

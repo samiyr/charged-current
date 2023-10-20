@@ -42,6 +42,9 @@ class DISComputation {
 	const ScaleDependence::Function<FactorizationScale> factorization_scale_function;
 	const bool use_modified_cross_section_prefactor;
 
+	const double primary_muon_min_energy;
+	const double hadronic_min_energy;
+
 	DISComputation (
 		const double _sqrt_s, 
 		const FlavorVector _active_flavors,
@@ -52,7 +55,9 @@ class DISComputation {
 		const bool _momentum_fraction_mass_corrections,
 		const ScaleDependence::Function<RenormalizationScale> _renormalization_scale_function,
 		const ScaleDependence::Function<FactorizationScale> _factorization_scale_function,
-		const bool _use_modified_cross_section_prefactor
+		const bool _use_modified_cross_section_prefactor,
+		const double primary_muon_min_energy,
+		const double hadronic_min_energy
 	) : sqrt_s(_sqrt_s), 
 	s(_sqrt_s * _sqrt_s), 
 	flavors(_active_flavors, _flavor_masses), 
@@ -63,7 +68,9 @@ class DISComputation {
 	momentum_fraction_mass_corrections(_momentum_fraction_mass_corrections),
 	renormalization_scale_function(_renormalization_scale_function),
 	factorization_scale_function(_factorization_scale_function),
-	use_modified_cross_section_prefactor(_use_modified_cross_section_prefactor) { }
+	use_modified_cross_section_prefactor(_use_modified_cross_section_prefactor),
+	primary_muon_min_energy(primary_muon_min_energy),
+	hadronic_min_energy(hadronic_min_energy) { }
 
 	double compute_alpha_s(const TRFKinematics &kinematics) const {
 		const double renormalization_scale = renormalization_scale_function(kinematics);
@@ -191,6 +198,13 @@ class DISComputation {
 			const double target_mass = placeholder_kinematics.target_mass;
 			const double E_beam = placeholder_kinematics.E_beam;
 			const double y = Q2 / (2.0 * x * target_mass * E_beam);
+
+			const double y_min = hadronic_min_energy / E_beam;
+			if (y < y_min) { return 0.0; }
+
+			const double y_max = 1.0 - primary_muon_min_energy / E_beam;
+			if (y > y_max) { return 0.0; }
+
 			const TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, target_mass, placeholder_kinematics.projectile_mass);
 
 			const double factorization_scale = factorization_scale_function(kinematics);
@@ -225,6 +239,13 @@ class DISComputation {
 			const double target_mass = placeholder_kinematics.target_mass;
 			const double E_beam = placeholder_kinematics.E_beam;
 			const double y = Q2 / (2.0 * x * target_mass * E_beam);
+
+			const double y_min = hadronic_min_energy / E_beam;
+			if (y < y_min) { return 0.0; }
+
+			const double y_max = 1.0 - primary_muon_min_energy / E_beam;
+			if (y > y_max) { return 0.0; }
+
 			const TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, target_mass, placeholder_kinematics.projectile_mass);
 
 			const double alpha_s = compute_alpha_s(kinematics);

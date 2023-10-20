@@ -52,6 +52,9 @@ struct DISAnalysis {
 		dis.parallelize = params.parallelize;
 		dis.number_of_threads = params.number_of_threads;
 
+		dis.primary_muon_min_energy = params.primary_muon_min_energy;
+		dis.hadronic_min_energy = params.hadronic_min_energy;
+
 		if constexpr (is_pdf_interface<PDFInterface>) {
 			dis.differential_cross_section_xy(x_bins, y_bins, E_beam_bins, filename, comment);
 		} else if constexpr (is_instance<PDFInterface, LHASetInterface>) {
@@ -180,6 +183,9 @@ struct DISAnalysis {
 		dis.parallelize = params.parallelize;
 		dis.number_of_threads = params.number_of_threads;
 
+		dis.primary_muon_min_energy = params.primary_muon_min_energy;
+		dis.hadronic_min_energy = params.hadronic_min_energy;
+
 		if constexpr (is_pdf_interface<PDFInterface>) {
 			dis.integrated_cross_section(E_beam_bins, Q2_min, filename, comment);
 		} else if constexpr (is_instance<PDFInterface, LHASetInterface>) {
@@ -217,50 +223,76 @@ struct DISAnalysis {
 		}
 	}
 
-	// template <is_scale_dependence Renormalization = RenormalizationScale, is_scale_dependence Factorization = FactorizationScale>
-	// void inclusive(
-	// 	const AnalysisSet set, const std::vector<double> x_bins, const std::filesystem::path filename, const std::string comment,
-	// 	const Renormalization renormalization_scale,
-	// 	const Factorization factorization_scale) {
-
-	// 	const double Z = params.Z;
-	// 	const double A = params.A;
-
-	// 	if (params.pdf_error_sets) {
-	// 		if (params.explicit_isospin) {
-	// 			LHASetInterface<std::true_type> pdf(params.pdf_set);
-	// 			pdf.Z = Z;
-	// 			pdf.A = A;
-	// 			charm_production(
-	// 				x_bins, AnalysisConstants::get_y_bins(set, params.process), AnalysisConstants::get_E_bins(set, params.process),
-	// 				filename, comment, pdf, renormalization_scale, factorization_scale
-	// 			);
-	// 		} else {
-	// 			charm_production(
-	// 				x_bins, AnalysisConstants::get_y_bins(set, params.process), AnalysisConstants::get_E_bins(set, params.process),
-	// 				filename, comment, LHASetInterface<std::false_type>(params.pdf_set), renormalization_scale, factorization_scale
-	// 			);
-	// 		}
-	// 	} else {
-	// 		if (params.explicit_isospin) {
-	// 			LHAInterface<std::true_type> pdf(params.pdf_set);
-	// 			pdf.Z = Z;
-	// 			pdf.A = A;
-	// 			charm_production(
-	// 				x_bins, AnalysisConstants::get_y_bins(set, params.process), AnalysisConstants::get_E_bins(set, params.process),
-	// 				filename, comment, pdf, renormalization_scale, factorization_scale
-	// 			);
-	// 		} else {
-	// 			charm_production(
-	// 				x_bins, AnalysisConstants::get_y_bins(set, params.process), AnalysisConstants::get_E_bins(set, params.process),
-	// 				filename, comment, LHAInterface<std::false_type>(params.pdf_set), renormalization_scale, factorization_scale
-	// 			);
-	// 		}
-	// 	}
-	// }
-
 	void integrated(const AnalysisSet set, const std::filesystem::path filename, const std::string comment = "") {
 		integrated(AnalysisConstants::get_E_bins(set, params.process), params.Q2_min, filename, comment);
+	}
+
+	template <typename PDFInterface, is_scale_dependence Renormalization, is_scale_dependence Factorization>
+	void integrated_charm_production(
+		const std::vector<double> E_beam_bins,
+		const double Q2_min,
+		const std::filesystem::path filename, 
+		const std::string comment,
+		const PDFInterface &pdf,
+		const Renormalization renormalization_scale,
+		const Factorization factorization_scale
+		) {
+		DIS dis(
+			{Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+			pdf,
+			params.process,
+			renormalization_scale, factorization_scale
+		);
+
+		dis.use_modified_cross_section_prefactor = true;
+
+		dis.charm_mass = params.charm_mass;
+
+		dis.parallelize = params.parallelize;
+		dis.number_of_threads = params.number_of_threads;
+
+		dis.primary_muon_min_energy = params.primary_muon_min_energy;
+		dis.hadronic_min_energy = params.hadronic_min_energy;
+
+		if constexpr (is_pdf_interface<PDFInterface>) {
+			dis.integrated_cross_section(E_beam_bins, Q2_min, filename, comment);
+		} else if constexpr (is_instance<PDFInterface, LHASetInterface>) {
+			dis.integrated_cross_section_error_sets(E_beam_bins, Q2_min, filename, comment);
+		}
+	}
+
+	void integrated_charm_production(
+		const std::vector<double> E_beam_bins,
+		const double Q2_min,
+		const std::filesystem::path filename, 
+		const std::string comment) {
+
+		const double Z = params.Z;
+		const double A = params.A;
+
+		if (params.pdf_error_sets) {
+			if (params.explicit_isospin) {
+				LHASetInterface<std::true_type> pdf(params.pdf_set);
+				pdf.Z = Z;
+				pdf.A = A;
+				integrated_charm_production(E_beam_bins, Q2_min, filename, comment, pdf, renormalization, factorization);
+			} else {
+				integrated_charm_production(E_beam_bins, Q2_min, filename, comment, LHASetInterface<std::false_type>(params.pdf_set), renormalization, factorization);
+			}
+		} else {
+			if (params.explicit_isospin) {
+				LHAInterface<std::true_type> pdf(params.pdf_set);
+				pdf.Z = Z;
+				pdf.A = A;
+				integrated_charm_production(E_beam_bins, Q2_min, filename, comment, pdf, renormalization, factorization);
+			} else {
+				integrated_charm_production(E_beam_bins, Q2_min, filename, comment, LHAInterface<std::false_type>(params.pdf_set), renormalization, factorization);
+			}
+		}
+	}
+
+	void integrated_charm_production(const AnalysisSet set, const std::filesystem::path filename, const std::string comment = "") {
+		integrated_charm_production(AnalysisConstants::get_E_bins(set, params.process), params.Q2_min, filename, comment);
 	}
 };
 

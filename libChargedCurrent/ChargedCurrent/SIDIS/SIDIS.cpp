@@ -102,6 +102,10 @@ struct SIDIS {
 	std::vector<DecayParametrization> decay_variations{};
 	bool decay_variation = false;
 
+	// Sets the minimum energy required for the muon coming out of the neutrino --> W + muon vertex, which introduces a maximum y value y_max = 1 - min / E_beam.
+	// Enforced only in the integrated lepton-pair cross section.
+	double primary_muon_min_energy = 0.0;
+
 	SIDIS (
 		const FlavorVector _active_flavors, 
 		const PDFInterface _pdf, 
@@ -146,7 +150,8 @@ struct SIDIS {
 			integration_parameters,
 			process, 
 			renormalization_scale, factorization_scale, fragmentation_scale,
-			use_modified_cross_section_prefactor, order, use_nlp_nlo
+			use_modified_cross_section_prefactor, order, use_nlp_nlo,
+			primary_muon_min_energy
 		);
 		return sidis;
 	}
@@ -161,7 +166,8 @@ struct SIDIS {
 			integration_parameters,
 			process, 
 			renormalization_scale, factorization_scale, fragmentation_scale,
-			use_modified_cross_section_prefactor, order, use_nlp_nlo
+			use_modified_cross_section_prefactor, order, use_nlp_nlo,
+			primary_muon_min_energy
 		);
 		return sidis;
 	}
@@ -185,7 +191,8 @@ struct SIDIS {
 			integration_parameters,
 			process, 
 			renormalization, factorization, fragmentation,
-			use_modified_cross_section_prefactor, order, use_nlp_nlo
+			use_modified_cross_section_prefactor, order, use_nlp_nlo,
+			primary_muon_min_energy
 		);
 		return sidis;
 	}
@@ -199,7 +206,8 @@ struct SIDIS {
 			integration_parameters,
 			process, 
 			renormalization_scale, factorization_scale, fragmentation_scale,
-			use_modified_cross_section_prefactor, order, use_nlp_nlo
+			use_modified_cross_section_prefactor, order, use_nlp_nlo,
+			primary_muon_min_energy
 		);
 		return sidis;
 	}

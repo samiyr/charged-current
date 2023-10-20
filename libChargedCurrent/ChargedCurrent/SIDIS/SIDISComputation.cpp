@@ -51,6 +51,8 @@ class SIDISComputation {
 	const PerturbativeOrder order;
 	const bool use_nlp_nlo;
 
+	const double primary_muon_min_energy;
+
 	SIDISComputation (
 		const FlavorVector _active_flavors, 
 		const std::array<double, TOTAL_FLAVORS> _flavor_masses,
@@ -63,7 +65,8 @@ class SIDISComputation {
 		const ScaleDependence::Function<FragmentationScale> _fragmentation_scale_function,
 		const bool _use_modified_cross_section_prefactor,
 		const PerturbativeOrder _order,
-		const bool _use_nlp_nlo
+		const bool _use_nlp_nlo,
+		const double primary_muon_min_energy
 	) : flavors(_active_flavors, _flavor_masses),
 	pdf1(_pdf), 
 	ff1(_ff),
@@ -76,7 +79,8 @@ class SIDISComputation {
 	fragmentation_scale_function(_fragmentation_scale_function),
 	use_modified_cross_section_prefactor(_use_modified_cross_section_prefactor),
 	order(_order),
-	use_nlp_nlo(_use_nlp_nlo) { }
+	use_nlp_nlo(_use_nlp_nlo),
+	primary_muon_min_energy(primary_muon_min_energy) { }
 
 	double compute_alpha_s(const TRFKinematics &kinematics) const {
 		const double renormalization_scale = renormalization_scale_function(kinematics);
@@ -336,6 +340,10 @@ class SIDISComputation {
 			const double target_mass = placeholder_kinematics.target_mass;
 			const double E_beam = placeholder_kinematics.E_beam;
 			const double y = Q2 / (2.0 * x * target_mass * E_beam);
+
+			const double y_max = 1.0 - primary_muon_min_energy / E_beam;
+			if (y > y_max) { return 0.0; }
+
 			const TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, target_mass, placeholder_kinematics.projectile_mass);
 
 			std::vector<double> z_mins(ff1.decays.size());
@@ -386,6 +394,10 @@ class SIDISComputation {
 			const double target_mass = placeholder_kinematics.target_mass;
 			const double E_beam = placeholder_kinematics.E_beam;
 			const double y = Q2 / (2.0 * x * target_mass * E_beam);
+
+			const double y_max = 1.0 - primary_muon_min_energy / E_beam;
+			if (y > y_max) { return 0.0; }
+
 			const TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, target_mass, placeholder_kinematics.projectile_mass);
 
 			std::vector<double> z_mins(ff1.decays.size());
@@ -441,6 +453,10 @@ class SIDISComputation {
 			const double target_mass = placeholder_kinematics.target_mass;
 			const double E_beam = placeholder_kinematics.E_beam;
 			const double y = Q2 / (2.0 * x * target_mass * E_beam);
+
+			const double y_max = 1.0 - primary_muon_min_energy / E_beam;
+			if (y > y_max) { return 0.0; }
+
 			const TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, target_mass, placeholder_kinematics.projectile_mass);
 
 			std::vector<double> z_mins(ff1.decays.size());

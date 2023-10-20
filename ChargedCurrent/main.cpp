@@ -120,6 +120,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	Analysis nomad_errors_169 = epps_errors;
 	nomad_errors_169.params.Q2_min = 1.69;
 	nomad_errors_169.params.minimum_lepton_momentum = 3.0;
+	nomad_errors_169.params.primary_muon_min_energy = 3.0;
+	nomad_errors_169.params.hadronic_min_energy = 3.0;
 
 	Analysis nomad_errors_225 = nomad_errors_169;
 	nomad_errors_225.params.Q2_min = 2.25;
@@ -158,8 +160,20 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << "======= DIS integrated inclusive =======" << IO::endl;
 		
 		measure([&] {
-			nomad_errors_169.dis().integrated(AnalysisSet::NOMAD, "Data/DIS/Integrated/nomad_neutrino_169.csv");
-			nomad_errors_225.dis().integrated(AnalysisSet::NOMAD, "Data/DIS/Integrated/nomad_neutrino_225.csv");
+			nomad_errors_169.dis().integrated(AnalysisSet::NOMAD, "Data/DIS/TotalProduction/Integrated/nomad_neutrino_169.csv");
+			nomad_errors_225.dis().integrated(AnalysisSet::NOMAD, "Data/DIS/TotalProduction/Integrated/nomad_neutrino_225.csv");
+		});
+
+
+		std::cout << separator << IO::endl;
+	}
+
+	if (run("disintegratedcharm")) {
+		std::cout << "==== DIS integrated inclusive charm ====" << IO::endl;
+
+		measure([&] {
+			nomad_errors_169.dis().integrated_charm_production(AnalysisSet::NOMAD, "Data/DIS/CharmProduction/Integrated/nomad_neutrino_169.csv");
+			nomad_errors_225.dis().integrated_charm_production(AnalysisSet::NOMAD, "Data/DIS/CharmProduction/Integrated/nomad_neutrino_225.csv");
 		});
 
 		std::cout << separator << IO::endl;

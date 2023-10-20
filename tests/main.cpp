@@ -978,9 +978,10 @@ TEST(SIDIS, NLOIntegratedCrossSection) {
 		const double y = Q2 / (2.0 * x * process.target.mass * E_beam);
 		const TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, process.target.mass, process.projectile.mass);
 
-		return sidis.lepton_pair_cross_section_xQ2(kinematics).nlo;
+		const double differential_cross_section = sidis.lepton_pair_cross_section_xQ2(kinematics).nlo;
+		return differential_cross_section;
 	}, {x_min, Q2_min}, {1.0, Q2_upper_bound}, nullptr, IntegrationMethod::GSLVegas);
-	integrator.gsl.points = 1000;
+	integrator.gsl.points = 100;
 	integrator.verbose = true;
 
 	const auto result = integrator.integrate();
