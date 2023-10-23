@@ -94,6 +94,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		"nNNPDF30_nlo_as_0118_p"
 	};
 
+	const std::vector<double> charm_masses = {0.0, 1.2, 1.3, 1.4, 1.5};
+
 	Analysis base;
 	base.params.charm_mass = 1.3;
 	base.params.scale_variation = ScaleVariation::None;
@@ -125,6 +127,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 	Analysis nomad_errors_225 = nomad_errors_169;
 	nomad_errors_225.params.Q2_min = 2.25;
+
+	Analysis nomad_errors_169_zero_limit = nomad_errors_169;
+	nomad_errors_169_zero_limit.params.minimum_lepton_momentum = 0.0;
+
+	Analysis nomad_errors_225_zero_limit = nomad_errors_225;
+	nomad_errors_225_zero_limit.params.minimum_lepton_momentum = 0.0;
 
 	Analysis unity_nuclear_epps = base;
 	unity_nuclear_epps.params.pdf_error_sets = true;
@@ -185,6 +193,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		measure([&] {
 			nomad_errors_169.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, "Data/SIDIS/MuonPairProduction/CharmedHadrons/Integrated/nomad_neutrino_169.csv");
 			nomad_errors_225.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, "Data/SIDIS/MuonPairProduction/CharmedHadrons/Integrated/nomad_neutrino_225.csv");
+		});
+
+		std::cout << separator << IO::endl;
+	}
+	
+	if (run("sidisintegratedzerolimit")) {
+		std::cout << "====== SIDIS integrated inclusive ======" << IO::endl;
+		
+		measure([&] {
+			nomad_errors_169_zero_limit.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, "Data/SIDIS/MuonPairProduction/CharmedHadrons/IntegratedZeroLimit/nomad_neutrino_169.csv");
+			nomad_errors_225_zero_limit.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, "Data/SIDIS/MuonPairProduction/CharmedHadrons/IntegratedZeroLimit/nomad_neutrino_225.csv");
 		});
 
 		std::cout << separator << IO::endl;
@@ -357,6 +376,29 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				x_bins, AnalysisConstants::NuTeV::New::Neutrino::y_bins, AnalysisConstants::NuTeV::New::Neutrino::E_bins,
 				"Data/SIDIS/MuonPairProduction/CharmedHadrons/FragmentationDecomposition/nutev_new"
 			);
+		});
+
+		std::cout << separator << IO::endl;
+	}
+
+	if (run("masses")) {
+		std::cout << "=========== SIDIS charm mass ===========" << IO::endl;
+
+		measure([&] {
+			for (const double charm_mass : charm_masses) {
+				Analysis mass = nlo;
+				mass.params.charm_mass = charm_mass;
+
+				const std::string folder = std::to_string(static_cast<int>(charm_mass * 10));
+
+				mass.sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/Masses/" + folder + "/nutev_old_neutrino.csv");
+				mass.sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/Masses/" + folder + "/nutev_new_neutrino.csv");
+				mass.sidis().muon_pair_production(AnalysisSet::CCFR, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/Masses/" + folder + "/ccfr_neutrino.csv");
+
+				bar(mass).sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/Masses/" + folder + "/nutev_old_antineutrino.csv");
+				bar(mass).sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/Masses/" + folder + "/nutev_new_antineutrino.csv");
+				bar(mass).sidis().muon_pair_production(AnalysisSet::CCFR, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/Masses/" + folder + "/ccfr_antineutrino.csv");
+			}
 		});
 
 		std::cout << separator << IO::endl;
