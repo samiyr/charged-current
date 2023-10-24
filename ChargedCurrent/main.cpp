@@ -338,6 +338,32 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << separator << IO::endl;
 	}
 
+	if (run("errorszerolimit")) {
+		std::cout << "=========== SIDIS error sets ===========" << IO::endl;
+		for (const auto &pdf_set_name : pdfs) {
+			std::cout << "PDF set: " << pdf_set_name << IO::endl;
+
+			Analysis errors = base;
+			errors.params.pdf_error_sets = true;
+			errors.params.pdf_set = pdf_set_name;
+			errors.params.minimum_lepton_energy = 0.0;
+
+			const std::string output_folder = "Data/SIDIS/MuonPairProduction/CharmedHadrons/ErrorSetsZeroLimit/" + pdf_set_name + "/";
+
+			measure([&] {
+				errors.sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins, output_folder + "nutev_old_neutrino.csv");
+				errors.sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins, output_folder + "nutev_new_neutrino.csv");
+				errors.sidis().muon_pair_production(AnalysisSet::CCFR, x_bins, output_folder + "ccfr_neutrino.csv");
+
+				bar(errors).sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins, output_folder + "nutev_old_antineutrino.csv");
+				bar(errors).sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins, output_folder + "nutev_new_antineutrino.csv");
+				bar(errors).sidis().muon_pair_production(AnalysisSet::CCFR, x_bins, output_folder + "ccfr_antineutrino.csv");
+			});
+		}
+
+		std::cout << separator << IO::endl;
+	}
+
 	if (run("channels")) {
 		std::cout << "======== SIDIS parton channels =========" << IO::endl;
 
