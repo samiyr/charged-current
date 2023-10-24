@@ -346,7 +346,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			Analysis errors = base;
 			errors.params.pdf_error_sets = true;
 			errors.params.pdf_set = pdf_set_name;
-			errors.params.minimum_lepton_energy = 0.0;
+			errors.params.minimum_lepton_momentum = 0.0;
 
 			const std::string output_folder = "Data/SIDIS/MuonPairProduction/CharmedHadrons/ErrorSetsZeroLimit/" + pdf_set_name + "/";
 
