@@ -44,6 +44,7 @@ namespace Constants {
 		constexpr inline Particle LambdaC = Particle(2.28646, 0.2);
 		constexpr inline Particle W = Particle(80.377, 4.7961631e-9);
 		constexpr inline Particle Neutrino = Particle(0.0);
+		constexpr inline Particle Muon = Particle(0.105658372);
 	}
 
 	namespace Charm {
