@@ -145,6 +145,15 @@ namespace SIDISFunctions {
 		const double factorization_scale = params.factorization_scale;
 		const double fragmentation_scale = params.fragmentation_scale;
 
+		double decay_value = 1.0;
+		if (z_int) {
+			const double cos = input[z_index + 1];
+			const double rho = input[z_index + 2];
+
+			decay_value = decay(cos, rho, z, x, Q2);
+			if (decay_value == 0.0) { return 0.0; }
+		}
+
 		if (xi_int) {
 			// if (xi < x) { return 0; }
 			if (xi == 1.0) [[unlikely]] { return 0.0; }
@@ -211,7 +220,6 @@ namespace SIDISFunctions {
 				sum += summand;
 			}
 		}
-		const double decay_value = decay(x, z, Q2, z_min);
 		sum *= decay_value;
 
 		return sum;
