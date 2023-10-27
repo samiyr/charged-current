@@ -12,10 +12,10 @@
 
 template <typename T>
 concept is_decay_function = requires(
-	T decay_function, const double cos, const double rho, const double z, const double x, const double Q2,
+	T decay_function, const double rho, const double z, const double x, const double Q2, const double E_min,
 	const DecayParametrization &parametrization,
 	const Particle &resonance, const Particle &target, const Particle &lepton) {
-	{ decay_function(cos, rho, z, x, Q2, parametrization, resonance, target, lepton) } -> std::same_as<double>;
+	{ decay_function(rho, z, x, Q2, E_min, parametrization, resonance, target, lepton) } -> std::same_as<double>;
 };
 
 namespace DecayFunctions {
@@ -28,13 +28,15 @@ namespace DecayFunctions {
 		const DecayParametrization&,
 		const Particle&, const Particle&, const Particle&) noexcept { return 1.0; };
 
-	constexpr double decay_function(
-		const double cos, const double rho, const double z, const double x, const double Q2,
+	constexpr double differential_decay_function(
+		const double cos, const double rho, const double z, const double x, const double Q2, const double E_min,
 		const DecayParametrization &parametrization,
 		const Particle &resonance, const Particle &target, const Particle &lepton
 	) {
 		const double h0 = z * Q2 / (2.0 * x * target.mass);
 		if (h0 < resonance.mass) { return 0.0; }
+		const double pp0 = rho * h0;
+		if (pp0 < E_min) { return 0.0; }
 
 		const double mu = lepton.mass / h0;
 		const double reduced_rho = sqrt(std::pow(rho, 2) - std::pow(mu, 2));
@@ -49,6 +51,37 @@ namespace DecayFunctions {
 		const double integrand = 2.0 * std::numbers::pi * resonance.lifetime * decay_value * reduced_rho * std::pow(h0, 2) / (2.0 * resonance.mass);
 
 		return integrand;
+	}
+	
+	constexpr double decay_function(
+		const double rho, const double z, const double x, const double Q2, const double E_min,
+		const DecayParametrization &parametrization,
+		const Particle &resonance, const Particle &target, const Particle &lepton
+	) {
+		const double h0 = z * Q2 / (2.0 * x * target.mass);
+		if (h0 < resonance.mass) { return 0.0; }
+		const double pp0 = rho * h0;
+		if (pp0 < E_min) { return 0.0; }
+
+		const double mu = lepton.mass / h0;
+		const double reduced_rho = sqrt(std::pow(rho, 2) - std::pow(mu, 2));
+
+		const double a = std::pow(h0, 2) / std::pow(resonance.mass, 2);
+		const double b = h0 * sqrt(std::pow(h0, 2) - std::pow(resonance.mass, 2)) / std::pow(resonance.mass, 2);
+
+		const double cos_min = (parametrization.gamma * a * rho - 1.0) / (parametrization.gamma * b * reduced_rho);
+		if (cos_min < -1.0 || cos_min > 1.0) { return 0.0; }
+
+		const double beta_arg_1 = parametrization.gamma * (a * rho - b * reduced_rho * cos_min);
+		if (beta_arg_1 > 1.0) { return 0.0; }
+		const double beta_arg_2 = parametrization.gamma * (a * rho - b * reduced_rho);
+
+		// std::cout << "cos_min = " << cos_min << ", arg1 = " << beta_arg_1 << ", arg2 = " << beta_arg_2 << ", a = " << a << ", b = " << b << ", rho = " << rho << ", reduced_rho = " << reduced_rho << IO::endl;
+
+		const double integrand = Math::incomplete_beta(beta_arg_1, 1.0 + parametrization.alpha, 1.0 + parametrization.beta) - Math::incomplete_beta(beta_arg_2, 1.0 + parametrization.alpha, 1.0 + parametrization.beta);
+		const double prefactor = 2.0 * std::numbers::pi * resonance.lifetime * parametrization.N * parametrization.gamma_prefactor_term * std::pow(h0, 2) / (resonance.mass * b);
+
+		return prefactor * integrand;
 	}
 
 	// constexpr double decay_function_integrand(double input[], [[maybe_unused]] std::size_t dim, void *params_in) {

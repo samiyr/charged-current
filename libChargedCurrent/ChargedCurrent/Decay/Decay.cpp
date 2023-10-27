@@ -14,7 +14,7 @@ struct Decay {
 	const Particle lepton;
 	const DecayFunction decay_function;
 
-	const double lepton_momentum_min;
+	const double minimum_lepton_energy;
 	const double z_min_cutoff;
 
 	constexpr Decay(
@@ -23,33 +23,31 @@ struct Decay {
 		const Particle target,
 		const Particle lepton, 
 		const DecayFunction decay_function, 
-		const double lepton_momentum_min, 
+		const double minimum_lepton_energy, 
 		const double z_min_cutoff = 0.0) noexcept
 	: parametrization(parametrization), 
 	resonance(resonance), 
 	target(target),
 	lepton(lepton), 
 	decay_function(decay_function), 
-	lepton_momentum_min(lepton_momentum_min), 
+	minimum_lepton_energy(minimum_lepton_energy), 
 	z_min_cutoff(z_min_cutoff) {}
 
 	constexpr Decay() noexcept : Decay(DecayParametrization(), Particle(), Particle(), Particle(), DecayFunctions::trivial, 0.0) { }
 
-	constexpr double operator()(const double cos, const double rho, const double z, const double x, const double Q2) const noexcept(noexcept(decay_function)) {
-		if (cos != prev_cos || rho != prev_rho || z != prev_z || x != prev_x || Q2 != prev_Q2) {
-			prev_cos = cos;
+	constexpr double operator()(const double rho, const double z, const double x, const double Q2) const noexcept(noexcept(decay_function)) {
+		if (rho != prev_rho || z != prev_z || x != prev_x || Q2 != prev_Q2) {
 			prev_rho = rho;
 			prev_z = z;
 			prev_x = x;
 			prev_Q2 = Q2;
 
-			prev_value = decay_function(cos, rho, z, x, Q2, parametrization, resonance, target, lepton);
+			prev_value = decay_function(rho, z, x, Q2, minimum_lepton_energy, parametrization, resonance, target, lepton);
 		}
 		return prev_value;
 	}
 
 	private:
-	mutable double prev_cos = -2.0;
 	mutable double prev_rho = -1.0;
 	mutable double prev_z = -1.0;
 	mutable double prev_x = -1.0;
