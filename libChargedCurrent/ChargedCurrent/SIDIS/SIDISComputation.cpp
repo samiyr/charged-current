@@ -290,7 +290,7 @@ class SIDISComputation {
 				SIDISFunctions::F2::LO::integrand, SIDISFunctions::FL::LO::integrand, SIDISFunctions::F3::LO::integrand,
 				false, false, true
 			);
-		}, {z_min, -1.0, 1.0}, {1.0, 1.0, 1.0}, integration_parameters, &params);
+		}, {z_min, -1.0, 0.0}, {1.0, 1.0, 1.0}, integration_parameters, &params);
 		const auto lo_result = lo_integrator.integrate();
 		const double lo = lo_result.value;
 
@@ -317,7 +317,7 @@ class SIDISComputation {
 					SIDISFunctions::F2::NNLO_NLP::total_integrand, SIDISFunctions::FL::NNLO_NLP::total_integrand, SIDISFunctions::F3::NNLO_NLP::total_integrand,
 					true, true, true
 				);
-			}, {x, z_min, z_min, -1.0, 1.0}, {1.0, 1.0, 1.0, 1.0, 1.0}, integration_parameters, &params);
+			}, {x, z_min, z_min, -1.0, 0.0}, {1.0, 1.0, 1.0, 1.0, 1.0}, integration_parameters, &params);
 			const auto nnlo_result = nnlo_integrator.integrate();
 			const double nnlo_integral = nnlo_result.value;
 
@@ -522,7 +522,12 @@ class SIDISComputation {
 
 			delete[] scaled_input;
 			return result;
-		}, {x_min /* x */, 0.0 /* scaled Q^2 */, 0.0 /* z */, -1.0 /* cos */, 0.0 /* rho */}, {1.0, 1.0, 1.0, 1.0, 1.0}, integration_parameters, nullptr);
+		}, {
+				x_min 	/* x */, 0.0 	/* scaled Q^2 */, 0.0 	/* z */, -1.0 	/* cos */, 0.0	/* rho */
+			}, 
+			{
+				1.0 	/* x */, 1.0 	/* scaled Q^2 */, 1.0 	/* z */, 1.0	/* cos */, 1.0	/* rho */
+			}, integration_parameters, nullptr);
 
 		const auto lo_result = lo_integrator.integrate();
 		const double lo = lo_result.value;
@@ -546,7 +551,12 @@ class SIDISComputation {
 
 				delete[] scaled_input;
 				return result;
-			}, {x_min /* x */, 0.0 /* scaled Q^2 */, 0.0 /* scaled xi */, 0.0 /* xip */, 0.0 /* z */, -1.0 /* cos */, 0.0 /* rho */}, {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}, integration_parameters, nullptr);
+			}, {
+					x_min 	/* x */, 0.0 	/* scaled Q^2 */, 0.0 	/* scaled xi */, 0.0 	/* xip */, 0.0 	/* z */, -1.0 	/* cos */, 0.0 	/* rho */
+				}, 
+				{
+					1.0		/* x */, 1.0	/* scaled Q^2 */, 1.0	/* scaled xi */, 1.0	/* xip */, 1.0	/* z */, 1.0	/* cos */, 1.0 /* rho */
+				}, integration_parameters, nullptr);
 
 			const auto nlo_result = nlo_integrator.integrate();
 			nlo = nlo_result.value;
@@ -571,7 +581,12 @@ class SIDISComputation {
 
 				delete[] scaled_input;
 				return result;
-			}, {x_min /* x */, 0.0 /* scaled Q^2 */, 0.0 /* scaled xi */, 0.0 /* xip */, 0.0 /* z */, -1.0 /* cos */, 0.0 /* rho */}, {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}, integration_parameters, nullptr);
+			}, {
+					x_min	/* x */, 0.0 	/* scaled Q^2 */, 0.0 	/* scaled xi */, 0.0 	/* xip */, 0.0 	/* z */, -1.0 	/* cos */, 0.0 	/* rho */
+				}, 
+				{
+					1.0		/* x */, 1.0	/* scaled Q^2 */, 1.0	/* scaled xi */, 1.0	/* xip */, 1.0	/* z */, 1.0	/* cos */, 1.0	/* rho */
+				}, integration_parameters, nullptr);
 			const auto nnlo_result = nnlo_integrator.integrate();
 			nnlo = nnlo_result.value;
 		}

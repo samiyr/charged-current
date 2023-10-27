@@ -151,6 +151,7 @@ namespace SIDISFunctions {
 			const double rho = input[z_index + 2];
 
 			decay_value = decay(cos, rho, z, x, Q2);
+			// std::cout << "x = " << x << ", z = " << z << ", Q2 = " << Q2 << ", xi = " << xi << ", xip = " << xip << ", cos = " << cos << ", rho = " << rho << ", decay = " << decay_value << IO::endl;
 			if (decay_value == 0.0) { return 0.0; }
 		}
 
@@ -221,6 +222,7 @@ namespace SIDISFunctions {
 			}
 		}
 		sum *= decay_value;
+		// std::cout << sum << IO::endl;
 
 		return sum;
 	}
