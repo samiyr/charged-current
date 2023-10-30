@@ -628,7 +628,7 @@ TEST(SIDIS, NLP_NLO) {
 /// starting from the integrand DecayFunctions::decay_function_integrand.
 
 TEST(Decay, NumericalIntegrationComparison) {
-	const double E_min = 5.0;
+	const double E_min = 0.0;
 	const DecayParametrization param(1.0, 1.4, 2.3, 2.0);
 
 	const Particle resonance = Particle(1.8, 1.0);
@@ -648,11 +648,46 @@ TEST(Decay, NumericalIntegrationComparison) {
 
 					const double value = DecayFunctions::decay_function(rho, z, x, Q2, E_min, param, resonance, target, lepton);
 					return value;
-				}, {0.0}, {1.0}, nullptr, IntegrationMethod::CubaSuave);
-				// integrator.gsl.points = 10'000'000;
-				// integrator.gsl.max_chi_squared_deviation = 0.2;
-				// integrator.gsl.max_relative_error = 1e-5;
-				// integrator.gsl.iter_max = 10;
+				}, {0.0}, {1.0}, nullptr, IntegrationMethod::GSLVegas);
+				integrator.gsl.points = 10'000'000;
+				integrator.gsl.max_chi_squared_deviation = 0.2;
+				integrator.gsl.max_relative_error = 1e-5;
+				integrator.gsl.iter_max = 10;
+
+				const auto result = integrator.integrate();
+				std::cout << "x = " << x << ", z = " << z << ", Q2 = " << Q2 << ", res = " << result << IO::endl; 
+				// if (result.value == 0) {
+				// 	continue;
+				// }
+				// EXPECT_NEAR(DecayFunctions::decay_function(x, z, Q2, z_min, param, resonance, target), result.value, 1e-5);
+			}
+		}
+	}
+}
+
+TEST(Decay, FullNumericalIntegrationComparison) {
+	const double E_min = 0.0;
+	const DecayParametrization param(1.0, 1.4, 2.3, 2.0);
+
+	const Particle resonance = Particle(1.8, 1.0);
+	const Particle target = Particle(1.0);
+	const Particle lepton = Particle(0.0);
+
+	const std::vector<double> xz_values = {0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
+	const std::vector<double> Q2_values = {10.0, 20.0, 50.0, 100.0};
+
+	for (const double x : xz_values) {
+		for (const double z : xz_values) {
+			for (const double Q2 : Q2_values) {
+				Integrator integrator([&](double input[], size_t, void *) {
+					const double rho = input[0];
+					const double cos = input[1];
+					return DecayFunctions::differential_decay_function(cos, rho, z, x, Q2, E_min, param, resonance, target, lepton);
+				}, {0.0, -1.0}, {1.0, 1.0}, nullptr, IntegrationMethod::GSLVegas);
+				integrator.gsl.points = 10'000'000;
+				integrator.gsl.max_chi_squared_deviation = 0.2;
+				integrator.gsl.max_relative_error = 1e-5;
+				integrator.gsl.iter_max = 10;
 
 				const auto result = integrator.integrate();
 				std::cout << "x = " << x << ", z = " << z << ", Q2 = " << Q2 << ", res = " << result << IO::endl; 
