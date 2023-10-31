@@ -10,11 +10,13 @@
 
 #include "Decay/DecayParametrization.cpp"
 
+#include "Integration/Integrator.cpp"
+
 template <typename T>
 concept is_decay_function = requires(
 	T decay_function, const double x, const double z, const double Q2, const double z_min, 
-	const DecayParametrization &parametrization, const Particle &resonance, const Particle &hadron) {
-	{ decay_function(x, z, Q2, z_min, parametrization, resonance, hadron) } -> std::same_as<double>;
+	const DecayParametrization &parametrization, const Particle &resonance, const Particle &hadron, const Particle &lepton) {
+	{ decay_function(x, z, Q2, z_min, parametrization, resonance, hadron, lepton) } -> std::same_as<double>;
 };
 
 namespace DecayFunctions {
@@ -25,16 +27,51 @@ namespace DecayFunctions {
 		[[maybe_unused]] const double z_min, 
 		[[maybe_unused]] const DecayParametrization &decay, 
 		[[maybe_unused]] const Particle &resonance, 
-		[[maybe_unused]] const Particle &hadron) noexcept { return 1.0; };
+		[[maybe_unused]] const Particle &hadron,
+		[[maybe_unused]] const Particle &lepton) noexcept { return 1.0; };
 
-	constexpr double decay_function(
+	constexpr double differential_decay_function_integrand(
+		const double rho, const double reduced_rho, const double cos, const double a, const double b, const double h0,
+		const DecayParametrization &parametrization, const Particle &resonance
+	) {
+		const double w = a * rho - b * reduced_rho * cos;
+
+		if (w < 0.0 || w > 1.0 / parametrization.gamma) { return 0.0; }
+
+		const double decay_value = parametrization.N * std::pow(w, parametrization.alpha) * std::pow(1.0 - parametrization.gamma * w, parametrization.beta);
+		const double integrand = 2.0 * std::numbers::pi * resonance.lifetime * decay_value * reduced_rho * std::pow(h0, 2) / (2.0 * resonance.mass);
+
+		return integrand;
+	}
+	
+	constexpr double differential_decay_function(
+		const double cos, const double rho, const double z, const double x, const double Q2, const double E_min,
+		const DecayParametrization &parametrization,
+		const Particle &resonance, const Particle &target, const Particle &lepton
+	) {
+		const double h0 = z * Q2 / (2.0 * x * target.mass);
+		if (h0 < resonance.mass) { return 0.0; }
+		const double pp0 = rho * h0;
+		if (pp0 < E_min) { return 0.0; }
+
+		const double mu = lepton.mass / h0;
+		const double reduced_rho = sqrt(std::pow(rho, 2) - std::pow(mu, 2));
+
+		const double a = std::pow(h0, 2) / std::pow(resonance.mass, 2);
+		const double b = h0 * sqrt(std::pow(h0, 2) - std::pow(resonance.mass, 2)) / std::pow(resonance.mass, 2);
+
+		return differential_decay_function_integrand(rho, reduced_rho, cos, a, b, h0, parametrization, resonance);
+	}
+
+	constexpr double analytical_decay_function(
 		const double x, 
 		const double z, 
 		const double Q2, 
 		const double z_min, 
 		const DecayParametrization &parametrization, 
 		const Particle &resonance, 
-		const Particle &hadron) {
+		const Particle &hadron,
+		[[maybe_unused]] const Particle &lepton = Particle()) {
 
 		if (z < z_min) { return 0.0; }
 		const double alpha = parametrization.alpha;
@@ -65,35 +102,39 @@ namespace DecayFunctions {
 		return result;
 	}
 
-	constexpr double decay_function_integrand(double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
-		const double rho = input[0];
-		const double cos = input[1];
+	double decay_function(
+		const double x, 
+		const double z, 
+		const double Q2, 
+		const double E_min, 
+		const DecayParametrization &parametrization, 
+		const Particle &resonance,
+		const Particle &target,
+		const Particle &lepton) {
 
-		std::vector<double> &params = *static_cast<std::vector<double> *>(params_in);
-		const double x = params[0];
-		const double z = params[1];
-		const double Q2 = params[2];
-		const double mN = params[3];
-		const double mD = params[4];
-		const double n = params[5];
-		const double alpha = params[6];
-		const double beta = params[7];
-		const double gamma = params[8];
-		const double gamma_tot = params[9];
+		Integrator integrator([&](double input[], size_t, void *) {
+			const double rho = input[0];
+			const double c = input[1];
 
-		const double h0 = z * Q2 / (2 * x * mN);
-		if (h0 < mD) { return 0.0; }
-		const double a = (h0 * h0) / (mD * mD);
-		const double b = h0 * std::sqrt(h0 * h0 - mD * mD) / (mD * mD);
-		const double w = a * rho - b * rho * cos;
+			const double h0 = z * Q2 / (2.0 * x * target.mass);
+			if (h0 < resonance.mass) { return 0.0; }
+			const double pp0 = rho * h0;
+			if (pp0 < E_min) { return 0.0; }
 
-		if (w < 0 || w > 1.0 / gamma) { return 0.0; }
+			const double mu = lepton.mass / h0;
+			const double reduced_rho = sqrt(std::pow(rho, 2) - std::pow(mu, 2));
 
-		const double decay = n * std::pow(w, alpha) * std::pow(1.0 - gamma * w, beta);
-		const double integrand = 2 * std::numbers::pi * decay * rho * h0 * h0 / (gamma_tot * 2 * mD);
+			const double a = std::pow(h0, 2) / std::pow(resonance.mass, 2);
+			const double b = h0 * sqrt(std::pow(h0, 2) - std::pow(resonance.mass, 2)) / std::pow(resonance.mass, 2);
 
-		return integrand;
-	};
+			const double cos_min = (parametrization.gamma * a * rho - 1.0) / (parametrization.gamma * b * reduced_rho);
+			const double cos = cos_min + (1.0 - cos_min) * c;
+
+			return (1.0 - cos_min) * DecayFunctions::differential_decay_function(cos, rho, z, x, Q2, E_min, parametrization, resonance, target, lepton);
+		}, {0.0, 0.0}, {1.0, 1.0}, nullptr, IntegrationMethod::CubaSuave);
+		const auto result = integrator.integrate();
+		return result.value;
+	}
 }
 
 #endif

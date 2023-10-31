@@ -38,8 +38,9 @@ struct Decay {
 			prev_z = z;
 			prev_Q2 = Q2;
 			prev_z_min = z_min;
-
-			prev_value = decay_function(x, z, Q2, z_min, parametrization, resonance, hadron);
+			
+			// FIXME: rename lepton_momentum_min to min energy, implement z_min in DecayFunctions::analytical_decay_function
+			prev_value = decay_function(x, z, Q2, lepton_momentum_min, parametrization, resonance, hadron, Particle());
 		}
 		return prev_value;
 	}

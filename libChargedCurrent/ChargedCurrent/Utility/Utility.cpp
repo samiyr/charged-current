@@ -68,6 +68,16 @@ namespace Collections {
 	bool contains(const T &collection, const S &value) {
 		return std::find(std::begin(collection), std::end(collection), value) != std::end(collection);
 	}
+
+	template <typename T>
+	auto closest(const std::vector<T> &input, const T &value) {
+		using difference_type = typename std::vector<T>::difference_type;
+
+		const auto iterator = std::lower_bound(std::begin(input), std::end(input), value);
+		if (iterator == std::end(input)) { return difference_type{-1}; }
+
+		return std::distance(input.begin(), iterator);
+	}
 }
 
 template <typename T, typename U>

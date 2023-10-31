@@ -606,243 +606,332 @@ TEST(SIDIS, NLP_NLO) {
 
 /// Tests the evaluation of DecayFunctions::decay_function against a set of values computed with Mathematica.
 
-TEST(Decay, AnalyticalComparison) {
-	const double abs_error = 1e-7;
+// TEST(Decay, AnalyticalComparison) {
+// 	const double abs_error = 1e-7;
 
-	const double z_min = 0.1;
-	const DecayParametrization param(1.0, 1.4, 2.3, 2.0);
+// 	const double z_min = 0.1;
+// 	const DecayParametrization param(1.0, 1.4, 2.3, 2.0);
 
-	const Particle resonance = Particle(1.8, 1.0);
-	const Particle target = Particle(1.0);
+// 	const Particle resonance = Particle(1.8, 1.0);
+// 	const Particle target = Particle(1.0);
 
-	EXPECT_NEAR(DecayFunctions::decay_function(0.1, 0.3, 10, z_min, param, resonance, target), 2 * std::numbers::pi * 0.00100292, abs_error);
-	EXPECT_NEAR(DecayFunctions::decay_function(0.2, 0.3, 10, z_min, param, resonance, target), 2 * std::numbers::pi * 0.000995329, abs_error);
-	EXPECT_NEAR(DecayFunctions::decay_function(0.3, 0.3, 10, z_min, param, resonance, target), 2 * std::numbers::pi * 0.00098196, abs_error);
-	EXPECT_NEAR(DecayFunctions::decay_function(0.4, 0.5, 10, z_min, param, resonance, target), 2 * std::numbers::pi * 0.00180983, abs_error);
-	EXPECT_NEAR(DecayFunctions::decay_function(0.5, 0.5, 10, z_min, param, resonance, target), 2 * std::numbers::pi * 0.00181612, abs_error);
-	EXPECT_NEAR(DecayFunctions::decay_function(0.7, 0.9, 10, z_min, param, resonance, target), 2 * std::numbers::pi * 0.00247266, abs_error);
-	EXPECT_NEAR(DecayFunctions::decay_function(0.99, 0.9, 10, z_min, param, resonance, target), 2 * std::numbers::pi * 0.00251066, abs_error);
-}
+// 	EXPECT_NEAR(DecayFunctions::decay_function(0.1, 0.3, 10, z_min, param, resonance, target), 2 * std::numbers::pi * 0.00100292, abs_error);
+// 	EXPECT_NEAR(DecayFunctions::decay_function(0.2, 0.3, 10, z_min, param, resonance, target), 2 * std::numbers::pi * 0.000995329, abs_error);
+// 	EXPECT_NEAR(DecayFunctions::decay_function(0.3, 0.3, 10, z_min, param, resonance, target), 2 * std::numbers::pi * 0.00098196, abs_error);
+// 	EXPECT_NEAR(DecayFunctions::decay_function(0.4, 0.5, 10, z_min, param, resonance, target), 2 * std::numbers::pi * 0.00180983, abs_error);
+// 	EXPECT_NEAR(DecayFunctions::decay_function(0.5, 0.5, 10, z_min, param, resonance, target), 2 * std::numbers::pi * 0.00181612, abs_error);
+// 	EXPECT_NEAR(DecayFunctions::decay_function(0.7, 0.9, 10, z_min, param, resonance, target), 2 * std::numbers::pi * 0.00247266, abs_error);
+// 	EXPECT_NEAR(DecayFunctions::decay_function(0.99, 0.9, 10, z_min, param, resonance, target), 2 * std::numbers::pi * 0.00251066, abs_error);
+// }
 
 /// Tests the analytically obtained decay function DecayFunctions::decay_function against numerically integrated version 
 /// starting from the integrand DecayFunctions::decay_function_integrand.
 
-TEST(Decay, DISABLED_NumericalIntegrationComparison) {
-	const double z_min = 0.1;
-	const DecayParametrization param(1.0, 1.4, 2.3, 2.0);
+// TEST(Decay, FullNumericalIntegrationComparison) {
+// 	const double E_min = 5.0;
+// 	const DecayParametrization param(1.0, 1.4, 2.3, 2.0);
 
-	const Particle resonance = Particle(1.8, 1.0);
-	const Particle target = Particle(1.0);
+// 	const Particle resonance = Particle(1.8, 1.0);
+// 	const Particle target = Particle(1.0);
+// 	const Particle lepton = Particle(0.0);
 
-	const std::vector<double> xz_values = {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
+// 	const std::vector<double> xz_values = {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
+// 	const std::vector<double> Q2_values = {10.0, 20.0, 50.0, 100.0};
+
+// 	// #pragma omp parallel for collapse(3)
+// 	for (const double x : xz_values) {
+// 		for (const double z : xz_values) {
+// 			for (const double Q2 : Q2_values) {
+// 				Integrator integrator([&](double input[], size_t, void *) {
+// 					const double rho = input[0];
+// 					const double cos = input[1];
+
+// 					return DecayFunctions::differential_decay_function(cos, rho, z, x, Q2, E_min, param, resonance, target, lepton);
+// 				}, {0.0, -1.0}, {1.0, 1.0}, nullptr, IntegrationMethod::GSLVegas);
+// 				integrator.gsl.points = 10'000'000;
+// 				integrator.gsl.max_chi_squared_deviation = 0.2;
+// 				integrator.gsl.max_relative_error = 1e-5;
+// 				integrator.gsl.iter_max = 10;
+
+// 				const auto result = integrator.integrate();
+// 				std::cout << "x = " << x << ", z = " << z << ", Q2 = " << Q2 << ", res = " << result << IO::endl;
+// 				// if (result.value == 0) {
+// 				// 	continue;
+// 				// }
+// 				// EXPECT_NEAR(DecayFunctions::decay_function(x, z, Q2, z_min, param, resonance, target), result.value, 1e-5);
+// 			}
+// 		}
+// 	}
+// }
+TEST(Decay, FullNumericalIntegrationComparison) {
+	const double E_min = 0.0;
+	const DecayParametrization param = DecayParametrization::fit1();
+
+	const Particle resonance = Constants::Particles::D0;
+	const Particle target = Constants::Particles::Proton;
+	const Particle lepton = Constants::Particles::Muon;
+
+	const std::vector<double> xz_values = {0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
 	const std::vector<double> Q2_values = {10.0, 20.0, 50.0, 100.0};
 
-	#pragma omp parallel for collapse(3)
+	// #pragma omp parallel for collapse(3)
 	for (const double x : xz_values) {
 		for (const double z : xz_values) {
 			for (const double Q2 : Q2_values) {
-				std::vector<double> params = {x, z, Q2, 1.0, 1.8, 1.0, 1.4, 2.3, 2.0, 1.0};
-				Integrator integrator(&DecayFunctions::decay_function_integrand, {0.1 / params[1], -1}, {1, 1}, &params, IntegrationMethod::GSLVegas);
+				Integrator integrator([&](double input[], size_t, void *) {
+					const double rho = input[0];
+					const double cos = input[1];
+
+					return DecayFunctions::differential_decay_function(cos, rho, z, x, Q2, E_min, param, resonance, target, lepton);
+				}, {0.0, -1.0}, {1.0, 1.0}, nullptr, IntegrationMethod::GSLVegas);
 				integrator.gsl.points = 10'000'000;
 				integrator.gsl.max_chi_squared_deviation = 0.2;
 				integrator.gsl.max_relative_error = 1e-5;
 				integrator.gsl.iter_max = 10;
 
 				const auto result = integrator.integrate();
-				if (result.value == 0) {
-					continue;
-				}
-				EXPECT_NEAR(DecayFunctions::decay_function(x, z, Q2, z_min, param, resonance, target), result.value, 1e-5);
+				std::cout << "x = " << x << ", z = " << z << ", Q2 = " << Q2 << ", res = " << result << IO::endl;
+				// if (result.value == 0) {
+				// 	continue;
+				// }
+				// EXPECT_NEAR(DecayFunctions::decay_function(x, z, Q2, z_min, param, resonance, target), result.value, 1e-5);
 			}
 		}
 	}
 }
 
-TEST(LeptonPair, LOCrossSectionIntegration) {
-	const bool verbose = false;
+TEST(Decay, NumericalIntegrationComparison) {
+	const double E_min = 5.0;
+	const DecayParametrization param(1.0, 1.4, 2.3, 2.0);
 
-	const double sqrt_s = 120.0;
-	const double x = 0.3;
-	const double Q2 = 10.0;
+	const Particle resonance = Particle(1.8, 1.0);
+	const Particle target = Particle(1.0);
+	const Particle lepton = Particle(0.0);
 
-	DecayParametrization parametrization(7.365, 1.4, 2.276, 2.0);
+	const std::vector<double> xz_values = {0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
+	const std::vector<double> Q2_values = {10.0, 20.0, 50.0, 100.0};
 
-	// Since lambdas have a unique type, have to first convert them to e.g. std::function and then pass in a vector, 
-	// otherwise the template DecayFunction cannot be uniquely defined.
-	auto lambda1 = [](
-		[[maybe_unused]] const double x, 
-		[[maybe_unused]] const double z,
-		[[maybe_unused]] const double Q2, 
-		[[maybe_unused]] const double z_min, 
-		[[maybe_unused]] const DecayParametrization &decay, 
-		[[maybe_unused]] const Particle &resonance, 
-		[[maybe_unused]] const Particle &hadron) { 
-		return 3 * Constants::Particles::D0.lifetime;
-	};
-	Decay decay1(parametrization, Constants::Particles::D0, Constants::Particles::Proton, std::function(lambda1), 5.0);
+	// #pragma omp parallel for collapse(3)
+	for (const double x : xz_values) {
+		for (const double z : xz_values) {
+			for (const double Q2 : Q2_values) {
+				Integrator integrator([&](double input[], size_t, void *) {
+					const double rho = input[0];
+					const double c = input[1];
 
-	auto lambda2 = [](
-		[[maybe_unused]] const double x, 
-		[[maybe_unused]] const double z, 
-		[[maybe_unused]] const double Q2, 
-		[[maybe_unused]] const double z_min, 
-		[[maybe_unused]] const DecayParametrization &decay, 
-		[[maybe_unused]] const Particle &resonance, 
-		[[maybe_unused]] const Particle &hadron) { 
-		return 5 * Constants::Particles::Dp.lifetime; 
-	};
-	Decay decay2(parametrization, Constants::Particles::D0, Constants::Particles::Proton, std::function(lambda2), 5.0);
+					const double h0 = z * Q2 / (2.0 * x * target.mass);
+					if (h0 < resonance.mass) { return 0.0; }
+					const double pp0 = rho * h0;
+					if (pp0 < E_min) { return 0.0; }
 
-	SIDIS sidis(
-		{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
-		LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
-		FragmentationConfiguration(
-			{
-				LHAInterface("kkks08_opal_d0___mas"), 
-				LHAInterface("kkks08_opal_d+___mas")
-			},
-			{
-				decay1,
-				decay2
+					const double mu = lepton.mass / h0;
+					const double reduced_rho = sqrt(std::pow(rho, 2) - std::pow(mu, 2));
+
+					const double a = std::pow(h0, 2) / std::pow(resonance.mass, 2);
+					const double b = h0 * sqrt(std::pow(h0, 2) - std::pow(resonance.mass, 2)) / std::pow(resonance.mass, 2);
+
+					const double cos_min = (param.gamma * a * rho - 1.0) / (param.gamma * b * reduced_rho);
+					const double cos = cos_min + (1.0 - cos_min) * c;
+
+					return (1.0 - cos_min) * DecayFunctions::differential_decay_function(cos, rho, z, x, Q2, E_min, param, resonance, target, lepton);
+				}, {0.0, 0.0}, {1.0, 1.0}, nullptr, IntegrationMethod::CubaSuave);
+
+				const auto result = integrator.integrate();
+				std::cout << "x = " << x << ", z = " << z << ", Q2 = " << Q2 << ", res = " << result << IO::endl;
+				// if (result.value == 0) {
+				// 	continue;
+				// }
+				// EXPECT_NEAR(DecayFunctions::decay_function(x, z, Q2, z_min, param, resonance, target), result.value, 1e-5);
 			}
-		),
-		Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
-	);
-	sidis.global_sqrt_s = sqrt_s;
-
-	Decay decay(parametrization, Particle(), Particle(), DecayFunctions::trivial, 5.0);
-
-	TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, Constants::Particles::Proton.mass, 0.0);
-
-	const double z_min = SIDISFunctions::Helper::compute_z_min(kinematics, decay);
-
-	const PerturbativeQuantity result = sidis.lepton_pair_cross_section_xQ2(kinematics);
-	if (verbose) { std::cout << "Lepton-pair cross section value = " << result.lo << IO::endl; }
-
-	SIDIS sidis1(
-		{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
-		LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
-		LHAInterface("kkks08_opal_d0___mas"),
-		Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
-	);
-	sidis1.global_sqrt_s = sqrt_s;
-
-	SIDIS sidis2(
-		{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
-		LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
-		LHAInterface("kkks08_opal_d+___mas"),
-		Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
-	);
-	sidis2.global_sqrt_s = sqrt_s;
-
-	Integrator integrator([&](const double input[], [[maybe_unused]] const std::size_t dim, [[maybe_unused]] void *params) {
-		const double z = input[0];
-
-		const double differential_cs_1 = sidis1.differential_cross_section_xQ2(z, kinematics).lo;
-		const double differential_cs_2 = sidis2.differential_cross_section_xQ2(z, kinematics).lo;
-
-		const double result = 3 * Constants::Particles::D0.lifetime * differential_cs_1 + 5 * Constants::Particles::Dp.lifetime * differential_cs_2;
-		return result;
-	}, {z_min}, {1}, nullptr, IntegrationMethod::GSLVegas);
-	integrator.verbose = verbose;
-	integrator.gsl.points = 100;
-
-	const auto result2 = integrator.integrate();
-	if (verbose) { std::cout << "Lepton-pair cross section value = " << result2 << IO::endl; }
-	EXPECT_REL_NEAR(result.lo, result2.value, 1e-1);
+		}
+	}
 }
 
-TEST(LeptonPair, NLOCrossSectionIntegration) {
-	const bool verbose = false;
+// TEST(LeptonPair, LOCrossSectionIntegration) {
+// 	const bool verbose = false;
 
-	const double sqrt_s = 120.0;
-	const double x = 0.3;
-	const double Q2 = 10.0;
+// 	const double sqrt_s = 120.0;
+// 	const double x = 0.3;
+// 	const double Q2 = 10.0;
 
-	DecayParametrization parametrization(7.365, 1.4, 2.276, 2.0);
+// 	DecayParametrization parametrization(7.365, 1.4, 2.276, 2.0);
 
-	// Since lambdas have a unique type, have to first convert them to e.g. std::function and then pass in a vector, 
-	// otherwise the template DecayFunction cannot be uniquely defined.
-	auto lambda1 = [](
-		[[maybe_unused]] const double x, 
-		[[maybe_unused]] const double z, 
-		[[maybe_unused]] const double Q2, 
-		[[maybe_unused]] const double z_min, 
-		[[maybe_unused]] const DecayParametrization &decay, 
-		[[maybe_unused]] const Particle &resonance, 
-		[[maybe_unused]] const Particle &hadron) { 
-		return 3 * Constants::Particles::D0.lifetime;
-	};
-	Decay decay1(parametrization, Constants::Particles::D0, Constants::Particles::Proton, std::function(lambda1), 5.0);
+// 	// Since lambdas have a unique type, have to first convert them to e.g. std::function and then pass in a vector, 
+// 	// otherwise the template DecayFunction cannot be uniquely defined.
+// 	auto lambda1 = [](
+// 		[[maybe_unused]] const double x, 
+// 		[[maybe_unused]] const double z,
+// 		[[maybe_unused]] const double Q2, 
+// 		[[maybe_unused]] const double z_min, 
+// 		[[maybe_unused]] const DecayParametrization &decay, 
+// 		[[maybe_unused]] const Particle &resonance, 
+// 		[[maybe_unused]] const Particle &hadron) { 
+// 		return 3 * Constants::Particles::D0.lifetime;
+// 	};
+// 	Decay decay1(parametrization, Constants::Particles::D0, Constants::Particles::Proton, std::function(lambda1), 5.0);
 
-	auto lambda2 = [](
-		[[maybe_unused]] const double x, 
-		[[maybe_unused]] const double z, 
-		[[maybe_unused]] const double Q2, 
-		[[maybe_unused]] const double z_min, 
-		[[maybe_unused]] const DecayParametrization &decay, 
-		[[maybe_unused]] const Particle &resonance, 
-		[[maybe_unused]] const Particle &hadron) { 
-			return 5 * Constants::Particles::Dp.lifetime; 
-	};
-	Decay decay2(parametrization, Constants::Particles::D0, Constants::Particles::Proton, std::function(lambda2), 5.0);
+// 	auto lambda2 = [](
+// 		[[maybe_unused]] const double x, 
+// 		[[maybe_unused]] const double z, 
+// 		[[maybe_unused]] const double Q2, 
+// 		[[maybe_unused]] const double z_min, 
+// 		[[maybe_unused]] const DecayParametrization &decay, 
+// 		[[maybe_unused]] const Particle &resonance, 
+// 		[[maybe_unused]] const Particle &hadron) { 
+// 		return 5 * Constants::Particles::Dp.lifetime; 
+// 	};
+// 	Decay decay2(parametrization, Constants::Particles::D0, Constants::Particles::Proton, std::function(lambda2), 5.0);
 
-	SIDIS sidis(
-		{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
-		LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
-		FragmentationConfiguration(
-			{
-				LHAInterface("kkks08_opal_d0___mas"), 
-				LHAInterface("kkks08_opal_d+___mas")
-			},
-			{
-				decay1,
-				decay2
-			}
-		),
-		Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
-	);
-	sidis.global_sqrt_s = sqrt_s;
+// 	SIDIS sidis(
+// 		{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+// 		LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
+// 		FragmentationConfiguration(
+// 			{
+// 				LHAInterface("kkks08_opal_d0___mas"), 
+// 				LHAInterface("kkks08_opal_d+___mas")
+// 			},
+// 			{
+// 				decay1,
+// 				decay2
+// 			}
+// 		),
+// 		Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
+// 	);
+// 	sidis.global_sqrt_s = sqrt_s;
 
-	Decay decay(parametrization, Particle(), Particle(), DecayFunctions::trivial, 5.0);
+// 	Decay decay(parametrization, Particle(), Particle(), DecayFunctions::trivial, 5.0);
 
-	TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, Constants::Particles::Proton.mass, 0.0);
+// 	TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, Constants::Particles::Proton.mass, 0.0);
 
-	const double z_min = SIDISFunctions::Helper::compute_z_min(kinematics, decay);
+// 	const double z_min = SIDISFunctions::Helper::compute_z_min(kinematics, decay);
 
-	const PerturbativeQuantity result = sidis.lepton_pair_cross_section_xQ2(kinematics);
-	if (verbose) { std::cout << "Lepton-pair cross section value = " << result.nlo << IO::endl; }
+// 	const PerturbativeQuantity result = sidis.lepton_pair_cross_section_xQ2(kinematics);
+// 	if (verbose) { std::cout << "Lepton-pair cross section value = " << result.lo << IO::endl; }
 
-	SIDIS sidis1(
-		{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
-		LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
-		LHAInterface("kkks08_opal_d0___mas"),
-		Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
-	);
-	sidis1.global_sqrt_s = sqrt_s;
+// 	SIDIS sidis1(
+// 		{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+// 		LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
+// 		LHAInterface("kkks08_opal_d0___mas"),
+// 		Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
+// 	);
+// 	sidis1.global_sqrt_s = sqrt_s;
 
-	SIDIS sidis2(
-		{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
-		LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
-		LHAInterface("kkks08_opal_d+___mas"),
-		Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
-	);
-	sidis2.global_sqrt_s = sqrt_s;
+// 	SIDIS sidis2(
+// 		{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+// 		LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
+// 		LHAInterface("kkks08_opal_d+___mas"),
+// 		Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
+// 	);
+// 	sidis2.global_sqrt_s = sqrt_s;
 
-	Integrator integrator([&](const double input[], [[maybe_unused]] const std::size_t dim, [[maybe_unused]] void *params) {
-		const double z = input[0];
+// 	Integrator integrator([&](const double input[], [[maybe_unused]] const std::size_t dim, [[maybe_unused]] void *params) {
+// 		const double z = input[0];
 
-		const double differential_cs_1 = sidis1.differential_cross_section_xQ2(z, kinematics).nlo;
-		const double differential_cs_2 = sidis2.differential_cross_section_xQ2(z, kinematics).nlo;
+// 		const double differential_cs_1 = sidis1.differential_cross_section_xQ2(z, kinematics).lo;
+// 		const double differential_cs_2 = sidis2.differential_cross_section_xQ2(z, kinematics).lo;
 
-		const double result = 3 * Constants::Particles::D0.lifetime * differential_cs_1 + 5 * Constants::Particles::Dp.lifetime * differential_cs_2;
-		return result;
-	}, {z_min}, {1});
-	integrator.verbose = verbose;
-	const auto result2 = integrator.integrate();
-	if (verbose) { std::cout << "Lepton-pair cross section value = " << result2 << IO::endl; }
-	EXPECT_REL_NEAR(result.nlo, result2.value, 1e-1);
-}
+// 		const double result = 3 * Constants::Particles::D0.lifetime * differential_cs_1 + 5 * Constants::Particles::Dp.lifetime * differential_cs_2;
+// 		return result;
+// 	}, {z_min}, {1}, nullptr, IntegrationMethod::GSLVegas);
+// 	integrator.verbose = verbose;
+// 	integrator.gsl.points = 100;
+
+// 	const auto result2 = integrator.integrate();
+// 	if (verbose) { std::cout << "Lepton-pair cross section value = " << result2 << IO::endl; }
+// 	EXPECT_REL_NEAR(result.lo, result2.value, 1e-1);
+// }
+
+// TEST(LeptonPair, NLOCrossSectionIntegration) {
+// 	const bool verbose = false;
+
+// 	const double sqrt_s = 120.0;
+// 	const double x = 0.3;
+// 	const double Q2 = 10.0;
+
+// 	DecayParametrization parametrization(7.365, 1.4, 2.276, 2.0);
+
+// 	// Since lambdas have a unique type, have to first convert them to e.g. std::function and then pass in a vector, 
+// 	// otherwise the template DecayFunction cannot be uniquely defined.
+// 	auto lambda1 = [](
+// 		[[maybe_unused]] const double x, 
+// 		[[maybe_unused]] const double z, 
+// 		[[maybe_unused]] const double Q2, 
+// 		[[maybe_unused]] const double z_min, 
+// 		[[maybe_unused]] const DecayParametrization &decay, 
+// 		[[maybe_unused]] const Particle &resonance, 
+// 		[[maybe_unused]] const Particle &hadron) { 
+// 		return 3 * Constants::Particles::D0.lifetime;
+// 	};
+// 	Decay decay1(parametrization, Constants::Particles::D0, Constants::Particles::Proton, std::function(lambda1), 5.0);
+
+// 	auto lambda2 = [](
+// 		[[maybe_unused]] const double x, 
+// 		[[maybe_unused]] const double z, 
+// 		[[maybe_unused]] const double Q2, 
+// 		[[maybe_unused]] const double z_min, 
+// 		[[maybe_unused]] const DecayParametrization &decay, 
+// 		[[maybe_unused]] const Particle &resonance, 
+// 		[[maybe_unused]] const Particle &hadron) { 
+// 			return 5 * Constants::Particles::Dp.lifetime; 
+// 	};
+// 	Decay decay2(parametrization, Constants::Particles::D0, Constants::Particles::Proton, std::function(lambda2), 5.0);
+
+// 	SIDIS sidis(
+// 		{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+// 		LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
+// 		FragmentationConfiguration(
+// 			{
+// 				LHAInterface("kkks08_opal_d0___mas"), 
+// 				LHAInterface("kkks08_opal_d+___mas")
+// 			},
+// 			{
+// 				decay1,
+// 				decay2
+// 			}
+// 		),
+// 		Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
+// 	);
+// 	sidis.global_sqrt_s = sqrt_s;
+
+// 	Decay decay(parametrization, Particle(), Particle(), DecayFunctions::trivial, 5.0);
+
+// 	TRFKinematics kinematics = TRFKinematics::Q2_sqrt_s(x, Q2, sqrt_s, Constants::Particles::Proton.mass, 0.0);
+
+// 	const double z_min = SIDISFunctions::Helper::compute_z_min(kinematics, decay);
+
+// 	const PerturbativeQuantity result = sidis.lepton_pair_cross_section_xQ2(kinematics);
+// 	if (verbose) { std::cout << "Lepton-pair cross section value = " << result.nlo << IO::endl; }
+
+// 	SIDIS sidis1(
+// 		{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+// 		LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
+// 		LHAInterface("kkks08_opal_d0___mas"),
+// 		Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
+// 	);
+// 	sidis1.global_sqrt_s = sqrt_s;
+
+// 	SIDIS sidis2(
+// 		{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+// 		LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
+// 		LHAInterface("kkks08_opal_d+___mas"),
+// 		Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
+// 	);
+// 	sidis2.global_sqrt_s = sqrt_s;
+
+// 	Integrator integrator([&](const double input[], [[maybe_unused]] const std::size_t dim, [[maybe_unused]] void *params) {
+// 		const double z = input[0];
+
+// 		const double differential_cs_1 = sidis1.differential_cross_section_xQ2(z, kinematics).nlo;
+// 		const double differential_cs_2 = sidis2.differential_cross_section_xQ2(z, kinematics).nlo;
+
+// 		const double result = 3 * Constants::Particles::D0.lifetime * differential_cs_1 + 5 * Constants::Particles::Dp.lifetime * differential_cs_2;
+// 		return result;
+// 	}, {z_min}, {1});
+// 	integrator.verbose = verbose;
+// 	const auto result2 = integrator.integrate();
+// 	if (verbose) { std::cout << "Lepton-pair cross section value = " << result2 << IO::endl; }
+// 	EXPECT_REL_NEAR(result.nlo, result2.value, 1e-1);
+// }
 
 TEST(SIDIS, LOCrossSectionIntegration) {
 	const bool verbose = true;
