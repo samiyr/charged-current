@@ -5,7 +5,6 @@
 #include <vector>
 #include <string>
 #include <format>
-#include <mdspan>
 #include <fstream>
 
 #include "Decay/Decay.cpp"
@@ -13,6 +12,10 @@
 #include "Common/Particle.cpp"
 
 #include "Utility/Utility.cpp"
+
+#include "Integration/Integrator.cpp"
+
+#include "mdspan/mdspan.hpp"
 
 struct GridGenerator {
 
@@ -25,6 +28,8 @@ struct GridGenerator {
 		const std::filesystem::path grid_folder, const std::vector<double> &x_bins, const std::vector<double> &z_bins, const std::vector<double> &Q2_bins,
 		const double E_min, const DecayParametrization &parametrization, const Particle &resonance, const Particle &target, const Particle &lepton
 	) {
+		using namespace Kokkos;
+
 		const std::string filename = std::format(
 			"dg_E_{:.2f}_r_{:.2f}_{:.2f}_t_{:.2f}_l_{:.2f}_p_{:.2f}_{:.2f}_{:.2f}_{:.2f}.dat",
 			E_min, resonance.mass, resonance.lifetime, target.mass, lepton.mass, parametrization.N, parametrization.alpha, parametrization.beta, parametrization.gamma
@@ -57,7 +62,7 @@ struct GridGenerator {
 		std::streamsize original_precision = std::cout.precision();
 
 		std::vector<double> backing_vector(total_count);
-		auto grid = std::mdspan(backing_vector.data(), x_count, z_count, Q2_count);
+		auto grid = mdspan(backing_vector.data(), x_count, z_count, Q2_count);
 
 		#pragma omp parallel if(parallelize) num_threads(number_of_threads)
 		{
@@ -136,6 +141,8 @@ struct GridGenerator {
 		const std::vector<double> &E_min_bins, const std::vector<DecayParametrization> &parametrization_bins, 
 		const std::vector<Particle> &resonance_bins, const Particle &target, const Particle &lepton
 	) {
+		using namespace Kokkos;
+
 		const std::size_t member_count = E_min_bins.size() * parametrization_bins.size() * resonance_bins.size();
 		std::size_t member_index = 0;
 
@@ -182,7 +189,7 @@ struct GridGenerator {
 					std::streamsize original_precision = std::cout.precision();
 
 					std::vector<double> backing_vector(total_count);
-					auto grid = std::mdspan(backing_vector.data(), x_count, z_count, Q2_count);
+					auto grid = mdspan(backing_vector.data(), x_count, z_count, Q2_count);
 
 					#pragma omp parallel if(parallelize) num_threads(number_of_threads)
 					{

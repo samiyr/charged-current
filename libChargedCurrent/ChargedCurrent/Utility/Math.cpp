@@ -64,7 +64,7 @@ namespace Math {
 	unsigned int number_of_digits(const T x) {
 		return static_cast<unsigned int>(std::log10(static_cast<double>(x)) + 1.0);
 	}
-
+	
 	std::vector<double> linear_space(const double min, const double max, const double delta) {
 		const std::size_t count = static_cast<std::size_t>(std::floor((max - min) / delta) + 1.0);
 
