@@ -15,10 +15,11 @@
 
 #include "Integration/Integrator.cpp"
 
+#define MDSPAN_USE_BRACKET_OPERATOR 0
+#define MDSPAN_USE_PAREN_OPERATOR 1
 #include "mdspan/mdspan.hpp"
 
 struct GridGenerator {
-
 	const bool parallelize;
 	const unsigned int number_of_threads;
 
@@ -68,10 +69,10 @@ struct GridGenerator {
 		{
 			#pragma omp for collapse(3) schedule(static)
 			for (std::size_t i = 0; i < x_count; i++) {
-				const double x = x_bins[i];
 				for (std::size_t j = 0; j < z_count; j++) {
-					const double z = z_bins[j];
 					for (std::size_t k = 0; k < Q2_count; k++) {
+						const double x = x_bins[i];
+						const double z = z_bins[j];
 						const double Q2 = Q2_bins[k];
 
 						Integrator integrator([&](double input[], size_t, void *) {
@@ -100,7 +101,7 @@ struct GridGenerator {
 
 						#pragma omp critical
 						{
-							grid[i, j, k] = value;
+							grid(i, j, k) = value;
 
 							calculated_values++;
 
@@ -126,7 +127,7 @@ struct GridGenerator {
 		for (std::size_t i = 0; i < x_count; i++) {
 			for (std::size_t j = 0; j < z_count; j++) {
 				for (std::size_t k = 0; k < Q2_count; k++) {
-					file << grid[i, j, k] << IO::endl;
+					file << grid(i, j, k) << IO::endl;
 				}
 			}
 		}
@@ -195,10 +196,10 @@ struct GridGenerator {
 					{
 						#pragma omp for collapse(3) schedule(static)
 						for (std::size_t i = 0; i < x_count; i++) {
-							const double x = x_bins[i];
 							for (std::size_t j = 0; j < z_count; j++) {
-								const double z = z_bins[j];
 								for (std::size_t k = 0; k < Q2_count; k++) {
+									const double x = x_bins[i];
+									const double z = z_bins[j];
 									const double Q2 = Q2_bins[k];
 
 									Integrator integrator([&](double input[], size_t, void *) {
@@ -232,7 +233,7 @@ struct GridGenerator {
 
 									#pragma omp critical
 									{
-										grid[i, j, k] = value;
+										grid(i, j, k) = value;
 
 										calculated_values++;
 
@@ -260,7 +261,7 @@ struct GridGenerator {
 					for (std::size_t i = 0; i < x_count; i++) {
 						for (std::size_t j = 0; j < z_count; j++) {
 							for (std::size_t k = 0; k < Q2_count; k++) {
-								file << grid[i, j, k] << IO::endl;
+								file << grid(i, j, k) << IO::endl;
 							}
 						}
 					}
