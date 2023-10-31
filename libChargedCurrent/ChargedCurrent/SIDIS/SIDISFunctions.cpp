@@ -148,9 +148,7 @@ namespace SIDISFunctions {
 		double decay_value = 1.0;
 		if (z_int) {
 			// const double cos = input[z_index + 1];
-			const double rho = input[z_index + 1];
-
-			decay_value = decay(rho, z, x, Q2);
+			decay_value = decay(z, x, Q2);
 			// std::cout << "x = " << x << ", z = " << z << ", Q2 = " << Q2 << ", xi = " << xi << ", xip = " << xip << ", cos = " << cos << ", rho = " << rho << ", decay = " << decay_value << IO::endl;
 			if (decay_value == 0.0) { return 0.0; }
 		}

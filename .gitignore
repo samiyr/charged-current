@@ -4,4 +4,5 @@ build/*
 Data/*
 ChargedCurrentDIS
 ChargedCurrentDISTests
+DecayGrids
 DecayGrids/*

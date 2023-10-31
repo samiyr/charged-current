@@ -35,24 +35,20 @@ struct Decay {
 
 	constexpr Decay() noexcept : Decay(DecayParametrization(), Particle(), Particle(), Particle(), DecayFunctions::trivial, 0.0) { }
 
-	constexpr double operator()(const double rho, const double z, const double x, const double Q2) const noexcept(noexcept(decay_function)) {
-		if (rho != prev_rho || z != prev_z || x != prev_x || Q2 != prev_Q2) {
-			prev_rho = rho;
-			prev_z = z;
+	constexpr double operator()(const double x, const double z, const double Q2) const noexcept(noexcept(decay_function)) {
+		if (x != prev_x || z != prev_z || Q2 != prev_Q2) {
 			prev_x = x;
+			prev_z = z;
 			prev_Q2 = Q2;
-			prev_z_min = z_min;
-			
-			// FIXME: rename lepton_momentum_min to min energy, implement z_min in DecayFunctions::analytical_decay_function
-			prev_value = decay_function(x, z, Q2, lepton_momentum_min, parametrization, resonance, hadron, Particle());
+
+			prev_value = decay_function(x, z, Q2, minimum_lepton_energy, parametrization, resonance, target, lepton);
 		}
 		return prev_value;
 	}
 
 	private:
-	mutable double prev_rho = -1.0;
-	mutable double prev_z = -1.0;
 	mutable double prev_x = -1.0;
+	mutable double prev_z = -1.0;
 	mutable double prev_Q2 = -1.0;
 	mutable double prev_value = 0.0;
 };

@@ -63,7 +63,7 @@ namespace DecayFunctions {
 		return differential_decay_function_integrand(rho, reduced_rho, cos, a, b, h0, parametrization, resonance);
 	}
 
-	constexpr double analytical_decay_function(
+	constexpr double decay_function(
 		const double x, 
 		const double z, 
 		const double Q2, 
@@ -71,16 +71,21 @@ namespace DecayFunctions {
 		const DecayParametrization &parametrization, 
 		const Particle &resonance, 
 		const Particle &hadron,
-		[[maybe_unused]] const Particle &lepton = Particle()) {
+		[[maybe_unused]] const Particle &lepton) {
 
-		const double mu = lepton.mass / h0;
-		const double reduced_rho = sqrt(std::pow(rho, 2) - std::pow(mu, 2));
+		if (z < z_min) { return 0.0; }
+		const double alpha = parametrization.alpha;
+		const double beta = parametrization.beta;
+		const double gamma = parametrization.gamma;
+		const double N = parametrization.N;
+		const double mD = resonance.mass;
+		const double rho_min = z_min / z;
 
-		const double a = std::pow(h0, 2) / std::pow(resonance.mass, 2);
-		const double b = h0 * sqrt(std::pow(h0, 2) - std::pow(resonance.mass, 2)) / std::pow(resonance.mass, 2);
-		const double w = a * rho - b * reduced_rho * cos;
+		const double h0 = (z * Q2) / (2 * x * hadron.mass);
+		const double hv = std::sqrt(h0 * h0 - mD * mD);
 
-		if (w < 0.0 || w > 1.0 / parametrization.gamma) { return 0.0; }
+		const double a = h0 * h0 / (mD * mD);
+		const double b = h0 * hv / (mD * mD);
 
 		const double beta_arg_min = (a - b) * gamma * rho_min;
 		if (beta_arg_min > 1) { 
@@ -97,39 +102,39 @@ namespace DecayFunctions {
 		return result;
 	}
 
-	double decay_function(
-		const double x, 
-		const double z, 
-		const double Q2, 
-		const double E_min, 
-		const DecayParametrization &parametrization, 
-		const Particle &resonance,
-		const Particle &target,
-		const Particle &lepton) {
+	// double decay_function(
+	// 	const double x, 
+	// 	const double z, 
+	// 	const double Q2, 
+	// 	const double E_min, 
+	// 	const DecayParametrization &parametrization, 
+	// 	const Particle &resonance,
+	// 	const Particle &target,
+	// 	const Particle &lepton) {
 
-		Integrator integrator([&](double input[], size_t, void *) {
-			const double rho = input[0];
-			const double c = input[1];
+	// 	Integrator integrator([&](double input[], size_t, void *) {
+	// 		const double rho = input[0];
+	// 		const double c = input[1];
 
-			const double h0 = z * Q2 / (2.0 * x * target.mass);
-			if (h0 < resonance.mass) { return 0.0; }
-			const double pp0 = rho * h0;
-			if (pp0 < E_min) { return 0.0; }
+	// 		const double h0 = z * Q2 / (2.0 * x * target.mass);
+	// 		if (h0 < resonance.mass) { return 0.0; }
+	// 		const double pp0 = rho * h0;
+	// 		if (pp0 < E_min) { return 0.0; }
 
-			const double mu = lepton.mass / h0;
-			const double reduced_rho = sqrt(std::pow(rho, 2) - std::pow(mu, 2));
+	// 		const double mu = lepton.mass / h0;
+	// 		const double reduced_rho = sqrt(std::pow(rho, 2) - std::pow(mu, 2));
 
-			const double a = std::pow(h0, 2) / std::pow(resonance.mass, 2);
-			const double b = h0 * sqrt(std::pow(h0, 2) - std::pow(resonance.mass, 2)) / std::pow(resonance.mass, 2);
+	// 		const double a = std::pow(h0, 2) / std::pow(resonance.mass, 2);
+	// 		const double b = h0 * sqrt(std::pow(h0, 2) - std::pow(resonance.mass, 2)) / std::pow(resonance.mass, 2);
 
-			const double cos_min = (parametrization.gamma * a * rho - 1.0) / (parametrization.gamma * b * reduced_rho);
-			const double cos = cos_min + (1.0 - cos_min) * c;
+	// 		const double cos_min = (parametrization.gamma * a * rho - 1.0) / (parametrization.gamma * b * reduced_rho);
+	// 		const double cos = cos_min + (1.0 - cos_min) * c;
 
-			return (1.0 - cos_min) * DecayFunctions::differential_decay_function(cos, rho, z, x, Q2, E_min, parametrization, resonance, target, lepton);
-		}, {0.0, 0.0}, {1.0, 1.0}, nullptr, IntegrationMethod::CubaSuave);
-		const auto result = integrator.integrate();
-		return result.value;
-	}
+	// 		return (1.0 - cos_min) * DecayFunctions::differential_decay_function(cos, rho, z, x, Q2, E_min, parametrization, resonance, target, lepton);
+	// 	}, {0.0, 0.0}, {1.0, 1.0}, nullptr, IntegrationMethod::CubaSuave);
+	// 	const auto result = integrator.integrate();
+	// 	return result.value;
+	// }
 }
 
 #endif
