@@ -13,8 +13,7 @@ namespace SIDISFunctions::Helper {
 	template <is_decay_function DecayFunction, typename Kinematics>
 	constexpr double compute_z_min(const Kinematics &kinematics, const Decay<DecayFunction> &decay) {
 		return std::max({
-			decay.lepton_momentum_min / (kinematics.y * kinematics.E_beam), 
-			decay.resonance.mass / (kinematics.y * kinematics.E_beam),
+			decay.minimum_lepton_energy / (kinematics.y * kinematics.E_beam), 
 			decay.z_min_cutoff
 		});
 	}

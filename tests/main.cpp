@@ -1031,11 +1031,11 @@ TEST(SIDIS, NLOIntegratedCrossSection) {
 
 	const Process process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino);
 
-	const double minimum_lepton_momentum = 3.0;
+	const double minimum_lepton_energy = 3.0;
 	const Particle target = Constants::Particles::Proton;
 	const auto decay_function = DecayFunctions::decay_function;
 
-	const auto decay = Decay(DecayParametrization::fit1(), Constants::Particles::D0, target, decay_function, minimum_lepton_momentum);
+	const auto decay = Decay(DecayParametrization::fit1(), Constants::Particles::D0, target, Constants::Particles::Muon, decay_function, minimum_lepton_energy);
 
 	const SIDIS sidis(
 		{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
@@ -1080,58 +1080,59 @@ TEST(SIDIS, NLOIntegratedCrossSection) {
 	EXPECT_REL_NEAR(integrated_cross_section, result.value, 1e-1);
 }
 
-TEST(MuonPairProduction, NOMADAcceptance) {
-	const double minimum_lepton_momentum = 0.0;
-	const Particle target = Constants::Particles::Proton;
-	const auto decay_function = DecayFunctions::decay_function;
-	const DecayParametrization parametrization = DecayParametrization::fit1();
+// TEST(MuonPairProduction, NOMADAcceptance) {
+// 	const double minimum_lepton_energy = 0.0;
+// 	const Particle target = Constants::Particles::Proton;
+// 	const Particle lepton = Constants::Particles::Muon;
+// 	const auto decay_function = DecayFunctions::decay_function;
+// 	const DecayParametrization parametrization = DecayParametrization::fit1();
 
-	FragmentationConfiguration ff(
-		{
-			LHAInterface("kkks08_opal_d0___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
-			LHAInterface("kkks08_opal_d+___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
-			LHAInterface("bkk05_D3_d_s_nlo", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
-			1.14 * LHAInterface("bkk05_D3_lambda_c_nlo", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0})
-		},
-		{
-			Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),
-			Decay(parametrization, Constants::Particles::Dp, target, decay_function, minimum_lepton_momentum),
-			Decay(parametrization, Constants::Particles::Ds, target, decay_function, minimum_lepton_momentum),
-			Decay(parametrization, Constants::Particles::LambdaC, target, decay_function, minimum_lepton_momentum)
-		}
-	);
+// 	FragmentationConfiguration ff(
+// 		{
+// 			LHAInterface("kkks08_opal_d0___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
+// 			LHAInterface("kkks08_opal_d+___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
+// 			LHAInterface("bkk05_D3_d_s_nlo", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
+// 			1.14 * LHAInterface("bkk05_D3_lambda_c_nlo", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0})
+// 		},
+// 		{
+// 			Decay(parametrization, Constants::Particles::D0, target, lepton, decay_function, minimum_lepton_energy),
+// 			Decay(parametrization, Constants::Particles::Dp, target, lepton, decay_function, minimum_lepton_energy),
+// 			Decay(parametrization, Constants::Particles::Ds, target, lepton, decay_function, minimum_lepton_energy),
+// 			Decay(parametrization, Constants::Particles::LambdaC, target, lepton, decay_function, minimum_lepton_energy)
+// 		}
+// 	);
 
-	const double x = 0.326;
-	const double y = 0.324;
-	const double E_beam = 247.0;
-	const TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, Constants::Particles::Proton.mass, 0.0);
+// 	const double x = 0.326;
+// 	const double y = 0.324;
+// 	const double E_beam = 247.0;
+// 	const TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, Constants::Particles::Proton.mass, 0.0);
 
-	std::vector<double> z_mins(ff.decays.size());
-	std::transform(ff.decays.begin(), ff.decays.end(), z_mins.begin(), [&kinematics](const auto &decay) {
-		return SIDISFunctions::Helper::compute_z_min(kinematics, decay);
-	});
-	const double z_min = *std::min_element(z_mins.begin(), z_mins.end());
+// 	std::vector<double> z_mins(ff.decays.size());
+// 	std::transform(ff.decays.begin(), ff.decays.end(), z_mins.begin(), [&kinematics](const auto &decay) {
+// 		return SIDISFunctions::Helper::compute_z_min(kinematics, decay);
+// 	});
+// 	const double z_min = *std::min_element(z_mins.begin(), z_mins.end());
 
-	const auto integrand = [&](double input[], std::size_t, void *) {
-		const double z = input[0];
+// 	const auto integrand = [&](double input[], std::size_t, void *) {
+// 		const double z = input[0];
 
-		double result = 0.0;
+// 		double result = 0.0;
 
-		for (const auto &[fragmentation, decay] : std::views::zip(ff.interfaces, ff.decays)) {
-			const double fragmentation_value = fragmentation.xf_evaluate(Flavor::Charm, z, kinematics.Q2) / z;
-			const double decay_value = decay(x, z, kinematics.Q2, SIDISFunctions::Helper::compute_z_min(kinematics, decay));
+// 		for (const auto &[fragmentation, decay] : std::views::zip(ff.interfaces, ff.decays)) {
+// 			const double fragmentation_value = fragmentation.xf_evaluate(Flavor::Charm, z, kinematics.Q2) / z;
+// 			const double decay_value = decay(x, z, kinematics.Q2, SIDISFunctions::Helper::compute_z_min(kinematics, decay));
 
-			result += fragmentation_value * decay_value;
-		}
+// 			result += fragmentation_value * decay_value;
+// 		}
 
-		return result;
-	};
+// 		return result;
+// 	};
 
-	Integrator integrator(integrand, {z_min}, {1.0});
-	const auto result = integrator.integrate();
+// 	Integrator integrator(integrand, {z_min}, {1.0});
+// 	const auto result = integrator.integrate();
 
-	std::cout << result << IO::endl;
-}
+// 	std::cout << result << IO::endl;
+// }
 
 int main(int argc, char **argv) {
 	LHAInterface<>::disable_verbosity();

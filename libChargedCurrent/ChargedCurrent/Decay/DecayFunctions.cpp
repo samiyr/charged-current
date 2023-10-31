@@ -73,19 +73,14 @@ namespace DecayFunctions {
 		const Particle &hadron,
 		[[maybe_unused]] const Particle &lepton = Particle()) {
 
-		if (z < z_min) { return 0.0; }
-		const double alpha = parametrization.alpha;
-		const double beta = parametrization.beta;
-		const double gamma = parametrization.gamma;
-		const double N = parametrization.N;
-		const double mD = resonance.mass;
-		const double rho_min = z_min / z;
+		const double mu = lepton.mass / h0;
+		const double reduced_rho = sqrt(std::pow(rho, 2) - std::pow(mu, 2));
 
-		const double h0 = (z * Q2) / (2 * x * hadron.mass);
-		const double hv = std::sqrt(h0 * h0 - mD * mD);
+		const double a = std::pow(h0, 2) / std::pow(resonance.mass, 2);
+		const double b = h0 * sqrt(std::pow(h0, 2) - std::pow(resonance.mass, 2)) / std::pow(resonance.mass, 2);
+		const double w = a * rho - b * reduced_rho * cos;
 
-		const double a = h0 * h0 / (mD * mD);
-		const double b = h0 * hv / (mD * mD);
+		if (w < 0.0 || w > 1.0 / parametrization.gamma) { return 0.0; }
 
 		const double beta_arg_min = (a - b) * gamma * rho_min;
 		if (beta_arg_min > 1) { 

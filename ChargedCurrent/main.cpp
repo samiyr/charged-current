@@ -122,7 +122,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 	Analysis nomad_errors_169 = epps_errors;
 	nomad_errors_169.params.Q2_min = 1.69;
-	nomad_errors_169.params.minimum_lepton_momentum = 3.0;
+	nomad_errors_169.params.minimum_lepton_energy = 3.0;
 	nomad_errors_169.params.primary_muon_min_energy = 3.0;
 	nomad_errors_169.params.hadronic_min_energy = 3.0;
 
@@ -130,12 +130,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	nomad_errors_225.params.Q2_min = 2.25;
 
 	Analysis nomad_errors_169_zero_limit = nomad_errors_169;
-	nomad_errors_169_zero_limit.params.minimum_lepton_momentum = Constants::Particles::Muon.mass;
+	nomad_errors_169_zero_limit.params.minimum_lepton_energy = Constants::Particles::Muon.mass;
 	nomad_errors_169_zero_limit.params.primary_muon_min_energy = Constants::Particles::Muon.mass;
 	nomad_errors_169_zero_limit.params.hadronic_min_energy = 0.0;
 
 	Analysis nomad_errors_225_zero_limit = nomad_errors_225;
-	nomad_errors_225_zero_limit.params.minimum_lepton_momentum = Constants::Particles::Muon.mass;
+	nomad_errors_225_zero_limit.params.minimum_lepton_energy = Constants::Particles::Muon.mass;
 	nomad_errors_225_zero_limit.params.primary_muon_min_energy = Constants::Particles::Muon.mass;
 	nomad_errors_225_zero_limit.params.hadronic_min_energy = 0.0;
 
@@ -347,7 +347,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			Analysis errors = base;
 			errors.params.pdf_error_sets = true;
 			errors.params.pdf_set = pdf_set_name;
-			errors.params.minimum_lepton_momentum = Constants::Particles::Muon.mass;
+			errors.params.minimum_lepton_energy = Constants::Particles::Muon.mass;
 
 			const std::string output_folder = "Data/SIDIS/MuonPairProduction/CharmedHadrons/ErrorSetsZeroLimit/" + pdf_set_name + "/";
 

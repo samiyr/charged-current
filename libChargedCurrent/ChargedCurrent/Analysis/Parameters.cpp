@@ -22,7 +22,7 @@ struct AnalysisParameters {
 	Process process = Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino);
 
 	double charm_mass = Constants::Charm::Mass;
-	double minimum_lepton_momentum = 5.0;
+	double minimum_lepton_energy = 5.0;
 
 	ScaleVariation scale_variation = ScaleVariation::None;
 	bool pdf_error_sets = false;

@@ -82,8 +82,9 @@ struct SIDISAnalysis {
 		const std::filesystem::path filename, 
 		const std::string comment = "") {
 		
-		const double minimum_lepton_momentum = params.minimum_lepton_momentum;
+		const double minimum_lepton_energy = params.minimum_lepton_energy;
 		const Particle target = Constants::Particles::Proton;
+		const Particle lepton = Constants::Particles::Muon;
 		const auto decay_function = DecayFunctions::decay_function;
 
 		const DecayParametrization parametrization = params.decay_parametrization;
@@ -100,10 +101,10 @@ struct SIDISAnalysis {
 						1.14 * LHAInterface("bkk05_D3_lambda_c_nlo", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0})
 					},
 					{
-						Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),
-						Decay(parametrization, Constants::Particles::Dp, target, decay_function, minimum_lepton_momentum),
-						Decay(parametrization, Constants::Particles::Ds, target, decay_function, minimum_lepton_momentum),
-						Decay(parametrization, Constants::Particles::LambdaC, target, decay_function, minimum_lepton_momentum)
+						Decay(parametrization, Constants::Particles::D0, target, lepton, decay_function, minimum_lepton_energy),
+						Decay(parametrization, Constants::Particles::Dp, target, lepton, decay_function, minimum_lepton_energy),
+						Decay(parametrization, Constants::Particles::Ds, target, lepton, decay_function, minimum_lepton_energy),
+						Decay(parametrization, Constants::Particles::LambdaC, target, lepton, decay_function, minimum_lepton_energy)
 					}
 				),
 				comment
@@ -195,8 +196,9 @@ struct SIDISAnalysis {
 		const std::filesystem::path filename, 
 		const std::string comment = "") {
 		
-		const double minimum_lepton_momentum = params.minimum_lepton_momentum;
+		const double minimum_lepton_energy = params.minimum_lepton_energy;
 		const Particle target = Constants::Particles::Proton;
+		const Particle lepton = Constants::Particles::Muon;
 		const auto decay_function = DecayFunctions::decay_function;
 
 		const DecayParametrization parametrization = params.decay_parametrization;
@@ -213,10 +215,10 @@ struct SIDISAnalysis {
 						1.14 * LHAInterface("bkk05_D3_lambda_c_nlo", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0})
 					},
 					{
-						Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),
-						Decay(parametrization, Constants::Particles::Dp, target, decay_function, minimum_lepton_momentum),
-						Decay(parametrization, Constants::Particles::Ds, target, decay_function, minimum_lepton_momentum),
-						Decay(parametrization, Constants::Particles::LambdaC, target, decay_function, minimum_lepton_momentum)
+						Decay(parametrization, Constants::Particles::D0, target, lepton, decay_function, minimum_lepton_energy),
+						Decay(parametrization, Constants::Particles::Dp, target, lepton, decay_function, minimum_lepton_energy),
+						Decay(parametrization, Constants::Particles::Ds, target, lepton, decay_function, minimum_lepton_energy),
+						Decay(parametrization, Constants::Particles::LambdaC, target, lepton, decay_function, minimum_lepton_energy)
 					}
 				),
 				comment
@@ -264,8 +266,9 @@ struct SIDISAnalysis {
 		const std::vector<bool> outgoing,
 		const std::string comment = "") {
 		
-		const double minimum_lepton_momentum = params.minimum_lepton_momentum;
+		const double minimum_lepton_energy = params.minimum_lepton_energy;
 		const Particle target = params.process.target;
+		const Particle lepton = Constants::Particles::Muon;
 		const auto decay_function = DecayFunctions::decay_function;
 
 		const DecayParametrization parametrization = DecayParametrization::fit1();
@@ -287,10 +290,10 @@ struct SIDISAnalysis {
 					1.14 * LHAInterface("bkk05_D3_lambda_c_nlo", multipliers)
 				},
 				{
-					Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),
-					Decay(parametrization, Constants::Particles::Dp, target, decay_function, minimum_lepton_momentum),
-					Decay(parametrization, Constants::Particles::Ds, target, decay_function, minimum_lepton_momentum),
-					Decay(parametrization, Constants::Particles::LambdaC, target, decay_function, minimum_lepton_momentum)
+					Decay(parametrization, Constants::Particles::D0, target, lepton, decay_function, minimum_lepton_energy),
+					Decay(parametrization, Constants::Particles::Dp, target, lepton, decay_function, minimum_lepton_energy),
+					Decay(parametrization, Constants::Particles::Ds, target, lepton, decay_function, minimum_lepton_energy),
+					Decay(parametrization, Constants::Particles::LambdaC, target, lepton, decay_function, minimum_lepton_energy)
 				}
 			),
 			comment
@@ -448,30 +451,31 @@ struct SIDISAnalysis {
 		const std::vector<double> E_beam_bins,
 		const std::string base_filename) {
 
-		const double minimum_lepton_momentum = params.minimum_lepton_momentum;
+		const double minimum_lepton_energy = params.minimum_lepton_energy;
 		const Particle target = params.process.target;
+		const Particle lepton = Constants::Particles::Muon;
 		const auto decay_function = DecayFunctions::decay_function;
 
 		const DecayParametrization parametrization = DecayParametrization::fit1();
 
 		muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
 			LHAInterface("kkks08_opal_d0___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}),
-			Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),
+			Decay(parametrization, Constants::Particles::D0, target, lepton, decay_function, minimum_lepton_energy),
 			base_filename + "_d0.csv", "d0 only"
 		);
 		muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
 			LHAInterface("kkks08_opal_d+___mas"),
-			Decay(parametrization, Constants::Particles::Dp, target, decay_function, minimum_lepton_momentum),
+			Decay(parametrization, Constants::Particles::Dp, target, lepton, decay_function, minimum_lepton_energy),
 			base_filename + "_d+.csv", "d+ only"
 		);
 		muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
 			LHAInterface("bkk05_D3_d_s_nlo"),
-			Decay(parametrization, Constants::Particles::Ds, target, decay_function, minimum_lepton_momentum),
+			Decay(parametrization, Constants::Particles::Ds, target, lepton, decay_function, minimum_lepton_energy),
 			base_filename + "_d_s.csv", "d_s only"
 		);
 		muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
 			LHAInterface("bkk05_D3_lambda_c_nlo"),
-			Decay(parametrization, Constants::Particles::LambdaC, target, decay_function, minimum_lepton_momentum),
+			Decay(parametrization, Constants::Particles::LambdaC, target, lepton, decay_function, minimum_lepton_energy),
 			base_filename + "_lambda_c.csv", "lambda_c only"
 		);
 	}
@@ -483,8 +487,9 @@ struct SIDISAnalysis {
 		const std::filesystem::path filename, 
 		const std::string comment = "") {
 
-		const double minimum_lepton_momentum = params.minimum_lepton_momentum;
+		const double minimum_lepton_energy = params.minimum_lepton_energy;
 		const Particle target = params.process.target;
+		const Particle lepton = Constants::Particles::Muon;
 		const auto decay_function = DecayFunctions::decay_function;
 
 		const DecayParametrization parametrization = DecayParametrization::fit1();
@@ -497,7 +502,7 @@ struct SIDISAnalysis {
 					2.3065 * LHAInterface("kkks08_opal_d0___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
 				},
 				{
-					Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),
+					Decay(parametrization, Constants::Particles::D0, target, lepton, decay_function, minimum_lepton_energy),
 				}
 			),
 			params.process,
