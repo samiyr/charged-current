@@ -12,7 +12,6 @@
 #include <ChargedCurrent/Common/TRFKinematics.cpp>
 #include <ChargedCurrent/Analysis/Analysis.cpp>
 #include <ChargedCurrent/Decay/DecayParametrization.cpp>
-#include <ChargedCurrent/Interpolation/GridGenerator.cpp>
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	LHAInterface<>::disable_verbosity();
@@ -544,7 +543,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 		std::cout << separator << IO::endl;
 	}
-
 
 	return 0;
 }
