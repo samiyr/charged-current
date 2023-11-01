@@ -12,6 +12,7 @@
 #include <ChargedCurrent/Common/TRFKinematics.cpp>
 #include <ChargedCurrent/Analysis/Analysis.cpp>
 #include <ChargedCurrent/Decay/DecayParametrization.cpp>
+#include <ChargedCurrent/Interpolation/GridGenerator.cpp>
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	LHAInterface<>::disable_verbosity();
@@ -510,6 +511,35 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				analysis.utility().pdf_values(x_bins_all, {10.0, 100.0}, output_folder);
 			}
 		});
+
+		std::cout << separator << IO::endl;
+	}
+
+	if (run("decaygrid")) {
+		std::cout << "============== Decay grid ==============" << IO::endl;
+
+		const std::vector<double> z_bins = Math::linear_space(1e-3, 1.0, 0.001);
+		const std::vector<double> yE_bins = Math::linear_space(1.0, 300.0, 1.0);
+
+		GridGenerator generator(number_of_threads);
+
+		std::vector<DecayParametrization> parametrizations;
+		parametrizations.push_back(DecayParametrization::fit1());
+		parametrizations.push_back(DecayParametrization::fit2());
+
+		// for (const DecayParametrization &parametrization : DecayParametrization::fit_set_1()) {
+		// 	parametrizations.push_back(parametrization);
+		// }
+		// for (const DecayParametrization &parametrization : DecayParametrization::fit_set_2()) {
+		// 	parametrizations.push_back(parametrization);
+		// }
+
+		generator.generate_decay_grids(
+			"DecayGrids", z_bins, yE_bins, {Constants::Particles::Muon.mass, 3.0, 5.0}, parametrizations,
+			{
+				Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
+			}, Constants::Particles::Proton, Constants::Particles::Muon
+		);
 
 		std::cout << separator << IO::endl;
 	}
