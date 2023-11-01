@@ -121,7 +121,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 	Analysis nomad_errors_169 = epps_errors;
 	nomad_errors_169.params.Q2_min = 1.69;
-	nomad_errors_169.params.minimum_lepton_energy = 3.0;
+	nomad_errors_169.params.minimum_lepton_momentum = 3.0;
 	nomad_errors_169.params.primary_muon_min_energy = 3.0;
 	nomad_errors_169.params.hadronic_min_energy = 3.0;
 
@@ -129,12 +129,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	nomad_errors_225.params.Q2_min = 2.25;
 
 	Analysis nomad_errors_169_zero_limit = nomad_errors_169;
-	nomad_errors_169_zero_limit.params.minimum_lepton_energy = Constants::Particles::Muon.mass;
+	nomad_errors_169_zero_limit.params.minimum_lepton_momentum = Constants::Particles::Muon.mass;
 	nomad_errors_169_zero_limit.params.primary_muon_min_energy = Constants::Particles::Muon.mass;
 	nomad_errors_169_zero_limit.params.hadronic_min_energy = 0.0;
 
 	Analysis nomad_errors_225_zero_limit = nomad_errors_225;
-	nomad_errors_225_zero_limit.params.minimum_lepton_energy = Constants::Particles::Muon.mass;
+	nomad_errors_225_zero_limit.params.minimum_lepton_momentum = Constants::Particles::Muon.mass;
 	nomad_errors_225_zero_limit.params.primary_muon_min_energy = Constants::Particles::Muon.mass;
 	nomad_errors_225_zero_limit.params.hadronic_min_energy = 0.0;
 
@@ -346,7 +346,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			Analysis errors = base;
 			errors.params.pdf_error_sets = true;
 			errors.params.pdf_set = pdf_set_name;
-			errors.params.minimum_lepton_energy = Constants::Particles::Muon.mass;
+			errors.params.minimum_lepton_momentum = Constants::Particles::Muon.mass;
 
 			const std::string output_folder = "Data/SIDIS/MuonPairProduction/CharmedHadrons/ErrorSetsZeroLimit/" + pdf_set_name + "/";
 
@@ -510,36 +510,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				analysis.utility().pdf_values(x_bins_all, {10.0, 100.0}, output_folder);
 			}
 		});
-
-		std::cout << separator << IO::endl;
-	}
-
-	if (run("decaygrid")) {
-		std::cout << "============== Decay grid ==============" << IO::endl;
-
-		const std::vector<double> x_log_bins = Math::log_space(1e-3, 1.0, 0.02);
-		const std::vector<double> z_bins = Math::linear_space(1e-3, 1.0, 0.001);
-		const std::vector<double> Q2_bins = Math::log_space(1.0, 200.0, 0.05);
-
-		GridGenerator generator(number_of_threads);
-
-		std::vector<DecayParametrization> parametrizations;
-		parametrizations.push_back(DecayParametrization::fit1());
-		parametrizations.push_back(DecayParametrization::fit2());
-
-		for (const DecayParametrization &parametrization : DecayParametrization::fit_set_1()) {
-			parametrizations.push_back(parametrization);
-		}
-		for (const DecayParametrization &parametrization : DecayParametrization::fit_set_2()) {
-			parametrizations.push_back(parametrization);
-		}
-
-		generator.generate_decay_grids(
-			"DecayGrids", x_log_bins, z_bins, Q2_bins, {0.0, 3.0, 5.0}, parametrizations,
-			{
-				Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
-			}, Constants::Particles::Proton, Constants::Particles::Muon
-		);
 
 		std::cout << separator << IO::endl;
 	}

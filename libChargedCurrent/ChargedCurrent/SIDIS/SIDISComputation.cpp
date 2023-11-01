@@ -290,7 +290,7 @@ class SIDISComputation {
 				SIDISFunctions::F2::LO::integrand, SIDISFunctions::FL::LO::integrand, SIDISFunctions::F3::LO::integrand,
 				false, false, true
 			);
-		}, {z_min}, {1.0}, integration_parameters, &params);
+		}, {z_min}, {1}, integration_parameters, &params);
 		const auto lo_result = lo_integrator.integrate();
 		const double lo = lo_result.value;
 
@@ -512,26 +512,35 @@ class SIDISComputation {
 			const double Q2_max = 2.0 * x * target_mass * E_beam;
 
 			double *scaled_input = new double[dim];
-			scaled_input[0] = input[2]; // z
 			scaled_input[1] = x; // x
 			scaled_input[2] = Q2_min + (Q2_max - Q2_min) * input[1]; // Q^2
+			scaled_input[0] = input[2]; // z
 
 			const double result = (Q2_max - Q2_min) * lo_integrand(scaled_input);
 
 			delete[] scaled_input;
 			return result;
-		}, {
-				x_min 	/* x */, 0.0 	/* scaled Q^2 */, 0.0 	/* z */
-			}, 
-			{
-				1.0 	/* x */, 1.0 	/* scaled Q^2 */, 1.0 	/* z */
-			}, integration_parameters, nullptr);
+		}, {x_min /* x */, 0.0 /* scaled Q^2 */, 0.0 /* z */}, {1.0, 1.0, 1.0}, integration_parameters, nullptr);
 
+		// Integrator lo_integrator([&](double input[], [[maybe_unused]] std::size_t dim, void* params_in) {
+		// 	return SIDISFunctions::cross_section<PDFInterface, FFInterface, DecayFunction>(input, params_in, 
+		// 		SIDISFunctions::F2::LO::integrand, SIDISFunctions::FL::LO::integrand, SIDISFunctions::F3::LO::integrand,
+		// 		false, false, true
+		// 	);
+		// }, {z_min}, {1}, integration_parameters, &params);
 		const auto lo_result = lo_integrator.integrate();
 		const double lo = lo_result.value;
 
 		double nlo = 0.0;
 		if (order >= PerturbativeOrder::NLO) {
+			// Integrator nlo_integrator([&](double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
+			// 	return SIDISFunctions::cross_section<PDFInterface, FFInterface, DecayFunction>(input, params_in, 
+			// 		use_nlp_nlo ? SIDISFunctions::F2::NLO_NLP::total_integrand : SIDISFunctions::F2::NLO::total_integrand, 
+			// 		use_nlp_nlo ? SIDISFunctions::FL::NLO_NLP::total_integrand : SIDISFunctions::FL::NLO::total_integrand, 
+			// 		use_nlp_nlo ? SIDISFunctions::F3::NLO_NLP::total_integrand : SIDISFunctions::F3::NLO::total_integrand,
+			// 		true, true, true
+			// 	);
+			// }, {x, z_min, z_min}, {1.0, 1.0, 1.0}, integration_parameters, &params);
 			Integrator nlo_integrator([&](double input[], std::size_t dim, [[maybe_unused]] void *params_in) {
 				const double x = input[0];
 				const double Q2_max = 2.0 * x * target_mass * E_beam;
@@ -547,12 +556,7 @@ class SIDISComputation {
 
 				delete[] scaled_input;
 				return result;
-			}, {
-					x_min 	/* x */, 0.0 	/* scaled Q^2 */, 0.0 	/* scaled xi */, 0.0 	/* xip */, 0.0 	/* z */
-				}, 
-				{
-					1.0		/* x */, 1.0	/* scaled Q^2 */, 1.0	/* scaled xi */, 1.0	/* xip */, 1.0	/* z */
-				}, integration_parameters, nullptr);
+			}, {x_min /* x */, 0.0 /* scaled Q^2 */, 0.0 /* scaled xi */, 0.0 /* xip */, 0.0 /* z */}, {1.0, 1.0, 1.0, 1.0, 1.0}, integration_parameters, nullptr);
 
 			const auto nlo_result = nlo_integrator.integrate();
 			nlo = nlo_result.value;
@@ -575,12 +579,7 @@ class SIDISComputation {
 
 				delete[] scaled_input;
 				return result;
-			}, {
-					x_min	/* x */, 0.0 	/* scaled Q^2 */, 0.0 	/* scaled xi */, 0.0 	/* xip */, 0.0 	/* z */
-				}, 
-				{
-					1.0		/* x */, 1.0	/* scaled Q^2 */, 1.0	/* scaled xi */, 1.0	/* xip */, 1.0	/* z */
-				}, integration_parameters, nullptr);
+			}, {x_min /* x */, 0.0 /* scaled Q^2 */, 0.0 /* scaled xi */, 0.0 /* xip */, 0.0 /* z */}, {1.0, 1.0, 1.0, 1.0, 1.0}, integration_parameters, nullptr);
 			const auto nnlo_result = nnlo_integrator.integrate();
 			nnlo = nnlo_result.value;
 		}
