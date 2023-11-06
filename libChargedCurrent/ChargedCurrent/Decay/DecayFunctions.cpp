@@ -157,6 +157,9 @@ namespace DecayFunctions {
 			const double zyE = z * Q2 / (2.0 * x * target.mass);
 			return function(zyE);
 		}
+		double operator()(const double zyE) const {
+			return function(zyE);
+		}
 	};
 
 	DecayGrid decay_grid(const std::filesystem::path grid_path) {

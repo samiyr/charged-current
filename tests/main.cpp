@@ -3,6 +3,10 @@
 
 #include <iostream>
 #include <ranges>
+#include <filesystem>
+#include <string>
+#include <vector>
+#include <random>
 
 #include <ChargedCurrent/DIS/DIS.cpp>
 #include <ChargedCurrent/SIDIS/SIDIS.cpp>
@@ -13,6 +17,7 @@
 #include <ChargedCurrent/PDF/Interfaces/FunctionalFormInterface.cpp>
 #include <ChargedCurrent/PDF/PDFConcept.cpp>
 #include <ChargedCurrent/Interpolation/InterpolatingFunction.cpp>
+#include <ChargedCurrent/Interpolation/GridGenerator.cpp>
 
 #include <gtest/gtest.h>
 
@@ -1071,6 +1076,68 @@ TEST(Grid, Interpolation) {
 		const double interpolated_value = interpolation(x);
 
 		EXPECT_REL_NEAR(true_value, interpolated_value, 5e-3);
+	}
+}
+
+TEST(Grid, DecayGridValidation) {
+	std::vector<DecayParametrization> parametrizations;
+	parametrizations.push_back(DecayParametrization::fit1());
+	parametrizations.push_back(DecayParametrization::fit2());
+
+	const std::vector<double> E_mins = {Constants::Particles::Muon.mass, 3.0, 5.0};
+	const std::vector<Particle> resonances = {Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC};
+	const Particle target = Constants::Particles::Proton;
+	const Particle lepton = Constants::Particles::Muon;
+
+	const auto integration_value = [&](const double zyE, const double E_min, const DecayParametrization &parametrization, const Particle &resonance) {
+		Integrator integrator([&](double input[], size_t, void *) {
+			const double rho = input[0];
+			const double cos = input[1];
+
+			return DecayFunctions::differential_decay_function(cos, rho, zyE, E_min, parametrization, resonance, target, lepton);
+		}, {0.0, -1.0}, {1.0, 1.0}, nullptr, IntegrationMethod::GSLVegas);
+		integrator.gsl.points = 10'000'000;
+		integrator.gsl.max_chi_squared_deviation = 0.2;
+		integrator.gsl.iter_max = 10;
+
+		const auto result = integrator.integrate();
+		const double value = result.value;
+		return value;
+	};
+
+	const std::size_t count = 10;
+
+	const unsigned int number_of_threads = 8;
+
+	std::default_random_engine engine;
+	std::uniform_real_distribution<double> dist(0.0, 300.0);
+
+	#pragma omp parallel for collapse(3) schedule(dynamic) num_threads(number_of_threads)
+	for (const DecayParametrization &parametrization : parametrizations) {
+		for (const Particle &resonance : resonances) {
+			for (const double E_min : E_mins) {
+				const std::string filename = GridGenerator::grid_filename(E_min, parametrization, resonance, target, lepton);
+				const std::filesystem::path grid_path = std::filesystem::current_path() / "DecayGrids" / filename;
+				
+				const DecayFunctions::DecayGrid decay_grid(grid_path);
+
+				std::size_t current_count = 0;
+				while (current_count < count) {
+					const double zyE = dist(engine);
+
+					const double grid_value = decay_grid(zyE);
+					const double integrated_value = integration_value(zyE, E_min, parametrization, resonance);
+
+					#pragma omp critical
+					{
+						std::cout << "Grid value = " << grid_value << ", integrated value = " << integrated_value << " (zyE = " << zyE << ", E_min = " << E_min << ")" << IO::endl;
+						EXPECT_REL_NEAR(grid_value, integrated_value, 1e-2);
+					}
+
+					current_count++;
+				}
+			}
+		}
 	}
 }
 

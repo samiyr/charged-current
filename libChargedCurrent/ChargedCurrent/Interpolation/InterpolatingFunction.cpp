@@ -16,24 +16,54 @@
 struct InterpolatingFunction {	
 	const std::filesystem::path grid_path;
 
-	InterpolatingFunction(const std::filesystem::path grid_path, const gsl_interp_type *interpolation_type = gsl_interp_linear, const std::string separator = "-----") : grid_path(grid_path) {
-		std::cout << grid_path << IO::endl;
+	InterpolatingFunction(
+		const std::filesystem::path grid_path, 
+		const gsl_interp_type *interpolation_type = gsl_interp_linear, 
+		const std::string separator = "-----") : grid_path(grid_path), interpolation_type(interpolation_type), separator(separator) { }
+
+	// Initializes the interpolating function directly. An instance constructed using this method cannot be copied across threads.
+	InterpolatingFunction(const std::vector<double> grid_points, const std::vector<double> grid_values, const gsl_interp_type *interpolation_type = gsl_interp_linear) {
+		initialized = true;
+		initialize_interpolation(grid_points, grid_values, interpolation_type);
+	}
+
+	~InterpolatingFunction() {
+		if (initialized) {
+			gsl_spline_free(spline);
+			gsl_interp_accel_free(accelerator);
+		}
+	}
+
+	double operator()(const double x) const {
+		if (!initialized) { initialize(); }
+		return gsl_spline_eval(spline, x, accelerator);
+	}
+
+	private:
+	mutable bool initialized = false;
+	mutable gsl_spline *spline;
+	mutable gsl_interp_accel *accelerator;
+	const gsl_interp_type *interpolation_type;
+	mutable std::string separator;
+
+	void initialize() const {
 		std::ifstream grid_file(grid_path);
 
 		std::size_t current_index = 0;
 
 		const std::size_t line_count = static_cast<std::size_t>(std::count(std::istreambuf_iterator<char>(grid_file), std::istreambuf_iterator<char>(), '\n'));
-
-		std::vector<double> grid_values(line_count);
-		std::vector<double> x_points;
-
-		bool in_grid_info = true;
+		grid_file.seekg(0);
 
 		std::string line;
 
+		std::vector<double> grid_values;
+		grid_values.reserve(line_count);
+
+		std::vector<double> grid_points;
+
+		bool in_grid_info = true;
+
 		while (std::getline(grid_file, line)) {
-			std::cout << line << IO::endl;
-			std::cout << current_index << IO::endl;
 			current_index++;
 
 			if (current_index == 1) { continue; }
@@ -48,38 +78,23 @@ struct InterpolatingFunction {
 				double value;
 
 				while (string_stream >> value) {
-					x_points.push_back(value);
+					grid_points.push_back(value);
 				}
 			} else {
 				grid_values.push_back(std::stod(line));
 			}
 		}
 
-		initialize_interpolation(x_points, grid_values, interpolation_type);
+		initialize_interpolation(grid_points, grid_values, interpolation_type);
+
+		initialized = true;
 	}
 
-	InterpolatingFunction(const std::vector<double> x_points, const std::vector<double> grid_values, const gsl_interp_type *interpolation_type = gsl_interp_linear) {
-		initialize_interpolation(x_points, grid_values, interpolation_type);
-	}
+	void initialize_interpolation(const std::vector<double> grid_points, const std::vector<double> grid_values, const gsl_interp_type *interpolation_type) const {
+		spline = gsl_spline_alloc(interpolation_type, grid_points.size());
+		accelerator = gsl_interp_accel_alloc();
 
-	~InterpolatingFunction() {
-		gsl_spline_free(spline);
-		gsl_interp_accel_free(x_accelerator);
-	}
-
-	double operator()(const double x) const {
-		return gsl_spline_eval(spline, x, x_accelerator);
-	}
-
-	private:
-	gsl_spline *spline;
-	gsl_interp_accel *x_accelerator;
-
-	void initialize_interpolation(const std::vector<double> x_points, const std::vector<double> grid_values, const gsl_interp_type *interpolation_type) {
-		spline = gsl_spline_alloc(interpolation_type, x_points.size());
-		x_accelerator = gsl_interp_accel_alloc();
-
-		gsl_spline_init(spline, x_points.data(), grid_values.data(), x_points.size());
+		gsl_spline_init(spline, grid_points.data(), grid_values.data(), grid_points.size());
 	}
 };
 

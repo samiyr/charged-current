@@ -344,25 +344,58 @@ struct SIDISAnalysis {
 		std::vector<double> multipliers(outgoing.begin(), outgoing.end());
 		multipliers *= std::vector{1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0};
 
-		muon_pair_production(
-			x_bins, y_bins, E_beam_bins, filename,
-			LHAInterface(params.pdf_set, incoming_multipliers),
-			FragmentationConfiguration(
-				{
-					LHAInterface("kkks08_opal_d0___mas", multipliers), 
-					LHAInterface("kkks08_opal_d+___mas", multipliers), 
-					LHAInterface("bkk05_D3_d_s_nlo", multipliers), 
-					1.14 * LHAInterface("bkk05_D3_lambda_c_nlo", multipliers)
-				},
-				{
-					Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),
-					Decay(parametrization, Constants::Particles::Dp, target, decay_function, minimum_lepton_momentum),
-					Decay(parametrization, Constants::Particles::Ds, target, decay_function, minimum_lepton_momentum),
-					Decay(parametrization, Constants::Particles::LambdaC, target, decay_function, minimum_lepton_momentum)
-				}
-			),
-			comment
-		);
+		if (params.use_decay_grid) {
+			const std::string D0_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::D0, target, Constants::Particles::Muon);
+			const std::string Dp_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::Dp, target, Constants::Particles::Muon);
+			const std::string Ds_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::Ds, target, Constants::Particles::Muon);
+			const std::string LambdaC_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::LambdaC, target, Constants::Particles::Muon);
+
+			const auto D0_decay_function = DecayFunctions::decay_grid(params.decay_grid_folder / D0_decay_grid);
+			const auto Dp_decay_function = DecayFunctions::decay_grid(params.decay_grid_folder / Dp_decay_grid);
+			const auto Ds_decay_function = DecayFunctions::decay_grid(params.decay_grid_folder / Ds_decay_grid);
+			const auto LambdaC_decay_function = DecayFunctions::decay_grid(params.decay_grid_folder / LambdaC_decay_grid);
+
+			muon_pair_production(
+				x_bins, y_bins, E_beam_bins, filename,
+				LHAInterface(params.pdf_set, incoming_multipliers),
+				FragmentationConfiguration(
+					{
+						LHAInterface("kkks08_opal_d0___mas", multipliers), 
+						LHAInterface("kkks08_opal_d+___mas", multipliers), 
+						LHAInterface("bkk05_D3_d_s_nlo", multipliers), 
+						1.14 * LHAInterface("bkk05_D3_lambda_c_nlo", multipliers)
+					},
+					{
+						Decay(parametrization, Constants::Particles::D0, target, D0_decay_function, minimum_lepton_momentum),
+						Decay(parametrization, Constants::Particles::Dp, target, Dp_decay_function, minimum_lepton_momentum),
+						Decay(parametrization, Constants::Particles::Ds, target, Ds_decay_function, minimum_lepton_momentum),
+						Decay(parametrization, Constants::Particles::LambdaC, target, LambdaC_decay_function, minimum_lepton_momentum)
+					}
+				),
+				comment
+			);
+		} else {
+			muon_pair_production(
+				x_bins, y_bins, E_beam_bins, filename,
+				LHAInterface(params.pdf_set, incoming_multipliers),
+				FragmentationConfiguration(
+					{
+						LHAInterface("kkks08_opal_d0___mas", multipliers), 
+						LHAInterface("kkks08_opal_d+___mas", multipliers), 
+						LHAInterface("bkk05_D3_d_s_nlo", multipliers), 
+						1.14 * LHAInterface("bkk05_D3_lambda_c_nlo", multipliers)
+					},
+					{
+						Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),
+						Decay(parametrization, Constants::Particles::Dp, target, decay_function, minimum_lepton_momentum),
+						Decay(parametrization, Constants::Particles::Ds, target, decay_function, minimum_lepton_momentum),
+						Decay(parametrization, Constants::Particles::LambdaC, target, decay_function, minimum_lepton_momentum)
+					}
+				),
+				comment
+			);
+		}
+
 	}
 	void muon_pair_production_quark_to_quark(
 		const std::vector<double> x_bins, 
@@ -522,26 +555,59 @@ struct SIDISAnalysis {
 
 		const DecayParametrization parametrization = DecayParametrization::fit1();
 
-		muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
-			LHAInterface("kkks08_opal_d0___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}),
-			Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),
-			base_filename + "_d0.csv", "d0 only"
-		);
-		muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
-			LHAInterface("kkks08_opal_d+___mas"),
-			Decay(parametrization, Constants::Particles::Dp, target, decay_function, minimum_lepton_momentum),
-			base_filename + "_d+.csv", "d+ only"
-		);
-		muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
-			LHAInterface("bkk05_D3_d_s_nlo"),
-			Decay(parametrization, Constants::Particles::Ds, target, decay_function, minimum_lepton_momentum),
-			base_filename + "_d_s.csv", "d_s only"
-		);
-		muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
-			LHAInterface("bkk05_D3_lambda_c_nlo"),
-			Decay(parametrization, Constants::Particles::LambdaC, target, decay_function, minimum_lepton_momentum),
-			base_filename + "_lambda_c.csv", "lambda_c only"
-		);
+		if (params.use_decay_grid) {
+			const std::string D0_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::D0, target, Constants::Particles::Muon);
+			const std::string Dp_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::Dp, target, Constants::Particles::Muon);
+			const std::string Ds_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::Ds, target, Constants::Particles::Muon);
+			const std::string LambdaC_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::LambdaC, target, Constants::Particles::Muon);
+
+			const auto D0_decay_function = DecayFunctions::decay_grid(params.decay_grid_folder / D0_decay_grid);
+			const auto Dp_decay_function = DecayFunctions::decay_grid(params.decay_grid_folder / Dp_decay_grid);
+			const auto Ds_decay_function = DecayFunctions::decay_grid(params.decay_grid_folder / Ds_decay_grid);
+			const auto LambdaC_decay_function = DecayFunctions::decay_grid(params.decay_grid_folder / LambdaC_decay_grid);
+
+			muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
+				LHAInterface("kkks08_opal_d0___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}),
+				Decay(parametrization, Constants::Particles::D0, target, D0_decay_function, minimum_lepton_momentum),
+				base_filename + "_d0.csv", "d0 only"
+			);
+			muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
+				LHAInterface("kkks08_opal_d+___mas"),
+				Decay(parametrization, Constants::Particles::Dp, target, Dp_decay_function, minimum_lepton_momentum),
+				base_filename + "_d+.csv", "d+ only"
+			);
+			muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
+				LHAInterface("bkk05_D3_d_s_nlo"),
+				Decay(parametrization, Constants::Particles::Ds, target, Ds_decay_function, minimum_lepton_momentum),
+				base_filename + "_d_s.csv", "d_s only"
+			);
+			muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
+				LHAInterface("bkk05_D3_lambda_c_nlo"),
+				Decay(parametrization, Constants::Particles::LambdaC, target, LambdaC_decay_function, minimum_lepton_momentum),
+				base_filename + "_lambda_c.csv", "lambda_c only"
+			);
+		} else {
+			muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
+				LHAInterface("kkks08_opal_d0___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}),
+				Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),
+				base_filename + "_d0.csv", "d0 only"
+			);
+			muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
+				LHAInterface("kkks08_opal_d+___mas"),
+				Decay(parametrization, Constants::Particles::Dp, target, decay_function, minimum_lepton_momentum),
+				base_filename + "_d+.csv", "d+ only"
+			);
+			muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
+				LHAInterface("bkk05_D3_d_s_nlo"),
+				Decay(parametrization, Constants::Particles::Ds, target, decay_function, minimum_lepton_momentum),
+				base_filename + "_d_s.csv", "d_s only"
+			);
+			muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
+				LHAInterface("bkk05_D3_lambda_c_nlo"),
+				Decay(parametrization, Constants::Particles::LambdaC, target, decay_function, minimum_lepton_momentum),
+				base_filename + "_lambda_c.csv", "lambda_c only"
+			);
+		}
 	}
 
 	void muon_pair_production_only_D0(
@@ -553,39 +619,49 @@ struct SIDISAnalysis {
 
 		const double minimum_lepton_momentum = params.minimum_lepton_momentum;
 		const Particle target = params.process.target;
-		const auto decay_function = DecayFunctions::decay_function;
 
 		const DecayParametrization parametrization = DecayParametrization::fit1();
 
-		SIDIS sidis(
-			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
-			LHAInterface(params.pdf_set),
-			FragmentationConfiguration(
-				{
-					2.3065 * LHAInterface("kkks08_opal_d0___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
-				},
-				{
-					Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),
-				}
-			),
-			params.process,
-			renormalization, factorization, fragmentation
-		);
+		const auto lambda = [&](const auto &decay_function) {
+			SIDIS sidis(
+				{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+				LHAInterface(params.pdf_set),
+				FragmentationConfiguration(
+					{
+						2.3065 * LHAInterface("kkks08_opal_d0___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
+					},
+					{
+						Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),
+					}
+				),
+				params.process,
+				renormalization, factorization, fragmentation
+			);
 
-		sidis.charm_mass = params.charm_mass;
+			sidis.charm_mass = params.charm_mass;
 
-		sidis.combine_integrals = true;
-		sidis.use_modified_cross_section_prefactor = true;
+			sidis.combine_integrals = true;
+			sidis.use_modified_cross_section_prefactor = true;
 
-		sidis.parallelize = params.parallelize;
-		sidis.number_of_threads = params.number_of_threads;
+			sidis.parallelize = params.parallelize;
+			sidis.number_of_threads = params.number_of_threads;
 
-		sidis.freeze_factorization_scale = params.freeze_factorization;
-		sidis.freeze_fragmentation_scale = params.freeze_fragmentation;
+			sidis.freeze_factorization_scale = params.freeze_factorization;
+			sidis.freeze_fragmentation_scale = params.freeze_fragmentation;
 
-		sidis.primary_muon_min_energy = params.primary_muon_min_energy;
+			sidis.primary_muon_min_energy = params.primary_muon_min_energy;
 
-		sidis.lepton_pair_cross_section_xy(x_bins, y_bins, E_beam_bins, filename, comment);
+			sidis.lepton_pair_cross_section_xy(x_bins, y_bins, E_beam_bins, filename, comment);
+		};
+
+		if (params.use_decay_grid) {
+			const std::string D0_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::D0, target, Constants::Particles::Muon);
+			const auto D0_decay_function = DecayFunctions::decay_grid(params.decay_grid_folder / D0_decay_grid);
+
+			lambda(D0_decay_function);
+		} else {
+			lambda(DecayFunctions::decay_function);
+		}
 	}
 };
 
