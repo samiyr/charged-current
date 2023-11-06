@@ -100,6 +100,7 @@
 		"filesystem": "cpp",
 		"simd": "cpp",
 		"any": "cpp",
-		"ranges": "cpp"
+		"ranges": "cpp",
+		"stdfloat": "cpp"
 	}
 }

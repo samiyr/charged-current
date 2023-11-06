@@ -3,6 +3,7 @@
 
 #include <string>
 #include <any>
+#include <filesystem>
 
 #include "Common/Process.cpp"
 #include "Common/Constants.cpp"
@@ -38,6 +39,8 @@ struct AnalysisParameters {
 	DecayParametrization decay_parametrization = DecayParametrization::fit1();
 	std::vector<DecayParametrization> decay_parametrization_set = {};
 	bool decay_variation = false;
+	bool use_decay_grid = false;
+	std::filesystem::path decay_grid_folder = std::filesystem::current_path() / "DecayGrids";
 
 	bool freeze_factorization = false;
 	bool freeze_fragmentation = true;

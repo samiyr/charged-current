@@ -104,6 +104,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	base.params.order = PerturbativeOrder::NLO;
 	base.params.process.type = Process::Type::NeutrinoToLepton;
 	base.params.number_of_threads = number_of_threads;
+	base.params.use_decay_grid = true;
 
 	Analysis nlo = base;
 
@@ -518,8 +519,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	if (run("decaygrid")) {
 		std::cout << "============== Decay grid ==============" << IO::endl;
 
-		const std::vector<double> z_bins = Math::linear_space(1e-3, 1.0, 0.001);
-		const std::vector<double> yE_bins = Math::linear_space(1.0, 300.0, 1.0);
+		const std::vector<double> zyE_bins = Math::chebyshev_space(1.0, 300.0, 1000);
 
 		GridGenerator generator(number_of_threads);
 
@@ -535,7 +535,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		// }
 
 		generator.generate_decay_grids(
-			"DecayGrids", z_bins, yE_bins, {Constants::Particles::Muon.mass, 3.0, 5.0}, parametrizations,
+			"DecayGrids", zyE_bins, {Constants::Particles::Muon.mass, 3.0, 5.0}, parametrizations,
 			{
 				Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
 			}, Constants::Particles::Proton, Constants::Particles::Muon

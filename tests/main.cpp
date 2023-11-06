@@ -7,10 +7,12 @@
 #include <ChargedCurrent/DIS/DIS.cpp>
 #include <ChargedCurrent/SIDIS/SIDIS.cpp>
 #include <ChargedCurrent/Utility/Utility.cpp>
+#include <ChargedCurrent/Utility/Math.cpp>
 #include <ChargedCurrent/PDF/Interfaces/LHAInterface.cpp>
 #include <ChargedCurrent/Decay/DecayFunctions.cpp>
 #include <ChargedCurrent/PDF/Interfaces/FunctionalFormInterface.cpp>
 #include <ChargedCurrent/PDF/PDFConcept.cpp>
+#include <ChargedCurrent/Interpolation/InterpolatingFunction.cpp>
 
 #include <gtest/gtest.h>
 
@@ -1042,6 +1044,34 @@ TEST(MuonPairProduction, NOMADAcceptance) {
 	const auto result = integrator.integrate();
 
 	std::cout << result << IO::endl;
+}
+
+TEST(Grid, Interpolation) {
+	const auto function = [](const double x) {
+		return std::sqrt(x);
+	};
+
+	const std::vector<double> points = Math::chebyshev_space(0.0, 1.0, 1000);
+
+	std::vector<double> grid_values(points.size());
+
+	for (std::size_t i = 0; i < points.size(); i++) {
+		const double value = function(points[i]);
+		grid_values[i] = value;
+	}
+
+	const InterpolatingFunction interpolation(points, grid_values, gsl_interp_akima);
+
+	const std::vector<double> comparison_points = Math::linear_space(points.front(), points.back(), 0.00001);
+
+	for (std::size_t i = 0; i < comparison_points.size(); i++) {
+		const double x = comparison_points[i];
+
+		const double true_value = function(x);
+		const double interpolated_value = interpolation(x);
+
+		EXPECT_REL_NEAR(true_value, interpolated_value, 5e-3);
+	}
 }
 
 int main(int argc, char **argv) {

@@ -3,6 +3,7 @@
 
 #include <concepts>
 #include <numbers>
+#include <filesystem>
 
 #include "Common/Particle.cpp"
 
@@ -10,11 +11,13 @@
 
 #include "Decay/DecayParametrization.cpp"
 
+#include "Interpolation/InterpolatingFunction.cpp"
+
 template <typename T>
 concept is_decay_function = requires(
-	T decay_function, const double x, const double z, const double Q2, const double z_min, 
-	const DecayParametrization &parametrization, const Particle &resonance, const Particle &hadron) {
-	{ decay_function(x, z, Q2, z_min, parametrization, resonance, hadron) } -> std::same_as<double>;
+	T decay_function, const double x, const double z, const double Q2, const double min, 
+	const DecayParametrization &parametrization, const Particle &resonance, const Particle &target) {
+	{ decay_function(x, z, Q2, min, parametrization, resonance, target) } -> std::same_as<double>;
 };
 
 namespace DecayFunctions {
@@ -22,10 +25,10 @@ namespace DecayFunctions {
 		[[maybe_unused]] const double x, 
 		[[maybe_unused]] const double z, 
 		[[maybe_unused]] const double Q2, 
-		[[maybe_unused]] const double z_min, 
+		[[maybe_unused]] const double min, 
 		[[maybe_unused]] const DecayParametrization &decay, 
 		[[maybe_unused]] const Particle &resonance, 
-		[[maybe_unused]] const Particle &hadron) noexcept { return 1.0; };
+		[[maybe_unused]] const Particle &target) noexcept { return 1.0; };
 
 	constexpr double differential_decay_function_integrand(
 		const double rho, const double reduced_rho, const double cos, const double a, const double b, const double h0,
@@ -42,11 +45,11 @@ namespace DecayFunctions {
 	}
 	
 	constexpr double differential_decay_function(
-		const double cos, const double rho, const double z, const double yE, const double E_min,
+		const double cos, const double rho, const double zyE, const double E_min,
 		const DecayParametrization &parametrization,
 		const Particle &resonance, [[maybe_unused]] const Particle &target, const Particle &lepton
 	) {
-		const double h0 = z * yE;
+		const double h0 = zyE;
 		if (h0 < resonance.mass) { return 0.0; }
 		const double pp0 = rho * h0;
 		if (pp0 < E_min) { return 0.0; }
@@ -65,8 +68,8 @@ namespace DecayFunctions {
 		const DecayParametrization &parametrization,
 		const Particle &resonance, const Particle &target, const Particle &lepton
 	) {
-		const double yE = Q2 / (2.0 * x * target.mass);
-		return differential_decay_function(cos, rho, z, yE, E_min, parametrization, resonance, target, lepton);
+		const double zyE = z * Q2 / (2.0 * x * target.mass);
+		return differential_decay_function(cos, rho, zyE, E_min, parametrization, resonance, target, lepton);
 	}
 
 	constexpr double decay_function(
@@ -76,7 +79,7 @@ namespace DecayFunctions {
 		const double z_min, 
 		const DecayParametrization &parametrization, 
 		const Particle &resonance, 
-		const Particle &hadron) {
+		const Particle &target) {
 
 		if (z < z_min) { return 0.0; }
 		const double alpha = parametrization.alpha;
@@ -86,7 +89,7 @@ namespace DecayFunctions {
 		const double mD = resonance.mass;
 		const double rho_min = z_min / z;
 
-		const double h0 = (z * Q2) / (2 * x * hadron.mass);
+		const double h0 = (z * Q2) / (2 * x * target.mass);
 		const double hv = std::sqrt(h0 * h0 - mD * mD);
 
 		const double a = h0 * h0 / (mD * mD);
@@ -136,6 +139,29 @@ namespace DecayFunctions {
 
 		return integrand;
 	};
+
+	struct DecayGrid {
+		InterpolatingFunction function;
+
+		DecayGrid(const std::filesystem::path grid_path) : function(grid_path) {}
+
+		double operator()(
+			const double x, 
+			const double z, 
+			const double Q2, 
+			[[maybe_unused]] const double min, 
+			[[maybe_unused]] const DecayParametrization &parametrization, 
+			[[maybe_unused]] const Particle &resonance, 
+			const Particle &target
+		) const {
+			const double zyE = z * Q2 / (2.0 * x * target.mass);
+			return function(zyE);
+		}
+	};
+
+	DecayGrid decay_grid(const std::filesystem::path grid_path) {
+		return DecayGrid(grid_path);
+	}
 }
 
 #endif

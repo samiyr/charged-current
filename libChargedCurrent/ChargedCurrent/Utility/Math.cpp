@@ -6,6 +6,7 @@
 #include <gsl/gsl_sf.h>
 #include <boost/math/special_functions/beta.hpp>
 #include <concepts>
+#include <numbers>
 
 namespace Math {
 	template <typename T> int sgn(T val) {
@@ -88,6 +89,17 @@ namespace Math {
 			const double log10 = min_log + static_cast<double>(i) * delta;
 			const double value = std::pow(10, log10);
 			list[i] = value;
+		}
+
+		return list;
+	}
+
+	std::vector<double> chebyshev_space(const double min, const double max, const std::size_t count) {
+		std::vector<double> list(count);
+
+		for (std::size_t i = 1; i <= count; i++) {
+			const double value = 0.5 * (min + max) + 0.5 * (max - min) * std::cos(((2.0 * static_cast<double>(i) - 1.0) / (2.0 * static_cast<double>(count))) * std::numbers::pi);
+			list[count - i] = value;
 		}
 
 		return list;
