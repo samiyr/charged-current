@@ -1163,6 +1163,22 @@ TEST(Grid, DecayGridValidation) {
 	gsl_set_error_handler(old_handler);
 }
 
+TEST(Grid, DecayGridValues) {
+	const std::string filename = GridGenerator::grid_filename(
+		5.0, DecayParametrization::fit1(), Constants::Particles::D0, Constants::Particles::Proton, Constants::Particles::Muon
+	);
+	const std::filesystem::path grid_path = std::filesystem::current_path() / "DecayGrids" / filename;
+	
+	const DecayFunctions::DecayGrid decay_grid(grid_path);
+
+	const std::vector<double> zyEs = {10.929, 24.481, 38.033};
+
+	std::cout << std::scientific;
+	for (const double zyE : zyEs) {
+		std::cout << "zyE = " << zyE << ", decay = " << decay_grid(zyE) << IO::endl;
+	}
+}
+
 int main(int argc, char **argv) {
 	LHAInterface<>::disable_verbosity();
 

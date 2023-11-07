@@ -214,7 +214,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 		std::cout << separator << IO::endl;
 	}
-
+	
 	if (run("nnlo")) {
 		std::cout << "============== SIDIS NNLO ==============" << IO::endl;
 
@@ -519,7 +519,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	if (run("decaygrid")) {
 		std::cout << "============== Decay grid ==============" << IO::endl;
 
-		const std::vector<double> zyE_bins = Math::chebyshev_space(1.0, 300.0, 10'000);
+		const std::vector<double> zyE_bins = Math::chebyshev_space(1.0, 300.0, 1'000);
 
 		GridGenerator generator(number_of_threads);
 
@@ -535,10 +535,29 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		// }
 
 		generator.generate_decay_grids(
-			"DecayGrids", zyE_bins, {Constants::Particles::Muon.mass, 3.0, 5.0}, parametrizations,
+			"DecayGrids", {1.0, 5.0, 10.0, 100.0, 300.0}, {Constants::Particles::Muon.mass}, parametrizations,
 			{
 				Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
 			}, Constants::Particles::Proton, Constants::Particles::Muon
+		);
+		generator.generate_decay_grids(
+			"DecayGrids", zyE_bins, {3.0, 5.0}, parametrizations,
+			{
+				Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
+			}, Constants::Particles::Proton, Constants::Particles::Muon
+		);
+
+		generator.generate_decay_grids(
+			"DecayGrids", {1.0, 5.0, 10.0, 100.0, 300.0}, {Constants::Particles::MasslessMuon.mass}, parametrizations,
+			{
+				Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
+			}, Constants::Particles::Proton, Constants::Particles::MasslessMuon
+		);
+		generator.generate_decay_grids(
+			"DecayGrids", zyE_bins, {3.0, 5.0}, parametrizations,
+			{
+				Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
+			}, Constants::Particles::Proton, Constants::Particles::MasslessMuon
 		);
 
 		std::cout << separator << IO::endl;

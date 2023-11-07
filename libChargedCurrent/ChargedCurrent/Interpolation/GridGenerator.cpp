@@ -189,6 +189,7 @@ struct GridGenerator {
 							}, {0.0, 0.0}, {1.0, 1.0}, nullptr, IntegrationMethod::CubaSuave);
 							integrator.cuba.maximum_evaluations = 100'000'000;
 							integrator.cuba.maximum_relative_error = 1e-4;
+							// integrator.gsl.points = 10'000'000;
 
 							const auto result = integrator.integrate();
 							const double value = result.value;
