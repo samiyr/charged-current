@@ -44,7 +44,7 @@ struct GridGenerator {
 		file << IO::endl;
 
 		for (const double value : zyE_bins) {
-			file << value << " ";
+			file << std::format("{:.8f}", value) << " ";
 		}
 		file << IO::endl;
 		file << "-----" << IO::endl;
@@ -108,7 +108,7 @@ struct GridGenerator {
 		}
 
 		for (std::size_t i = 0; i < zyE_count; i++) {
-			file << grid[i] << IO::endl;
+			file << std::format("{:.8f}", grid[i]) << IO::endl;
 		}
 
 		file.close();
@@ -147,7 +147,7 @@ struct GridGenerator {
 					file << IO::endl;
 
 					for (const double value : zyE_bins) {
-						file << value << " ";
+						file << std::format("{:.8f}", value) << " ";
 					}
 					file << IO::endl;
 					file << "-----" << IO::endl;
@@ -215,7 +215,7 @@ struct GridGenerator {
 					}
 
 					for (std::size_t i = 0; i < zyE_count; i++) {
-						file << grid[i] << IO::endl;
+						file << std::format("{:.8f}", grid[i]) << IO::endl;
 					}
 
 					file.close();

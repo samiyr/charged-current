@@ -18,11 +18,11 @@ struct InterpolatingFunction {
 
 	InterpolatingFunction(
 		const std::filesystem::path grid_path, 
-		const gsl_interp_type *interpolation_type = gsl_interp_linear, 
+		const gsl_interp_type *interpolation_type = gsl_interp_akima, 
 		const std::string separator = "-----") : grid_path(grid_path), interpolation_type(interpolation_type), separator(separator) { }
 
 	// Initializes the interpolating function directly. An instance constructed using this method cannot be copied across threads.
-	InterpolatingFunction(const std::vector<double> grid_points, const std::vector<double> grid_values, const gsl_interp_type *interpolation_type = gsl_interp_linear) {
+	InterpolatingFunction(const std::vector<double> grid_points, const std::vector<double> grid_values, const gsl_interp_type *interpolation_type = gsl_interp_akima) {
 		initialized = true;
 		initialize_interpolation(grid_points, grid_values, interpolation_type);
 	}

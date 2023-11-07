@@ -1079,6 +1079,11 @@ TEST(Grid, Interpolation) {
 	}
 }
 
+void gsl_error_handler(const char * reason, const char * file, int line, int gsl_errno) {
+	std::cout << "GSL error: " << reason << " [file " << file << ", line " << line << ", errno " << gsl_errno << "]" << IO::endl;
+	return;
+}
+
 TEST(Grid, DecayGridValidation) {
 	std::vector<DecayParametrization> parametrizations;
 	parametrizations.push_back(DecayParametrization::fit1());
@@ -1112,10 +1117,22 @@ TEST(Grid, DecayGridValidation) {
 	std::default_random_engine engine;
 	std::uniform_real_distribution<double> dist(0.0, 300.0);
 
-	#pragma omp parallel for collapse(3) schedule(dynamic) num_threads(number_of_threads)
-	for (const DecayParametrization &parametrization : parametrizations) {
-		for (const Particle &resonance : resonances) {
-			for (const double E_min : E_mins) {
+	const std::size_t total_count = parametrizations.size() * resonances.size() * E_mins.size() * count;
+	std::vector<double> random_zyEs(total_count);
+	for (std::size_t i = 0; i < total_count; i++) {
+		random_zyEs[i] = dist(engine);
+	}
+
+	const auto old_handler = gsl_set_error_handler(&gsl_error_handler);
+
+	#pragma omp parallel for collapse(3) schedule(static) num_threads(number_of_threads)
+	for (std::size_t i = 0; i < parametrizations.size(); i++) {
+		for (std::size_t j = 0; j < resonances.size(); j++) {
+			for (std::size_t k = 0; k < E_mins.size(); k++) {
+				const DecayParametrization &parametrization = parametrizations[i];
+				const Particle &resonance = resonances[j];
+				const double E_min = E_mins[k];
+
 				const std::string filename = GridGenerator::grid_filename(E_min, parametrization, resonance, target, lepton);
 				const std::filesystem::path grid_path = std::filesystem::current_path() / "DecayGrids" / filename;
 				
@@ -1123,7 +1140,10 @@ TEST(Grid, DecayGridValidation) {
 
 				std::size_t current_count = 0;
 				while (current_count < count) {
-					const double zyE = dist(engine);
+					const std::size_t D1 = parametrizations.size();
+					const std::size_t D2 = resonances.size();
+					const std::size_t D3 = E_mins.size();
+					const double zyE = random_zyEs[i + j * D1 + k * D1 * D2 + current_count * D1 * D2 * D3];
 
 					const double grid_value = decay_grid(zyE);
 					const double integrated_value = integration_value(zyE, E_min, parametrization, resonance);
@@ -1139,6 +1159,8 @@ TEST(Grid, DecayGridValidation) {
 			}
 		}
 	}
+
+	gsl_set_error_handler(old_handler);
 }
 
 int main(int argc, char **argv) {
