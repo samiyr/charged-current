@@ -1179,6 +1179,62 @@ TEST(Grid, DecayGridValues) {
 	}
 }
 
+TEST(DIS, Integration) {
+	DIS dis(
+		{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+		LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
+		Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
+	);
+
+	dis.use_modified_cross_section_prefactor = true;
+	dis.charm_mass = 1.3;
+
+	const double M = Constants::Particles::Proton.mass;
+	const std::vector<double> E_beams = {10.0, 15.0, 20.0, 30.0, 50.0, 100.0, 150.0, 200.0, 300.0};
+
+	#pragma omp parallel for num_threads(8)
+	for (const double E_beam : E_beams) {
+		const double s = std::pow(M, 2) + 2.0 * M * E_beam;
+
+		const double Q2_min = 1.69;
+		const double Q2_max_global = 2.0 * M * E_beam;
+		const double x_min = Q2_min / (2.0 * M * E_beam);
+
+		Integrator lo_integrator([=](double input[], size_t, void *) {
+			const double x = input[0];
+			const double Q2 = input[1];
+
+			const double Q2_max = 2 * M * E_beam * x;
+			if (Q2 > Q2_max) { return 0.0; }
+			const TRFKinematics kinematics = TRFKinematics::Q2_s(x, Q2, s, M, 0.0);
+			return dis.differential_cross_section_xQ2(kinematics).lo;
+		}, {x_min, Q2_min}, {1.0, Q2_max_global}, nullptr, IntegrationMethod::CubaSuave);
+		lo_integrator.cuba.maximum_evaluations = 10'000;
+
+		Integrator nlo_integrator([=](double input[], size_t, void *) {
+			const double x = input[0];
+			const double Q2 = input[1];
+
+			const double Q2_max = 2 * M * E_beam * x;
+			if (Q2 > Q2_max) { return 0.0; }
+			const TRFKinematics kinematics = TRFKinematics::Q2_s(x, Q2, s, M, 0.0);
+			return dis.differential_cross_section_xQ2(kinematics).nlo;
+		}, {x_min, Q2_min}, {1.0, Q2_max_global}, nullptr, IntegrationMethod::CubaSuave);
+		nlo_integrator.cuba.maximum_evaluations = 10'000;
+
+		const auto direct = dis.integrated_cross_section(E_beam, Q2_min);
+
+		const auto lo_integral = lo_integrator.integrate();
+		const auto nlo_integral = nlo_integrator.integrate();
+
+		#pragma omp critical
+		{
+			EXPECT_REL_NEAR(lo_integral.value, direct.lo, 1e-2);
+			EXPECT_REL_NEAR(nlo_integral.value, direct.nlo, 1e-2);
+		}
+	}
+}
+
 int main(int argc, char **argv) {
 	LHAInterface<>::disable_verbosity();
 
