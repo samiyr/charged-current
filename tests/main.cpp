@@ -1281,7 +1281,7 @@ TEST(SIDIS, Integration) {
 				const TRFKinematics kinematics = TRFKinematics::Q2_s(x, Q2, s, M, 0.0);
 				return sidis.lepton_pair_cross_section_xQ2(kinematics).lo;
 			}, {x_min, Q2_min}, {1.0, Q2_max_global}, nullptr, IntegrationMethod::CubaSuave);
-			lo_integrator.cuba.maximum_evaluations = 1'000;
+			lo_integrator.cuba.maximum_evaluations = 10'000;
 
 			Integrator nlo_integrator([=](double input[], size_t, void *) {
 				const double x = input[0];
@@ -1292,7 +1292,7 @@ TEST(SIDIS, Integration) {
 				const TRFKinematics kinematics = TRFKinematics::Q2_s(x, Q2, s, M, 0.0);
 				return sidis.lepton_pair_cross_section_xQ2(kinematics).nlo;
 			}, {x_min, Q2_min}, {1.0, Q2_max_global}, nullptr, IntegrationMethod::CubaSuave);
-			nlo_integrator.cuba.maximum_evaluations = 1'000;
+			nlo_integrator.cuba.maximum_evaluations = 10'000;
 
 			const auto direct = sidis.integrated_lepton_pair_cross_section(E_beam, Q2_min);
 
