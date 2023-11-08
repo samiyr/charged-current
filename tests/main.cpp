@@ -1192,7 +1192,6 @@ TEST(DIS, Integration) {
 	const double M = Constants::Particles::Proton.mass;
 	const std::vector<double> E_beams = {10.0, 15.0, 20.0, 30.0, 50.0, 100.0, 150.0, 200.0, 300.0};
 
-	// #pragma omp parallel for num_threads(8)
 	for (const double E_beam : E_beams) {
 		const double s = std::pow(M, 2) + 2.0 * M * E_beam;
 
@@ -1227,8 +1226,82 @@ TEST(DIS, Integration) {
 		const auto lo_integral = lo_integrator.integrate();
 		const auto nlo_integral = nlo_integrator.integrate();
 
-		// #pragma omp critical
-		{
+		std::cout << "[E_beam = " << E_beam << "]: direct = (LO: " << direct.lo << ", NLO: " << direct.nlo;
+		std::cout << ") integrated = (LO: " << lo_integral << ", NLO: " << nlo_integral << ")" << IO::endl;
+
+		EXPECT_REL_NEAR(lo_integral.value, direct.lo, 1e-2);
+		EXPECT_REL_NEAR(nlo_integral.value, direct.nlo, 1e-2);
+	}
+}
+
+TEST(SIDIS, Integration) {
+	for (const double E_min : {0.0, 5.0}) {
+		const DecayParametrization parametrization = DecayParametrization::fit1();
+
+		const std::string D0_decay_grid = GridGenerator::grid_filename(
+			E_min, parametrization, 
+			Constants::Particles::D0, Constants::Particles::Proton, Constants::Particles::MasslessMuon
+		);
+		const std::filesystem::path grid_path = std::filesystem::current_path() / std::filesystem::path("DecayGrids") / D0_decay_grid;
+		const auto D0_decay_function = DecayFunctions::decay_grid(grid_path);
+
+		SIDIS sidis(
+			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+			LHAInterface("EPPS21nlo_CT18Anlo_Fe56"),
+			FragmentationConfiguration(
+				{
+					LHAInterface("kkks08_opal_d0___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0})
+				},
+				{
+					Decay(parametrization, Constants::Particles::D0, Constants::Particles::Proton, D0_decay_function, E_min)
+				}
+			),
+			Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino)
+		);
+
+		sidis.use_modified_cross_section_prefactor = true;
+		sidis.charm_mass = 1.3;
+
+		const double M = Constants::Particles::Proton.mass;
+		const std::vector<double> E_beams = {10.0, 15.0, 20.0, 30.0, 50.0, 100.0, 150.0, 200.0, 300.0};
+
+		for (const double E_beam : E_beams) {
+			const double s = std::pow(M, 2) + 2.0 * M * E_beam;
+
+			const double Q2_min = 1.69;
+			const double Q2_max_global = 2.0 * M * E_beam;
+			const double x_min = Q2_min / (2.0 * M * E_beam);
+
+			Integrator lo_integrator([=](double input[], size_t, void *) {
+				const double x = input[0];
+				const double Q2 = input[1];
+
+				const double Q2_max = 2 * M * E_beam * x;
+				if (Q2 > Q2_max) { return 0.0; }
+				const TRFKinematics kinematics = TRFKinematics::Q2_s(x, Q2, s, M, 0.0);
+				return sidis.lepton_pair_cross_section_xQ2(kinematics).lo;
+			}, {x_min, Q2_min}, {1.0, Q2_max_global}, nullptr, IntegrationMethod::CubaSuave);
+			lo_integrator.cuba.maximum_evaluations = 1'000;
+
+			Integrator nlo_integrator([=](double input[], size_t, void *) {
+				const double x = input[0];
+				const double Q2 = input[1];
+
+				const double Q2_max = 2 * M * E_beam * x;
+				if (Q2 > Q2_max) { return 0.0; }
+				const TRFKinematics kinematics = TRFKinematics::Q2_s(x, Q2, s, M, 0.0);
+				return sidis.lepton_pair_cross_section_xQ2(kinematics).nlo;
+			}, {x_min, Q2_min}, {1.0, Q2_max_global}, nullptr, IntegrationMethod::CubaSuave);
+			nlo_integrator.cuba.maximum_evaluations = 1'000;
+
+			const auto direct = sidis.integrated_lepton_pair_cross_section(E_beam, Q2_min);
+
+			const auto lo_integral = lo_integrator.integrate();
+			const auto nlo_integral = nlo_integrator.integrate();
+
+			std::cout << "[E_beam = " << E_beam << ", E_min = " << E_min << "]: direct = (LO: " << direct.lo << ", NLO: " << direct.nlo;
+			std::cout << ") integrated = (LO: " << lo_integral << ", NLO: " << nlo_integral << ")" << IO::endl;
+
 			EXPECT_REL_NEAR(lo_integral.value, direct.lo, 1e-2);
 			EXPECT_REL_NEAR(nlo_integral.value, direct.nlo, 1e-2);
 		}

@@ -23,8 +23,8 @@ struct InterpolatingFunction {
 
 	// Initializes the interpolating function directly. An instance constructed using this method cannot be copied across threads.
 	InterpolatingFunction(const std::vector<double> grid_points, const std::vector<double> grid_values, const gsl_interp_type *interpolation_type = gsl_interp_akima) {
-		initialized = true;
 		initialize_interpolation(grid_points, grid_values, interpolation_type);
+		initialized = true;
 	}
 
 	~InterpolatingFunction() {
@@ -36,6 +36,11 @@ struct InterpolatingFunction {
 
 	double operator()(const double x) const {
 		if (!initialized) { initialize(); }
+
+		const double min = spline->interp->xmin;
+		const double max = spline->interp->xmax;
+		if (x < min) { return operator()(min); }
+		if (x > max) { return operator()(max); }
 		return gsl_spline_eval(spline, x, accelerator);
 	}
 
