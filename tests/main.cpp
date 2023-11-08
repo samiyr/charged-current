@@ -1192,7 +1192,7 @@ TEST(DIS, Integration) {
 	const double M = Constants::Particles::Proton.mass;
 	const std::vector<double> E_beams = {10.0, 15.0, 20.0, 30.0, 50.0, 100.0, 150.0, 200.0, 300.0};
 
-	#pragma omp parallel for num_threads(8)
+	// #pragma omp parallel for num_threads(8)
 	for (const double E_beam : E_beams) {
 		const double s = std::pow(M, 2) + 2.0 * M * E_beam;
 
@@ -1227,7 +1227,7 @@ TEST(DIS, Integration) {
 		const auto lo_integral = lo_integrator.integrate();
 		const auto nlo_integral = nlo_integrator.integrate();
 
-		#pragma omp critical
+		// #pragma omp critical
 		{
 			EXPECT_REL_NEAR(lo_integral.value, direct.lo, 1e-2);
 			EXPECT_REL_NEAR(nlo_integral.value, direct.nlo, 1e-2);

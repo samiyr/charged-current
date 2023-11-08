@@ -189,7 +189,7 @@ namespace SIDISFunctions {
 			for (const FlavorType incoming : flavors1) {
 				const FlavorType anti_outgoing = Flavor::conjugate_flavor(incoming);
 
-				const double mass = flavors.mass(Flavor::Charm);
+				const double mass = flavors.mass(outgoing);
 				const double x_mass = CommonFunctions::compute_momentum_fraction_mass_correction(x, Q2, mass, 0.0);
 
 				if (xi_int && xi < x_mass) { continue; }
