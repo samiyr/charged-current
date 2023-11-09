@@ -131,8 +131,8 @@ namespace SIDISFunctions {
 		const std::size_t xip_index = std::size_t(xi_int);
 		const std::size_t z_index = std::size_t(xi_int) + std::size_t(xip_int);
 
-		const double xi = xi_int ? input[xi_index] : 0.5;
-		const double xip = xip_int ? input[xip_index] : 0.5;
+		const double xi = xi_int ? input[xi_index] : 1.0;
+		const double xip = xip_int ? input[xip_index] : 1.0;
 
 		const TRFKinematics &kinematics = params.kinematics;
 
@@ -175,8 +175,8 @@ namespace SIDISFunctions {
 		const PDFInterface &pdf1 = params.pdf1;
 		const PDFInterface &pdf2 = params.pdf2;
 
-		if (z <= 0.0 || z >= 1.0 || xi <= 0.0 || xi >= 1.0 || xip <= 0.0 || xip >= 1.0) {
-			return 0.0;
+		if (z <= 0.0 || z >= 1.0 || xi <= 0.0 || xi > 1.0 || xip <= 0.0 || xip > 1.0) {
+			std::cout << z << ", " << xi << ", " << xip << IO::endl;
 		}
 
 		const double log1mz = Math::log1m(z);

@@ -261,6 +261,8 @@ class SIDISComputation {
 		});
 		const double z_min = *std::min_element(z_mins.begin(), z_mins.end());
 
+		if (z_min > 1.0) { return PerturbativeQuantity{0.0, 0.0, 0.0}; }
+
 		double alpha_s = compute_alpha_s(kinematics);
 		const double nlo_coefficient = alpha_s / (2 * std::numbers::pi);
 		const double nnlo_coefficient = std::pow(nlo_coefficient, 2);

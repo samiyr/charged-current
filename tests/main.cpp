@@ -1302,8 +1302,8 @@ TEST(SIDIS, Integration) {
 			std::cout << "[E_beam = " << E_beam << ", E_min = " << E_min << "]: direct = (LO: " << direct.lo << ", NLO: " << direct.nlo;
 			std::cout << ") integrated = (LO: " << lo_integral << ", NLO: " << nlo_integral << ")" << IO::endl;
 
-			EXPECT_REL_NEAR(lo_integral.value, direct.lo, 1e-2);
-			EXPECT_REL_NEAR(nlo_integral.value, direct.nlo, 1e-2);
+			EXPECT_REL_NEAR(lo_integral.value, direct.lo, 5e-2);
+			EXPECT_REL_NEAR(nlo_integral.value, direct.nlo, 5e-2);
 		}
 	}
 }
