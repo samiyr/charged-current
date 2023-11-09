@@ -7,9 +7,9 @@
 // Container for the following particle data: mass, lifetime.
 struct Particle {
 	// Mass of the particle, in units of GeV.
-	const double mass;
+	double mass;
 	// Lifetime of the particle, in units of 1e-12 seconds.
-	const double lifetime;
+	double lifetime;
 
 	// Constructs an empty particle, with zero mass and zero lifetime.
 	constexpr Particle() noexcept : mass(0.0), lifetime(0.0) {}

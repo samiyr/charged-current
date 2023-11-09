@@ -91,10 +91,10 @@ struct SIDISAnalysis {
 
 		const auto muon_pair_production_lambda = [&]<typename PDF>(PDF &&pdf) {
 			if (params.use_decay_grid) {
-				const std::string D0_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::D0, target, Constants::Particles::Muon);
-				const std::string Dp_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::Dp, target, Constants::Particles::Muon);
-				const std::string Ds_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::Ds, target, Constants::Particles::Muon);
-				const std::string LambdaC_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::LambdaC, target, Constants::Particles::Muon);
+				const std::string D0_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::D0, target, params.decay_lepton);
+				const std::string Dp_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::Dp, target, params.decay_lepton);
+				const std::string Ds_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::Ds, target, params.decay_lepton);
+				const std::string LambdaC_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::LambdaC, target, params.decay_lepton);
 
 				const auto D0_decay_function = DecayFunctions::decay_grid(params.decay_grid_folder / D0_decay_grid);
 				const auto Dp_decay_function = DecayFunctions::decay_grid(params.decay_grid_folder / Dp_decay_grid);
@@ -237,10 +237,10 @@ struct SIDISAnalysis {
 
 		const auto muon_pair_production_lambda = [&]<typename PDF>(PDF &&pdf) {
 			if (params.use_decay_grid) {
-				const std::string D0_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::D0, target, Constants::Particles::Muon);
-				const std::string Dp_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::Dp, target, Constants::Particles::Muon);
-				const std::string Ds_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::Ds, target, Constants::Particles::Muon);
-				const std::string LambdaC_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::LambdaC, target, Constants::Particles::Muon);
+				const std::string D0_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::D0, target, params.decay_lepton);
+				const std::string Dp_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::Dp, target, params.decay_lepton);
+				const std::string Ds_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::Ds, target, params.decay_lepton);
+				const std::string LambdaC_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::LambdaC, target, params.decay_lepton);
 
 				const auto D0_decay_function = DecayFunctions::decay_grid(params.decay_grid_folder / D0_decay_grid);
 				const auto Dp_decay_function = DecayFunctions::decay_grid(params.decay_grid_folder / Dp_decay_grid);
@@ -345,10 +345,10 @@ struct SIDISAnalysis {
 		multipliers *= std::vector{1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0};
 
 		if (params.use_decay_grid) {
-			const std::string D0_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::D0, target, Constants::Particles::Muon);
-			const std::string Dp_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::Dp, target, Constants::Particles::Muon);
-			const std::string Ds_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::Ds, target, Constants::Particles::Muon);
-			const std::string LambdaC_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::LambdaC, target, Constants::Particles::Muon);
+			const std::string D0_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::D0, target, params.decay_lepton);
+			const std::string Dp_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::Dp, target, params.decay_lepton);
+			const std::string Ds_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::Ds, target, params.decay_lepton);
+			const std::string LambdaC_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::LambdaC, target, params.decay_lepton);
 
 			const auto D0_decay_function = DecayFunctions::decay_grid(params.decay_grid_folder / D0_decay_grid);
 			const auto Dp_decay_function = DecayFunctions::decay_grid(params.decay_grid_folder / Dp_decay_grid);
@@ -556,10 +556,10 @@ struct SIDISAnalysis {
 		const DecayParametrization parametrization = DecayParametrization::fit1();
 
 		if (params.use_decay_grid) {
-			const std::string D0_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::D0, target, Constants::Particles::Muon);
-			const std::string Dp_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::Dp, target, Constants::Particles::Muon);
-			const std::string Ds_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::Ds, target, Constants::Particles::Muon);
-			const std::string LambdaC_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::LambdaC, target, Constants::Particles::Muon);
+			const std::string D0_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::D0, target, params.decay_lepton);
+			const std::string Dp_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::Dp, target, params.decay_lepton);
+			const std::string Ds_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::Ds, target, params.decay_lepton);
+			const std::string LambdaC_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::LambdaC, target, params.decay_lepton);
 
 			const auto D0_decay_function = DecayFunctions::decay_grid(params.decay_grid_folder / D0_decay_grid);
 			const auto Dp_decay_function = DecayFunctions::decay_grid(params.decay_grid_folder / Dp_decay_grid);
@@ -655,7 +655,7 @@ struct SIDISAnalysis {
 		};
 
 		if (params.use_decay_grid) {
-			const std::string D0_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::D0, target, Constants::Particles::Muon);
+			const std::string D0_decay_grid = GridGenerator::grid_filename(params.minimum_lepton_momentum, parametrization, Constants::Particles::D0, target, params.decay_lepton);
 			const auto D0_decay_function = DecayFunctions::decay_grid(params.decay_grid_folder / D0_decay_grid);
 
 			lambda(D0_decay_function);

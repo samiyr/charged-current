@@ -21,6 +21,7 @@ struct AnalysisParameters {
 	double A = 1.0;
 
 	Process process = Process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino);
+	Particle decay_lepton = Constants::Particles::Muon;
 
 	double charm_mass = Constants::Charm::Mass;
 	double minimum_lepton_momentum = 5.0;

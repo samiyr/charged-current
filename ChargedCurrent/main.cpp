@@ -105,6 +105,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	base.params.process.type = Process::Type::NeutrinoToLepton;
 	base.params.number_of_threads = number_of_threads;
 	base.params.use_decay_grid = true;
+	base.params.decay_lepton = Constants::Particles::Muon;
 
 	Analysis nlo = base;
 
@@ -130,6 +131,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	Analysis nomad_errors_225 = nomad_errors_169;
 	nomad_errors_225.params.Q2_min = 2.25;
 
+	Analysis nomad_errors_169_massless_muon = nomad_errors_169;
+	nomad_errors_169_massless_muon.params.decay_lepton = Constants::Particles::MasslessMuon;
+
+	Analysis nomad_errors_225_massless_muon = nomad_errors_225;
+	nomad_errors_225_massless_muon.params.decay_lepton = Constants::Particles::MasslessMuon;
+
 	Analysis nomad_errors_169_zero_limit = nomad_errors_169;
 	nomad_errors_169_zero_limit.params.minimum_lepton_momentum = Constants::Particles::Muon.mass;
 	nomad_errors_169_zero_limit.params.primary_muon_min_energy = Constants::Particles::Muon.mass;
@@ -139,6 +146,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	nomad_errors_225_zero_limit.params.minimum_lepton_momentum = Constants::Particles::Muon.mass;
 	nomad_errors_225_zero_limit.params.primary_muon_min_energy = Constants::Particles::Muon.mass;
 	nomad_errors_225_zero_limit.params.hadronic_min_energy = 0.0;
+
+	Analysis nomad_errors_169_zero_limit_massless_muon = nomad_errors_169_zero_limit;
+	nomad_errors_169_zero_limit_massless_muon.params.minimum_lepton_momentum = Constants::Particles::MasslessMuon.mass;
+	nomad_errors_169_zero_limit_massless_muon.params.primary_muon_min_energy = Constants::Particles::MasslessMuon.mass;
+	nomad_errors_169_zero_limit_massless_muon.params.decay_lepton = Constants::Particles::MasslessMuon;
+
+	Analysis nomad_errors_225_zero_limit_massless_muon = nomad_errors_225_zero_limit;
+	nomad_errors_225_zero_limit_massless_muon.params.minimum_lepton_momentum = Constants::Particles::MasslessMuon.mass;
+	nomad_errors_225_zero_limit_massless_muon.params.primary_muon_min_energy = Constants::Particles::MasslessMuon.mass;
+	nomad_errors_225_zero_limit_massless_muon.params.decay_lepton = Constants::Particles::MasslessMuon;
 
 	Analysis unity_nuclear_epps = base;
 	unity_nuclear_epps.params.pdf_error_sets = true;
@@ -201,6 +218,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			nomad_errors_225.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, "Data/SIDIS/MuonPairProduction/CharmedHadrons/Integrated/nomad_neutrino_225.csv");
 		});
 
+		measure([&] {
+			nomad_errors_169_massless_muon.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, "Data/SIDIS/MuonPairProduction/CharmedHadrons/IntegratedMassless/nomad_neutrino_169.csv");
+			nomad_errors_225_massless_muon.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, "Data/SIDIS/MuonPairProduction/CharmedHadrons/IntegratedMassless/nomad_neutrino_225.csv");
+		});
+
 		std::cout << separator << IO::endl;
 	}
 	
@@ -210,6 +232,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		measure([&] {
 			nomad_errors_169_zero_limit.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, "Data/SIDIS/MuonPairProduction/CharmedHadrons/IntegratedZeroLimit/nomad_neutrino_169.csv");
 			nomad_errors_225_zero_limit.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, "Data/SIDIS/MuonPairProduction/CharmedHadrons/IntegratedZeroLimit/nomad_neutrino_225.csv");
+		});
+
+		measure([&] {
+			nomad_errors_169_zero_limit_massless_muon.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, "Data/SIDIS/MuonPairProduction/CharmedHadrons/IntegratedZeroLimitMassless/nomad_neutrino_169.csv");
+			nomad_errors_225_zero_limit_massless_muon.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, "Data/SIDIS/MuonPairProduction/CharmedHadrons/IntegratedZeroLimitMassless/nomad_neutrino_225.csv");
 		});
 
 		std::cout << separator << IO::endl;
