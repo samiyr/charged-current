@@ -131,8 +131,8 @@ namespace SIDISFunctions {
 		const std::size_t xip_index = std::size_t(xi_int);
 		const std::size_t z_index = std::size_t(xi_int) + std::size_t(xip_int);
 
-		const double xi = xi_int ? input[xi_index] : 1.0;
-		const double xip = xip_int ? input[xip_index] : 1.0;
+		const double xi = xi_int ? input[xi_index] : 0.5;
+		const double xip = xip_int ? input[xip_index] : 0.5;
 
 		const TRFKinematics &kinematics = params.kinematics;
 
