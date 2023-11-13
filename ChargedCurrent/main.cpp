@@ -195,11 +195,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			nomad_errors_225.dis().integrated(AnalysisSet::NOMAD, "Data/DIS/TotalProduction/Integrated/nomad_neutrino_225.csv");
 		});
 
-		measure([&] {
-			nomad_errors_169_massless_muon.dis().integrated(AnalysisSet::NOMAD, "Data/DIS/TotalProduction/IntegratedMassless/nomad_neutrino_169.csv");
-			nomad_errors_225_massless_muon.dis().integrated(AnalysisSet::NOMAD, "Data/DIS/TotalProduction/IntegratedMassless/nomad_neutrino_225.csv");
-		});
-
 		std::cout << separator << IO::endl;
 	}
 
@@ -209,11 +204,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		measure([&] {
 			nomad_errors_169.dis().integrated_charm_production(AnalysisSet::NOMAD, "Data/DIS/CharmProduction/Integrated/nomad_neutrino_169.csv");
 			nomad_errors_225.dis().integrated_charm_production(AnalysisSet::NOMAD, "Data/DIS/CharmProduction/Integrated/nomad_neutrino_225.csv");
-		});
-
-		measure([&] {
-			nomad_errors_169_massless_muon.dis().integrated_charm_production(AnalysisSet::NOMAD, "Data/DIS/CharmProduction/IntegratedMassless/nomad_neutrino_169.csv");
-			nomad_errors_225_massless_muon.dis().integrated_charm_production(AnalysisSet::NOMAD, "Data/DIS/CharmProduction/IntegratedMassless/nomad_neutrino_225.csv");
 		});
 
 		std::cout << separator << IO::endl;
