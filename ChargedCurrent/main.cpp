@@ -190,10 +190,22 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	if (run("disintegrated")) {
 		std::cout << "======= DIS integrated inclusive =======" << IO::endl;
 		
-		measure([&] {
-			nomad_errors_169.dis().integrated(AnalysisSet::NOMAD, "Data/DIS/TotalProduction/Integrated/nomad_neutrino_169.csv");
-			nomad_errors_225.dis().integrated(AnalysisSet::NOMAD, "Data/DIS/TotalProduction/Integrated/nomad_neutrino_225.csv");
-		});
+		for (const auto &pdf_set_name : pdfs) {
+			std::cout << "PDF set: " << pdf_set_name << IO::endl;
+
+			Analysis nomad_169 = nomad_errors_169;
+			nomad_169.params.pdf_set = pdf_set_name;
+
+			Analysis nomad_225 = nomad_errors_225;
+			nomad_225.params.pdf_set = pdf_set_name;
+
+			const std::string output_folder = "Data/DIS/TotalProduction/Integrated/" + pdf_set_name + "/";
+
+			measure([&] {
+				nomad_169.dis().integrated(AnalysisSet::NOMAD, output_folder + "nomad_neutrino_169.csv");
+				nomad_225.dis().integrated(AnalysisSet::NOMAD, output_folder + "nomad_neutrino_225.csv");
+			});
+		}
 
 		std::cout << separator << IO::endl;
 	}
@@ -212,15 +224,34 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	if (run("sidisintegrated")) {
 		std::cout << "====== SIDIS integrated inclusive ======" << IO::endl;
 		
-		measure([&] {
-			nomad_errors_169.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, "Data/SIDIS/MuonPairProduction/CharmedHadrons/Integrated/nomad_neutrino_169.csv");
-			nomad_errors_225.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, "Data/SIDIS/MuonPairProduction/CharmedHadrons/Integrated/nomad_neutrino_225.csv");
-		});
+		for (const auto &pdf_set_name : pdfs) {
+			std::cout << "PDF set: " << pdf_set_name << IO::endl;
 
-		measure([&] {
-			nomad_errors_169_massless_muon.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, "Data/SIDIS/MuonPairProduction/CharmedHadrons/IntegratedMassless/nomad_neutrino_169.csv");
-			nomad_errors_225_massless_muon.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, "Data/SIDIS/MuonPairProduction/CharmedHadrons/IntegratedMassless/nomad_neutrino_225.csv");
-		});
+			Analysis nomad_169 = nomad_errors_169;
+			nomad_169.params.pdf_set = pdf_set_name;
+
+			Analysis nomad_225 = nomad_errors_225;
+			nomad_225.params.pdf_set = pdf_set_name;
+
+
+			Analysis nomad_169_massless = nomad_errors_169_massless_muon;
+			nomad_169_massless.params.pdf_set = pdf_set_name;
+
+			Analysis nomad_225_massless = nomad_errors_225_massless_muon;
+			nomad_225_massless.params.pdf_set = pdf_set_name;
+
+			const std::string output_folder = "Data/SIDIS/MuonPairProduction/CharmedHadrons/" + pdf_set_name + "/";
+
+			measure([&] {
+				nomad_169.dis().integrated(AnalysisSet::NOMAD, output_folder + "Integrated/nomad_neutrino_169.csv");
+				nomad_225.dis().integrated(AnalysisSet::NOMAD, output_folder + "Integrated/nomad_neutrino_225.csv");
+			});
+
+			measure([&] {
+				nomad_169_massless.dis().integrated(AnalysisSet::NOMAD, output_folder + "IntegratedMassless/nomad_neutrino_169.csv");
+				nomad_225_massless.dis().integrated(AnalysisSet::NOMAD, output_folder + "IntegratedMassless/nomad_neutrino_225.csv");
+			});
+		}
 
 		std::cout << separator << IO::endl;
 	}
@@ -228,15 +259,34 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	if (run("sidisintegratedzerolimit")) {
 		std::cout << "====== SIDIS integrated inclusive ======" << IO::endl;
 		
-		measure([&] {
-			nomad_errors_169_zero_limit.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, "Data/SIDIS/MuonPairProduction/CharmedHadrons/IntegratedZeroLimit/nomad_neutrino_169.csv");
-			nomad_errors_225_zero_limit.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, "Data/SIDIS/MuonPairProduction/CharmedHadrons/IntegratedZeroLimit/nomad_neutrino_225.csv");
-		});
+		for (const auto &pdf_set_name : pdfs) {
+			std::cout << "PDF set: " << pdf_set_name << IO::endl;
 
-		measure([&] {
-			nomad_errors_169_zero_limit_massless_muon.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, "Data/SIDIS/MuonPairProduction/CharmedHadrons/IntegratedZeroLimitMassless/nomad_neutrino_169.csv");
-			nomad_errors_225_zero_limit_massless_muon.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, "Data/SIDIS/MuonPairProduction/CharmedHadrons/IntegratedZeroLimitMassless/nomad_neutrino_225.csv");
-		});
+			Analysis nomad_169 = nomad_errors_169_zero_limit;
+			nomad_169.params.pdf_set = pdf_set_name;
+
+			Analysis nomad_225 = nomad_errors_225_zero_limit;
+			nomad_225.params.pdf_set = pdf_set_name;
+
+
+			Analysis nomad_169_massless = nomad_errors_169_zero_limit_massless_muon;
+			nomad_169_massless.params.pdf_set = pdf_set_name;
+
+			Analysis nomad_225_massless = nomad_errors_169_zero_limit_massless_muon;
+			nomad_225_massless.params.pdf_set = pdf_set_name;
+
+			const std::string output_folder = "Data/SIDIS/MuonPairProduction/CharmedHadrons/" + pdf_set_name + "/";
+
+			measure([&] {
+				nomad_169.dis().integrated(AnalysisSet::NOMAD, output_folder + "IntegratedZeroLimit/nomad_neutrino_169.csv");
+				nomad_225.dis().integrated(AnalysisSet::NOMAD, output_folder + "IntegratedZeroLimit/nomad_neutrino_225.csv");
+			});
+
+			measure([&] {
+				nomad_169_massless.dis().integrated(AnalysisSet::NOMAD, output_folder + "IntegratedZeroLimitMassless/nomad_neutrino_169.csv");
+				nomad_225_massless.dis().integrated(AnalysisSet::NOMAD, output_folder + "IntegratedZeroLimitMassless/nomad_neutrino_225.csv");
+			});
+		}
 
 		std::cout << separator << IO::endl;
 	}
