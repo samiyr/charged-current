@@ -287,8 +287,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			const std::string output_folder_massless = "Data/SIDIS/MuonPairProduction/CharmedHadrons/IntegratedZeroLimitMassless/" + pdf_set_name + "/";
 
 			measure([&] {
-				nomad_169_massless.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, output_folder + "nomad_neutrino_169.csv");
-				nomad_225_massless.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, output_folder + "nomad_neutrino_225.csv");
+				nomad_169_massless.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, output_folder_massless + "nomad_neutrino_169.csv");
+				nomad_225_massless.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, output_folder_massless + "nomad_neutrino_225.csv");
 			});
 		}
 
