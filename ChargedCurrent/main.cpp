@@ -240,16 +240,18 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			Analysis nomad_225_massless = nomad_errors_225_massless_muon;
 			nomad_225_massless.params.pdf_set = pdf_set_name;
 
-			const std::string output_folder = "Data/SIDIS/MuonPairProduction/CharmedHadrons/" + pdf_set_name + "/";
+			const std::string output_folder = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Integrated/" + pdf_set_name + "/";
 
 			measure([&] {
-				nomad_169.dis().integrated(AnalysisSet::NOMAD, output_folder + "Integrated/nomad_neutrino_169.csv");
-				nomad_225.dis().integrated(AnalysisSet::NOMAD, output_folder + "Integrated/nomad_neutrino_225.csv");
+				nomad_169.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, output_folder + "nomad_neutrino_169.csv");
+				nomad_225.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, output_folder + "nomad_neutrino_225.csv");
 			});
 
+			const std::string output_folder_massless = "Data/SIDIS/MuonPairProduction/CharmedHadrons/IntegratedMassless/" + pdf_set_name + "/";
+
 			measure([&] {
-				nomad_169_massless.dis().integrated(AnalysisSet::NOMAD, output_folder + "IntegratedMassless/nomad_neutrino_169.csv");
-				nomad_225_massless.dis().integrated(AnalysisSet::NOMAD, output_folder + "IntegratedMassless/nomad_neutrino_225.csv");
+				nomad_169_massless.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, output_folder_massless + "nomad_neutrino_169.csv");
+				nomad_225_massless.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, output_folder_massless + "nomad_neutrino_225.csv");
 			});
 		}
 
@@ -275,16 +277,18 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			Analysis nomad_225_massless = nomad_errors_169_zero_limit_massless_muon;
 			nomad_225_massless.params.pdf_set = pdf_set_name;
 
-			const std::string output_folder = "Data/SIDIS/MuonPairProduction/CharmedHadrons/" + pdf_set_name + "/";
+			const std::string output_folder = "Data/SIDIS/MuonPairProduction/CharmedHadrons/IntegratedZeroLimit/" + pdf_set_name + "/";
 
 			measure([&] {
-				nomad_169.dis().integrated(AnalysisSet::NOMAD, output_folder + "IntegratedZeroLimit/nomad_neutrino_169.csv");
-				nomad_225.dis().integrated(AnalysisSet::NOMAD, output_folder + "IntegratedZeroLimit/nomad_neutrino_225.csv");
+				nomad_169.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, output_folder + "nomad_neutrino_169.csv");
+				nomad_225.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, output_folder + "nomad_neutrino_225.csv");
 			});
+			
+			const std::string output_folder_massless = "Data/SIDIS/MuonPairProduction/CharmedHadrons/IntegratedZeroLimitMassless/" + pdf_set_name + "/";
 
 			measure([&] {
-				nomad_169_massless.dis().integrated(AnalysisSet::NOMAD, output_folder + "IntegratedZeroLimitMassless/nomad_neutrino_169.csv");
-				nomad_225_massless.dis().integrated(AnalysisSet::NOMAD, output_folder + "IntegratedZeroLimitMassless/nomad_neutrino_225.csv");
+				nomad_169_massless.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, output_folder + "nomad_neutrino_169.csv");
+				nomad_225_massless.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, output_folder + "nomad_neutrino_225.csv");
 			});
 		}
 
