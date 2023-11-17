@@ -65,6 +65,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		0.9, 0.925, 0.95, 0.975, 
 	};
 
+	const std::vector<double> E_beam_bins = Math::linear_space(15.0, 210.0, 5.0);
+
 	const auto bar = []<
 		is_scale_dependence RenormalizationScale, is_scale_dependence FactorizationScale, is_scale_dependence FragmentationScale
 	>(Analysis<RenormalizationScale, FactorizationScale, FragmentationScale> analysis) {
@@ -97,7 +99,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 	const std::vector<double> charm_masses = {0.0, 1.2, 1.3, 1.4, 1.5};
 
-	Analysis base;
+	const auto pdf_frozen_scale = ScaleDependence::Function([](const TRFKinematics &kinematics) {
+		return std::max(1.69 + 1e-6, kinematics.Q2);
+	});
+
+	const auto ff_frozen_scale = ScaleDependence::Function([](const TRFKinematics &kinematics) {
+		return std::max(2.25 + 1e-6, kinematics.Q2);
+	});
+
+	Analysis base(ScaleDependence::trivial, ScaleDependence::trivial, ff_frozen_scale);
 	base.params.charm_mass = 1.3;
 	base.params.scale_variation = ScaleVariation::None;
 	base.params.integration.cuba.maximum_relative_error = 1e-2;
@@ -106,6 +116,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	base.params.number_of_threads = number_of_threads;
 	base.params.use_decay_grid = true;
 	base.params.decay_lepton = Constants::Particles::Muon;
+
+	Analysis frozen_base(ScaleDependence::trivial, pdf_frozen_scale, ff_frozen_scale);
+	frozen_base.params.charm_mass = 1.3;
+	frozen_base.params.scale_variation = ScaleVariation::None;
+	frozen_base.params.integration.cuba.maximum_relative_error = 1e-2;
+	frozen_base.params.order = PerturbativeOrder::NLO;
+	frozen_base.params.process.type = Process::Type::NeutrinoToLepton;
+	frozen_base.params.number_of_threads = number_of_threads;
+	frozen_base.params.use_decay_grid = true;
+	frozen_base.params.decay_lepton = Constants::Particles::Muon;
 
 	Analysis nlo = base;
 
@@ -122,6 +142,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	Analysis epps_errors = base;
 	epps_errors.params.pdf_error_sets = true;
 
+	Analysis frozen_errors = frozen_base;
+	frozen_errors.params.pdf_error_sets = true;
+
+	Analysis nomad_errors_100 = frozen_errors;
+	nomad_errors_100.params.Q2_min = 1.00;
+	nomad_errors_100.params.minimum_lepton_momentum = 3.0;
+	nomad_errors_100.params.primary_muon_min_energy = 3.0;
+	nomad_errors_100.params.hadronic_min_energy = 3.0;
+
 	Analysis nomad_errors_169 = epps_errors;
 	nomad_errors_169.params.Q2_min = 1.69;
 	nomad_errors_169.params.minimum_lepton_momentum = 3.0;
@@ -131,11 +160,19 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	Analysis nomad_errors_225 = nomad_errors_169;
 	nomad_errors_225.params.Q2_min = 2.25;
 
+	Analysis nomad_errors_100_massless_muon = nomad_errors_100;
+	nomad_errors_100_massless_muon.params.decay_lepton = Constants::Particles::MasslessMuon;
+
 	Analysis nomad_errors_169_massless_muon = nomad_errors_169;
 	nomad_errors_169_massless_muon.params.decay_lepton = Constants::Particles::MasslessMuon;
 
 	Analysis nomad_errors_225_massless_muon = nomad_errors_225;
 	nomad_errors_225_massless_muon.params.decay_lepton = Constants::Particles::MasslessMuon;
+
+	Analysis nomad_errors_100_zero_limit = nomad_errors_100;
+	nomad_errors_100_zero_limit.params.minimum_lepton_momentum = Constants::Particles::Muon.mass;
+	nomad_errors_100_zero_limit.params.primary_muon_min_energy = Constants::Particles::Muon.mass;
+	nomad_errors_100_zero_limit.params.hadronic_min_energy = 0.0;
 
 	Analysis nomad_errors_169_zero_limit = nomad_errors_169;
 	nomad_errors_169_zero_limit.params.minimum_lepton_momentum = Constants::Particles::Muon.mass;
@@ -146,6 +183,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	nomad_errors_225_zero_limit.params.minimum_lepton_momentum = Constants::Particles::Muon.mass;
 	nomad_errors_225_zero_limit.params.primary_muon_min_energy = Constants::Particles::Muon.mass;
 	nomad_errors_225_zero_limit.params.hadronic_min_energy = 0.0;
+
+	Analysis nomad_errors_100_zero_limit_massless_muon = nomad_errors_100_zero_limit;
+	nomad_errors_100_zero_limit_massless_muon.params.minimum_lepton_momentum = Constants::Particles::MasslessMuon.mass;
+	nomad_errors_100_zero_limit_massless_muon.params.primary_muon_min_energy = Constants::Particles::MasslessMuon.mass;
+	nomad_errors_100_zero_limit_massless_muon.params.decay_lepton = Constants::Particles::MasslessMuon;
 
 	Analysis nomad_errors_169_zero_limit_massless_muon = nomad_errors_169_zero_limit;
 	nomad_errors_169_zero_limit_massless_muon.params.minimum_lepton_momentum = Constants::Particles::MasslessMuon.mass;
@@ -193,6 +235,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		for (const auto &pdf_set_name : pdfs) {
 			std::cout << "PDF set: " << pdf_set_name << IO::endl;
 
+			Analysis nomad_100 = nomad_errors_100;
+			nomad_100.params.pdf_set = pdf_set_name;
+
 			Analysis nomad_169 = nomad_errors_169;
 			nomad_169.params.pdf_set = pdf_set_name;
 
@@ -202,8 +247,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			const std::string output_folder = "Data/DIS/TotalProduction/Integrated/" + pdf_set_name + "/";
 
 			measure([&] {
-				nomad_169.dis().integrated(AnalysisSet::NOMAD, output_folder + "nomad_neutrino_169.csv");
-				nomad_225.dis().integrated(AnalysisSet::NOMAD, output_folder + "nomad_neutrino_225.csv");
+				nomad_100.dis().integrated(E_beam_bins, output_folder + "nomad_neutrino_100.csv");
+				nomad_169.dis().integrated(E_beam_bins, output_folder + "nomad_neutrino_169.csv");
+				nomad_225.dis().integrated(E_beam_bins, output_folder + "nomad_neutrino_225.csv");
 			});
 		}
 
@@ -214,8 +260,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << "==== DIS integrated inclusive charm ====" << IO::endl;
 
 		measure([&] {
-			nomad_errors_169.dis().integrated_charm_production(AnalysisSet::NOMAD, "Data/DIS/CharmProduction/Integrated/nomad_neutrino_169.csv");
-			nomad_errors_225.dis().integrated_charm_production(AnalysisSet::NOMAD, "Data/DIS/CharmProduction/Integrated/nomad_neutrino_225.csv");
+			nomad_errors_169.dis().integrated_charm_production(E_beam_bins, "Data/DIS/CharmProduction/Integrated/nomad_neutrino_169.csv");
+			nomad_errors_225.dis().integrated_charm_production(E_beam_bins, "Data/DIS/CharmProduction/Integrated/nomad_neutrino_225.csv");
 		});
 
 		std::cout << separator << IO::endl;
@@ -227,12 +273,18 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		for (const auto &pdf_set_name : pdfs) {
 			std::cout << "PDF set: " << pdf_set_name << IO::endl;
 
+			Analysis nomad_100 = nomad_errors_100;
+			nomad_100.params.pdf_set = pdf_set_name;
+
 			Analysis nomad_169 = nomad_errors_169;
 			nomad_169.params.pdf_set = pdf_set_name;
 
 			Analysis nomad_225 = nomad_errors_225;
 			nomad_225.params.pdf_set = pdf_set_name;
 
+
+			Analysis nomad_100_massless = nomad_errors_100_massless_muon;
+			nomad_100_massless.params.pdf_set = pdf_set_name;
 
 			Analysis nomad_169_massless = nomad_errors_169_massless_muon;
 			nomad_169_massless.params.pdf_set = pdf_set_name;
@@ -243,15 +295,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			const std::string output_folder = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Integrated/" + pdf_set_name + "/";
 
 			measure([&] {
-				nomad_169.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, output_folder + "nomad_neutrino_169.csv");
-				nomad_225.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, output_folder + "nomad_neutrino_225.csv");
+				nomad_100.sidis().integrated_muon_pair_production(E_beam_bins, output_folder + "nomad_neutrino_100.csv");
+				nomad_169.sidis().integrated_muon_pair_production(E_beam_bins, output_folder + "nomad_neutrino_169.csv");
+				nomad_225.sidis().integrated_muon_pair_production(E_beam_bins, output_folder + "nomad_neutrino_225.csv");
 			});
 
 			const std::string output_folder_massless = "Data/SIDIS/MuonPairProduction/CharmedHadrons/IntegratedMassless/" + pdf_set_name + "/";
 
 			measure([&] {
-				nomad_169_massless.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, output_folder_massless + "nomad_neutrino_169.csv");
-				nomad_225_massless.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, output_folder_massless + "nomad_neutrino_225.csv");
+				nomad_100_massless.sidis().integrated_muon_pair_production(E_beam_bins, output_folder_massless + "nomad_neutrino_100.csv");
+				nomad_169_massless.sidis().integrated_muon_pair_production(E_beam_bins, output_folder_massless + "nomad_neutrino_169.csv");
+				nomad_225_massless.sidis().integrated_muon_pair_production(E_beam_bins, output_folder_massless + "nomad_neutrino_225.csv");
 			});
 		}
 
@@ -264,12 +318,18 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		for (const auto &pdf_set_name : pdfs) {
 			std::cout << "PDF set: " << pdf_set_name << IO::endl;
 
+			Analysis nomad_100 = nomad_errors_100_zero_limit;
+			nomad_100.params.pdf_set = pdf_set_name;
+
 			Analysis nomad_169 = nomad_errors_169_zero_limit;
 			nomad_169.params.pdf_set = pdf_set_name;
 
 			Analysis nomad_225 = nomad_errors_225_zero_limit;
 			nomad_225.params.pdf_set = pdf_set_name;
 
+
+			Analysis nomad_100_massless = nomad_errors_100_zero_limit_massless_muon;
+			nomad_100_massless.params.pdf_set = pdf_set_name;
 
 			Analysis nomad_169_massless = nomad_errors_169_zero_limit_massless_muon;
 			nomad_169_massless.params.pdf_set = pdf_set_name;
@@ -280,15 +340,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			const std::string output_folder = "Data/SIDIS/MuonPairProduction/CharmedHadrons/IntegratedZeroLimit/" + pdf_set_name + "/";
 
 			measure([&] {
-				nomad_169.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, output_folder + "nomad_neutrino_169.csv");
-				nomad_225.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, output_folder + "nomad_neutrino_225.csv");
+				nomad_100.sidis().integrated_muon_pair_production(E_beam_bins, output_folder + "nomad_neutrino_100.csv");
+				nomad_169.sidis().integrated_muon_pair_production(E_beam_bins, output_folder + "nomad_neutrino_169.csv");
+				nomad_225.sidis().integrated_muon_pair_production(E_beam_bins, output_folder + "nomad_neutrino_225.csv");
 			});
 			
 			const std::string output_folder_massless = "Data/SIDIS/MuonPairProduction/CharmedHadrons/IntegratedZeroLimitMassless/" + pdf_set_name + "/";
 
 			measure([&] {
-				nomad_169_massless.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, output_folder_massless + "nomad_neutrino_169.csv");
-				nomad_225_massless.sidis().integrated_muon_pair_production(AnalysisSet::NOMAD, output_folder_massless + "nomad_neutrino_225.csv");
+				nomad_100_massless.sidis().integrated_muon_pair_production(E_beam_bins, output_folder_massless + "nomad_neutrino_100.csv");
+				nomad_169_massless.sidis().integrated_muon_pair_production(E_beam_bins, output_folder_massless + "nomad_neutrino_169.csv");
+				nomad_225_massless.sidis().integrated_muon_pair_production(E_beam_bins, output_folder_massless + "nomad_neutrino_225.csv");
 			});
 		}
 

@@ -527,6 +527,8 @@ struct SIDIS {
 		const std::filesystem::path output, 
 		const std::string comment = "") {
 
+		if (scale_variation != ScaleVariation::None) { return integrated_lepton_pair_cross_section_scale_variations(E_beam_bins, Q2_min, output, comment); }
+
 		const std::size_t E_beam_step_count = E_beam_bins.size();
 		const std::size_t total_count = E_beam_step_count;
 
@@ -755,6 +757,103 @@ struct SIDIS {
 
 							}
 						}
+					}
+				}
+			}
+			file.close();
+		}
+		std::cout << std::setprecision(static_cast<int>(original_precision)) << IO::endl;
+	}
+
+	void integrated_lepton_pair_cross_section_scale_variations(
+		const std::vector<double> E_beam_bins,
+		const double Q2_min,
+		const std::filesystem::path base_output, 
+		const std::string comment = "") requires is_pdf_interface<PDFInterface> {
+
+		const std::size_t E_beam_step_count = E_beam_bins.size();
+
+		int calculated_values = 0;
+
+		const std::vector<double> scale_factors{0.25, 1.0, 4.0};
+		std::vector<std::vector<double>> scales = Collections::tuples(scale_factors, 3);
+
+		const double min_scale = *std::min_element(scale_factors.begin(), scale_factors.end());
+		const double max_scale = *std::max_element(scale_factors.begin(), scale_factors.end());
+
+		std::erase_if(scales, [=, this](const std::vector<double> tuple) {
+			const double renormalization = tuple[0];
+			const double factorization = tuple[1];
+			const double fragmentation = tuple[2];
+
+			const bool factorization_condition = min_scale <= factorization / renormalization && max_scale >= factorization / renormalization;
+			const bool fragmentation_condition = min_scale <= fragmentation / renormalization && max_scale >= fragmentation / renormalization;
+
+			switch (scale_variation) {
+			case ScaleVariation::None:
+				return !(renormalization == 1.0 && factorization == 1.0 && fragmentation == 1.0);			
+			case ScaleVariation::All:
+				return !(factorization_condition && fragmentation_condition);
+			case ScaleVariation::RenormalizationFactorization:
+				return !(factorization_condition && factorization == fragmentation);
+			default: return true;
+			}
+		});
+
+		const std::size_t scale_count = scales.size();
+
+		const std::size_t total_count = scale_count * E_beam_step_count;
+
+		std::streamsize original_precision = std::cout.precision();
+
+		for (std::size_t scale_index = 0; scale_index < scale_count; scale_index++) {
+			const std::vector<double> scale = scales[scale_index];
+			SIDISComputation sidis = construct_computation_scale_variation(scale);
+
+			const std::string path_trail = (scale[0] == 1.0 && scale[1] == 1.0 && scale[2] == 1.0) ? "base_scale" : "scale_" + std::to_string(scale_index);
+			std::filesystem::path full_filename = base_output.stem();
+			full_filename /= path_trail;
+			full_filename.replace_extension(base_output.extension());
+			std::filesystem::path output = base_output;
+			output.replace_filename(full_filename);
+
+			IO::create_directory_tree(output);
+			std::ofstream file(output);
+
+			output_run_info(file, sidis, comment);
+			file << "#renormalization_scale = " << scale[0] << IO::endl;
+			file << "#factorization_scale = " << scale[1] << IO::endl;
+			file << "#fragmentation_scale = " << scale[2] << IO::endl;
+
+			file << "E,LO,NLO,NNLO" << IO::endl;
+
+			#pragma omp parallel if(parallelize) num_threads(number_of_threads) firstprivate(sidis)
+			{
+				#pragma omp for
+				for (std::size_t i = 0; i < E_beam_step_count; i++) {
+					const double E_beam = E_beam_bins[i];
+					
+					TRFKinematics placeholder_kinematics = TRFKinematics::y_E_beam(-1.0, -1.0, E_beam, process.target.mass, process.projectile.mass);
+					const PerturbativeQuantity cross_section = sidis.integrated_lepton_pair_cross_section(placeholder_kinematics, Q2_min);
+
+					#pragma omp critical
+					{
+						file << E_beam << ", " << cross_section << IO::endl;
+						file.flush();
+
+						calculated_values++;
+
+						const int base_precision = 5;
+						const int E_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(E_beam)));
+
+						std::cout << std::fixed << std::setprecision(base_precision);
+						std::cout << "[SIDIS] " << IO::leading_zeroes(calculated_values, Math::number_of_digits(total_count));
+						std::cout << " / " << total_count;
+						std::cout << " [" << "scale " << IO::leading_zeroes(scale_index + 1, Math::number_of_digits(scale_count));
+						std::cout << " / " << scale_count << "]";
+						std::cout << ": " << cross_section;
+						std::cout << std::setprecision(E_precision) << " (E_beam = " << E_beam << ")";
+						std::cout << "\r" << std::flush;
 					}
 				}
 			}

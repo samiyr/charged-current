@@ -55,6 +55,8 @@ struct DISAnalysis {
 		dis.primary_muon_min_energy = params.primary_muon_min_energy;
 		dis.hadronic_min_energy = params.hadronic_min_energy;
 
+		dis.freeze_factorization_scale = params.freeze_factorization;
+
 		if constexpr (is_pdf_interface<PDFInterface>) {
 			dis.differential_cross_section_xy(x_bins, y_bins, E_beam_bins, filename, comment);
 		} else if constexpr (is_instance<PDFInterface, LHASetInterface>) {
@@ -186,6 +188,8 @@ struct DISAnalysis {
 		dis.primary_muon_min_energy = params.primary_muon_min_energy;
 		dis.hadronic_min_energy = params.hadronic_min_energy;
 
+		dis.freeze_factorization_scale = params.freeze_factorization;
+
 		if constexpr (is_pdf_interface<PDFInterface>) {
 			dis.integrated_cross_section(E_beam_bins, Q2_min, filename, comment);
 		} else if constexpr (is_instance<PDFInterface, LHASetInterface>) {
@@ -227,6 +231,10 @@ struct DISAnalysis {
 		integrated(AnalysisConstants::get_E_bins(set, params.process), params.Q2_min, filename, comment);
 	}
 
+	void integrated(const std::vector<double> &E_beam_bins, const std::filesystem::path filename, const std::string comment = "") {
+		integrated(E_beam_bins, params.Q2_min, filename, comment);
+	}
+
 	template <typename PDFInterface, is_scale_dependence Renormalization, is_scale_dependence Factorization>
 	void integrated_charm_production(
 		const std::vector<double> E_beam_bins,
@@ -253,6 +261,8 @@ struct DISAnalysis {
 
 		dis.primary_muon_min_energy = params.primary_muon_min_energy;
 		dis.hadronic_min_energy = params.hadronic_min_energy;
+
+		dis.freeze_factorization_scale = params.freeze_factorization;
 
 		if constexpr (is_pdf_interface<PDFInterface>) {
 			dis.integrated_cross_section(E_beam_bins, Q2_min, filename, comment);
@@ -293,6 +303,10 @@ struct DISAnalysis {
 
 	void integrated_charm_production(const AnalysisSet set, const std::filesystem::path filename, const std::string comment = "") {
 		integrated_charm_production(AnalysisConstants::get_E_bins(set, params.process), params.Q2_min, filename, comment);
+	}
+	
+	void integrated_charm_production(const std::vector<double> &E_beam_bins, const std::filesystem::path filename, const std::string comment = "") {
+		integrated_charm_production(E_beam_bins, params.Q2_min, filename, comment);
 	}
 };
 

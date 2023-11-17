@@ -318,6 +318,10 @@ struct SIDISAnalysis {
 	void integrated_muon_pair_production(const AnalysisSet set, const std::filesystem::path filename, const std::string comment = "") {
 		return integrated_muon_pair_production(AnalysisConstants::get_E_bins(set, params.process), params.Q2_min, filename, comment);
 	}
+	
+	void integrated_muon_pair_production(const std::vector<double> &E_beam_bins, const std::filesystem::path filename, const std::string comment = "") {
+		return integrated_muon_pair_production(E_beam_bins, params.Q2_min, filename, comment);
+	}
 
 	/*
 		FLAVOR CHANNEL DECOMPOSITION

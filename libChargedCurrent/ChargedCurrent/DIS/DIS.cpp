@@ -58,6 +58,14 @@ struct DIS {
 	// Enforced only in the integrated cross section.
 	double hadronic_min_energy = 0.0;
 
+	// If enabled, factorization scale will be frozen to the smallest value determined by the PDF.
+	// Requesting the value of the PDF at a smaller Q^2 value will then give the value with the smallest
+	// allowed Q^2 instead. Additionally, scale logarithms will be frozen as well. In essence,
+	// f(x, Q^2 < Q^2_min) = f(x, Q^2_min) and the same for scale logarithms.
+	bool freeze_factorization_scale = false;
+
+	bool scale_variation = false;
+
 	DIS(
 		const FlavorVector _active_flavors,
 		const PDFInterface _pdf,
@@ -89,7 +97,7 @@ struct DIS {
 
 	template <is_pdf_interface PDF>
 	auto construct_computation(const PDF pdf_member) const requires has_pdf_error_sets {
-		DISComputation sidis(
+		DISComputation dis(
 			global_sqrt_s, active_flavors, 
 			{
 				top_mass, bottom_mass, charm_mass, strange_mass, up_mass, down_mass, 0.0, down_mass, up_mass, strange_mass, charm_mass, bottom_mass, top_mass
@@ -101,7 +109,29 @@ struct DIS {
 			use_modified_cross_section_prefactor,
 			primary_muon_min_energy, hadronic_min_energy
 		);
-		return sidis;
+		return dis;
+	}
+
+	auto construct_computation_scale_variation(const std::vector<double> scales) const requires is_pdf_interface<PDFInterface> {
+		const double pdf_Q2_min = freeze_factorization_scale ? pdf.Q2_min() : std::numeric_limits<double>::min();
+		const double pdf_Q2_max = freeze_factorization_scale ? pdf.Q2_max() : std::numeric_limits<double>::max();
+
+		const auto renormalization = ScaleDependence::multiplicative(scales[0]);
+		const auto factorization = ScaleDependence::clamped_multiplicative(scales[1], pdf_Q2_min, pdf_Q2_max);
+
+		DISComputation dis(
+			global_sqrt_s, active_flavors, 
+			{
+				top_mass, bottom_mass, charm_mass, strange_mass, up_mass, down_mass, 0.0, down_mass, up_mass, strange_mass, charm_mass, bottom_mass, top_mass
+			}, 
+			pdf,
+			integration_parameters,
+			process, 
+			momentum_fraction_mass_corrections, renormalization, factorization,
+			use_modified_cross_section_prefactor,
+			primary_muon_min_energy, hadronic_min_energy
+		);
+		return dis;
 	}
 
 	void output_run_info(std::ofstream &file, const std::string comment) {
@@ -260,6 +290,8 @@ struct DIS {
 		const double Q2_min,
 		const std::filesystem::path output, 
 		const std::string comment = "") {
+
+		if (scale_variation) { return integrated_cross_section_scale_variations(E_beam_bins, Q2_min, output, comment); }
 
 		const std::size_t E_beam_step_count = E_beam_bins.size();
 		const std::size_t total_count = E_beam_step_count;
@@ -454,6 +486,88 @@ struct DIS {
 						std::cout << " / " << total_count;
 						std::cout << " [" << "pdf member " << IO::leading_zeroes(member_index + 1, Math::number_of_digits(member_count));
 						std::cout << " / " << member_count << "]";
+						std::cout << ": " << cross_section;
+						std::cout << std::setprecision(E_precision) << " (E_beam = " << E_beam << ")";
+						std::cout << "\r" << std::flush;
+					}
+				}
+			}
+			file.close();
+		}
+		std::cout << std::setprecision(static_cast<int>(original_precision)) << IO::endl;
+	}
+
+	private:
+	void integrated_cross_section_scale_variations(
+		const std::vector<double> E_beam_bins,
+		const double Q2_min,
+		const std::filesystem::path base_output, 
+		const std::string comment = "") {
+
+		const std::vector<std::vector<double>> scales = {
+			{0.25, 0.25},
+			{0.25, 1.0},
+			{1.0, 0.25},
+			{1.0, 1.0},
+			{1.0, 4.0},
+			{4.0, 1.0},
+			{4.0, 4.0}
+		};
+
+		const std::size_t scale_count = scales.size();
+
+		const std::size_t E_beam_step_count = E_beam_bins.size();
+
+		const std::size_t total_count = scale_count * E_beam_step_count;
+
+		int calculated_values = 0;
+
+		std::streamsize original_precision = std::cout.precision();
+
+		for (std::size_t scale_index = 0; scale_index < scale_count; scale_index++) {
+			const std::vector<double> scale = scales[scale_index];
+			DISComputation dis = construct_computation_scale_variation(scale);
+
+			const std::string path_trail = (scale[0] == 1.0 && scale[1] == 1.0 && scale[2] == 1.0) ? "base_scale" : "scale_" + std::to_string(scale_index);
+			std::filesystem::path full_filename = base_output.stem();
+			full_filename /= path_trail;
+			full_filename.replace_extension(base_output.extension());
+			std::filesystem::path output = base_output;
+			output.replace_filename(full_filename);
+
+			IO::create_directory_tree(output);
+			std::ofstream file(output);
+
+			output_run_info(file, comment);
+			file << "#renormalization_scale = " << scale[0] << IO::endl;
+			file << "#factorization_scale = " << scale[1] << IO::endl;
+
+			file << "E,LO,NLO,NNLO" << IO::endl;
+
+			#pragma omp parallel if(parallelize) num_threads(number_of_threads) firstprivate(dis)
+			{
+				#pragma omp for
+				for (std::size_t i = 0; i < E_beam_step_count; i++) {
+					const double E_beam = E_beam_bins[i];
+					
+					TRFKinematics placeholder_kinematics = TRFKinematics::y_E_beam(-1.0, -1.0, E_beam, process.target.mass, process.projectile.mass);
+					const PerturbativeQuantity cross_section = dis.integrated_cross_section(placeholder_kinematics, Q2_min);
+
+					#pragma omp critical
+					{
+						file << E_beam << ", " << cross_section << IO::endl;
+						file.flush();
+
+						calculated_values++;
+
+						const int base_precision = 5;
+						const int E_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(E_beam)));
+
+						std::cout << std::fixed << std::setprecision(base_precision);
+						std::cout << "[DIS] " << IO::leading_zeroes(calculated_values, Math::number_of_digits(total_count));
+						std::cout << " / " << total_count;
+						std::cout << " [" << "scale " << IO::leading_zeroes(scale_index + 1, Math::number_of_digits(scale_count));
+						std::cout << " / " << scale_count << "]";
 						std::cout << ": " << cross_section;
 						std::cout << std::setprecision(E_precision) << " (E_beam = " << E_beam << ")";
 						std::cout << "\r" << std::flush;
