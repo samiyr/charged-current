@@ -57,6 +57,8 @@ struct DISAnalysis {
 
 		dis.freeze_factorization_scale = params.freeze_factorization;
 
+		dis.scale_variation = params.scale_variation != ScaleVariation::None;
+
 		if constexpr (is_pdf_interface<PDFInterface>) {
 			dis.differential_cross_section_xy(x_bins, y_bins, E_beam_bins, filename, comment);
 		} else if constexpr (is_instance<PDFInterface, LHASetInterface>) {
@@ -190,6 +192,8 @@ struct DISAnalysis {
 
 		dis.freeze_factorization_scale = params.freeze_factorization;
 
+		dis.scale_variation = params.scale_variation != ScaleVariation::None;
+
 		if constexpr (is_pdf_interface<PDFInterface>) {
 			dis.integrated_cross_section(E_beam_bins, Q2_min, filename, comment);
 		} else if constexpr (is_instance<PDFInterface, LHASetInterface>) {
@@ -263,6 +267,8 @@ struct DISAnalysis {
 		dis.hadronic_min_energy = params.hadronic_min_energy;
 
 		dis.freeze_factorization_scale = params.freeze_factorization;
+
+		dis.scale_variation = params.scale_variation != ScaleVariation::None;
 
 		if constexpr (is_pdf_interface<PDFInterface>) {
 			dis.integrated_cross_section(E_beam_bins, Q2_min, filename, comment);

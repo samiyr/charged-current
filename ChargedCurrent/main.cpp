@@ -86,10 +86,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << "Took " << elapsed.count() << " seconds" << IO::endl;
     };
 
+	const std::string epps_set = "EPPS21nlo_CT18Anlo_Fe56";
+	const std::string ncteq_set = "nCTEQ15HQ_FullNuc_56_26";
+	const std::string nnnpdf_set = "nNNPDF30_nlo_as_0118_A56_Z26";
+
 	const std::vector<std::string> pdfs = {
-		"EPPS21nlo_CT18Anlo_Fe56",
-		"nCTEQ15HQ_FullNuc_56_26",
-		"nNNPDF30_nlo_as_0118_A56_Z26"
+		epps_set, ncteq_set, nnnpdf_set
 	};
 	const std::vector<std::string> free_pdfs = {
 		"CT18ANLO",
@@ -256,6 +258,39 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << separator << IO::endl;
 	}
 
+	if (run("disintegratedscale")) {
+		std::cout << "==== DIS integrated inclusive scale ====" << IO::endl;
+		
+		for (const auto &pdf_set_name : pdfs) {
+			std::cout << "PDF set: " << pdf_set_name << IO::endl;
+
+			Analysis nomad_100 = nomad_errors_100;
+			nomad_100.params.pdf_set = pdf_set_name;
+			nomad_100.params.pdf_error_sets = false;
+			nomad_100.params.scale_variation = ScaleVariation::RenormalizationFactorization;
+
+			Analysis nomad_169 = nomad_errors_169;
+			nomad_169.params.pdf_set = pdf_set_name;
+			nomad_169.params.pdf_error_sets = false;
+			nomad_169.params.scale_variation = ScaleVariation::RenormalizationFactorization;
+
+			Analysis nomad_225 = nomad_errors_225;
+			nomad_225.params.pdf_set = pdf_set_name;
+			nomad_225.params.pdf_error_sets = false;
+			nomad_225.params.scale_variation = ScaleVariation::RenormalizationFactorization;
+
+			const std::string output_folder = "Data/DIS/TotalProduction/Integrated/Scale/" + pdf_set_name + "/";
+
+			measure([&] {
+				nomad_100.dis().integrated(E_beam_bins, output_folder + "nomad_neutrino_100.csv");
+				nomad_169.dis().integrated(E_beam_bins, output_folder + "nomad_neutrino_169.csv");
+				nomad_225.dis().integrated(E_beam_bins, output_folder + "nomad_neutrino_225.csv");
+			});
+		}
+
+		std::cout << separator << IO::endl;
+	}
+
 	if (run("disintegratedcharm")) {
 		std::cout << "==== DIS integrated inclusive charm ====" << IO::endl;
 
@@ -346,6 +381,63 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			});
 			
 			const std::string output_folder_massless = "Data/SIDIS/MuonPairProduction/CharmedHadrons/IntegratedZeroLimitMassless/" + pdf_set_name + "/";
+
+			measure([&] {
+				nomad_100_massless.sidis().integrated_muon_pair_production(E_beam_bins, output_folder_massless + "nomad_neutrino_100.csv");
+				nomad_169_massless.sidis().integrated_muon_pair_production(E_beam_bins, output_folder_massless + "nomad_neutrino_169.csv");
+				nomad_225_massless.sidis().integrated_muon_pair_production(E_beam_bins, output_folder_massless + "nomad_neutrino_225.csv");
+			});
+		}
+
+		std::cout << separator << IO::endl;
+	}
+
+	if (run("sidisintegratedzerolimitscale")) {
+		std::cout << "=== SIDIS integrated inclusive scale ===" << IO::endl;
+		
+		for (const auto &pdf_set_name : pdfs) {
+			std::cout << "PDF set: " << pdf_set_name << IO::endl;
+
+			Analysis nomad_100 = nomad_errors_100_zero_limit;
+			nomad_100.params.pdf_set = pdf_set_name;
+			nomad_100.params.pdf_error_sets = false;
+			nomad_100.params.scale_variation = ScaleVariation::RenormalizationFactorization;
+
+			Analysis nomad_169 = nomad_errors_169_zero_limit;
+			nomad_169.params.pdf_set = pdf_set_name;
+			nomad_169.params.pdf_error_sets = false;
+			nomad_169.params.scale_variation = ScaleVariation::RenormalizationFactorization;
+
+			Analysis nomad_225 = nomad_errors_225_zero_limit;
+			nomad_225.params.pdf_set = pdf_set_name;
+			nomad_225.params.pdf_error_sets = false;
+			nomad_225.params.scale_variation = ScaleVariation::RenormalizationFactorization;
+
+
+			Analysis nomad_100_massless = nomad_errors_100_zero_limit_massless_muon;
+			nomad_100_massless.params.pdf_set = pdf_set_name;
+			nomad_100_massless.params.pdf_error_sets = false;
+			nomad_100_massless.params.scale_variation = ScaleVariation::RenormalizationFactorization;
+
+			Analysis nomad_169_massless = nomad_errors_169_zero_limit_massless_muon;
+			nomad_169_massless.params.pdf_set = pdf_set_name;
+			nomad_169_massless.params.pdf_error_sets = false;
+			nomad_169_massless.params.scale_variation = ScaleVariation::RenormalizationFactorization;
+
+			Analysis nomad_225_massless = nomad_errors_169_zero_limit_massless_muon;
+			nomad_225_massless.params.pdf_set = pdf_set_name;
+			nomad_225_massless.params.pdf_error_sets = false;
+			nomad_225_massless.params.scale_variation = ScaleVariation::RenormalizationFactorization;
+
+			const std::string output_folder = "Data/SIDIS/MuonPairProduction/CharmedHadrons/IntegratedZeroLimit/Scale/" + pdf_set_name + "/";
+
+			measure([&] {
+				nomad_100.sidis().integrated_muon_pair_production(E_beam_bins, output_folder + "nomad_neutrino_100.csv");
+				nomad_169.sidis().integrated_muon_pair_production(E_beam_bins, output_folder + "nomad_neutrino_169.csv");
+				nomad_225.sidis().integrated_muon_pair_production(E_beam_bins, output_folder + "nomad_neutrino_225.csv");
+			});
+			
+			const std::string output_folder_massless = "Data/SIDIS/MuonPairProduction/CharmedHadrons/IntegratedZeroLimitMassless/Scale/" + pdf_set_name + "/";
 
 			measure([&] {
 				nomad_100_massless.sidis().integrated_muon_pair_production(E_beam_bins, output_folder_massless + "nomad_neutrino_100.csv");
