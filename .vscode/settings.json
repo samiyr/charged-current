@@ -101,6 +101,7 @@
 		"simd": "cpp",
 		"any": "cpp",
 		"ranges": "cpp",
-		"stdfloat": "cpp"
+		"stdfloat": "cpp",
+		"execution": "cpp"
 	}
 }

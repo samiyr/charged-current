@@ -528,7 +528,7 @@ struct DIS {
 			const std::vector<double> scale = scales[scale_index];
 			DISComputation dis = construct_computation_scale_variation(scale);
 
-			const std::string path_trail = (scale[0] == 1.0 && scale[1] == 1.0 && scale[2] == 1.0) ? "base_scale" : "scale_" + std::to_string(scale_index);
+			const std::string path_trail = (scale[0] == 1.0 && scale[1] == 1.0) ? "base_scale" : "scale_" + std::to_string(scale_index);
 			std::filesystem::path full_filename = base_output.stem();
 			full_filename /= path_trail;
 			full_filename.replace_extension(base_output.extension());

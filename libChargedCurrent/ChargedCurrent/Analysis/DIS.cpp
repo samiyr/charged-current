@@ -143,6 +143,122 @@ struct DISAnalysis {
 		charm_production(set, x_bins, filename, comment, renormalization, factorization);
 	}
 
+	template <typename PDFInterface, is_scale_dependence Renormalization, is_scale_dependence Factorization>
+	void total_production(
+		const std::vector<double> x_bins, 
+		const std::vector<double> y_bins, 
+		const std::vector<double> E_beam_bins, 
+		const std::filesystem::path filename, 
+		const std::string comment,
+		const PDFInterface &pdf,
+		const Renormalization renormalization_scale,
+		const Factorization factorization_scale
+		) {
+		DIS dis(
+			{Flavor::Up, Flavor::Down, Flavor::Charm, Flavor::Strange, Flavor::Bottom},
+			pdf,
+			params.process,
+			renormalization_scale, factorization_scale
+		);
+
+		dis.use_modified_cross_section_prefactor = true;
+
+		dis.charm_mass = params.charm_mass;
+
+		dis.parallelize = params.parallelize;
+		dis.number_of_threads = params.number_of_threads;
+
+		dis.primary_muon_min_energy = params.primary_muon_min_energy;
+		dis.hadronic_min_energy = params.hadronic_min_energy;
+
+		dis.freeze_factorization_scale = params.freeze_factorization;
+
+		dis.scale_variation = params.scale_variation != ScaleVariation::None;
+
+		if constexpr (is_pdf_interface<PDFInterface>) {
+			dis.differential_cross_section_xy(x_bins, y_bins, E_beam_bins, filename, comment);
+		} else if constexpr (is_instance<PDFInterface, LHASetInterface>) {
+			dis.differential_cross_section_xy_error_sets(x_bins, y_bins, E_beam_bins, filename, comment);
+		}
+	}
+
+	void total_production(
+		const std::vector<double> x_bins, 
+		const std::vector<double> y_bins, 
+		const std::vector<double> E_beam_bins, 
+		const std::filesystem::path filename, 
+		const std::string comment = "") {
+
+		const double Z = params.Z;
+		const double A = params.A;
+
+		if (params.pdf_error_sets) {
+			if (params.explicit_isospin) {
+				LHASetInterface<std::true_type> pdf(params.pdf_set);
+				pdf.Z = Z;
+				pdf.A = A;
+				total_production(x_bins, y_bins, E_beam_bins, filename, comment, pdf, renormalization, factorization);
+			} else {
+				total_production(x_bins, y_bins, E_beam_bins, filename, comment, LHASetInterface<std::false_type>(params.pdf_set), renormalization, factorization);
+			}
+		} else {
+			if (params.explicit_isospin) {
+				LHAInterface<std::true_type> pdf(params.pdf_set);
+				pdf.Z = Z;
+				pdf.A = A;
+				total_production(x_bins, y_bins, E_beam_bins, filename, comment, pdf, renormalization, factorization);
+			} else {
+				total_production(x_bins, y_bins, E_beam_bins, filename, comment, LHAInterface<std::false_type>(params.pdf_set), renormalization, factorization);
+			}
+		}
+	}
+
+	template <is_scale_dependence Renormalization = RenormalizationScale, is_scale_dependence Factorization = FactorizationScale>
+	void total_production(
+		const AnalysisSet set, const std::vector<double> x_bins, const std::filesystem::path filename, const std::string comment,
+		const Renormalization renormalization_scale,
+		const Factorization factorization_scale) {
+
+		const double Z = params.Z;
+		const double A = params.A;
+
+		if (params.pdf_error_sets) {
+			if (params.explicit_isospin) {
+				LHASetInterface<std::true_type> pdf(params.pdf_set);
+				pdf.Z = Z;
+				pdf.A = A;
+				total_production(
+					x_bins, AnalysisConstants::get_y_bins(set, params.process), AnalysisConstants::get_E_bins(set, params.process),
+					filename, comment, pdf, renormalization_scale, factorization_scale
+				);
+			} else {
+				total_production(
+					x_bins, AnalysisConstants::get_y_bins(set, params.process), AnalysisConstants::get_E_bins(set, params.process),
+					filename, comment, LHASetInterface<std::false_type>(params.pdf_set), renormalization_scale, factorization_scale
+				);
+			}
+		} else {
+			if (params.explicit_isospin) {
+				LHAInterface<std::true_type> pdf(params.pdf_set);
+				pdf.Z = Z;
+				pdf.A = A;
+				total_production(
+					x_bins, AnalysisConstants::get_y_bins(set, params.process), AnalysisConstants::get_E_bins(set, params.process),
+					filename, comment, pdf, renormalization_scale, factorization_scale
+				);
+			} else {
+				total_production(
+					x_bins, AnalysisConstants::get_y_bins(set, params.process), AnalysisConstants::get_E_bins(set, params.process),
+					filename, comment, LHAInterface<std::false_type>(params.pdf_set), renormalization_scale, factorization_scale
+				);
+			}
+		}
+	}
+
+	void total_production(const AnalysisSet set, const std::vector<double> x_bins, const std::filesystem::path filename, const std::string comment = "") {
+		total_production(set, x_bins, filename, comment, renormalization, factorization);
+	}
+
 	void charm_production_mass_scaling_comparison(
 		const double mass1, const double mass2,
 		const AnalysisSet set, const std::vector<double> x_bins,

@@ -797,6 +797,51 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << separator << IO::endl;
 	}
 
+	if (run("sidisdoubledifferential")) {
+		std::cout << "====== SIDIS double differential =======" << IO::endl;
+		for (const auto &pdf_set_name : pdfs) {
+			std::cout << "PDF set: " << pdf_set_name << IO::endl;
+
+			Analysis analysis = base;
+			analysis.params.pdf_error_sets = false;
+			analysis.params.pdf_set = pdf_set_name;
+
+			const std::string output_folder = "Data/SIDIS/MuonPairProduction/CharmedHadrons/DoubleDifferential/" + pdf_set_name + "/";
+
+			const std::vector<double> y_bins = {1.0};
+			const std::vector<double> E_bins = Math::linear_space(4.0, 100.0, 2.0);
+
+			measure([&] {
+				analysis.sidis().muon_pair_production(x_bins, y_bins, E_bins, output_folder + "neutrino.csv");
+				bar(analysis).sidis().muon_pair_production(x_bins, y_bins, E_bins, output_folder + "antineutrino.csv");
+			});
+		}
+
+		std::cout << separator << IO::endl;
+	}
+	if (run("disdoubledifferential")) {
+		std::cout << "======= DIS double differential ========" << IO::endl;
+		for (const auto &pdf_set_name : pdfs) {
+			std::cout << "PDF set: " << pdf_set_name << IO::endl;
+
+			Analysis analysis = base;
+			analysis.params.pdf_error_sets = false;
+			analysis.params.pdf_set = pdf_set_name;
+
+			const std::string output_folder = "Data/DIS/TotalProduction/DoubleDifferential/" + pdf_set_name + "/";
+
+			const std::vector<double> y_bins = {1.0};
+			const std::vector<double> E_bins = Math::linear_space(4.0, 100.0, 2.0);
+
+			measure([&] {
+				analysis.dis().total_production(x_bins, y_bins, E_bins, output_folder + "neutrino.csv");
+				bar(analysis).dis().total_production(x_bins, y_bins, E_bins, output_folder + "antineutrino.csv");
+			});
+		}
+
+		std::cout << separator << IO::endl;
+	}
+
 	return 0;
 }
 
