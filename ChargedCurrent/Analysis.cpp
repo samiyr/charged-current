@@ -3,19 +3,19 @@
 
 #include <filesystem>
 
-#include "DIS/DIS.cpp"
+#include <ChargedCurrent/DIS/DIS.cpp>
 
-#include "SIDIS/SIDIS.cpp"
+#include <ChargedCurrent/SIDIS/SIDIS.cpp>
 
-#include "PDF/Interfaces/LHAInterface.cpp"
+#include <ChargedCurrent/PDF/Interfaces/LHAInterface.cpp>
 
-#include "Common/Particle.cpp"
-#include "Common/Constants.cpp"
+#include <ChargedCurrent/Common/Particle.cpp>
+#include <ChargedCurrent/Common/Constants.cpp>
 
-#include "Analysis/DIS.cpp"
-#include "Analysis/SIDIS.cpp"
-#include "Analysis/Utility.cpp"
-#include "Analysis/Parameters.cpp"
+#include "DIS.cpp"
+#include "SIDIS.cpp"
+#include "Utility.cpp"
+#include "Parameters.cpp"
 
 template <
 	is_scale_dependence RenormalizationScale = decltype(ScaleDependence::trivial),

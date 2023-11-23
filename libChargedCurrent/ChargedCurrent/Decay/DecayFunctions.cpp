@@ -162,7 +162,7 @@ namespace DecayFunctions {
 		}
 	};
 
-	DecayGrid decay_grid(const std::filesystem::path grid_path) {
+	static inline DecayGrid decay_grid(const std::filesystem::path grid_path) {
 		return DecayGrid(grid_path);
 	}
 }

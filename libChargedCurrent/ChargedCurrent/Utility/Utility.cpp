@@ -20,7 +20,7 @@ namespace IO {
 		return os;
 	}
 
-	bool create_directory_tree(const std::filesystem::path &path) {
+	static inline bool create_directory_tree(const std::filesystem::path &path) {
 		const auto directory = path.parent_path();
 		return std::filesystem::create_directories(directory);
 	}
@@ -121,7 +121,7 @@ namespace Conversion {
 }
 
 namespace Comparison {
-	bool relative_comparison(double x, double y, double epsilon) {
+	static inline bool relative_comparison(double x, double y, double epsilon) {
  	   return std::abs(x - y) <= epsilon * std::max(std::abs(x), std::abs(y));
 	}
 	// bool double_comparison(double a, double b, double tolerance = 1e-5) {
@@ -168,7 +168,7 @@ namespace Comparison {
 }
 
 namespace Utility {
-	void non_aborting_gsl_error_handler(const char *reason, const char *file, int line, int gsl_errno) {
+	static inline void non_aborting_gsl_error_handler(const char *reason, const char *file, int line, int gsl_errno) {
 		std::cout << "gsl error " << gsl_errno << " (" << std::string(file) << ", " << line << "): " << std::string(reason) << IO::endl;
 	}
 
@@ -185,7 +185,7 @@ namespace Utility {
 		~Traced() = default;
 	};
 
-	unsigned int get_default_thread_count() {
+	static inline unsigned int get_default_thread_count() {
 		const unsigned int hardware = std::thread::hardware_concurrency();
 		return std::max(1U, hardware);
 	}

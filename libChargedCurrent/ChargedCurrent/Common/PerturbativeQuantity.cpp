@@ -19,42 +19,42 @@ struct PerturbativeQuantity {
 	}
 };
 
-const PerturbativeQuantity operator+(const PerturbativeQuantity lhs, const PerturbativeQuantity& rhs) {
+static inline const PerturbativeQuantity operator+(const PerturbativeQuantity lhs, const PerturbativeQuantity& rhs) {
 	return PerturbativeQuantity {lhs.lo + rhs.lo, lhs.nlo + rhs.nlo, lhs.nnlo + rhs.nnlo};
 }
-const PerturbativeQuantity operator-(const PerturbativeQuantity lhs, const PerturbativeQuantity& rhs) {
+static inline const PerturbativeQuantity operator-(const PerturbativeQuantity lhs, const PerturbativeQuantity& rhs) {
 	return PerturbativeQuantity {lhs.lo - rhs.lo, lhs.nlo - rhs.nlo, lhs.nnlo - rhs.nnlo};
 }
-const PerturbativeQuantity operator*(const PerturbativeQuantity lhs, const PerturbativeQuantity& rhs) {
+static inline const PerturbativeQuantity operator*(const PerturbativeQuantity lhs, const PerturbativeQuantity& rhs) {
 	return PerturbativeQuantity {lhs.lo * rhs.lo, lhs.nlo * rhs.nlo, lhs.nnlo * rhs.nnlo};
 }
-const PerturbativeQuantity operator/(const PerturbativeQuantity lhs, const PerturbativeQuantity& rhs) {
+static inline const PerturbativeQuantity operator/(const PerturbativeQuantity lhs, const PerturbativeQuantity& rhs) {
 	return PerturbativeQuantity {lhs.lo / rhs.lo, lhs.nlo / rhs.nlo, lhs.nnlo / rhs.nnlo};
 }
 
-const PerturbativeQuantity operator+(const double lhs, const PerturbativeQuantity& rhs) {
+static inline const PerturbativeQuantity operator+(const double lhs, const PerturbativeQuantity& rhs) {
 	return PerturbativeQuantity {lhs + rhs.lo, lhs + rhs.nlo, lhs + rhs.nnlo};
 }
-const PerturbativeQuantity operator-(const double lhs, const PerturbativeQuantity& rhs) {
+static inline const PerturbativeQuantity operator-(const double lhs, const PerturbativeQuantity& rhs) {
 	return PerturbativeQuantity {lhs - rhs.lo, lhs - rhs.nlo, lhs - rhs.nnlo};
 }
-const PerturbativeQuantity operator*(const double lhs, const PerturbativeQuantity& rhs) {
+static inline const PerturbativeQuantity operator*(const double lhs, const PerturbativeQuantity& rhs) {
 	return PerturbativeQuantity {lhs * rhs.lo, lhs * rhs.nlo, lhs * rhs.nnlo};
 }
-const PerturbativeQuantity operator/(const double lhs, const PerturbativeQuantity& rhs) {
+static inline const PerturbativeQuantity operator/(const double lhs, const PerturbativeQuantity& rhs) {
 	return PerturbativeQuantity {lhs / rhs.lo, lhs / rhs.nlo, lhs / rhs.nnlo};
 }
 
-const PerturbativeQuantity operator+(const PerturbativeQuantity lhs, const double& rhs) {
+static inline const PerturbativeQuantity operator+(const PerturbativeQuantity lhs, const double& rhs) {
 	return PerturbativeQuantity {lhs.lo + rhs, lhs.nlo + rhs, lhs.nnlo + rhs};
 }
-const PerturbativeQuantity operator-(const PerturbativeQuantity lhs, const double& rhs) {
+static inline const PerturbativeQuantity operator-(const PerturbativeQuantity lhs, const double& rhs) {
 	return PerturbativeQuantity {lhs.lo - rhs, lhs.nlo - rhs, lhs.nnlo - rhs};
 }
-const PerturbativeQuantity operator*(const PerturbativeQuantity lhs, const double& rhs) {
+static inline const PerturbativeQuantity operator*(const PerturbativeQuantity lhs, const double& rhs) {
 	return PerturbativeQuantity {lhs.lo * rhs, lhs.nlo * rhs, lhs.nnlo * rhs};
 }
-const PerturbativeQuantity operator/(const PerturbativeQuantity lhs, const double& rhs) {
+static inline const PerturbativeQuantity operator/(const PerturbativeQuantity lhs, const double& rhs) {
 	return PerturbativeQuantity {lhs.lo / rhs, lhs.nlo / rhs, lhs.nnlo / rhs};
 }
 

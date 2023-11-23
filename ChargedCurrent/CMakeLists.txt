@@ -1,5 +1,5 @@
 # Source files
-set(SOURCE_FILES main.cpp)
+set(SOURCE_FILES Analysis.cpp Constants.cpp DIS.cpp main.cpp Parameters.cpp SIDIS.cpp Utility.cpp)
 
 # Executable
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..)

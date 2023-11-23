@@ -3,19 +3,19 @@
 
 #include <vector>
 
-#include "Analysis/Parameters.cpp"
-#include "Analysis/Constants.cpp"
+#include "Parameters.cpp"
+#include "Constants.cpp"
 
-#include "Common/Flavor.cpp"
-#include "Common/Constants.cpp"
-#include "Common/Process.cpp"
+#include <ChargedCurrent/Common/Flavor.cpp>
+#include <ChargedCurrent/Common/Constants.cpp>
+#include <ChargedCurrent/Common/Process.cpp>
 
-#include "PDF/Interfaces/LHAInterface.cpp"
-#include "PDF/Interfaces/LHASetInterface.cpp"
+#include <ChargedCurrent/PDF/Interfaces/LHAInterface.cpp>
+#include <ChargedCurrent/PDF/Interfaces/LHASetInterface.cpp>
 
-#include "SIDIS/SIDIS.cpp"
+#include <ChargedCurrent/SIDIS/SIDIS.cpp>
 
-#include "Interpolation/GridGenerator.cpp"
+#include <ChargedCurrent/Interpolation/GridGenerator.cpp>
 
 template <
 	is_scale_dependence RenormalizationScale,

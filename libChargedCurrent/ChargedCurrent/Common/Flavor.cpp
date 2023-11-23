@@ -79,7 +79,7 @@ namespace Flavor {
 
 	// Reflects a given flavor. Reflecting an upper flavor turns it into a lower flavor and vice versa, while maintaining the flavor/antiflavor signedness.
 	// Does nothing to the gluon.
-	constexpr FlavorType reflect_flavor(const FlavorType flavor) noexcept {
+	static inline constexpr FlavorType reflect_flavor(const FlavorType flavor) noexcept {
 		// If the flavor is an antiflavor, reflect the conjugation (i.e. non-antiflavor) and then conjugate back to an antiflavor.
 		if (is_antiflavor(flavor)) {
 			return conjugate_flavor(reflect_flavor(conjugate_flavor(flavor)));
@@ -97,7 +97,7 @@ namespace Flavor {
 		return flavor;
 	}
 	// Reflects a given flavor vector in place, modifying the argument. See Flavor::reflect_flavor.
-	void reflect_flavors(FlavorVector &flavors) noexcept {
+	[[maybe_unused]] static inline void reflect_flavors(FlavorVector &flavors) noexcept {
 		for (FlavorType &flavor : flavors) {
 			flavor = reflect_flavor(flavor);
 		}

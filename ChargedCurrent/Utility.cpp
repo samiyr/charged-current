@@ -8,9 +8,9 @@
 #include <filesystem>
 #include <ranges>
 
-#include "Analysis/Parameters.cpp"
+#include "Parameters.cpp"
 
-#include "PDF/Interfaces/LHASetInterface.cpp"
+#include <ChargedCurrent/PDF/Interfaces/LHASetInterface.cpp>
 
 struct UtilityAnalysis {
 	const AnalysisParameters params;

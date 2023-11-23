@@ -5,14 +5,14 @@
 #include <any>
 #include <filesystem>
 
-#include "Common/Process.cpp"
-#include "Common/Constants.cpp"
-#include "Common/ScaleDependence.cpp"
-#include "Common/PerturbativeQuantity.cpp"
+#include <ChargedCurrent/Common/Process.cpp>
+#include <ChargedCurrent/Common/Constants.cpp>
+#include <ChargedCurrent/Common/ScaleDependence.cpp>
+#include <ChargedCurrent/Common/PerturbativeQuantity.cpp>
 
-#include "Decay/DecayParametrization.cpp"
+#include <ChargedCurrent/Decay/DecayParametrization.cpp>
 
-#include "Integration/IntegrationParameters.cpp"
+#include <ChargedCurrent/Integration/IntegrationParameters.cpp>
 
 struct AnalysisParameters {
 	std::string pdf_set = "EPPS21nlo_CT18Anlo_Fe56";

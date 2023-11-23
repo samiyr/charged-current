@@ -10,9 +10,10 @@
 #include <ChargedCurrent/SIDIS/SIDIS.cpp>
 #include <ChargedCurrent/PDF/Interfaces/LHAInterface.cpp>
 #include <ChargedCurrent/Common/TRFKinematics.cpp>
-#include <ChargedCurrent/Analysis/Analysis.cpp>
 #include <ChargedCurrent/Decay/DecayParametrization.cpp>
 #include <ChargedCurrent/Interpolation/GridGenerator.cpp>
+
+#include "Analysis.cpp"
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	LHAInterface<>::disable_verbosity();
@@ -562,8 +563,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << "========== SIDIS FF variations =========" << IO::endl;
 		
 		const std::vector<std::array<std::string, 4>> ff_variations = {
-			{"kkks08_belle_d0___mas", "kkks08_belle_d+___mas", "bkk05_D3_d_s_nlo", "bkk05_D3_lambda_c_nlo"},
-			{"kkks08_global_d0__mas", "kkks08_global_d+__mas", "bkk05_D3_d_s_nlo", "bkk05_D3_lambda_c_nlo"},
+			{"kkks08_belle_d0_mas", "kkks08_belle_d+_mas", "bkk05_D3_d_s_nlo", "bkk05_D3_lambda_c_nlo"},
+			{"kkks08_global_d0_mas", "kkks08_global_d+_mas", "bkk05_D3_d_s_nlo", "bkk05_D3_lambda_c_nlo"},
 		};
 		const std::vector<std::string> folders = {"Belle", "Global"};
 
