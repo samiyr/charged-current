@@ -767,7 +767,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	if (run("decaygrid")) {
 		std::cout << "============== Decay grid ==============" << IO::endl;
 
-		const std::vector<double> zyE_bins = Math::chebyshev_space(1.0, 300.0, 1'000);
+		const std::vector<double> zyE_bins = Math::linear_space(1.0, 300.0, 1e-2);
 
 		GridGenerator generator(number_of_threads);
 
