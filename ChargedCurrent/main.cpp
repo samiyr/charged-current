@@ -109,7 +109,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		return std::max(2.25 + 1e-6, kinematics.Q2);
 	});
 
-	Analysis base(ScaleDependence::trivial, ScaleDependence::trivial, ff_frozen_scale);
+	Analysis base(ScaleDependence::trivial, pdf_frozen_scale, ff_frozen_scale);
 	base.params.charm_mass = 1.3;
 	base.params.scale_variation = ScaleVariation::None;
 	base.params.integration.cuba.maximum_relative_error = 1e-2;
@@ -118,16 +118,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	base.params.number_of_threads = number_of_threads;
 	base.params.use_decay_grid = true;
 	base.params.decay_lepton = Constants::Particles::Muon;
-
-	Analysis frozen_base(ScaleDependence::trivial, pdf_frozen_scale, ff_frozen_scale);
-	frozen_base.params.charm_mass = 1.3;
-	frozen_base.params.scale_variation = ScaleVariation::None;
-	frozen_base.params.integration.cuba.maximum_relative_error = 1e-2;
-	frozen_base.params.order = PerturbativeOrder::NLO;
-	frozen_base.params.process.type = Process::Type::NeutrinoToLepton;
-	frozen_base.params.number_of_threads = number_of_threads;
-	frozen_base.params.use_decay_grid = true;
-	frozen_base.params.decay_lepton = Constants::Particles::Muon;
 
 	Analysis nlo = base;
 
@@ -144,20 +134,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	Analysis epps_errors = base;
 	epps_errors.params.pdf_error_sets = true;
 
-	Analysis frozen_errors = frozen_base;
-	frozen_errors.params.pdf_error_sets = true;
-
-	Analysis nomad_errors_100 = frozen_errors;
+	Analysis nomad_errors_100 = epps_errors;
 	nomad_errors_100.params.Q2_min = 1.00;
 	nomad_errors_100.params.minimum_lepton_momentum = 3.0;
 	nomad_errors_100.params.primary_muon_min_energy = 3.0;
 	nomad_errors_100.params.hadronic_min_energy = 3.0;
 
-	Analysis nomad_errors_169 = epps_errors;
+	Analysis nomad_errors_169 = nomad_errors_100;
 	nomad_errors_169.params.Q2_min = 1.69;
-	nomad_errors_169.params.minimum_lepton_momentum = 3.0;
-	nomad_errors_169.params.primary_muon_min_energy = 3.0;
-	nomad_errors_169.params.hadronic_min_energy = 3.0;
 
 	Analysis nomad_errors_225 = nomad_errors_169;
 	nomad_errors_225.params.Q2_min = 2.25;
@@ -568,6 +552,35 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				bar(errors).sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins, output_folder + "nutev_old_antineutrino.csv");
 				bar(errors).sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins, output_folder + "nutev_new_antineutrino.csv");
 				bar(errors).sidis().muon_pair_production(AnalysisSet::CCFR, x_bins, output_folder + "ccfr_antineutrino.csv");
+			});
+		}
+
+		std::cout << separator << IO::endl;
+	}
+	
+	if (run("ffvariations")) {
+		std::cout << "========== SIDIS FF variations =========" << IO::endl;
+		
+		const std::vector<std::array<std::string, 4>> ff_variations = {
+			{"kkks08_belle_d0___mas", "kkks08_belle_d+___mas", "bkk05_D3_d_s_nlo", "bkk05_D3_lambda_c_nlo"},
+			{"kkks08_global_d0__mas", "kkks08_global_d+__mas", "bkk05_D3_d_s_nlo", "bkk05_D3_lambda_c_nlo"},
+		};
+		const std::vector<std::string> folders = {"Belle", "Global"};
+
+		for (std::size_t i = 0; i < ff_variations.size(); i++) {
+			std::cout << "Fragmentation variation: " << folders[i] << IO::endl;
+
+			Analysis analysis = base;
+			analysis.params.full_fragmentation_set = ff_variations[i];
+
+			const std::string output_folder = "Data/SIDIS/MuonPairProduction/CharmedHadrons/FragmentationVariations/" + folders[i] + "/";
+
+			measure([&] {
+				analysis.sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins, output_folder + "nutev_neutrino.csv");
+				analysis.sidis().muon_pair_production(AnalysisSet::CCFR, x_bins, output_folder + "ccfr_neutrino.csv");
+
+				bar(analysis).sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins, output_folder + "nutev_antineutrino.csv");
+				bar(analysis).sidis().muon_pair_production(AnalysisSet::CCFR, x_bins, output_folder + "ccfr_antineutrino.csv");
 			});
 		}
 

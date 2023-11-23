@@ -16,6 +16,12 @@
 
 struct AnalysisParameters {
 	std::string pdf_set = "EPPS21nlo_CT18Anlo_Fe56";
+	std::array<std::string, 4> full_fragmentation_set = {
+		"kkks08_opal_d0___mas",
+		"kkks08_opal_d+___mas",
+		"bkk05_D3_d_s_nlo",
+		"bkk05_D3_lambda_c_nlo"
+	};
 	bool explicit_isospin = false;
 	double Z = 1.0;
 	double A = 1.0;

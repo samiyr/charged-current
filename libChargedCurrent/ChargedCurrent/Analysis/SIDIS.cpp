@@ -106,10 +106,10 @@ struct SIDISAnalysis {
 					pdf,
 					FragmentationConfiguration(
 						{
-							LHAInterface("kkks08_opal_d0___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
-							LHAInterface("kkks08_opal_d+___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
-							LHAInterface("bkk05_D3_d_s_nlo", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
-							1.14 * LHAInterface("bkk05_D3_lambda_c_nlo", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0})
+							LHAInterface(params.full_fragmentation_set[0], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
+							LHAInterface(params.full_fragmentation_set[1], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
+							LHAInterface(params.full_fragmentation_set[2], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
+							1.14 * LHAInterface(params.full_fragmentation_set[3], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0})
 						},
 						{
 							Decay(parametrization, Constants::Particles::D0, target, D0_decay_function, minimum_lepton_momentum),
@@ -128,10 +128,10 @@ struct SIDISAnalysis {
 					pdf,
 					FragmentationConfiguration(
 						{
-							LHAInterface("kkks08_opal_d0___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
-							LHAInterface("kkks08_opal_d+___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
-							LHAInterface("bkk05_D3_d_s_nlo", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
-							1.14 * LHAInterface("bkk05_D3_lambda_c_nlo", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0})
+							LHAInterface(params.full_fragmentation_set[0], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
+							LHAInterface(params.full_fragmentation_set[1], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
+							LHAInterface(params.full_fragmentation_set[2], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
+							1.14 * LHAInterface(params.full_fragmentation_set[3], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0})
 						},
 						{
 							Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),
@@ -252,10 +252,10 @@ struct SIDISAnalysis {
 					pdf,
 					FragmentationConfiguration(
 						{
-							LHAInterface("kkks08_opal_d0___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
-							LHAInterface("kkks08_opal_d+___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
-							LHAInterface("bkk05_D3_d_s_nlo", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
-							1.14 * LHAInterface("bkk05_D3_lambda_c_nlo", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0})
+							LHAInterface(params.full_fragmentation_set[0], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
+							LHAInterface(params.full_fragmentation_set[1], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
+							LHAInterface(params.full_fragmentation_set[2], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
+							1.14 * LHAInterface(params.full_fragmentation_set[3], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0})
 						},
 						{
 							Decay(parametrization, Constants::Particles::D0, target, D0_decay_function, minimum_lepton_momentum),
@@ -274,10 +274,10 @@ struct SIDISAnalysis {
 					pdf,
 					FragmentationConfiguration(
 						{
-							LHAInterface("kkks08_opal_d0___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
-							LHAInterface("kkks08_opal_d+___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
-							LHAInterface("bkk05_D3_d_s_nlo", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
-							1.14 * LHAInterface("bkk05_D3_lambda_c_nlo", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0})
+							LHAInterface(params.full_fragmentation_set[0], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
+							LHAInterface(params.full_fragmentation_set[1], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
+							LHAInterface(params.full_fragmentation_set[2], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
+							1.14 * LHAInterface(params.full_fragmentation_set[3], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0})
 						},
 						{
 							Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),
@@ -364,10 +364,10 @@ struct SIDISAnalysis {
 				LHAInterface(params.pdf_set, incoming_multipliers),
 				FragmentationConfiguration(
 					{
-						LHAInterface("kkks08_opal_d0___mas", multipliers), 
-						LHAInterface("kkks08_opal_d+___mas", multipliers), 
-						LHAInterface("bkk05_D3_d_s_nlo", multipliers), 
-						1.14 * LHAInterface("bkk05_D3_lambda_c_nlo", multipliers)
+						LHAInterface(params.full_fragmentation_set[0], multipliers), 
+						LHAInterface(params.full_fragmentation_set[1], multipliers), 
+						LHAInterface(params.full_fragmentation_set[2], multipliers), 
+						1.14 * LHAInterface(params.full_fragmentation_set[3], multipliers)
 					},
 					{
 						Decay(parametrization, Constants::Particles::D0, target, D0_decay_function, minimum_lepton_momentum),
@@ -384,10 +384,10 @@ struct SIDISAnalysis {
 				LHAInterface(params.pdf_set, incoming_multipliers),
 				FragmentationConfiguration(
 					{
-						LHAInterface("kkks08_opal_d0___mas", multipliers), 
-						LHAInterface("kkks08_opal_d+___mas", multipliers), 
-						LHAInterface("bkk05_D3_d_s_nlo", multipliers), 
-						1.14 * LHAInterface("bkk05_D3_lambda_c_nlo", multipliers)
+						LHAInterface(params.full_fragmentation_set[0], multipliers), 
+						LHAInterface(params.full_fragmentation_set[1], multipliers), 
+						LHAInterface(params.full_fragmentation_set[2], multipliers), 
+						1.14 * LHAInterface(params.full_fragmentation_set[3], multipliers)
 					},
 					{
 						Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),
@@ -571,43 +571,43 @@ struct SIDISAnalysis {
 			const auto LambdaC_decay_function = DecayFunctions::decay_grid(params.decay_grid_folder / LambdaC_decay_grid);
 
 			muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
-				LHAInterface("kkks08_opal_d0___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}),
+				LHAInterface(params.full_fragmentation_set[0], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}),
 				Decay(parametrization, Constants::Particles::D0, target, D0_decay_function, minimum_lepton_momentum),
 				base_filename + "_d0.csv", "d0 only"
 			);
 			muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
-				LHAInterface("kkks08_opal_d+___mas"),
+				LHAInterface(params.full_fragmentation_set[1]),
 				Decay(parametrization, Constants::Particles::Dp, target, Dp_decay_function, minimum_lepton_momentum),
 				base_filename + "_d+.csv", "d+ only"
 			);
 			muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
-				LHAInterface("bkk05_D3_d_s_nlo"),
+				LHAInterface(params.full_fragmentation_set[2]),
 				Decay(parametrization, Constants::Particles::Ds, target, Ds_decay_function, minimum_lepton_momentum),
 				base_filename + "_d_s.csv", "d_s only"
 			);
 			muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
-				LHAInterface("bkk05_D3_lambda_c_nlo"),
+				LHAInterface(params.full_fragmentation_set[3]),
 				Decay(parametrization, Constants::Particles::LambdaC, target, LambdaC_decay_function, minimum_lepton_momentum),
 				base_filename + "_lambda_c.csv", "lambda_c only"
 			);
 		} else {
 			muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
-				LHAInterface("kkks08_opal_d0___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}),
+				LHAInterface(params.full_fragmentation_set[0], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}),
 				Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),
 				base_filename + "_d0.csv", "d0 only"
 			);
 			muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
-				LHAInterface("kkks08_opal_d+___mas"),
+				LHAInterface(params.full_fragmentation_set[1]),
 				Decay(parametrization, Constants::Particles::Dp, target, decay_function, minimum_lepton_momentum),
 				base_filename + "_d+.csv", "d+ only"
 			);
 			muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
-				LHAInterface("bkk05_D3_d_s_nlo"),
+				LHAInterface(params.full_fragmentation_set[2]),
 				Decay(parametrization, Constants::Particles::Ds, target, decay_function, minimum_lepton_momentum),
 				base_filename + "_d_s.csv", "d_s only"
 			);
 			muon_pair_production_fragmentation_channel(x_bins, y_bins, E_beam_bins,
-				LHAInterface("bkk05_D3_lambda_c_nlo"),
+				LHAInterface(params.full_fragmentation_set[3]),
 				Decay(parametrization, Constants::Particles::LambdaC, target, decay_function, minimum_lepton_momentum),
 				base_filename + "_lambda_c.csv", "lambda_c only"
 			);
@@ -632,7 +632,7 @@ struct SIDISAnalysis {
 				LHAInterface(params.pdf_set),
 				FragmentationConfiguration(
 					{
-						2.3065 * LHAInterface("kkks08_opal_d0___mas", {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
+						2.3065 * LHAInterface(params.full_fragmentation_set[0], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
 					},
 					{
 						Decay(parametrization, Constants::Particles::D0, target, decay_function, minimum_lepton_momentum),
