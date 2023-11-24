@@ -6,30 +6,18 @@
 #include "Common/Process.cpp"
 
 enum class AnalysisSet {
-	NuTeV, NuTeV_old, CCFR, NOMAD
+	NuTeV, CCFR, NOMAD
 };
 
 namespace AnalysisConstants {
 	namespace NuTeV {
-		namespace Old {
-			namespace Neutrino {
-				const static std::vector<double> y_bins = {0.334, 0.573, 0.790};
-				const static std::vector<double> E_bins = {90.18, 174.37, 244.72};
-			}
-			namespace Antineutrino {
-				const static std::vector<double> y_bins = {0.356, 0.586, 0.788};
-				const static std::vector<double> E_bins = {78.98, 146.06, 222.14};
-			}
+		namespace Neutrino {
+			const static std::vector<double> y_bins = {0.324, 0.558, 0.771};
+			const static std::vector<double> E_bins = {88.29, 174.29, 247.0};
 		}
-		namespace New {
-			namespace Neutrino {
-				const static std::vector<double> y_bins = {0.324, 0.558, 0.771};
-				const static std::vector<double> E_bins = {88.29, 174.29, 247.0};
-			}
-			namespace Antineutrino {
-				const static std::vector<double> y_bins = {0.349, 0.579, 0.776};
-				const static std::vector<double> E_bins = {77.9, 143.7, 226.8};
-			}
+		namespace Antineutrino {
+			const static std::vector<double> y_bins = {0.349, 0.579, 0.776};
+			const static std::vector<double> E_bins = {77.9, 143.7, 226.8};
 		}
 	}
 	namespace CCFR {
@@ -51,9 +39,7 @@ namespace AnalysisConstants {
 	inline std::vector<double> get_y_bins(AnalysisSet set, Process process) {
 		switch (set) {
 		case AnalysisSet::NuTeV:
-			return process.type == Process::Type::NeutrinoToLepton ? NuTeV::New::Neutrino::y_bins : NuTeV::New::Antineutrino::y_bins;		
-		case AnalysisSet::NuTeV_old:
-			return process.type == Process::Type::NeutrinoToLepton ? NuTeV::Old::Neutrino::y_bins : NuTeV::Old::Antineutrino::y_bins;		
+			return process.type == Process::Type::NeutrinoToLepton ? NuTeV::Neutrino::y_bins : NuTeV::Antineutrino::y_bins;		
 		case AnalysisSet::CCFR:
 			return process.type == Process::Type::NeutrinoToLepton ? CCFR::Neutrino::y_bins : CCFR::Antineutrino::y_bins;
 		default: return {};
@@ -62,9 +48,7 @@ namespace AnalysisConstants {
 	inline std::vector<double> get_E_bins(AnalysisSet set, Process process) {
 		switch (set) {
 		case AnalysisSet::NuTeV:
-			return process.type == Process::Type::NeutrinoToLepton ? NuTeV::New::Neutrino::E_bins : NuTeV::New::Antineutrino::E_bins;		
-		case AnalysisSet::NuTeV_old:
-			return process.type == Process::Type::NeutrinoToLepton ? NuTeV::Old::Neutrino::E_bins : NuTeV::Old::Antineutrino::E_bins;		
+			return process.type == Process::Type::NeutrinoToLepton ? NuTeV::Neutrino::E_bins : NuTeV::Antineutrino::E_bins;		
 		case AnalysisSet::CCFR:
 			return process.type == Process::Type::NeutrinoToLepton ? CCFR::Neutrino::E_bins : CCFR::Antineutrino::E_bins;
 		case AnalysisSet::NOMAD:

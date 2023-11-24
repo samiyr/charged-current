@@ -36,7 +36,7 @@ class DISComputation {
 	const IntegrationParameters integration_parameters;
 
 	const Process process;
-	const bool momentum_fraction_mass_corrections;
+	bool momentum_fraction_mass_corrections;
 
 	const ScaleDependence::Function<RenormalizationScale> renormalization_scale_function;
 	const ScaleDependence::Function<FactorizationScale> factorization_scale_function;
@@ -46,26 +46,21 @@ class DISComputation {
 	const double hadronic_min_energy;
 
 	DISComputation (
-		const double _sqrt_s, 
 		const FlavorVector _active_flavors,
 		const std::array<double, TOTAL_FLAVORS> _flavor_masses, 
 		const PDFInterface _pdf,
 		const IntegrationParameters _integration_parameters,
 		const Process _process,
-		const bool _momentum_fraction_mass_corrections,
 		const ScaleDependence::Function<RenormalizationScale> _renormalization_scale_function,
 		const ScaleDependence::Function<FactorizationScale> _factorization_scale_function,
 		const bool _use_modified_cross_section_prefactor,
 		const double primary_muon_min_energy,
 		const double hadronic_min_energy
-	) : sqrt_s(_sqrt_s), 
-	s(_sqrt_s * _sqrt_s), 
-	flavors(_active_flavors, _flavor_masses), 
-	pdf1(_pdf), 
+	) :	flavors(_active_flavors, _flavor_masses), 
+	pdf1(_pdf),
 	pdf2(_pdf), 
 	integration_parameters(_integration_parameters), 
 	process(_process),
-	momentum_fraction_mass_corrections(_momentum_fraction_mass_corrections),
 	renormalization_scale_function(_renormalization_scale_function),
 	factorization_scale_function(_factorization_scale_function),
 	use_modified_cross_section_prefactor(_use_modified_cross_section_prefactor),
