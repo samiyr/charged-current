@@ -9,7 +9,7 @@ enum class AnalysisSet {
 	NuTeV, CCFR, NOMAD
 };
 
-namespace AnalysisConstants {
+namespace Constants {
 	namespace NuTeV {
 		namespace Neutrino {
 			const static std::vector<double> y_bins = {0.324, 0.558, 0.771};

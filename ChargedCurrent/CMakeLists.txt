@@ -1,5 +1,5 @@
 # Source files
-set(SOURCE_FILES Constants.cpp main.cpp Parameters.cpp Utility.cpp)
+set(SOURCE_FILES Constants.cpp main.cpp)
 
 # Executable
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..)

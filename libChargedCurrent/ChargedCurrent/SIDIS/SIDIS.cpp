@@ -278,7 +278,9 @@ struct SIDIS {
 		}
 		file.close();
 
-		std::cout << std::setprecision(static_cast<int>(original_precision)) << IO::endl;		
+		if (variation_index == variation_count - 1) {
+			std::cout << std::setprecision(static_cast<int>(original_precision)) << IO::endl;
+		}
 	}
 
 	public:
