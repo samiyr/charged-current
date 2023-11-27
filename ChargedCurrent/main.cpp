@@ -344,18 +344,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					E_beam_bins, 1.00,
 					charm_mass, 0.0, 0.0,
 					pdf,
+					renormalization, pdf_scale,
 					out + "nomad_neutrino_100.csv"
 				);
 				charm_dis.integrated_errors(
 					E_beam_bins, 1.69,
 					charm_mass, 0.0, 0.0,
 					pdf,
+					renormalization, pdf_scale,
 					out + "nomad_neutrino_169.csv"
 				);
 				charm_dis.integrated_errors(
 					E_beam_bins, 2.25,
 					charm_mass, 0.0, 0.0,
 					pdf,
+					renormalization, pdf_scale,
 					out + "nomad_neutrino_225.csv"
 				);
 			});
@@ -377,18 +380,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					E_beam_bins, 1.00,
 					charm_mass, 0.0, 0.0,
 					pdf,
+					renormalization, pdf_scale,
 					out + "nomad_neutrino_100.csv"
 				);
 				dis.integrated_errors(
 					E_beam_bins, 1.69,
 					charm_mass, 0.0, 0.0,
 					pdf,
+					renormalization, pdf_scale,
 					out + "nomad_neutrino_169.csv"
 				);
 				dis.integrated_errors(
 					E_beam_bins, 2.25,
 					charm_mass, 0.0, 0.0,
 					pdf,
+					renormalization, pdf_scale,
 					out + "nomad_neutrino_225.csv"
 				);
 			});
