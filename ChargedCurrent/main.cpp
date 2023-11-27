@@ -334,25 +334,25 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	if (run("dis.integrated.charm.errors")) {
 		std::cout << "========================== dis.integrated.charm.errors =========================" << IO::endl;
 
-		for (const auto &pdf : pdfs) {
+		for (const auto &pdf : pdf_errors) {
 			std::cout << "PDF set: " << pdf.set_name << IO::endl;
 
 			const std::string out = "Data/DIS/CharmProduction/Integrated/ErrorSets/" + pdf.set_name + "/";
 
 			measure([&] {
-				charm_dis.integrated_scales(
+				charm_dis.integrated_errors(
 					E_beam_bins, 1.00,
 					charm_mass, 0.0, 0.0,
 					pdf,
 					out + "nomad_neutrino_100.csv"
 				);
-				charm_dis.integrated_scales(
+				charm_dis.integrated_errors(
 					E_beam_bins, 1.69,
 					charm_mass, 0.0, 0.0,
 					pdf,
 					out + "nomad_neutrino_169.csv"
 				);
-				charm_dis.integrated_scales(
+				charm_dis.integrated_errors(
 					E_beam_bins, 2.25,
 					charm_mass, 0.0, 0.0,
 					pdf,
@@ -367,25 +367,25 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	if (run("dis.integrated.total.errors")) {
 		std::cout << "========================== dis.integrated.total.errors =========================" << IO::endl;
 
-		for (const auto &pdf : pdfs) {
+		for (const auto &pdf : pdf_errors) {
 			std::cout << "PDF set: " << pdf.set_name << IO::endl;
 
 			const std::string out = "Data/DIS/TotalProduction/Integrated/ErrorSets/" + pdf.set_name + "/";
 
 			measure([&] {
-				dis.integrated_scales(
+				dis.integrated_errors(
 					E_beam_bins, 1.00,
 					charm_mass, 0.0, 0.0,
 					pdf,
 					out + "nomad_neutrino_100.csv"
 				);
-				dis.integrated_scales(
+				dis.integrated_errors(
 					E_beam_bins, 1.69,
 					charm_mass, 0.0, 0.0,
 					pdf,
 					out + "nomad_neutrino_169.csv"
 				);
-				dis.integrated_scales(
+				dis.integrated_errors(
 					E_beam_bins, 2.25,
 					charm_mass, 0.0, 0.0,
 					pdf,
