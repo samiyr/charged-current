@@ -257,7 +257,9 @@ struct SIDIS {
 							const int Q2_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(kinematics.Q2)));
 
 							std::cout << std::fixed << std::setprecision(base_precision);
-							std::cout << "[SIDIS] " << IO::leading_zeroes(calculated_values, Math::number_of_digits(count));
+							std::cout << "[SIDIS] " << IO::leading_zeroes(
+								calculated_values + x_count * y_count * E_count * variation_index, Math::number_of_digits(count)
+							);
 							std::cout << " / " << count;
 
 							if (variation) {
@@ -317,11 +319,15 @@ struct SIDIS {
 		const auto &pdf, const auto &ff,
 		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale,
 		const std::filesystem::path base_output,
+		const std::optional<std::pair<std::size_t, std::size_t>> variation_range = std::nullopt,
 		const std::string comment = ""
 	) const {
-		const std::size_t variation_count = pdf.size();
+		const bool custom_range = variation_range.has_value();
+		const std::size_t variation_count = custom_range ? ((*variation_range).second - (*variation_range).first + 1) : pdf.size();
+		const auto variation_start = static_cast<typename std::remove_reference_t<decltype(pdf)>::size_type>(custom_range ? (*variation_range).first : 0);
+		const auto variation_end = static_cast<typename std::remove_reference_t<decltype(pdf)>::size_type>(custom_range ? (*variation_range).second + 1 : variation_count);
 
-		for (typename std::remove_reference_t<decltype(pdf)>::size_type variation_index = 0; variation_index < variation_count; variation_index++) {
+		for (typename std::remove_reference_t<decltype(pdf)>::size_type variation_index = variation_start; variation_index < variation_end; variation_index++) {
 			const auto &pdf_member = pdf[variation_index];
 
 			const SIDISComputation sidis = construct_computation(
@@ -342,7 +348,7 @@ struct SIDIS {
 			std::ofstream file(output);
 			file << "#pdf_member = " << variation_index << IO::endl;
 
-			lepton_pair_xy_base(sidis, xs, ys, Ebeams, "pdf set", variation_index, variation_count, file, comment);
+			lepton_pair_xy_base(sidis, xs, ys, Ebeams, "pdf set", variation_index - variation_start, variation_count, file, comment);
 		}
 	}
 
@@ -355,6 +361,7 @@ struct SIDIS {
 		const double charm_mass, const double primary_muon_min_energy,
 		const auto &pdf, const auto &ff,
 		const std::filesystem::path base_output,
+		const std::optional<std::pair<std::size_t, std::size_t>> variation_range = std::nullopt,
 		const std::string comment = ""
 	) const {
 		const std::vector<double> scale_factors{0.25, 1.0, 4.0};
@@ -382,9 +389,12 @@ struct SIDIS {
 			}
 		});
 
-		const std::size_t variation_count = scales.size();
+		const bool custom_range = variation_range.has_value();
+		const std::size_t variation_count = custom_range ? ((*variation_range).second - (*variation_range).first + 1) : scales.size();
+		const std::size_t variation_start = custom_range ? (*variation_range).first : 0;
+		const std::size_t variation_end = custom_range ? (*variation_range).second + 1 : variation_count;
 
-		for (std::size_t variation_index = 0; variation_index < variation_count; variation_index++) {
+		for (std::size_t variation_index = variation_start; variation_index < variation_end; variation_index++) {
 			const std::vector<double> scale = scales[variation_index];
 
 			const auto renormalization_scale = ScaleDependence::multiplicative(scale[0]);
@@ -412,7 +422,7 @@ struct SIDIS {
 			file << "#factorization_scale = " << scale[1] << IO::endl;
 			file << "#fragmentation_scale = " << scale[2] << IO::endl;
 
-			lepton_pair_xy_base(sidis, xs, ys, Ebeams, "scale", variation_index, variation_count, file, comment);
+			lepton_pair_xy_base(sidis, xs, ys, Ebeams, "scale", variation_index - variation_start, variation_count, file, comment);
 		}
 	}
 
@@ -426,11 +436,15 @@ struct SIDIS {
 		const auto &pdf, const auto &ff,
 		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale,
 		const std::filesystem::path base_output,
+		const std::optional<std::pair<std::size_t, std::size_t>> variation_range = std::nullopt,
 		const std::string comment = ""
 	) const {
-		const std::size_t variation_count = decay_variations.size();
+		const bool custom_range = variation_range.has_value();
+		const std::size_t variation_count = custom_range ? ((*variation_range).second - (*variation_range).first + 1) : decay_variations.size();
+		const std::size_t variation_start = custom_range ? (*variation_range).first : 0;
+		const std::size_t variation_end = custom_range ? (*variation_range).second + 1 : variation_count;
 
-		for (std::size_t variation_index = 0; variation_index < variation_count; variation_index++) {
+		for (std::size_t variation_index = variation_start; variation_index < variation_end; variation_index++) {
 			const DecayParametrization parametrization = decay_variations[variation_index];
 			FragmentationConfiguration ff_variation = ff;
 
@@ -460,7 +474,7 @@ struct SIDIS {
 			file << "#beta = " << ff_variation.decays.front().parametrization.beta << IO::endl;
 			file << "#gamma = " << ff_variation.decays.front().parametrization.gamma << IO::endl;
 
-			lepton_pair_xy_base(sidis, xs, ys, Ebeams, "decay", variation_index, variation_count, file, comment);
+			lepton_pair_xy_base(sidis, xs, ys, Ebeams, "decay", variation_index - variation_start, variation_count, file, comment);
 		}
 	}
 
@@ -518,7 +532,7 @@ struct SIDIS {
 						const int Q2_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(Q2)));
 
 						std::cout << std::fixed << std::setprecision(base_precision);
-						std::cout << "[SIDIS] " << IO::leading_zeroes(calculated_values + E_count * variation_index, Math::number_of_digits(count));
+						std::cout << "[SIDIS] " << IO::leading_zeroes(calculated_values + E_count * Q2_count * variation_index, Math::number_of_digits(count));
 						std::cout << " / " << count;
 
 						if (variation) {
@@ -593,7 +607,7 @@ struct SIDIS {
 					std::cout << std::setprecision(E_precision) << " (E_beam = " << E_beam << ")";
 					std::cout << "\r" << std::flush;
 				}
-			}			
+			}
 		}
 		file.close();
 
@@ -656,11 +670,15 @@ struct SIDIS {
 		const auto &pdf, const auto &ff,
 		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale,
 		const std::filesystem::path base_output,
+		const std::optional<std::pair<std::size_t, std::size_t>> variation_range = std::nullopt,
 		const std::string comment = ""
 	) const {
-		const std::size_t variation_count = pdf.size();
+		const bool custom_range = variation_range.has_value();
+		const std::size_t variation_count = custom_range ? ((*variation_range).second - (*variation_range).first + 1) : pdf.size();
+		const auto variation_start = static_cast<typename std::remove_reference_t<decltype(pdf)>::size_type>(custom_range ? (*variation_range).first : 0);
+		const auto variation_end = static_cast<typename std::remove_reference_t<decltype(pdf)>::size_type>(custom_range ? (*variation_range).second + 1 : variation_count);
 
-		for (typename std::remove_reference_t<decltype(pdf)>::size_type variation_index = 0; variation_index < variation_count; variation_index++) {
+		for (typename std::remove_reference_t<decltype(pdf)>::size_type variation_index = variation_start; variation_index < variation_end; variation_index++) {
 			const auto &pdf_member = pdf[variation_index];
 
 			const SIDISComputation sidis = construct_computation(
@@ -681,7 +699,7 @@ struct SIDIS {
 			std::ofstream file(output);
 			file << "#pdf_member = " << variation_index << IO::endl;
 
-			integrated_lepton_pair_base(sidis, Ebeams, Q2_min, "pdf set", variation_index, variation_count, file, comment);
+			integrated_lepton_pair_base(sidis, Ebeams, Q2_min, "pdf set", variation_index - variation_start, variation_count, file, comment);
 		}
 	}
 
@@ -693,6 +711,7 @@ struct SIDIS {
 		const double charm_mass, const double primary_muon_min_energy,
 		const auto &pdf, const auto &ff,
 		const std::filesystem::path base_output,
+		const std::optional<std::pair<std::size_t, std::size_t>> variation_range = std::nullopt,
 		const std::string comment = ""
 	) const {
 		const std::vector<double> scale_factors{0.25, 1.0, 4.0};
@@ -720,9 +739,12 @@ struct SIDIS {
 			}
 		});
 
-		const std::size_t variation_count = scales.size();
+		const bool custom_range = variation_range.has_value();
+		const std::size_t variation_count = custom_range ? ((*variation_range).second - (*variation_range).first + 1) : scales.size();
+		const std::size_t variation_start = custom_range ? (*variation_range).first : 0;
+		const std::size_t variation_end = custom_range ? (*variation_range).second + 1 : variation_count;
 
-		for (std::size_t variation_index = 0; variation_index < variation_count; variation_index++) {
+		for (std::size_t variation_index = variation_start; variation_index < variation_end; variation_index++) {
 			const std::vector<double> scale = scales[variation_index];
 
 			const auto renormalization_scale = ScaleDependence::multiplicative(scale[0]);
@@ -750,7 +772,7 @@ struct SIDIS {
 			file << "#factorization_scale = " << scale[1] << IO::endl;
 			file << "#fragmentation_scale = " << scale[2] << IO::endl;
 
-			integrated_lepton_pair_base(sidis, Ebeams, Q2_min, "scale", variation_index, variation_count, file, comment);
+			integrated_lepton_pair_base(sidis, Ebeams, Q2_min, "scale", variation_index - variation_start, variation_count, file, comment);
 		}
 	}
 

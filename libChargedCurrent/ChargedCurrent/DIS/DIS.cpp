@@ -200,7 +200,7 @@ struct DIS {
 							const int Q2_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(kinematics.Q2)));
 
 							std::cout << std::fixed << std::setprecision(base_precision);
-							std::cout << "[DIS] " << IO::leading_zeroes(calculated_values, Math::number_of_digits(count));
+							std::cout << "[DIS] " << IO::leading_zeroes(calculated_values + x_count * y_count * E_count * variation_index, Math::number_of_digits(count));
 							std::cout << " / " << count;
 
 							if (variation) {
@@ -257,11 +257,15 @@ struct DIS {
 		const auto &pdf,
 		const auto &renormalization_scale, const auto &factorization_scale,
 		const std::filesystem::path base_output,
+		const std::optional<std::pair<std::size_t, std::size_t>> variation_range = std::nullopt,
 		const std::string comment = ""
 	) const {
-		const std::size_t variation_count = pdf.size();
+		const bool custom_range = variation_range.has_value();
+		const std::size_t variation_count = custom_range ? ((*variation_range).second - (*variation_range).first + 1) : pdf.size();
+		const auto variation_start = static_cast<typename std::remove_reference_t<decltype(pdf)>::size_type>(custom_range ? (*variation_range).first : 0);
+		const auto variation_end = static_cast<typename std::remove_reference_t<decltype(pdf)>::size_type>(custom_range ? (*variation_range).second + 1 : variation_count);
 
-		for (typename std::remove_reference_t<decltype(pdf)>::size_type variation_index = 0; variation_index < variation_count; variation_index++) {
+		for (typename std::remove_reference_t<decltype(pdf)>::size_type variation_index = variation_start; variation_index < variation_end; variation_index++) {
 			const auto &pdf_member = pdf[variation_index];
 
 			const DISComputation dis = construct_computation(
@@ -281,7 +285,7 @@ struct DIS {
 			std::ofstream file(output);
 			file << "#pdf_member = " << variation_index << IO::endl;
 
-			differential_xy_base(dis, xs, ys, Ebeams, "pdf set", variation_index, variation_count, file, comment);
+			differential_xy_base(dis, xs, ys, Ebeams, "pdf set", variation_index - variation_start, variation_count, file, comment);
 		}
 	}
 
@@ -292,6 +296,7 @@ struct DIS {
 		const double charm_mass, const double primary_muon_min_energy, const double hadronic_min_energy,
 		const auto &pdf,
 		const std::filesystem::path base_output,
+		const std::optional<std::pair<std::size_t, std::size_t>> variation_range = std::nullopt,
 		const std::string comment = ""
 	) const {
 
@@ -305,9 +310,12 @@ struct DIS {
 			{4.0, 4.0}
 		};
 
-		const std::size_t variation_count = scales.size();
+		const bool custom_range = variation_range.has_value();
+		const std::size_t variation_count = custom_range ? ((*variation_range).second - (*variation_range).first + 1) : scales.size();
+		const std::size_t variation_start = custom_range ? (*variation_range).first : 0;
+		const std::size_t variation_end = custom_range ? (*variation_range).second + 1 : variation_count;
 
-		for (std::size_t variation_index = 0; variation_index < variation_count; variation_index++) {
+		for (std::size_t variation_index = variation_start; variation_index < variation_end; variation_index++) {
 			const std::vector<double> scale = scales[variation_index];
 
 			const auto renormalization_scale = ScaleDependence::multiplicative(scale[0]);
@@ -332,7 +340,7 @@ struct DIS {
 			file << "#renormalization_scale = " << scale[0] << IO::endl;
 			file << "#factorization_scale = " << scale[1] << IO::endl;
 
-			differential_xy_base(dis, xs, ys, Ebeams, "scale", variation_index, variation_count, file, comment);
+			differential_xy_base(dis, xs, ys, Ebeams, "scale", variation_index - variation_start, variation_count, file, comment);
 		}
 	}
 
@@ -390,7 +398,7 @@ struct DIS {
 						const int Q2_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(Q2)));
 
 						std::cout << std::fixed << std::setprecision(base_precision);
-						std::cout << "[DIS] " << IO::leading_zeroes(calculated_values + E_count * variation_index, Math::number_of_digits(count));
+						std::cout << "[DIS] " << IO::leading_zeroes(calculated_values + E_count * Q2_count * variation_index, Math::number_of_digits(count));
 						std::cout << " / " << count;
 
 						if (variation) {
@@ -523,11 +531,15 @@ struct DIS {
 		const auto &pdf,
 		const auto &renormalization_scale, const auto &factorization_scale,
 		const std::filesystem::path base_output,
+		const std::optional<std::pair<std::size_t, std::size_t>> variation_range = std::nullopt,
 		const std::string comment = ""
 	) const {
-		const std::size_t variation_count = pdf.size();
+		const bool custom_range = variation_range.has_value();
+		const std::size_t variation_count = custom_range ? ((*variation_range).second - (*variation_range).first + 1) : pdf.size();
+		const auto variation_start = static_cast<typename std::remove_reference_t<decltype(pdf)>::size_type>(custom_range ? (*variation_range).first : 0);
+		const auto variation_end = static_cast<typename std::remove_reference_t<decltype(pdf)>::size_type>(custom_range ? (*variation_range).second + 1 : variation_count);
 
-		for (typename std::remove_reference_t<decltype(pdf)>::size_type variation_index = 0; variation_index < variation_count; variation_index++) {
+		for (typename std::remove_reference_t<decltype(pdf)>::size_type variation_index = variation_start; variation_index < variation_end; variation_index++) {
 			const auto &pdf_member = pdf[variation_index];
 
 			const DISComputation dis = construct_computation(
@@ -547,7 +559,7 @@ struct DIS {
 			std::ofstream file(output);
 			file << "#pdf_member = " << variation_index << IO::endl;
 
-			integrated_base(dis, Ebeams, Q2_min, "pdf set", variation_index, variation_count, file, comment);
+			integrated_base(dis, Ebeams, Q2_min, "pdf set", variation_index - variation_start, variation_count, file, comment);
 		}
 	}
 
@@ -557,6 +569,7 @@ struct DIS {
 		const double charm_mass, const double primary_muon_min_energy, const double hadronic_min_energy,
 		const auto &pdf,
 		const std::filesystem::path base_output,
+		const std::optional<std::pair<std::size_t, std::size_t>> variation_range = std::nullopt,
 		const std::string comment = ""
 	) const {
 
@@ -570,9 +583,12 @@ struct DIS {
 			{4.0, 4.0}
 		};
 
-		const std::size_t variation_count = scales.size();
+		const bool custom_range = variation_range.has_value();
+		const std::size_t variation_count = custom_range ? ((*variation_range).second - (*variation_range).first + 1) : scales.size();
+		const std::size_t variation_start = custom_range ? (*variation_range).first : 0;
+		const std::size_t variation_end = custom_range ? (*variation_range).second + 1 : variation_count;
 
-		for (std::size_t variation_index = 0; variation_index < variation_count; variation_index++) {
+		for (std::size_t variation_index = variation_start; variation_index < variation_end; variation_index++) {
 			const std::vector<double> scale = scales[variation_index];
 
 			const auto renormalization_scale = ScaleDependence::multiplicative(scale[0]);
@@ -597,7 +613,7 @@ struct DIS {
 			file << "#renormalization_scale = " << scale[0] << IO::endl;
 			file << "#factorization_scale = " << scale[1] << IO::endl;
 
-			integrated_base(dis, Ebeams, Q2_min, "scale", variation_index, variation_count, file, comment);
+			integrated_base(dis, Ebeams, Q2_min, "scale", variation_index - variation_start, variation_count, file, comment);
 		}
 	}
 
