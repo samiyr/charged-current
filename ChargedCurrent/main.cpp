@@ -371,7 +371,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << "============================ dis.integrated.total.x ============================" << IO::endl;
 
 		const std::vector<double> E_beams = {20.0, 50.0, 100.0, 150.0, 200.0};
-		const std::vector<double> Q2s = Math::linear_space(1.0, 50.0, 1.0);
+		const std::vector<double> Q2s_base = Math::linear_space(1.0, 50.0, 1.0);
+		const std::vector<double> small_Q2s = Math::linear_space(1.0, 4.0, 0.01);
+		const std::vector<double> Q2s = Collections::join(Q2s_base, small_Q2s);
 
 		for (const auto &pdf : pdfs) {
 			std::cout << "PDF set: " << pdf.set_name << IO::endl;
@@ -841,7 +843,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		const double min_E_massless = Constants::Particles::MasslessMuon.mass;
 
 		const std::vector<double> E_beams = {20.0, 50.0, 100.0, 150.0, 200.0};
-		const std::vector<double> Q2s = Math::linear_space(1.0, 50.0, 1.0);
+		const std::vector<double> Q2s_base = Math::linear_space(1.0, 50.0, 1.0);
+		const std::vector<double> small_Q2s = Math::linear_space(1.0, 4.0, 0.01);
+		const std::vector<double> Q2s = Collections::join(Q2s_base, small_Q2s);
 
 		for (const auto &pdf : pdfs) {
 			std::cout << "PDF set: " << pdf.set_name << IO::endl;
@@ -857,7 +861,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				);
 			});
 
-			const std::string out_massless = "Data/SIDIS/MuonPairProduction/CharmedHadrons/xIntegrated/Massless/Min0/" + pdf.set_name + "/";
+			const std::string out_massless = "Data/SIDIS/MuonPairProduction/CharmedHadrons/xIntegrated/" + pdf.set_name + "/";
 
 			measure([&] {
 				sidis.x_integrated_lepton_pair(

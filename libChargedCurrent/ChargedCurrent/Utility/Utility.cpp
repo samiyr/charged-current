@@ -68,6 +68,15 @@ namespace Collections {
 	bool contains(const T &collection, const S &value) {
 		return std::find(std::begin(collection), std::end(collection), value) != std::end(collection);
 	}
+
+	template <typename T>
+	std::vector<T> join(const std::vector<T> &a, const std::vector<T> &b) {
+		std::vector<T> output;
+		output.reserve(a.size() + b.size());
+		output.insert(output.end(), a.begin(), a.end());
+		output.insert(output.end(), b.begin(), b.end());
+		return output;
+	}
 }
 
 template <typename T, typename U>
