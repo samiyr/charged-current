@@ -372,7 +372,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 		const std::vector<double> E_beams = {20.0, 50.0, 100.0, 150.0, 200.0};
 		const std::vector<double> Q2s_base = Math::linear_space(1.0, 50.0, 1.0);
-		const std::vector<double> small_Q2s = Math::linear_space(1.0, 4.0, 0.01);
+		const std::vector<double> small_Q2s = Math::linear_space(0.1, 4.0, 0.01);
 		const std::vector<double> Q2s = Collections::join(Q2s_base, small_Q2s);
 
 		for (const auto &pdf : pdfs) {
@@ -844,7 +844,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 		const std::vector<double> E_beams = {20.0, 50.0, 100.0, 150.0, 200.0};
 		const std::vector<double> Q2s_base = Math::linear_space(1.0, 50.0, 1.0);
-		const std::vector<double> small_Q2s = Math::linear_space(1.0, 4.0, 0.01);
+		const std::vector<double> small_Q2s = Math::linear_space(0.1, 4.0, 0.01);
 		const std::vector<double> Q2s = Collections::join(Q2s_base, small_Q2s);
 
 		for (const auto &pdf : pdfs) {
