@@ -185,6 +185,137 @@ class DISComputation {
 		return prefactor * result;
 	}
 
+	PerturbativeQuantity x_integrated_cross_section(const TRFKinematics &placeholder_kinematics, const double Q2) const {
+		const auto lo_integrand = [&](double input[]) {
+			const double x = input[0];
+
+			const double target_mass = placeholder_kinematics.target_mass;
+			const double E_beam = placeholder_kinematics.E_beam;
+			const double y = Q2 / (2.0 * x * target_mass * E_beam);
+
+			const double y_min = hadronic_min_energy / E_beam;
+			if (y < y_min) { return 0.0; }
+
+			const double y_max = 1.0 - primary_muon_min_energy / E_beam;
+			if (y > y_max) { return 0.0; }
+
+			const TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, target_mass, placeholder_kinematics.projectile_mass);
+
+			std::cout << kinematics.Q2 - Q2 << IO::endl;
+	
+			const double factorization_scale = factorization_scale_function(kinematics);
+			const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
+
+			pdf1.evaluate(x, factorization_scale);
+
+			DISFunctions::Parameters<PDFInterface> params {
+				pdf1, pdf2,
+				flavors,
+				0.0,
+				process, kinematics,
+				factorization_scale,
+				factorization_scale_log
+			};
+
+			const double prefactor = use_modified_cross_section_prefactor 
+										? CommonFunctions::cross_section_modified_prefactor(kinematics) 
+										: CommonFunctions::cross_section_prefactor(kinematics);
+
+			const double differential_cross_section = DISFunctions::cross_section<PDFInterface>({}, &params, 
+				DISFunctions::F2::LO::integrand, DISFunctions::FL::LO::integrand, DISFunctions::F3::LO::integrand,
+				false
+			);
+			return prefactor * differential_cross_section;
+		};
+
+		const auto nlo_integrand = [&](double input[]) {
+			const double x = input[1];
+
+			const double target_mass = placeholder_kinematics.target_mass;
+			const double E_beam = placeholder_kinematics.E_beam;
+			const double y = Q2 / (2.0 * x * target_mass * E_beam);
+
+			const double y_min = hadronic_min_energy / E_beam;
+			if (y < y_min) { return 0.0; }
+
+			const double y_max = 1.0 - primary_muon_min_energy / E_beam;
+			if (y > y_max) { return 0.0; }
+
+			const TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, target_mass, placeholder_kinematics.projectile_mass);
+
+			const double alpha_s = compute_alpha_s(kinematics);
+			const double nlo_coefficient = alpha_s / (2 * std::numbers::pi);
+
+			const double factorization_scale = factorization_scale_function(kinematics);
+			const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
+
+			pdf1.evaluate(x, factorization_scale);
+
+			DISFunctions::Parameters<PDFInterface> params {
+				pdf1, pdf2,
+				flavors,
+				0.0,
+				process, kinematics,
+				factorization_scale,
+				factorization_scale_log
+			};
+
+			const double differential_cross_section = DISFunctions::cross_section<PDFInterface>(input, &params, 
+				DISFunctions::F2::NLO::integrand, DISFunctions::FL::NLO::integrand, DISFunctions::F3::NLO::integrand,
+				true
+			) + DISFunctions::cross_section<PDFInterface>({}, &params,
+				DISFunctions::F2::NLO::delta, DISFunctions::FL::NLO::delta, DISFunctions::F3::NLO::delta, 
+				false
+			) / (1.0 - x);
+
+			const double prefactor = use_modified_cross_section_prefactor 
+										? CommonFunctions::cross_section_modified_prefactor(kinematics) 
+										: CommonFunctions::cross_section_prefactor(kinematics);
+
+			return prefactor * nlo_coefficient * differential_cross_section;
+		};
+
+		const double target_mass = placeholder_kinematics.target_mass;
+		const double E_beam = placeholder_kinematics.E_beam;
+
+		const double x_min = Q2 / (2.0 * target_mass * E_beam);
+
+		Integrator lo_integrator([&](double input[], std::size_t dim, [[maybe_unused]] void *params_in) {
+			const double x = input[0];
+
+			double *scaled_input = new double[dim];
+			scaled_input[0] = x; // x
+
+			const double result = lo_integrand(scaled_input);
+
+			delete[] scaled_input;
+			return result;
+		}, {x_min}, {1.0}, integration_parameters, nullptr);
+
+
+		Integrator nlo_integrator([&](double input[], std::size_t dim, [[maybe_unused]] void *params_in) {
+			const double x = input[0];
+
+			double *scaled_input = new double[dim];
+			scaled_input[0] = x + (1.0 - x) * input[2]; // xi
+			scaled_input[1] = x; // x
+
+			const double result = (1.0 - x) * nlo_integrand(scaled_input);
+
+			delete[] scaled_input;
+			return result;
+		}, {x_min, 0.0}, {1.0, 1.0}, integration_parameters, nullptr);
+
+		const auto nlo_result = nlo_integrator.integrate();
+		const double nlo = nlo_result.value;
+
+		const auto lo_result = lo_integrator.integrate();
+		const double lo = lo_result.value;
+
+		const PerturbativeQuantity result = PerturbativeQuantity {lo, lo + nlo};
+		return result;
+	}
+
 	PerturbativeQuantity integrated_cross_section(const TRFKinematics &placeholder_kinematics, const double Q2_min) const {
 		const auto lo_integrand = [&](double input[]) {
 			const double x = input[0];

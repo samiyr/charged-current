@@ -345,6 +345,73 @@ struct DIS {
 
 	private:
 
+	void x_integrated_base(
+		const auto &dis,
+		const std::vector<double> &Ebeams,
+		const std::vector<double> &Q2s,
+		const std::optional<std::string> variation,
+		const std::size_t variation_index,
+		const std::size_t variation_count,
+		std::ofstream &file,
+		const std::string comment
+	) const {
+		const std::size_t E_count = Ebeams.size();
+		const std::size_t Q2_count = Q2s.size();
+
+		const std::size_t count = E_count * Q2_count * variation_count;
+
+		std::size_t calculated_values = 0;
+		
+		output_run_info(file, dis, comment);
+
+		file << "E,Q2,LO,NLO,NNLO" << IO::endl;
+		std::streamsize original_precision = std::cout.precision();
+
+		#pragma omp parallel if(parallelize()) num_threads(number_of_threads) firstprivate(dis)
+		{
+			#pragma omp for collapse(2) schedule(guided)
+			for (std::size_t i = 0; i < E_count; i++) {
+				for (std::size_t j = 0; j < Q2_count; j++) {
+					const double E_beam = Ebeams[i];
+					const double Q2 = Q2s[j];
+					
+					const TRFKinematics placeholder_kinematics = TRFKinematics::y_E_beam(-1.0, -1.0, E_beam, process.target.mass, process.projectile.mass);
+					const PerturbativeQuantity cross_section = dis.integrated_cross_section(placeholder_kinematics, Q2);
+
+					#pragma omp critical
+					{
+						file << E_beam << ", " << Q2 << ", " << cross_section << IO::endl;
+						file.flush();
+
+						calculated_values++;
+
+						const int base_precision = 5;
+						const int E_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(E_beam)));
+						const int Q2_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(Q2)));
+
+						std::cout << std::fixed << std::setprecision(base_precision);
+						std::cout << "[DIS] " << IO::leading_zeroes(calculated_values + E_count * variation_index, Math::number_of_digits(count));
+						std::cout << " / " << count;
+
+						if (variation) {
+							std::cout << " [" << *variation << " " << IO::leading_zeroes(variation_index + 1, Math::number_of_digits(variation_count));
+							std::cout << " / " << variation_count << "]";
+						}
+
+						std::cout << ": " << cross_section;
+						std::cout << std::setprecision(E_precision) << " (E_beam = " << E_beam;
+						std::cout << std::setprecision(Q2_precision) << " , Q2 = " << Q2 << ")";
+						std::cout << "\r" << std::flush;
+					}
+				}
+			}			
+		}
+		file.close();
+
+		if (variation_index == variation_count - 1) {
+			std::cout << std::setprecision(static_cast<int>(original_precision)) << IO::endl;
+		}
+	}
 	void integrated_base(
 		const auto &dis,
 		const std::vector<double> &Ebeams,
@@ -408,6 +475,26 @@ struct DIS {
 	}
 
 	public:
+	void x_integrated(
+		const std::vector<double> &Ebeams,
+		const std::vector<double> &Q2s,
+		const double charm_mass, const double primary_muon_min_energy, const double hadronic_min_energy,
+		const auto &pdf,
+		const auto &renormalization_scale, const auto &factorization_scale,
+		const std::filesystem::path output,
+		const std::string comment = ""
+	) const {
+		const DISComputation dis = construct_computation(
+			charm_mass, primary_muon_min_energy, hadronic_min_energy,
+			pdf,
+			renormalization_scale, factorization_scale
+		);
+
+		IO::create_directory_tree(output);
+		std::ofstream file(output);
+
+		x_integrated_base(dis, Ebeams, Q2s, std::nullopt, 0, 1, file, comment);
+	}
 	void integrated(
 		const std::vector<double> &Ebeams,
 		const double Q2_min,

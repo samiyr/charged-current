@@ -335,6 +335,239 @@ class SIDISComputation {
 		return prefactor * result;
 	}
 
+	PerturbativeQuantity x_integrated_lepton_pair_cross_section(const TRFKinematics &placeholder_kinematics, const double Q2) const {
+		// input = [z, x]
+		const auto lo_integrand = [&](double input[]) {
+			const double x = input[1];
+
+			const double target_mass = placeholder_kinematics.target_mass;
+			const double E_beam = placeholder_kinematics.E_beam;
+			const double y = Q2 / (2.0 * x * target_mass * E_beam);
+
+			const double y_max = 1.0 - primary_muon_min_energy / E_beam;
+			if (y > y_max) { return 0.0; }
+
+			const TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, target_mass, placeholder_kinematics.projectile_mass);
+
+			std::vector<double> z_mins(ff1.decays.size());
+			std::transform(ff1.decays.begin(), ff1.decays.end(), z_mins.begin(), [&kinematics](const auto &decay) {
+				return SIDISFunctions::Helper::compute_z_min(kinematics, decay);
+			});
+			const double z_min = *std::min_element(z_mins.begin(), z_mins.end());
+
+			if (input[0] < z_min) { return 0.0; }
+
+			const double renormalization_scale = renormalization_scale_function(kinematics);
+			const double factorization_scale = factorization_scale_function(kinematics);
+			const double fragmentation_scale = fragmentation_scale_function(kinematics);
+
+			const double renormalization_scale_log = renormalization_scale == Q2 ? 0 : std::log(Q2 / renormalization_scale);
+			const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
+			const double fragmentation_scale_log = fragmentation_scale == Q2 ? 0 : std::log(Q2 / fragmentation_scale);
+
+			pdf1.evaluate(x, factorization_scale);
+
+			SIDISFunctions::Parameters<PDFInterface, FFInterface, DecayFunction> params {
+				pdf1, ff1, pdf2, ff2,
+				flavors,
+				0.0,
+				process, kinematics,
+				0.0,
+				renormalization_scale, factorization_scale, fragmentation_scale,
+				renormalization_scale_log, factorization_scale_log, fragmentation_scale_log
+			};
+
+			const double differential_cross_section = SIDISFunctions::cross_section<PDFInterface, FFInterface, DecayFunction>(input, &params, 
+				SIDISFunctions::F2::LO::integrand, SIDISFunctions::FL::LO::integrand, SIDISFunctions::F3::LO::integrand,
+				false, false, true
+			);
+
+			const double prefactor = use_modified_cross_section_prefactor 
+							? CommonFunctions::cross_section_modified_prefactor(kinematics) 
+							: CommonFunctions::cross_section_prefactor(kinematics);
+
+			return prefactor * differential_cross_section;
+		};
+
+		// input = [xi, xip, z, x]
+		const auto nlo_integrand = [&](double input[]) {
+			const double x = input[3];
+
+			const double target_mass = placeholder_kinematics.target_mass;
+			const double E_beam = placeholder_kinematics.E_beam;
+			const double y = Q2 / (2.0 * x * target_mass * E_beam);
+
+			const double y_max = 1.0 - primary_muon_min_energy / E_beam;
+			if (y > y_max) { return 0.0; }
+
+			const TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, target_mass, placeholder_kinematics.projectile_mass);
+
+			std::vector<double> z_mins(ff1.decays.size());
+			std::transform(ff1.decays.begin(), ff1.decays.end(), z_mins.begin(), [&kinematics](const auto &decay) {
+				return SIDISFunctions::Helper::compute_z_min(kinematics, decay);
+			});
+			const double z_min = *std::min_element(z_mins.begin(), z_mins.end());
+
+			if (input[1] < z_min || input[2] < z_min) { return 0.0; }
+
+			double alpha_s = compute_alpha_s(kinematics);
+			const double nlo_coefficient = alpha_s / (2 * std::numbers::pi);
+
+			const double renormalization_scale = renormalization_scale_function(kinematics);
+			const double factorization_scale = factorization_scale_function(kinematics);
+			const double fragmentation_scale = fragmentation_scale_function(kinematics);
+
+			const double renormalization_scale_log = renormalization_scale == Q2 ? 0 : std::log(Q2 / renormalization_scale);
+			const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
+			const double fragmentation_scale_log = fragmentation_scale == Q2 ? 0 : std::log(Q2 / fragmentation_scale);
+
+			pdf1.evaluate(x, factorization_scale);
+
+			SIDISFunctions::Parameters<PDFInterface, FFInterface, DecayFunction> params {
+				pdf1, ff1, pdf2, ff2,
+				flavors,
+				0.0,
+				process, kinematics,
+				0.0,
+				renormalization_scale, factorization_scale, fragmentation_scale,
+				renormalization_scale_log, factorization_scale_log, fragmentation_scale_log
+			};
+
+			const double differential_cross_section = SIDISFunctions::cross_section<PDFInterface, FFInterface, DecayFunction>(input, &params, 
+				use_nlp_nlo ? SIDISFunctions::F2::NLO_NLP::total_integrand : SIDISFunctions::F2::NLO::total_integrand, 
+				use_nlp_nlo ? SIDISFunctions::FL::NLO_NLP::total_integrand : SIDISFunctions::FL::NLO::total_integrand, 
+				use_nlp_nlo ? SIDISFunctions::F3::NLO_NLP::total_integrand : SIDISFunctions::F3::NLO::total_integrand,
+				true, true, true
+			);
+
+			const double prefactor = use_modified_cross_section_prefactor 
+							? CommonFunctions::cross_section_modified_prefactor(kinematics) 
+							: CommonFunctions::cross_section_prefactor(kinematics);
+
+			return prefactor * nlo_coefficient * differential_cross_section;
+		};
+
+		// input = [xi, xip, z, x]
+		const auto nnlo_integrand = [&](double input[]) {
+			const double x = input[3];
+
+			const double target_mass = placeholder_kinematics.target_mass;
+			const double E_beam = placeholder_kinematics.E_beam;
+			const double y = Q2 / (2.0 * x * target_mass * E_beam);
+
+			const double y_max = 1.0 - primary_muon_min_energy / E_beam;
+			if (y > y_max) { return 0.0; }
+
+			const TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, target_mass, placeholder_kinematics.projectile_mass);
+
+			std::vector<double> z_mins(ff1.decays.size());
+			std::transform(ff1.decays.begin(), ff1.decays.end(), z_mins.begin(), [&kinematics](const auto &decay) {
+				return SIDISFunctions::Helper::compute_z_min(kinematics, decay);
+			});
+			const double z_min = *std::min_element(z_mins.begin(), z_mins.end());
+
+			if (input[1] < z_min || input[2] < z_min) { return 0.0; }
+
+			double alpha_s = compute_alpha_s(kinematics);
+			const double nnlo_coefficient = std::pow(alpha_s / (2 * std::numbers::pi), 2);
+
+			const double renormalization_scale = renormalization_scale_function(kinematics);
+			const double factorization_scale = factorization_scale_function(kinematics);
+			const double fragmentation_scale = fragmentation_scale_function(kinematics);
+
+			const double renormalization_scale_log = renormalization_scale == Q2 ? 0 : std::log(Q2 / renormalization_scale);
+			const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
+			const double fragmentation_scale_log = fragmentation_scale == Q2 ? 0 : std::log(Q2 / fragmentation_scale);
+
+			pdf1.evaluate(x, factorization_scale);
+
+			SIDISFunctions::Parameters<PDFInterface, FFInterface, DecayFunction> params {
+				pdf1, ff1, pdf2, ff2,
+				flavors,
+				0.0,
+				process, kinematics,
+				0.0,
+				renormalization_scale, factorization_scale, fragmentation_scale,
+				renormalization_scale_log, factorization_scale_log, fragmentation_scale_log
+			};
+
+			const double differential_cross_section = SIDISFunctions::cross_section<PDFInterface, FFInterface, DecayFunction>(input, &params, 
+				SIDISFunctions::F2::NNLO_NLP::total_integrand, SIDISFunctions::FL::NNLO_NLP::total_integrand, SIDISFunctions::F3::NNLO_NLP::total_integrand,
+				true, true, true
+			);
+
+			const double prefactor = use_modified_cross_section_prefactor 
+							? CommonFunctions::cross_section_modified_prefactor(kinematics) 
+							: CommonFunctions::cross_section_prefactor(kinematics);
+
+			return prefactor * nnlo_coefficient * differential_cross_section;
+		};
+
+		const double target_mass = placeholder_kinematics.target_mass;
+		const double E_beam = placeholder_kinematics.E_beam;
+
+		const double x_min = Q2 / (2.0 * target_mass * E_beam);
+
+		Integrator lo_integrator([&](double input[], std::size_t dim, [[maybe_unused]] void *params_in) {
+			const double x = input[0];
+
+			double *scaled_input = new double[dim];
+			scaled_input[1] = x; // x
+			scaled_input[0] = input[1]; // z
+
+			const double result = lo_integrand(scaled_input);
+
+			delete[] scaled_input;
+			return result;
+		}, {x_min /* x */, 0.0 /* z */}, {1.0, 1.0}, integration_parameters, nullptr);
+
+		const auto lo_result = lo_integrator.integrate();
+		const double lo = lo_result.value;
+
+		double nlo = 0.0;
+		if (order >= PerturbativeOrder::NLO) {
+			Integrator nlo_integrator([&](double input[], std::size_t dim, [[maybe_unused]] void *params_in) {
+				const double x = input[0];
+
+				double *scaled_input = new double[dim];
+				scaled_input[0] = x + (1.0 - x) * input[1]; // xi
+				scaled_input[1] = input[2]; // xip
+				scaled_input[2] = input[3]; // z
+				scaled_input[3] = x; // x
+
+				const double result = (1.0 - x) * nlo_integrand(scaled_input);
+
+				delete[] scaled_input;
+				return result;
+			}, {x_min /* x */, 0.0 /* scaled xi */, 0.0 /* xip */, 0.0 /* z */}, {1.0, 1.0, 1.0, 1.0}, integration_parameters, nullptr);
+
+			const auto nlo_result = nlo_integrator.integrate();
+			nlo = nlo_result.value;
+		}
+
+		double nnlo = 0.0;
+		if (order >= PerturbativeOrder::NNLO) {
+			Integrator nnlo_integrator([&](double input[], std::size_t dim, [[maybe_unused]] void *params_in) {
+				const double x = input[0];
+
+				double *scaled_input = new double[dim];
+				scaled_input[0] = x + (1.0 - x) * input[1]; // xi
+				scaled_input[1] = input[2]; // xip
+				scaled_input[2] = input[3]; // z
+				scaled_input[3] = x; // x
+
+				const double result = (1.0 - x) * nnlo_integrand(scaled_input);
+
+				delete[] scaled_input;
+				return result;
+			}, {x_min /* x */, 0.0 /* scaled xi */, 0.0 /* xip */, 0.0 /* z */}, {1.0, 1.0, 1.0, 1.0}, integration_parameters, nullptr);
+			const auto nnlo_result = nnlo_integrator.integrate();
+			nnlo = nnlo_result.value;
+		}
+
+		const PerturbativeQuantity result = PerturbativeQuantity {lo, lo + nlo, lo + nlo + nnlo};
+		return result;
+	}
 	PerturbativeQuantity integrated_lepton_pair_cross_section(const TRFKinematics &placeholder_kinematics, const double Q2_min) const {
 		// input = [z, x, Q2]
 		const auto lo_integrand = [&](double input[]) {

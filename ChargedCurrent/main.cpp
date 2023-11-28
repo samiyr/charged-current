@@ -367,6 +367,30 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << separator << IO::endl;
 	}
 
+	if (run("dis.integrated.total.x")) {
+		std::cout << "============================ dis.integrated.total.x ============================" << IO::endl;
+
+		const std::vector<double> E_beams = {20.0, 50.0, 100.0, 150.0, 200.0};
+		const std::vector<double> Q2s = Math::linear_space(1.0, 50.0, 1.0);
+
+		for (const auto &pdf : pdfs) {
+			std::cout << "PDF set: " << pdf.set_name << IO::endl;
+
+			const std::string out = "Data/DIS/TotalProduction/xIntegrated/" + pdf.set_name + "/";
+
+			measure([&] {
+				dis.x_integrated(
+					E_beams, Q2s, charm_mass, 0.0, 0.0,
+					pdf,
+					renormalization, pdf_scale,
+					out + "min0.csv"
+				);
+			});
+		}
+
+		std::cout << separator << IO::endl;
+	}
+
 	if (run("dis.integrated.total.errors")) {
 		std::cout << "========================== dis.integrated.total.errors =========================" << IO::endl;
 
@@ -810,6 +834,44 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << separator << IO::endl;
 	}
 
+	if (run("sidis.integrated.x")) {
+		std::cout << "============================== sidis.integrated.x ==============================" << IO::endl;
+
+		const double min_E_massive = Constants::Particles::Muon.mass;
+		const double min_E_massless = Constants::Particles::MasslessMuon.mass;
+
+		const std::vector<double> E_beams = {20.0, 50.0, 100.0, 150.0, 200.0};
+		const std::vector<double> Q2s = Math::linear_space(1.0, 50.0, 1.0);
+
+		for (const auto &pdf : pdfs) {
+			std::cout << "PDF set: " << pdf.set_name << IO::endl;
+
+			const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/xIntegrated/" + pdf.set_name + "/";
+
+			measure([&] {
+				sidis.x_integrated_lepton_pair(
+					E_beams, Q2s, PerturbativeOrder::NLO, false, charm_mass, min_E_massive,
+					pdf, grid_fragmentation(min_E_massive, Constants::Particles::Muon),
+					renormalization, pdf_scale, ff_scale,
+					out + "massive_min0.csv"
+				);
+			});
+
+			const std::string out_massless = "Data/SIDIS/MuonPairProduction/CharmedHadrons/xIntegrated/Massless/Min0/" + pdf.set_name + "/";
+
+			measure([&] {
+				sidis.x_integrated_lepton_pair(
+					E_beams, Q2s, PerturbativeOrder::NLO, false, charm_mass, min_E_massless,
+					pdf, grid_fragmentation(min_E_massless, Constants::Particles::MasslessMuon),
+					renormalization, pdf_scale, ff_scale,
+					out_massless + "massless_min0.csv"
+				);
+			});
+		}
+
+		std::cout << separator << IO::endl;
+	}
+
 	if (run("sidis.integrated.errors.min3")) {
 		std::cout << "========================= sidis.integrated.errors.min3 =========================" << IO::endl;
 		
@@ -848,19 +910,19 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					E_beam_bins, 1.00, PerturbativeOrder::NLO, false, charm_mass, min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon), 
 					renormalization, pdf_scale, ff_scale, 
-					out + "nomad_neutrino_100.csv"
+					out_massless + "nomad_neutrino_100.csv"
 				);
 				sidis.integrated_lepton_pair_errors(
 					E_beam_bins, 1.69, PerturbativeOrder::NLO, false, charm_mass, min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon), 
 					renormalization, pdf_scale, ff_scale, 
-					out + "nomad_neutrino_169.csv"
+					out_massless + "nomad_neutrino_169.csv"
 				);
 				sidis.integrated_lepton_pair_errors(
 					E_beam_bins, 2.25, PerturbativeOrder::NLO, false, charm_mass, min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon), 
 					renormalization, pdf_scale, ff_scale, 
-					out + "nomad_neutrino_225.csv"
+					out_massless + "nomad_neutrino_225.csv"
 				);
 			});
 		}
@@ -907,19 +969,19 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					E_beam_bins, 1.00, PerturbativeOrder::NLO, false, charm_mass, min_E_massless, 
 					pdf, grid_fragmentation(min_E_massless, Constants::Particles::MasslessMuon), 
 					renormalization, pdf_scale, ff_scale, 
-					out + "nomad_neutrino_100.csv"
+					out_massless + "nomad_neutrino_100.csv"
 				);
 				sidis.integrated_lepton_pair_errors(
 					E_beam_bins, 1.69, PerturbativeOrder::NLO, false, charm_mass, min_E_massless, 
 					pdf, grid_fragmentation(min_E_massless, Constants::Particles::MasslessMuon), 
 					renormalization, pdf_scale, ff_scale, 
-					out + "nomad_neutrino_169.csv"
+					out_massless + "nomad_neutrino_169.csv"
 				);
 				sidis.integrated_lepton_pair_errors(
 					E_beam_bins, 2.25, PerturbativeOrder::NLO, false, charm_mass, min_E_massless, 
 					pdf, grid_fragmentation(min_E_massless, Constants::Particles::MasslessMuon), 
 					renormalization, pdf_scale, ff_scale, 
-					out + "nomad_neutrino_225.csv"
+					out_massless + "nomad_neutrino_225.csv"
 				);
 			});
 		}
@@ -961,17 +1023,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				sidis.integrated_lepton_pair_scales(
 					E_beam_bins, 1.00, ScaleVariation::All, PerturbativeOrder::NLO, false, charm_mass, min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon), 
-					out + "nomad_neutrino_100.csv"
+					out_massless + "nomad_neutrino_100.csv"
 				);
 				sidis.integrated_lepton_pair_scales(
 					E_beam_bins, 1.69, ScaleVariation::All, PerturbativeOrder::NLO, false, charm_mass, min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon), 
-					out + "nomad_neutrino_169.csv"
+					out_massless + "nomad_neutrino_169.csv"
 				);
 				sidis.integrated_lepton_pair_scales(
 					E_beam_bins, 2.25, ScaleVariation::All, PerturbativeOrder::NLO, false, charm_mass, min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon), 
-					out + "nomad_neutrino_225.csv"
+					out_massless + "nomad_neutrino_225.csv"
 				);
 			});
 		}
@@ -1014,17 +1076,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				sidis.integrated_lepton_pair_scales(
 					E_beam_bins, 1.00, ScaleVariation::All, PerturbativeOrder::NLO, false, charm_mass, min_E_massless, 
 					pdf, grid_fragmentation(min_E_massless, Constants::Particles::MasslessMuon), 
-					out + "nomad_neutrino_100.csv"
+					out_massless + "nomad_neutrino_100.csv"
 				);
 				sidis.integrated_lepton_pair_scales(
 					E_beam_bins, 1.69, ScaleVariation::All, PerturbativeOrder::NLO, false, charm_mass, min_E_massless, 
 					pdf, grid_fragmentation(min_E_massless, Constants::Particles::MasslessMuon), 
-					out + "nomad_neutrino_169.csv"
+					out_massless + "nomad_neutrino_169.csv"
 				);
 				sidis.integrated_lepton_pair_scales(
 					E_beam_bins, 2.25, ScaleVariation::All, PerturbativeOrder::NLO, false, charm_mass, min_E_massless, 
 					pdf, grid_fragmentation(min_E_massless, Constants::Particles::MasslessMuon), 
-					out + "nomad_neutrino_225.csv"
+					out_massless + "nomad_neutrino_225.csv"
 				);
 			});
 		}
