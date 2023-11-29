@@ -1096,19 +1096,19 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 			measure([&] {
 				sidis.integrated_lepton_pair_scales(
-					E_beam_bins, 1.00, ScaleVariation::All, PerturbativeOrder::NLO, false, charm_mass, min_E, 
+					E_beam_bins, 1.00, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::Muon), 
 					out + "nomad_neutrino_100.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_scales(
-					E_beam_bins, 1.69, ScaleVariation::All, PerturbativeOrder::NLO, false, charm_mass, min_E, 
+					E_beam_bins, 1.69, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::Muon), 
 					out + "nomad_neutrino_169.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_scales(
-					E_beam_bins, 2.25, ScaleVariation::All, PerturbativeOrder::NLO, false, charm_mass, min_E, 
+					E_beam_bins, 2.25, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::Muon), 
 					out + "nomad_neutrino_225.csv",
 					variation_range
@@ -1119,19 +1119,19 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 			measure([&] {
 				sidis.integrated_lepton_pair_scales(
-					E_beam_bins, 1.00, ScaleVariation::All, PerturbativeOrder::NLO, false, charm_mass, min_E, 
+					E_beam_bins, 1.00, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon), 
 					out_massless + "nomad_neutrino_100.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_scales(
-					E_beam_bins, 1.69, ScaleVariation::All, PerturbativeOrder::NLO, false, charm_mass, min_E, 
+					E_beam_bins, 1.69, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon), 
 					out_massless + "nomad_neutrino_169.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_scales(
-					E_beam_bins, 2.25, ScaleVariation::All, PerturbativeOrder::NLO, false, charm_mass, min_E, 
+					E_beam_bins, 2.25, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon), 
 					out_massless + "nomad_neutrino_225.csv",
 					variation_range
@@ -1155,19 +1155,19 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 			measure([&] {
 				sidis.integrated_lepton_pair_scales(
-					E_beam_bins, 1.00, ScaleVariation::All, PerturbativeOrder::NLO, false, charm_mass, min_E_massive, 
+					E_beam_bins, 1.00, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E_massive, 
 					pdf, grid_fragmentation(min_E_massive, Constants::Particles::Muon), 
 					out + "nomad_neutrino_100.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_scales(
-					E_beam_bins, 1.69, ScaleVariation::All, PerturbativeOrder::NLO, false, charm_mass, min_E_massive, 
+					E_beam_bins, 1.69, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E_massive, 
 					pdf, grid_fragmentation(min_E_massive, Constants::Particles::Muon), 
 					out + "nomad_neutrino_169.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_scales(
-					E_beam_bins, 2.25, ScaleVariation::All, PerturbativeOrder::NLO, false, charm_mass, min_E_massive, 
+					E_beam_bins, 2.25, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E_massive, 
 					pdf, grid_fragmentation(min_E_massive, Constants::Particles::Muon), 
 					out + "nomad_neutrino_225.csv",
 					variation_range
@@ -1178,19 +1178,19 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 			measure([&] {
 				sidis.integrated_lepton_pair_scales(
-					E_beam_bins, 1.00, ScaleVariation::All, PerturbativeOrder::NLO, false, charm_mass, min_E_massless, 
+					E_beam_bins, 1.00, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E_massless, 
 					pdf, grid_fragmentation(min_E_massless, Constants::Particles::MasslessMuon), 
 					out_massless + "nomad_neutrino_100.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_scales(
-					E_beam_bins, 1.69, ScaleVariation::All, PerturbativeOrder::NLO, false, charm_mass, min_E_massless, 
+					E_beam_bins, 1.69, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E_massless, 
 					pdf, grid_fragmentation(min_E_massless, Constants::Particles::MasslessMuon), 
 					out_massless + "nomad_neutrino_169.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_scales(
-					E_beam_bins, 2.25, ScaleVariation::All, PerturbativeOrder::NLO, false, charm_mass, min_E_massless, 
+					E_beam_bins, 2.25, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E_massless, 
 					pdf, grid_fragmentation(min_E_massless, Constants::Particles::MasslessMuon), 
 					out_massless + "nomad_neutrino_225.csv",
 					variation_range
@@ -1453,7 +1453,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	if (run("utility.decay.grid")) {
 		std::cout << "============================== utility.decay.grid ==============================" << IO::endl;
 
-		const std::vector<double> zyE_bins = Math::linear_space(1.0, 300.0, 1e-2);
+		std::vector<double> zyE_bins = Math::linear_space(1.0, 300.0, 1e-1);
+
+		std::reverse(zyE_bins.begin(), zyE_bins.end());
 
 		GridGenerator generator(number_of_threads);
 
@@ -1461,31 +1463,43 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		parametrizations.push_back(DecayParametrization::fit1());
 		parametrizations.push_back(DecayParametrization::fit2());
 
-		generator.generate_decay_grids(
-			"DecayGrids", {1.0, 5.0, 10.0, 100.0, 300.0}, {Constants::Particles::Muon.mass}, parametrizations,
-			{
-				Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
-			}, Constants::Particles::Proton, Constants::Particles::Muon
-		);
-		generator.generate_decay_grids(
-			"DecayGrids", zyE_bins, {3.0, 5.0}, parametrizations,
-			{
-				Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
-			}, Constants::Particles::Proton, Constants::Particles::Muon
-		);
+		const std::size_t start_index = custom_variation_range ? (*variation_range).first : 0;
 
-		generator.generate_decay_grids(
-			"DecayGrids", {1.0, 5.0, 10.0, 100.0, 300.0}, {Constants::Particles::MasslessMuon.mass}, parametrizations,
-			{
-				Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
-			}, Constants::Particles::Proton, Constants::Particles::MasslessMuon
-		);
-		generator.generate_decay_grids(
-			"DecayGrids", zyE_bins, {3.0, 5.0}, parametrizations,
-			{
-				Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
-			}, Constants::Particles::Proton, Constants::Particles::MasslessMuon
-		);
+		if (!custom_variation_range || start_index <= 0) {
+			generator.generate_decay_grids(
+				"DecayGrids", {1.0, 5.0, 10.0, 100.0, 300.0}, {Constants::Particles::Muon.mass}, parametrizations,
+				{
+					Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
+				}, Constants::Particles::Proton, Constants::Particles::Muon
+			);
+		}
+
+		if (!custom_variation_range || start_index <= 1) {
+			generator.generate_decay_grids(
+				"DecayGrids", zyE_bins, {3.0, 5.0}, parametrizations,
+				{
+					Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
+				}, Constants::Particles::Proton, Constants::Particles::Muon
+			);
+		}
+
+		if (!custom_variation_range || start_index <= 2) {
+			generator.generate_decay_grids(
+				"DecayGrids", {1.0, 5.0, 10.0, 100.0, 300.0}, {Constants::Particles::MasslessMuon.mass}, parametrizations,
+				{
+					Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
+				}, Constants::Particles::Proton, Constants::Particles::MasslessMuon
+			);
+		}
+		
+		if (!custom_variation_range || start_index <= 3) {
+			generator.generate_decay_grids(
+				"DecayGrids", zyE_bins, {3.0, 5.0}, parametrizations,
+				{
+					Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
+				}, Constants::Particles::Proton, Constants::Particles::MasslessMuon
+			);
+		}
 
 		std::cout << separator << IO::endl;
 	}

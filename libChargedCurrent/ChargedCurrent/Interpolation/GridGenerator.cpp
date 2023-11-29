@@ -18,8 +18,8 @@
 struct GridGenerator {
 	const bool parallelize;
 	const unsigned int number_of_threads;
-	double maximum_relative_error = 1e-4;
-	int maximum_evaluations = 100'000'000;
+	double maximum_relative_error = 1e-5;
+	int maximum_evaluations = 10'000'000;
 
 	GridGenerator(const unsigned int number_of_threads = Utility::get_default_thread_count() / 2) : parallelize(number_of_threads > 1), number_of_threads(number_of_threads) {}
 
@@ -134,7 +134,6 @@ struct GridGenerator {
 
 				for (std::size_t Emin_index = 0; Emin_index < E_min_bins.size(); Emin_index++) {
 					const double E_min = E_min_bins[Emin_index];
-
 					member_index++;
 
 					const std::string filename = GridGenerator::grid_filename(E_min, parametrization, resonance, target, lepton);
@@ -209,7 +208,7 @@ struct GridGenerator {
 								std::cout << " / " << total_count;
 								std::cout << " [" << "grid " << IO::leading_zeroes(member_index, Math::number_of_digits(member_count));
 								std::cout << " / " << member_count << "]";
-								std::cout << ": " << value;
+								std::cout << ": " << std::format("{:.8f}", value);
 								std::cout << std::setprecision(zyE_precision) << " (zyE = " << zyE << ")";
 								std::cout << "\r" << std::flush;
 							}
