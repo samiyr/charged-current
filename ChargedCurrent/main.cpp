@@ -1514,42 +1514,61 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 		std::cout << separator << IO::endl;
 	}
-		
-	// if (run("fragmentation")) {
-	// 	std::cout << "===== SIDIS fragmentation channels =====" << IO::endl;
+	
+	if (run("sidis.differential.masses")) {
+		std::cout <<"=========================== sidis.differential.masses ===========================" << IO::endl;
 
-	// 	measure([&] {
-	// 		nlo.sidis().muon_pair_production_fragmentation_decomposition(
-	// 			x_bins, NuTeV::New::Neutrino::y_bins, NuTeV::New::Neutrino::E_bins,
-	// 			"Data/SIDIS/MuonPairProduction/CharmedHadrons/FragmentationDecomposition/nutev_new"
-	// 		);
-	// 	});
+		const double min_E = 5.0;
+		const std::vector<double> charm_masses = {0.0, 1.2, 1.3, 1.4, 1.5};
+		const std::vector<std::string> folders = {"Massless", "1_2", "1_3", "1_4", "1_5"};
 
-	// 	std::cout << separator << IO::endl;
-	// }
+		for (const auto &[current_mass, folder] : std::views::zip(charm_masses, folders)) {
+			for (const auto &pdf : pdfs) {
+				std::cout << "PDF set: " << pdf.set_name << IO::endl;
 
-	// if (run("masses")) {
-	// 	std::cout << "=========== SIDIS charm mass ===========" << IO::endl;
+				const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Differential/CharmMasses/" + pdf.set_name + "/" + folder + "/";
 
-	// 	measure([&] {
-	// 		for (const double charm_mass : charm_masses) {
-	// 			Analysis mass = nlo;
-	// 			mass.params.charm_mass = charm_mass;
+				// To fix the error 'capturing a structured binding is not yet supported in OpenMP'
+				const double mass = current_mass;
 
-	// 			const std::string folder = std::to_string(static_cast<int>(charm_mass * 10));
+				measure([&] {
+					sidis.lepton_pair_xy(
+						x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
+						PerturbativeOrder::NLO, false, mass, 0.0,
+						pdf, grid_fragmentation(min_E, Constants::Particles::Muon),
+						renormalization, pdf_scale, ff_scale,
+						out + "nutev_neutrino.csv"
+					);
+					sidis.lepton_pair_xy(
+						x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
+						PerturbativeOrder::NLO, false, mass, 0.0,
+						pdf, grid_fragmentation(min_E, Constants::Particles::Muon),
+						renormalization, pdf_scale, ff_scale,
+						out + "ccfr_neutrino.csv"
+					);
+				});
 
-	// 			mass.sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/Masses/" + folder + "/nutev_old_neutrino.csv");
-	// 			mass.sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/Masses/" + folder + "/nutev_new_neutrino.csv");
-	// 			mass.sidis().muon_pair_production(AnalysisSet::CCFR, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/Masses/" + folder + "/ccfr_neutrino.csv");
+				measure([&] {
+					anti_sidis.lepton_pair_xy(
+						x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+						PerturbativeOrder::NLO, false, mass, 0.0,
+						pdf, grid_fragmentation(min_E, Constants::Particles::Muon),
+						renormalization, pdf_scale, ff_scale,
+						out + "nutev_antineutrino.csv"
+					);
+					anti_sidis.lepton_pair_xy(
+						x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+						PerturbativeOrder::NLO, false, mass, 0.0,
+						pdf, grid_fragmentation(min_E, Constants::Particles::Muon),
+						renormalization, pdf_scale, ff_scale,
+						out + "ccfr_antineutrino.csv"
+					);
+				});
+			}
+		}
 
-	// 			bar(mass).sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/Masses/" + folder + "/nutev_old_antineutrino.csv");
-	// 			bar(mass).sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/Masses/" + folder + "/nutev_new_antineutrino.csv");
-	// 			bar(mass).sidis().muon_pair_production(AnalysisSet::CCFR, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/Masses/" + folder + "/ccfr_antineutrino.csv");
-	// 		}
-	// 	});
-
-	// 	std::cout << separator << IO::endl;
-	// }
+		std::cout << separator << IO::endl;
+	}
 
 	// Analysis proton_nlo;
 	// proton_nlo.params.pdf_set = "CT14nnlo_NF3";
