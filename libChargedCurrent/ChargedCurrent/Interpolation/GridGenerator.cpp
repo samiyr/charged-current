@@ -18,8 +18,8 @@
 struct GridGenerator {
 	const bool parallelize;
 	const unsigned int number_of_threads;
-	double maximum_relative_error = 1e-5;
-	int maximum_evaluations = 10'000'000;
+	double maximum_relative_error = 1e-4;
+	int maximum_evaluations = 100'000'000;
 
 	GridGenerator(const unsigned int number_of_threads = Utility::get_default_thread_count() / 2) : parallelize(number_of_threads > 1), number_of_threads(number_of_threads) {}
 

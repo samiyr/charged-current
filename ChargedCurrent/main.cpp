@@ -153,7 +153,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	const auto construct_grid_fragmentation_configuration = [&](
 		const double decay_muon_min_energy, const DecayParametrization &parametrization, 
 		const Particle &target, const Particle &decay_lepton, 
-		const std::array<std::string, 4> fragmentation_sets
+		const std::array<std::string, 4> fragmentation_sets,
+		const std::optional<std::vector<bool>> &outgoing = std::nullopt
 	) {
 		const std::string D0_decay_grid = GridGenerator::grid_filename(
 			decay_muon_min_energy, parametrization, Constants::Particles::D0, target, decay_lepton
@@ -173,12 +174,18 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		const auto Ds_decay_function = DecayFunctions::decay_grid(decay_grid_folder / Ds_decay_grid);
 		const auto LambdaC_decay_function = DecayFunctions::decay_grid(decay_grid_folder / LambdaC_decay_grid);
 
+		std::vector<double> outgoing_multipliers{1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0};
+		if (outgoing) {
+			const std::vector<double> converted((*outgoing).begin(), (*outgoing).end());
+			outgoing_multipliers *= converted;
+		}
+
 		return FragmentationConfiguration(
 			{
-				LHAInterface(fragmentation_sets[0], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
-				LHAInterface(fragmentation_sets[1], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
-				LHAInterface(fragmentation_sets[2], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
-				1.14 * LHAInterface(fragmentation_sets[3], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0})
+				LHAInterface(fragmentation_sets[0], outgoing_multipliers), 
+				LHAInterface(fragmentation_sets[1], outgoing_multipliers), 
+				LHAInterface(fragmentation_sets[2], outgoing_multipliers), 
+				1.14 * LHAInterface(fragmentation_sets[3], outgoing_multipliers)
 			},
 			{
 				Decay(parametrization, Constants::Particles::D0, target, D0_decay_function, decay_muon_min_energy),
@@ -1334,6 +1341,74 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << separator << IO::endl;
 	}
 	
+	if (run("sidis.differential.channels")) {
+		std::cout << "========================== sidis.differential.channels =========================" << IO::endl;
+
+		const double min_E = 5.0;
+
+		const auto fragmentation_all = construct_grid_fragmentation_configuration(
+			min_E, DecayParametrization::fit1(), Constants::Particles::Proton, Constants::Particles::Muon,
+			opal_fragmentation
+		);
+		const auto fragmentation_charm = construct_grid_fragmentation_configuration(
+			min_E, DecayParametrization::fit1(), Constants::Particles::Proton, Constants::Particles::Muon,
+			opal_fragmentation, std::make_optional(std::vector{false, false, true, false, false, false, false, false, false, false, true, false, false})
+		);
+
+		for (const auto &pdf : pdfs) {
+			std::cout << "PDF set: " << pdf.set_name << IO::endl;
+
+			const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Differential/Channels/" + pdf.set_name + "/";
+
+			const auto total_pdf = pdf;
+
+			const auto quark_pdf = LHAInterface(
+				pdf.set_name,
+				{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}
+			);
+			const auto gluon_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
+			);
+
+			measure([&] {
+				sidis.lepton_pair_xy(
+					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
+					PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					pdf, D0_grid_fragmentation(min_E, Constants::Particles::Muon),
+					renormalization, pdf_scale, ff_scale,
+					out + "nutev_neutrino.csv"
+				);
+				sidis.lepton_pair_xy(
+					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
+					PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					pdf, D0_grid_fragmentation(min_E, Constants::Particles::Muon),
+					renormalization, pdf_scale, ff_scale,
+					out + "ccfr_neutrino.csv"
+				);
+			});
+
+			measure([&] {
+				anti_sidis.lepton_pair_xy(
+					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+					PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					pdf, D0_grid_fragmentation(min_E, Constants::Particles::Muon),
+					renormalization, pdf_scale, ff_scale,
+					out + "nutev_antineutrino.csv"
+				);
+				anti_sidis.lepton_pair_xy(
+					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+					PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					pdf, D0_grid_fragmentation(min_E, Constants::Particles::Muon),
+					renormalization, pdf_scale, ff_scale,
+					out + "ccfr_antineutrino.csv"
+				);
+			});
+		}
+
+		std::cout << separator << IO::endl;
+	}
+		
 	// if (run("channels")) {
 	// 	std::cout << "======== SIDIS parton channels =========" << IO::endl;
 
@@ -1494,6 +1569,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::vector<DecayParametrization> parametrizations;
 		parametrizations.push_back(DecayParametrization::fit1());
 		parametrizations.push_back(DecayParametrization::fit2());
+
+		const std::vector<DecayParametrization> &fit_set_1 = DecayParametrization::fit_set_1();
+		const std::vector<DecayParametrization> &fit_set_2 = DecayParametrization::fit_set_2();
+
+		parametrizations.insert(parametrizations.end(), fit_set_1.begin(), fit_set_1.end());
+		parametrizations.insert(parametrizations.end(), fit_set_2.begin(), fit_set_2.end());
 
 		const std::size_t start_index = custom_variation_range ? (*variation_range).first : 0;
 
