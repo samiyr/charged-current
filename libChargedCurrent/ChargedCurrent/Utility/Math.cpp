@@ -66,7 +66,7 @@ namespace Math {
 		return static_cast<unsigned int>(std::log10(static_cast<double>(x)) + 1.0);
 	}
 
-	static inline std::vector<double> linear_space(const double min, const double max, const double delta) {
+	std::vector<double> linear_space(const double min, const double max, const double delta) {
 		const std::size_t count = static_cast<std::size_t>(std::floor((max - min) / delta) + 1.0);
 
 		std::vector<double> list(count);
@@ -78,7 +78,7 @@ namespace Math {
 
 		return list;
 	}
-	static inline std::vector<double> log_space(const double min, const double max, const double delta) {
+	std::vector<double> log_space(const double min, const double max, const double delta) {
 		const double min_log = std::log10(min);
 		const double max_log = std::log10(max);
 		const std::size_t count = static_cast<std::size_t>(std::floor((max_log - min_log) / delta) + 1.0);
@@ -94,11 +94,13 @@ namespace Math {
 		return list;
 	}
 
-	static inline std::vector<double> chebyshev_space(const double min, const double max, const std::size_t count) {
+	std::vector<double> chebyshev_space(const double min, const double max, const std::size_t count) {
 		std::vector<double> list(count);
+		const double count_double = static_cast<double>(count);
 
 		for (std::size_t i = 1; i <= count; i++) {
-			const double value = 0.5 * (min + max) + 0.5 * (max - min) * std::cos(((2.0 * static_cast<double>(i) - 1.0) / (2.0 * static_cast<double>(count))) * std::numbers::pi);
+			const double i_double = static_cast<double>(i);
+			const double value = 0.5 * (min + max) + 0.5 * (max - min) * std::cos(((2.0 * i_double - 1.0) / (2.0 * count_double)) * std::numbers::pi);
 			list[count - i] = value;
 		}
 
