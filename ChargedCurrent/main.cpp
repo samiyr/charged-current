@@ -496,6 +496,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
 					charm_mass, 0.0, 0.0,
 					pdf,
+					0.0, 1.69,
 					out + "nutev_neutrino.csv",
 					variation_range
 				);
@@ -504,6 +505,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
 					charm_mass, 0.0, 0.0,
 					pdf,
+					0.0, 1.69,
 					out + "ccfr_neutrino.csv",
 					variation_range
 				);
@@ -514,6 +516,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
 					charm_mass, 0.0, 0.0,
 					pdf,
+					0.0, 1.69,
 					out + "nutev_antineutrino.csv",
 					variation_range
 				);
@@ -522,6 +525,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
 					charm_mass, 0.0, 0.0,
 					pdf,
+					0.0, 1.69,
 					out + "ccfr_antineutrino.csv",
 					variation_range
 				);
@@ -544,6 +548,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
 					charm_mass, 0.0, 0.0,
 					pdf,
+					0.0, 1.69,
 					out + "nutev_neutrino.csv",
 					variation_range
 				);
@@ -552,6 +557,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
 					charm_mass, 0.0, 0.0,
 					pdf,
+					0.0, 1.69,
 					out + "ccfr_neutrino.csv",
 					variation_range
 				);
@@ -562,6 +568,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
 					charm_mass, 0.0, 0.0,
 					pdf,
+					0.0, 1.69,
 					out + "nutev_antineutrino.csv",
 					variation_range
 				);
@@ -570,6 +577,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
 					charm_mass, 0.0, 0.0,
 					pdf,
+					0.0, 1.69,
 					out + "ccfr_antineutrino.csv",
 					variation_range
 				);
@@ -592,6 +600,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					E_beam_bins, 1.00,
 					charm_mass, 0.0, 0.0,
 					pdf,
+					0.0, 1.69,
 					out + "nomad_neutrino_100.csv",
 					variation_range
 				);
@@ -599,6 +608,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					E_beam_bins, 1.69,
 					charm_mass, 0.0, 0.0,
 					pdf,
+					0.0, 1.69,
 					out + "nomad_neutrino_169.csv",
 					variation_range
 				);
@@ -606,6 +616,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					E_beam_bins, 2.25,
 					charm_mass, 0.0, 0.0,
 					pdf,
+					0.0, 1.69,
 					out + "nomad_neutrino_225.csv",
 					variation_range
 				);
@@ -628,6 +639,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					E_beam_bins, 1.00,
 					charm_mass, 0.0, 0.0,
 					pdf,
+					0.0, 1.69,
 					out + "nomad_neutrino_100.csv",
 					variation_range
 				);
@@ -635,6 +647,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					E_beam_bins, 1.69,
 					charm_mass, 0.0, 0.0,
 					pdf,
+					0.0, 1.69,
 					out + "nomad_neutrino_169.csv",
 					variation_range
 				);
@@ -642,6 +655,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					E_beam_bins, 2.25,
 					charm_mass, 0.0, 0.0,
 					pdf,
+					0.0, 1.69,
 					out + "nomad_neutrino_225.csv",
 					variation_range
 				);
@@ -720,6 +734,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					ScaleVariation::All,
 					PerturbativeOrder::NLO, false, charm_mass, 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::Muon),
+					0.0, 1.69, 2.25,
 					out + "nutev_neutrino.csv",
 					variation_range
 				);
@@ -728,6 +743,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					ScaleVariation::All,
 					PerturbativeOrder::NLO, false, charm_mass, 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::Muon),
+					0.0, 1.69, 2.25,
 					out + "ccfr_neutrino.csv",
 					variation_range
 				);
@@ -739,6 +755,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					ScaleVariation::All,
 					PerturbativeOrder::NLO, false, charm_mass, 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::Muon),
+					0.0, 1.69, 2.25,
 					out + "nutev_antineutrino.csv",
 					variation_range
 				);
@@ -747,6 +764,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					ScaleVariation::All,
 					PerturbativeOrder::NLO, false, charm_mass, 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::Muon),
+					0.0, 1.69, 2.25,
 					out + "ccfr_antineutrino.csv",
 					variation_range
 				);
@@ -782,6 +800,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 						ScaleVariation::All,
 						PerturbativeOrder::NLO, false, charm_mass, 0.0,
 						pdf, grid,
+						0.0, 1.69, 2.25,
 						out + "nutev_neutrino.csv",
 						variation_range
 					);
@@ -790,6 +809,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 						ScaleVariation::All,
 						PerturbativeOrder::NLO, false, charm_mass, 0.0,
 						pdf, grid,
+						0.0, 1.69, 2.25,
 						out + "ccfr_neutrino.csv",
 						variation_range
 					);
@@ -801,6 +821,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 						ScaleVariation::All,
 						PerturbativeOrder::NLO, false, charm_mass, 0.0,
 						pdf, grid,
+						0.0, 1.69, 2.25,
 						out + "nutev_antineutrino.csv",
 						variation_range
 					);
@@ -809,6 +830,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 						ScaleVariation::All,
 						PerturbativeOrder::NLO, false, charm_mass, 0.0,
 						pdf, grid,
+						0.0, 1.69, 2.25,
 						out + "ccfr_antineutrino.csv",
 						variation_range
 					);
@@ -1098,18 +1120,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				sidis.integrated_lepton_pair_scales(
 					E_beam_bins, 1.00, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::Muon), 
+					0.0, 1.69, 2.25,
 					out + "nomad_neutrino_100.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_scales(
 					E_beam_bins, 1.69, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::Muon), 
+					0.0, 1.69, 2.25,
 					out + "nomad_neutrino_169.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_scales(
 					E_beam_bins, 2.25, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::Muon), 
+					0.0, 1.69, 2.25,
 					out + "nomad_neutrino_225.csv",
 					variation_range
 				);
@@ -1121,18 +1146,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				sidis.integrated_lepton_pair_scales(
 					E_beam_bins, 1.00, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon), 
+					0.0, 1.69, 2.25,
 					out_massless + "nomad_neutrino_100.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_scales(
 					E_beam_bins, 1.69, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon), 
+					0.0, 1.69, 2.25,
 					out_massless + "nomad_neutrino_169.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_scales(
 					E_beam_bins, 2.25, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon), 
+					0.0, 1.69, 2.25,
 					out_massless + "nomad_neutrino_225.csv",
 					variation_range
 				);
@@ -1157,18 +1185,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				sidis.integrated_lepton_pair_scales(
 					E_beam_bins, 1.00, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E_massive, 
 					pdf, grid_fragmentation(min_E_massive, Constants::Particles::Muon), 
+					0.0, 1.69, 2.25,
 					out + "nomad_neutrino_100.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_scales(
 					E_beam_bins, 1.69, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E_massive, 
 					pdf, grid_fragmentation(min_E_massive, Constants::Particles::Muon), 
+					0.0, 1.69, 2.25,
 					out + "nomad_neutrino_169.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_scales(
 					E_beam_bins, 2.25, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E_massive, 
 					pdf, grid_fragmentation(min_E_massive, Constants::Particles::Muon), 
+					0.0, 1.69, 2.25,
 					out + "nomad_neutrino_225.csv",
 					variation_range
 				);
@@ -1180,18 +1211,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				sidis.integrated_lepton_pair_scales(
 					E_beam_bins, 1.00, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E_massless, 
 					pdf, grid_fragmentation(min_E_massless, Constants::Particles::MasslessMuon), 
+					0.0, 1.69, 2.25,
 					out_massless + "nomad_neutrino_100.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_scales(
 					E_beam_bins, 1.69, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E_massless, 
 					pdf, grid_fragmentation(min_E_massless, Constants::Particles::MasslessMuon), 
+					0.0, 1.69, 2.25,
 					out_massless + "nomad_neutrino_169.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_scales(
 					E_beam_bins, 2.25, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E_massless, 
 					pdf, grid_fragmentation(min_E_massless, Constants::Particles::MasslessMuon), 
+					0.0, 1.69, 2.25,
 					out_massless + "nomad_neutrino_225.csv",
 					variation_range
 				);

@@ -360,6 +360,7 @@ struct SIDIS {
 		const PerturbativeOrder order, const bool use_nlp_nlo,
 		const double charm_mass, const double primary_muon_min_energy,
 		const auto &pdf, const auto &ff,
+		const double min_renormalization_scale, const double min_factorization_scale, const double min_fragmentation_scale,
 		const std::filesystem::path base_output,
 		const std::optional<std::pair<std::size_t, std::size_t>> variation_range = std::nullopt,
 		const std::string comment = ""
@@ -397,9 +398,9 @@ struct SIDIS {
 		for (std::size_t variation_index = variation_start; variation_index < variation_end; variation_index++) {
 			const std::vector<double> scale = scales[variation_index];
 
-			const auto renormalization_scale = ScaleDependence::multiplicative(scale[0]);
-			const auto factorization_scale = ScaleDependence::multiplicative(scale[1]);
-			const auto fragmentation_scale = ScaleDependence::multiplicative(scale[2]);
+			const auto renormalization_scale = ScaleDependence::clamped_multiplicative(scale[0], min_renormalization_scale, std::numeric_limits<double>::max());
+			const auto factorization_scale = ScaleDependence::clamped_multiplicative(scale[1], min_factorization_scale, std::numeric_limits<double>::max());
+			const auto fragmentation_scale = ScaleDependence::clamped_multiplicative(scale[2], min_fragmentation_scale, std::numeric_limits<double>::max());
 
 			const SIDISComputation sidis = construct_computation(
 				order, use_nlp_nlo,
@@ -710,6 +711,7 @@ struct SIDIS {
 		const PerturbativeOrder order, const bool use_nlp_nlo,
 		const double charm_mass, const double primary_muon_min_energy,
 		const auto &pdf, const auto &ff,
+		const double min_renormalization_scale, const double min_factorization_scale, const double min_fragmentation_scale,
 		const std::filesystem::path base_output,
 		const std::optional<std::pair<std::size_t, std::size_t>> variation_range = std::nullopt,
 		const std::string comment = ""
@@ -747,9 +749,9 @@ struct SIDIS {
 		for (std::size_t variation_index = variation_start; variation_index < variation_end; variation_index++) {
 			const std::vector<double> scale = scales[variation_index];
 
-			const auto renormalization_scale = ScaleDependence::multiplicative(scale[0]);
-			const auto factorization_scale = ScaleDependence::multiplicative(scale[1]);
-			const auto fragmentation_scale = ScaleDependence::multiplicative(scale[2]);
+			const auto renormalization_scale = ScaleDependence::clamped_multiplicative(scale[0], min_renormalization_scale, std::numeric_limits<double>::max());
+			const auto factorization_scale = ScaleDependence::clamped_multiplicative(scale[1], min_factorization_scale, std::numeric_limits<double>::max());
+			const auto fragmentation_scale = ScaleDependence::clamped_multiplicative(scale[2], min_fragmentation_scale, std::numeric_limits<double>::max());
 
 			const SIDISComputation sidis = construct_computation(
 				order, use_nlp_nlo,
