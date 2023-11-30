@@ -195,6 +195,33 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			}
 		);
 	};
+	const auto construct_single_grid_fragmentation_configuration = [&](
+		const double decay_muon_min_energy, const DecayParametrization &parametrization, 
+		const Particle &target, const Particle &decay_lepton, const Particle &resonance,
+		const std::string fragmentation_set,
+		const std::optional<std::vector<bool>> &outgoing = std::nullopt
+	) {
+		const std::string decay_grid = GridGenerator::grid_filename(
+			decay_muon_min_energy, parametrization, resonance, target, decay_lepton
+		);
+
+		const auto decay_function = DecayFunctions::decay_grid(decay_grid_folder / decay_grid);
+
+		std::vector<double> outgoing_multipliers{1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0};
+		if (outgoing) {
+			const std::vector<double> converted((*outgoing).begin(), (*outgoing).end());
+			outgoing_multipliers *= converted;
+		}
+
+		return FragmentationConfiguration(
+			{
+				LHAInterface(fragmentation_set, outgoing_multipliers)
+			},
+			{
+				Decay(parametrization, resonance, target, decay_function, decay_muon_min_energy)
+			}
+		);
+	};
 	const auto construct_D0_grid_fragmentation_configuration = [&](
 		const double decay_muon_min_energy, const DecayParametrization &parametrization, 
 		const Particle &target, const Particle &decay_lepton, 
@@ -215,6 +242,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			}
 		);
 	};
+	
 
 	// const auto construct_analytic_fragmentation_configuration = [](
 	// 	const double primary_muon_min_energy, const DecayParametrization &parametrization,
@@ -1346,43 +1374,28 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 		const double min_E = 5.0;
 
-		const auto fragmentation_all = construct_grid_fragmentation_configuration(
+		const auto charm_fragmentation = construct_grid_fragmentation_configuration(
 			min_E, DecayParametrization::fit1(), Constants::Particles::Proton, Constants::Particles::Muon,
-			opal_fragmentation
+			opal_fragmentation, std::make_optional(std::vector{false, false, false, false, false, false, false, false, false, false, true, false, false})
 		);
-		const auto fragmentation_charm = construct_grid_fragmentation_configuration(
+		const auto anti_charm_fragmentation = construct_grid_fragmentation_configuration(
 			min_E, DecayParametrization::fit1(), Constants::Particles::Proton, Constants::Particles::Muon,
-			opal_fragmentation, std::make_optional(std::vector{false, false, true, false, false, false, false, false, false, false, true, false, false})
+			opal_fragmentation, std::make_optional(std::vector{false, false, true, false, false, false, false, false, false, false, false, false, false})
 		);
 
-		for (const auto &pdf : pdfs) {
-			std::cout << "PDF set: " << pdf.set_name << IO::endl;
-
-			const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Differential/Channels/" + pdf.set_name + "/";
-
-			const auto total_pdf = pdf;
-
-			const auto quark_pdf = LHAInterface(
-				pdf.set_name,
-				{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}
-			);
-			const auto gluon_pdf = LHAInterface(
-				pdf.set_name,
-				{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
-			);
-
+		const auto run_analysis = [&](const auto &pdf_in, const auto &ff_in, const std::string out) {
 			measure([&] {
 				sidis.lepton_pair_xy(
 					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
 					PerturbativeOrder::NLO, false, charm_mass, 0.0,
-					pdf, D0_grid_fragmentation(min_E, Constants::Particles::Muon),
+					pdf_in, ff_in,
 					renormalization, pdf_scale, ff_scale,
 					out + "nutev_neutrino.csv"
 				);
 				sidis.lepton_pair_xy(
 					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
 					PerturbativeOrder::NLO, false, charm_mass, 0.0,
-					pdf, D0_grid_fragmentation(min_E, Constants::Particles::Muon),
+					pdf_in, ff_in,
 					renormalization, pdf_scale, ff_scale,
 					out + "ccfr_neutrino.csv"
 				);
@@ -1392,57 +1405,116 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				anti_sidis.lepton_pair_xy(
 					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
 					PerturbativeOrder::NLO, false, charm_mass, 0.0,
-					pdf, D0_grid_fragmentation(min_E, Constants::Particles::Muon),
+					pdf_in, ff_in,
 					renormalization, pdf_scale, ff_scale,
 					out + "nutev_antineutrino.csv"
 				);
 				anti_sidis.lepton_pair_xy(
 					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
 					PerturbativeOrder::NLO, false, charm_mass, 0.0,
-					pdf, D0_grid_fragmentation(min_E, Constants::Particles::Muon),
+					pdf_in, ff_in,
 					renormalization, pdf_scale, ff_scale,
 					out + "ccfr_antineutrino.csv"
 				);
 			});
+		};
+
+		for (const auto &pdf : pdfs) {
+			std::cout << "PDF set: " << pdf.set_name << IO::endl;
+
+			const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Differential/Channels/" + pdf.set_name + "/";
+
+			const auto down_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0}
+			);
+			const auto anti_down_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
+			);
+
+			const auto strange_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0}
+			);
+			const auto anti_strange_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
+			);
+
+			const auto gluon_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
+			);
+
+			run_analysis(down_pdf, charm_fragmentation, out + "d2c/");
+			run_analysis(strange_pdf, charm_fragmentation, out + "s2c/");
+			run_analysis(gluon_pdf, charm_fragmentation, out + "g2c/");
+
+			run_analysis(anti_down_pdf, anti_charm_fragmentation, out + "dbar2cbar/");
+			run_analysis(anti_strange_pdf, anti_charm_fragmentation, out + "sbar2cbar/");
+			run_analysis(gluon_pdf, anti_charm_fragmentation, out + "g2cbar/");
+		}
+
+		std::cout << separator << IO::endl;
+	}
+
+	if (run("sidis.differential.fragmentation")) {
+		std::cout << "======================= sidis.differential.fragmentation =======================" << IO::endl;
+
+		const double min_E = 5.0;
+		const std::array<Particle, 4> resonances{Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC};
+
+		for (std::size_t i = 0; i < opal_fragmentation.size(); i++) {
+			const auto fragmentation = construct_single_grid_fragmentation_configuration(
+				min_E, DecayParametrization::fit1(), Constants::Particles::Proton, Constants::Particles::Muon, 
+				resonances[i], opal_fragmentation[i]
+			);
+
+			for (const auto &pdf : pdfs) {
+				std::cout << "PDF set: " << pdf.set_name << IO::endl;
+
+				const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Differential/Fragmentation/" + pdf.set_name + "/" + opal_fragmentation[i] + "/";
+
+				measure([&] {
+					sidis.lepton_pair_xy(
+						x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
+						PerturbativeOrder::NLO, false, charm_mass, 0.0,
+						pdf, fragmentation,
+						renormalization, pdf_scale, ff_scale,
+						out + "nutev_neutrino.csv"
+					);
+					sidis.lepton_pair_xy(
+						x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
+						PerturbativeOrder::NLO, false, charm_mass, 0.0,
+						pdf, fragmentation,
+						renormalization, pdf_scale, ff_scale,
+						out + "ccfr_neutrino.csv"
+					);
+				});
+
+				measure([&] {
+					anti_sidis.lepton_pair_xy(
+						x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+						PerturbativeOrder::NLO, false, charm_mass, 0.0,
+						pdf, fragmentation,
+						renormalization, pdf_scale, ff_scale,
+						out + "nutev_antineutrino.csv"
+					);
+					anti_sidis.lepton_pair_xy(
+						x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+						PerturbativeOrder::NLO, false, charm_mass, 0.0,
+						pdf, fragmentation,
+						renormalization, pdf_scale, ff_scale,
+						out + "ccfr_antineutrino.csv"
+					);
+				});
+			}
 		}
 
 		std::cout << separator << IO::endl;
 	}
 		
-	// if (run("channels")) {
-	// 	std::cout << "======== SIDIS parton channels =========" << IO::endl;
-
-	// 	measure([&] {
-	// 		nlo.sidis().muon_pair_production_quark_gluon_channels(x_bins, NuTeV::New::Neutrino::y_bins, NuTeV::New::Neutrino::E_bins, 
-	// 			{
-	// 				"Data/SIDIS/MuonPairProduction/CharmedHadrons/ChannelDecomposition/nutev_new_quark_to_quark.csv",
-	// 				"Data/SIDIS/MuonPairProduction/CharmedHadrons/ChannelDecomposition/nutev_new_quark_to_gluon.csv",
-	// 				"Data/SIDIS/MuonPairProduction/CharmedHadrons/ChannelDecomposition/nutev_new_gluon_to_quark.csv",
-	// 				"Data/SIDIS/MuonPairProduction/CharmedHadrons/ChannelDecomposition/nutev_new_gluon_to_gluon.csv"
-	// 			}
-	// 		);
-	// 	});
-
-	// 	std::cout << separator << IO::endl;
-	// }
-
-	// if (run("flavors")) {
-	// 	std::cout << "======== SIDIS flavor channels =========" << IO::endl;
-
-	// 	measure([&] {
-	// 		nlo.sidis().muon_pair_production_flavor_decomposition_quark_to_quark(
-	// 			x_bins, NuTeV::New::Neutrino::y_bins, NuTeV::New::Neutrino::E_bins,
-	// 			"Data/SIDIS/MuonPairProduction/CharmedHadrons/FlavorDecomposition/nutev_new"
-	// 		);
-	// 		nlo.sidis().muon_pair_production_flavor_decomposition_gluon_to_quark(
-	// 			x_bins, NuTeV::New::Neutrino::y_bins, NuTeV::New::Neutrino::E_bins,
-	// 			"Data/SIDIS/MuonPairProduction/CharmedHadrons/FlavorDecomposition/nutev_new"
-	// 		);
-	// 	});
-
-	// 	std::cout << separator << IO::endl;
-	// }
-
 	// if (run("fragmentation")) {
 	// 	std::cout << "===== SIDIS fragmentation channels =====" << IO::endl;
 

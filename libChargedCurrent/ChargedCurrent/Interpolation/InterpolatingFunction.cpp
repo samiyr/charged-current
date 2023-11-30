@@ -53,6 +53,9 @@ struct InterpolatingFunction {
 
 	void initialize() const {
 		std::ifstream grid_file(grid_path);
+		if (!grid_file) {
+			throw std::runtime_error("Grid file '" + grid_path.generic_string() + "' could not be opened.");
+		}
 
 		std::size_t current_index = 0;
 
