@@ -175,10 +175,6 @@ namespace SIDISFunctions {
 		const PDFInterface &pdf1 = params.pdf1;
 		const PDFInterface &pdf2 = params.pdf2;
 
-		if (z <= 0.0 || z >= 1.0 || xi <= 0.0 || xi > 1.0 || xip <= 0.0 || xip > 1.0) {
-			std::cout << z << ", " << xi << ", " << xip << IO::endl;
-		}
-
 		const double log1mz = Math::log1m(z);
 		
 		const double logxi = std::log(xi);

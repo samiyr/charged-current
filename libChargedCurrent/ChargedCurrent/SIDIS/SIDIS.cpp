@@ -157,6 +157,40 @@ struct SIDIS {
 		return xQ2 * jacobian;
 	}
 
+	PerturbativeQuantity lepton_pair_zxQ2(
+		const TRFKinematics &kinematics, const double z,
+		const PerturbativeOrder order, const bool use_nlp_nlo,
+		const double charm_mass, const double primary_muon_min_energy,
+		const auto &pdf, const auto &ff,
+		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale
+	) const {
+		const SIDISComputation sidis = construct_computation(
+			order, use_nlp_nlo, 
+			charm_mass, primary_muon_min_energy, 
+			pdf, ff,
+			renormalization_scale, factorization_scale, fragmentation_scale
+		);
+		return sidis.lepton_pair_cross_section_xQ2(kinematics, z);
+	}
+
+	PerturbativeQuantity lepton_pair_zxy(
+		const TRFKinematics &kinematics, const double z,
+		const PerturbativeOrder order, const bool use_nlp_nlo,
+		const double charm_mass, const double primary_muon_min_energy,
+		const auto &pdf, const auto &ff,
+		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale
+	) const {
+		const PerturbativeQuantity xQ2 = lepton_pair_zxQ2(
+			kinematics, z,
+			order, use_nlp_nlo, 
+			charm_mass, primary_muon_min_energy, 
+			pdf, ff,
+			renormalization_scale, factorization_scale, fragmentation_scale
+		);
+		const double jacobian = CommonFunctions::xy_jacobian(kinematics, process);
+		return xQ2 * jacobian;
+	}
+
 	PerturbativeQuantity lepton_pair_xQ2(
 		const TRFKinematics &kinematics,
 		const PerturbativeOrder order, const bool use_nlp_nlo,
@@ -199,6 +233,97 @@ struct SIDIS {
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 	private:
+	void lepton_pair_zxy_base(
+		const auto &sidis,
+		const std::vector<double> &zs,
+		const std::vector<double> &xs,
+		const std::vector<double> &ys,
+		const std::vector<double> &Ebeams,
+		const std::optional<std::string> variation,
+		const std::size_t variation_index,
+		const std::size_t variation_count,
+		std::ofstream &file,
+		const std::string comment
+	) const {
+		const std::size_t z_count = zs.size();
+		const std::size_t x_count = xs.size();
+		const std::size_t y_count = ys.size();
+		const std::size_t E_count = Ebeams.size();
+
+		const std::size_t count = z_count * x_count * y_count * E_count * variation_count;
+
+		std::size_t calculated_values = 0;
+		
+		output_run_info(file, sidis, comment);
+
+		file << "z,x,y,E,LO,NLO,NNLO,Q2,renormalization_scale,factorization_scale,fragmentation_scale" << IO::endl;
+		std::streamsize original_precision = std::cout.precision();
+
+		#pragma omp parallel if(parallelize()) num_threads(number_of_threads) firstprivate(sidis)
+		{
+			#pragma omp for collapse(4) schedule(guided)
+			for (std::size_t i = 0; i < x_count; i++) {
+				for (std::size_t j = 0; j < E_count; j++) {
+					for (std::size_t k = 0; k < y_count; k++) {
+						for (std::size_t l = 0; l < z_count; l++) {
+							const double x = xs[i];
+							const double y = ys[k];
+							const double E_beam = Ebeams[j];
+							const double z = zs[l];
+							
+							TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, process.target.mass, process.projectile.mass);
+							const PerturbativeQuantity cross_section_zxQ2 = sidis.lepton_pair_cross_section_zxQ2(kinematics, z);
+							const double jacobian = CommonFunctions::xy_jacobian(kinematics, process);
+							const PerturbativeQuantity cross_section_zxy = cross_section_zxQ2 * jacobian;
+
+							const double Q2 = kinematics.Q2;
+							const double renormalization_scale = sidis.renormalization_scale_function(kinematics);
+							const double factorization_scale = sidis.factorization_scale_function(kinematics);
+							const double fragmentation_scale = sidis.fragmentation_scale_function(kinematics);
+
+							#pragma omp critical
+							{
+								file << z << "," << x << ", " << y << ", " << E_beam << ", ";
+								file << cross_section_zxy.lo << ", " << cross_section_zxy.nlo << ", " << cross_section_zxy.nnlo;
+								file << ", " << Q2 << ", " << renormalization_scale << ", " << factorization_scale << ", " << fragmentation_scale << IO::endl;
+								file.flush();
+
+								calculated_values++;
+
+								const int base_precision = 5;
+								const int s_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(kinematics.s)));
+								const int E_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(E_beam)));
+								const int Q2_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(kinematics.Q2)));
+
+								std::cout << std::fixed << std::setprecision(base_precision);
+								std::cout << "[SIDIS] " << IO::leading_zeroes(
+									calculated_values + x_count * y_count * E_count * variation_index, Math::number_of_digits(count)
+								);
+								std::cout << " / " << count;
+
+								if (variation) {
+									std::cout << " [" << *variation << " " << IO::leading_zeroes(variation_index + 1, Math::number_of_digits(variation_count));	
+									std::cout << " / " << variation_count << "]";
+								}
+
+								std::cout << ": " << cross_section_zxy;
+								std::cout << " (z = " << z << ", x = " << x << ", y = " << y;
+								std::cout << std::setprecision(s_precision) << ", s = " << kinematics.s;
+								std::cout << std::setprecision(E_precision) << ", E_beam = " << E_beam;
+								std::cout << std::setprecision(Q2_precision) << ", Q2 = " << kinematics.Q2 << ")";
+								std::cout << "\r" << std::flush;
+							}
+						}
+					}
+				}
+			}
+		}
+		file.close();
+
+		if (variation_index == variation_count - 1) {
+			std::cout << std::setprecision(static_cast<int>(original_precision)) << IO::endl;
+		}
+	}
 	void lepton_pair_xy_base(
 		const auto &sidis,
 		const std::vector<double> &xs,
@@ -286,6 +411,30 @@ struct SIDIS {
 	}
 
 	public:
+	void lepton_pair_zxy(
+		const std::vector<double> &zs,
+		const std::vector<double> &xs,
+		const std::vector<double> &ys,
+		const std::vector<double> &Ebeams,
+		const PerturbativeOrder order, const bool use_nlp_nlo,
+		const double charm_mass, const double primary_muon_min_energy,
+		const auto &pdf, const auto &ff,
+		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale,
+		const std::filesystem::path output,
+		const std::string comment = ""
+	) const {
+		const SIDISComputation sidis = construct_computation(
+			order, use_nlp_nlo,
+			charm_mass, primary_muon_min_energy,
+			pdf, ff,
+			renormalization_scale, factorization_scale, fragmentation_scale
+		);
+
+		IO::create_directory_tree(output);
+		std::ofstream file(output);
+
+		lepton_pair_zxy_base(sidis, zs, xs, ys, Ebeams, std::nullopt, 0, 1, file, comment);
+	}
 	void lepton_pair_xy(
 		const std::vector<double> &xs,
 		const std::vector<double> &ys,

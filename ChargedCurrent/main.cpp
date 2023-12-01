@@ -981,6 +981,63 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << separator << IO::endl;
 	}
 
+	if (run("sidis.differential.zprofile")) {
+		std::cout <<"========================== sidis.differential.zprofile ==========================" << IO::endl;
+
+		const std::vector<double> min_Es = {Constants::Particles::Muon.mass, 5.0};
+		const std::vector<std::string> folders = {"ZeroLimit", "5_0"};
+
+		const std::vector<double> xs{0.01, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4};
+		const std::vector<double> z_bins = Math::linear_space(0.0, 1.0, 1e-2);
+
+		for (const auto &[current_min_E, folder] : std::views::zip(min_Es, folders)) {
+			for (const auto &pdf : pdfs) {
+				std::cout << "PDF set: " << pdf.set_name << IO::endl;
+
+				const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Differential/zprofile/" + pdf.set_name + "/" + folder + "/";
+				
+				// To fix the compiler error 'capturing a structured binding is not yet supported in OpenMP'
+				const double min_E = current_min_E;
+
+				measure([&] {
+					sidis.lepton_pair_zxy(
+						z_bins, xs, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
+						PerturbativeOrder::NLO, false, charm_mass, 0.0,
+						pdf, grid_fragmentation(min_E, Constants::Particles::Muon),
+						renormalization, pdf_scale, ff_scale,
+						out + "nutev_neutrino.csv"
+					);
+					sidis.lepton_pair_zxy(
+						z_bins, xs, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
+						PerturbativeOrder::NLO, false, charm_mass, 0.0,
+						pdf, grid_fragmentation(min_E, Constants::Particles::Muon),
+						renormalization, pdf_scale, ff_scale,
+						out + "ccfr_neutrino.csv"
+					);
+				});
+
+				measure([&] {
+					anti_sidis.lepton_pair_zxy(
+						z_bins, xs, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+						PerturbativeOrder::NLO, false, charm_mass, 0.0,
+						pdf, grid_fragmentation(min_E, Constants::Particles::Muon),
+						renormalization, pdf_scale, ff_scale,
+						out + "nutev_antineutrino.csv"
+					);
+					anti_sidis.lepton_pair_zxy(
+						z_bins, xs, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+						PerturbativeOrder::NLO, false, charm_mass, 0.0,
+						pdf, grid_fragmentation(min_E, Constants::Particles::Muon),
+						renormalization, pdf_scale, ff_scale,
+						out + "ccfr_antineutrino.csv"
+					);
+				});
+			}
+		}
+
+		std::cout << separator << IO::endl;
+	}
+
 	if (run("sidis.integrated.x")) {
 		std::cout << "============================== sidis.integrated.x ==============================" << IO::endl;
 
