@@ -1694,38 +1694,63 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		}
 	}
 
-	// Analysis decay1 = base;
-	// decay1.params.decay_parametrization_set = DecayParametrization::fit_set_1();
-	// decay1.params.decay_variation = true;
+	if (run("sidis.differential.decays")) {
+		std::cout <<"=========================== sidis.differential.decays ===========================" << IO::endl;
 
-	// Analysis decay2 = base;
-	// decay2.params.decay_parametrization_set = DecayParametrization::fit_set_2();
-	// decay2.params.decay_variation = true;
+		const double min_E = 5.0;
 
-	// if (run("decay")) {
-	// 	std::cout << "======== SIDIS decay variations ========" << IO::endl;
+		std::vector<DecayParametrization> parametrizations;
+		parametrizations.push_back(DecayParametrization::fit1());
+		parametrizations.push_back(DecayParametrization::fit2());
 
-	// 	measure([&] {
-	// 		decay1.sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet1/nutev_old_neutrino.csv");
-	// 		decay1.sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet1/nutev_new_neutrino.csv");
-	// 		decay1.sidis().muon_pair_production(AnalysisSet::CCFR, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet1/ccfr_neutrino.csv");
+		const std::vector<DecayParametrization> &fit_set_1 = DecayParametrization::fit_set_1();
+		const std::vector<DecayParametrization> &fit_set_2 = DecayParametrization::fit_set_2();
 
-	// 		bar(decay1).sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet1/nutev_old_antineutrino.csv");
-	// 		bar(decay1).sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet1/nutev_new_antineutrino.csv");
-	// 		bar(decay1).sidis().muon_pair_production(AnalysisSet::CCFR, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet1/ccfr_antineutrino.csv");
+		parametrizations.insert(parametrizations.end(), fit_set_1.begin(), fit_set_1.end());
+		parametrizations.insert(parametrizations.end(), fit_set_2.begin(), fit_set_2.end());
 
+		for (const auto &pdf : pdfs) {
+			std::cout << "PDF set: " << pdf.set_name << IO::endl;
 
-	// 		decay2.sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet2/nutev_old_neutrino.csv");
-	// 		decay2.sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet2/nutev_new_neutrino.csv");
-	// 		decay2.sidis().muon_pair_production(AnalysisSet::CCFR, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet2/ccfr_neutrino.csv");
+			const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Differential/Decays/" + pdf.set_name + "/";
 
-	// 		bar(decay2).sidis().muon_pair_production(AnalysisSet::NuTeV_old, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet2/nutev_old_antineutrino.csv");
-	// 		bar(decay2).sidis().muon_pair_production(AnalysisSet::NuTeV, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet2/nutev_new_antineutrino.csv");
-	// 		bar(decay2).sidis().muon_pair_production(AnalysisSet::CCFR, x_bins, "Data/SIDIS/MuonPairProduction/CharmedHadrons/DecayVariation/FitSet2/ccfr_antineutrino.csv");
-	// 	});
+			measure([&] {
+				sidis.lepton_pair_xy_decays(
+					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
+					parametrizations, PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					pdf, grid_fragmentation(min_E, Constants::Particles::Muon),
+					renormalization, pdf_scale, ff_scale,
+					out + "nutev_neutrino.csv"
+				);
+				sidis.lepton_pair_xy_decays(
+					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
+					parametrizations, PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					pdf, grid_fragmentation(min_E, Constants::Particles::Muon),
+					renormalization, pdf_scale, ff_scale,
+					out + "ccfr_neutrino.csv"
+				);
+			});
 
-	// 	std::cout << separator << IO::endl;
-	// }
+			measure([&] {
+				anti_sidis.lepton_pair_xy_decays(
+					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+					parametrizations, PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					pdf, grid_fragmentation(min_E, Constants::Particles::Muon),
+					renormalization, pdf_scale, ff_scale,
+					out + "nutev_antineutrino.csv"
+				);
+				anti_sidis.lepton_pair_xy_decays(
+					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+					parametrizations, PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					pdf, grid_fragmentation(min_E, Constants::Particles::Muon),
+					renormalization, pdf_scale, ff_scale,
+					out + "ccfr_antineutrino.csv"
+				);
+			});
+		}
+
+		std::cout << separator << IO::endl;
+	}
 
 	if (run("utility.decay.grid")) {
 		std::cout << "============================== utility.decay.grid ==============================" << IO::endl;
