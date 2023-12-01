@@ -61,7 +61,7 @@ endif()
 # Flags
 target_compile_options(
 	${PROJECT_NAME} PRIVATE 
-	-Wall -Wconversion -Wextra -Wpedantic -g
+	-Wall -Wconversion -Wextra -Wpedantic
 	$<$<CONFIG:Release>:-O3 -DNDEBUG -ffast-math -march=native>
 )
 

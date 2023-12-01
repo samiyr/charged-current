@@ -68,7 +68,7 @@ target_include_directories(${LIBRARY_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 # Flags
 target_compile_options(
 	${LIBRARY_NAME} PUBLIC 
-	-Wall -Wconversion -Wextra -Wpedantic -g
+	-Wall -Wconversion -Wextra -Wpedantic
 	$<$<CONFIG:Release>:-O3 -DNDEBUG -ffast-math -march=native>
 )
 

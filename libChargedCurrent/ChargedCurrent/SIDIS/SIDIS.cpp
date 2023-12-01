@@ -180,7 +180,7 @@ struct SIDIS {
 		const auto &pdf, const auto &ff,
 		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale
 	) const {
-		const PerturbativeQuantity xQ2 = lepton_pair_cross_section_xQ2(
+		const PerturbativeQuantity xQ2 = lepton_pair_xQ2(
 			kinematics,
 			order, use_nlp_nlo, 
 			charm_mass, primary_muon_min_energy, 

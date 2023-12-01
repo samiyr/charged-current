@@ -14,7 +14,7 @@
 			"options": {
 
 			},
-			"command": "cmake CMakeLists.txt -B build -DCMAKE_BUILD_TYPE=Release && make -C build"
+			"command": "cmake CMakeLists.txt -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo && make -C build"
 		},
 		{
 			"type": "shell",
