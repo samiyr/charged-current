@@ -119,12 +119,12 @@ class SIDISComputation {
 			renormalization_scale_log, factorization_scale_log, fragmentation_scale_log
 		};
 
-		const double lo = SIDISFunctions::construct<PDFInterface, FFInterface>({}, &params, lo_integrand, false, false, false, sign);
+		const double lo = SIDISFunctions::evaluate<PDFInterface, FFInterface>({}, &params, lo_integrand, false, false, false, sign);
 
 		double nlo = 0.0;
 		if (order >= PerturbativeOrder::NLO) {
 			Integrator nlo_integrator([nlo_integrand, sign](double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
-				return SIDISFunctions::construct<PDFInterface, FFInterface>(input, params_in, nlo_integrand, true, true, false, sign);
+				return SIDISFunctions::evaluate<PDFInterface, FFInterface>(input, params_in, nlo_integrand, true, true, false, sign);
 			}, {x, z}, {1, 1}, integration_parameters, &params);
 			const auto nlo_result = nlo_integrator.integrate();
 			const double nlo_value = nlo_result.value;
@@ -135,7 +135,7 @@ class SIDISComputation {
 		double nnlo = 0.0;
 		if (order >= PerturbativeOrder::NNLO) {
 			Integrator nnlo_integrator([nnlo_integrand, sign](double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
-				return SIDISFunctions::construct<PDFInterface, FFInterface>(input, params_in, nnlo_integrand, true, true, false, sign);
+				return SIDISFunctions::evaluate<PDFInterface, FFInterface>(input, params_in, nnlo_integrand, true, true, false, sign);
 			}, {x, z}, {1, 1}, integration_parameters, &params);
 			const auto nnlo_result = nnlo_integrator.integrate();
 			const double nnlo_value = nnlo_result.value;

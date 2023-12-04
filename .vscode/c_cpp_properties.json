@@ -6,17 +6,21 @@
                 "${workspaceFolder}/**",
                 "/opt/homebrew/include",
                 "~/Software/**",
+                "${workspaceFolder}/libChargedCurrent",
                 "${workspaceFolder}/libChargedCurrent/ChargedCurrent"
             ],
             "defines": [],
             "macFrameworkPath": [
                 "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"
             ],
-            "compilerPath": "/opt/homebrew/opt/llvm/bin/clang",
+            "compilerPath": "/opt/homebrew/opt/llvm/bin/clang++",
             "cStandard": "c17",
             "cppStandard": "c++23",
             "intelliSenseMode": "macos-clang-arm64",
-            "configurationProvider": "ms-vscode.cpptools"
+            "configurationProvider": "ms-vscode.cpptools",
+            "compilerArgs": [
+                "-std=c++23"
+            ]
         }
     ],
     "version": 4

@@ -34,7 +34,7 @@ namespace DISFunctions {
 	};
 
 	template <is_pdf_interface PDFInterface, typename Signature>
-	constexpr static double construct(
+	constexpr static double evaluate_integrand(
 		const double x, const double xi, 
 		const Parameters<PDFInterface> &params, const Signature integrand, const int sign, 
 		const FlavorType flavor1, const FlavorType antiflavor1,
@@ -63,7 +63,7 @@ namespace DISFunctions {
 		);
 	}
 	template <is_pdf_interface PDFInterface, typename Signature>
-	constexpr static double construct(
+	constexpr static double evaluate_integral(
 		const double input[], const Parameters<PDFInterface> &params, const Signature signature, 
 		const bool xi_int, const int sign) {
 
@@ -104,7 +104,7 @@ namespace DISFunctions {
 				pdf2.evaluate(x_mass / xi, factorization_scale);
 
 				const double V_ckm = CKM::squared(incoming, outgoing);
-				const double total_value = construct(
+				const double total_value = evaluate_integrand(
 					x_mass, xi,
 					params, signature, sign, 
 					incoming, anti_incoming,
@@ -120,7 +120,7 @@ namespace DISFunctions {
 	}
 
 	template <is_pdf_interface PDFInterface, typename Signature>
-	constexpr static double construct(const double input[], void *params_in, const Signature integrand, const bool xi_int, const int sign) {
+	constexpr static double evaluate(const double input[], void *params_in, const Signature integrand, const bool xi_int, const int sign) {
 		const Parameters<PDFInterface> &params = *static_cast<Parameters<PDFInterface> *>(params_in);
 		const TRFKinematics &kinematics = params.kinematics;
 
@@ -131,7 +131,7 @@ namespace DISFunctions {
 			params.pdf2.evaluate(x_hat, params.factorization_scale);
 		}
 
-		const double value = construct<PDFInterface>(input, params, integrand, xi_int, sign);
+		const double value = evaluate_integral<PDFInterface>(input, params, integrand, xi_int, sign);
 
 		return value;
 	}
@@ -144,9 +144,9 @@ namespace DISFunctions {
 
 		const struct Parameters<PDFInterface> &params = *static_cast<Parameters<PDFInterface> *>(params_in);
 		
-		const double f2 = construct<PDFInterface>(input, params_in, F2, xi_int, 1);
-		const double fL = construct<PDFInterface>(input, params_in, FL, xi_int, 1);
-		const double f3 = construct<PDFInterface>(input, params_in, F3, xi_int, -1);
+		const double f2 = evaluate<PDFInterface>(input, params_in, F2, xi_int, 1);
+		const double fL = evaluate<PDFInterface>(input, params_in, FL, xi_int, 1);
+		const double f3 = evaluate<PDFInterface>(input, params_in, F3, xi_int, -1);
 
 		const double cs = CommonFunctions::make_cross_section_variable(params.kinematics, params.process, f2, fL, f3);
 

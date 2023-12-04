@@ -52,7 +52,7 @@ namespace SIDISFunctions {
 
 namespace SIDISFunctions {
 	template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction, typename Signature>
-	constexpr static double construct(
+	constexpr static double evaluate_integrand(
 		const double x, 
 		const double z, 
 		const double xi, 
@@ -119,7 +119,7 @@ namespace SIDISFunctions {
 		});
 	}
 	template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction, typename Signature>
-	constexpr static double construct(
+	constexpr static double evaluate_integral_with_decay(
 		const double input[], 
 		const Parameters<PDFInterface, FFInterface, DecayFunction> &params, 
 		const Signature signature, 
@@ -199,7 +199,7 @@ namespace SIDISFunctions {
 				const double log1mx = Math::log1m(x_mass);
 
 				const double V_ckm = CKM::squared(incoming, outgoing);
-				const double total_value = construct(
+				const double total_value = evaluate_integrand(
 					x_mass, z, xi, xip, 
 					params, signature, sign, ff1, ff2, 
 					incoming, outgoing, anti_incoming, anti_outgoing, 
@@ -218,7 +218,7 @@ namespace SIDISFunctions {
 	}
 
 	template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction = decltype(DecayFunctions::trivial), typename Signature>
-	constexpr static double construct(
+	constexpr static double evaluate(
 		const double input[], void *params_in, const Signature integrand, 
 		const bool xi_int, const bool xip_int, const bool z_int, const int sign) {
 
@@ -239,10 +239,11 @@ namespace SIDISFunctions {
 
 		for (const auto &[ff1, ff2, decay] : std::views::zip(ffs1.interfaces, ffs2.interfaces, ffs1.decays)) {
 			const double z_min = SIDISFunctions::Helper::compute_z_min(kinematics, decay);
-			const double value = construct<PDFInterface, FFInterface, DecayFunction>(
-									input, params, integrand, 
-									xi_int, xip_int, z_int, sign, 
-									ff1, ff2, decay, z_min);
+			const double value = evaluate_integral_with_decay<PDFInterface, FFInterface, DecayFunction>(
+				input, params, integrand, 
+				xi_int, xip_int, z_int, sign, 
+				ff1, ff2, decay, z_min
+			);
 			const double summand = value;
 
 			sum += summand;
@@ -258,9 +259,9 @@ namespace SIDISFunctions {
 		const bool xi_int, const bool xip_int, const bool z_int) {
 		const auto &params = *static_cast<Parameters<PDFInterface, FFInterface, DecayFunction> *>(params_in);
 		
-		const double f2 = construct<PDFInterface, FFInterface, DecayFunction>(input, params_in, F2, xi_int, xip_int, z_int, 1);
-		const double fL = construct<PDFInterface, FFInterface, DecayFunction>(input, params_in, FL, xi_int, xip_int, z_int, 1);
-		const double f3 = construct<PDFInterface, FFInterface, DecayFunction>(input, params_in, F3, xi_int, xip_int, z_int, -1);
+		const double f2 = evaluate<PDFInterface, FFInterface, DecayFunction>(input, params_in, F2, xi_int, xip_int, z_int, 1);
+		const double fL = evaluate<PDFInterface, FFInterface, DecayFunction>(input, params_in, FL, xi_int, xip_int, z_int, 1);
+		const double f3 = evaluate<PDFInterface, FFInterface, DecayFunction>(input, params_in, F3, xi_int, xip_int, z_int, -1);
 
 		const double cs = CommonFunctions::make_cross_section_variable(params.kinematics, params.process, f2, fL, f3);
 

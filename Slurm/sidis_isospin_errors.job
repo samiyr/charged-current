@@ -1,6 +1,0 @@
-#!/bin/bash
-
-#SBATCH --ntasks=1
-#SBATCH -o ./Output/output.%a.out
-
-srun ./ChargedCurrentDIS sidis.differential.isospin.errors --nthreads $SLURM_CPUS_PER_TASK --pdf $1 --variation-start $2 --variation-end $3

@@ -5,6 +5,7 @@
 #include <array>
 #include <format>
 #include <chrono>
+#include <ranges>
 
 #include <ChargedCurrent/DIS/DIS.cpp>
 #include <ChargedCurrent/SIDIS/SIDIS.cpp>
@@ -243,30 +244,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		);
 	};
 	
-
-	// const auto construct_analytic_fragmentation_configuration = [](
-	// 	const double primary_muon_min_energy, const DecayParametrization &parametrization,
-	// 	const Particle &target,
-	// 	const std::array<std::string, 4> fragmentation_sets
-	// ) {
-	// 	const auto decay_function = DecayFunctions::decay_function;
-
-	// 	return FragmentationConfiguration(
-	// 		{
-	// 			LHAInterface(fragmentation_sets[0], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
-	// 			LHAInterface(fragmentation_sets[1], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
-	// 			LHAInterface(fragmentation_sets[2], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0}), 
-	// 			1.14 * LHAInterface(fragmentation_sets[3], {1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0})
-	// 		},
-	// 		{
-	// 			Decay(parametrization, Constants::Particles::D0, target, decay_function, primary_muon_min_energy),
-	// 			Decay(parametrization, Constants::Particles::Dp, target, decay_function, primary_muon_min_energy),
-	// 			Decay(parametrization, Constants::Particles::Ds, target, decay_function, primary_muon_min_energy),
-	// 			Decay(parametrization, Constants::Particles::LambdaC, target, decay_function, primary_muon_min_energy)
-	// 		}
-	// 	);
-	// };
-
 	const std::array<std::string, 4> opal_fragmentation = {
 		"kkks08_opal_d0___mas",
 		"kkks08_opal_d+___mas",

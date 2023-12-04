@@ -1,6 +1,8 @@
 #ifndef CKM_H
 #define CKM_H
 
+#include <array>
+
 #include "Common/Flavor.cpp"
 #include "Common/Constants.cpp"
 
@@ -9,7 +11,7 @@ struct CKM {
 	private:
 	// The 2D CKM matrix in a 1D form in such a way that invalid elements, such as V_dd or V_ds, which don't belong in the CKM matrix, are zero. 
 	// The elements are all squared.
-	constexpr static double _ckm_full_matrix[36] = {
+	constexpr static std::array<double, 36> _ckm_full_matrix = {
 		/* d: 				(d) 					u 						(s) 					c 						(b) 					t 				*/
 							0,				Constants::V_ud,				0,				Constants::V_cd,				0,				Constants::V_td	,
 		/* u: 				d 						(u)						s 						(c)						b 						(t) 			*/

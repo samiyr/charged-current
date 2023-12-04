@@ -97,15 +97,15 @@ class DISComputation {
 			factorization_scale_log
 		};
 		
-		const double lo = DISFunctions::construct<PDFInterface>({}, &params, lo_integrand, false, sign);
+		const double lo = DISFunctions::evaluate<PDFInterface>({}, &params, lo_integrand, false, sign);
 
 		Integrator nlo_integrator([nlo_integrand, sign](double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
-			return DISFunctions::construct<PDFInterface>(input, params_in, nlo_integrand, true, sign);
+			return DISFunctions::evaluate<PDFInterface>(input, params_in, nlo_integrand, true, sign);
 		}, {x}, {1.0}, integration_parameters, &params);
 		auto nlo_result = nlo_integrator.integrate();
 		const double nlo_value = nlo_result.value;
 
-		const double nlo_delta = DISFunctions::construct<PDFInterface>({}, &params, delta_integrand, false, sign);
+		const double nlo_delta = DISFunctions::evaluate<PDFInterface>({}, &params, delta_integrand, false, sign);
 
 		const double nlo = nlo_coefficient * (nlo_value + nlo_delta);
 
