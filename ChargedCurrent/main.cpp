@@ -801,7 +801,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		const double min_E = 5.0;
 
 		const std::vector<std::array<std::string, 4>> ff_variations = {
-			{"kkks08_belle_d0_mas", "kkks08_belle_d+_mas", "bkk05_D3_d_s_nlo", "bkk05_D3_lambda_c_nlo"},
+			{"kkks08_belle_d0__mas", "kkks08_belle_d+__mas", "bkk05_D3_d_s_nlo", "bkk05_D3_lambda_c_nlo"},
 			{"kkks08_global_d0_mas", "kkks08_global_d+_mas", "bkk05_D3_d_s_nlo", "bkk05_D3_lambda_c_nlo"},
 		};
 		const std::vector<std::string> folders = {"Belle", "Global"};
