@@ -6,10 +6,10 @@
 
 struct DecayParametrization {
 	constexpr static DecayParametrization fit1() noexcept {
-		return DecayParametrization(7.365, 1.4, 2.276, 2.04);
+		return DecayParametrization(3.1574, 1.00882, 1.79948, 2.1012);
 	}
 	constexpr static DecayParametrization fit2() noexcept {
-		return DecayParametrization(4.62698, 1.17383, 2.0603, 2.0565);
+		return DecayParametrization(7.365, 1.4, 2.276, 2.04);
 	}
 
 	constexpr static std::vector<DecayParametrization> fit_set_1() noexcept {
