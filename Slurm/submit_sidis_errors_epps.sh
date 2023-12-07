@@ -8,3 +8,5 @@ for ARG in "${ARGS[@]}"
 do
 	sbatch --job-name sidis-errors-epps --cpus-per-task=$CPUS --array=0-106 generic.job $ARG EPPS21nlo_CT18Anlo_Fe56
 done
+
+sbatch --job-name sidis-isospin-errors-epps --cpus-per-task=$CPUS --array=0-58 generic.job sidis.differential.isospin.errors CT18ANLO
