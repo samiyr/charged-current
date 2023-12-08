@@ -1653,7 +1653,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		const double min_E = 5.0;
 
 		std::vector<DecayParametrization> parametrizations;
-		parametrizations.push_back(DecayParametrization::fit1());
 		parametrizations.push_back(DecayParametrization::fit2());
 
 		const std::vector<DecayParametrization> &fit_set_1 = DecayParametrization::fit_set_1();
@@ -1673,14 +1672,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					parametrizations, PerturbativeOrder::NLO, false, charm_mass, 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					renormalization, pdf_scale, ff_scale,
-					out + "nutev_neutrino.csv"
+					out + "nutev_neutrino.csv",
+					variation_range
 				);
 				sidis.lepton_pair_xy_decays(
 					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
 					parametrizations, PerturbativeOrder::NLO, false, charm_mass, 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					renormalization, pdf_scale, ff_scale,
-					out + "ccfr_neutrino.csv"
+					out + "ccfr_neutrino.csv",
+					variation_range
 				);
 			});
 
@@ -1690,14 +1691,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					parametrizations, PerturbativeOrder::NLO, false, charm_mass, 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					renormalization, pdf_scale, ff_scale,
-					out + "nutev_antineutrino.csv"
+					out + "nutev_antineutrino.csv",
+					variation_range
 				);
 				anti_sidis.lepton_pair_xy_decays(
 					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
 					parametrizations, PerturbativeOrder::NLO, false, charm_mass, 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					renormalization, pdf_scale, ff_scale,
-					out + "ccfr_antineutrino.csv"
+					out + "ccfr_antineutrino.csv",
+					variation_range
 				);
 			});
 		}
