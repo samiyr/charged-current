@@ -188,7 +188,7 @@ struct DIS {
 
 						#pragma omp critical
 						{
-							file << x << ", " << y << ", " << E_beam << ", " << cross_section_xy.lo << ", " << cross_section_xy.nlo;
+							file << x << ", " << y << ", " << E_beam << ", " << cross_section_xy;
 							file << ", " << Q2 << ", " << renormalization_scale << ", " << factorization_scale << IO::endl;
 							file.flush();
 
@@ -640,7 +640,6 @@ struct DIS {
 
 	void output_run_info(std::ofstream &file, const auto &dis, const std::string comment) const {
 		file << "#timestamp = " << std::format("{:%d-%m-%Y %H:%M:%OS}", std::chrono::system_clock::now()) << IO::endl;
-		file << "#cross_section = d^2s/dxdy" << IO::endl;
 		file << "#active_flavors = ";
 		for (const FlavorType flavor : active_flavors) {
 			file << flavor << " ";

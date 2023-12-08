@@ -951,7 +951,6 @@ struct SIDIS {
 
 	void output_run_info(std::ofstream &file, const auto &computation, const std::string comment) const {
 		file << "#timestamp = " << std::format("{:%d-%m-%Y %H:%M:%OS}", std::chrono::system_clock::now()) << IO::endl;
-		file << "#cross_section = d^2s/dxdy" << IO::endl;
 		file << "#active_flavors = ";
 		for (const FlavorType flavor : computation.flavors.active_flavors) {
 			file << flavor << " ";
@@ -972,7 +971,7 @@ struct SIDIS {
 		file << "#number_of_threads = " << number_of_threads << IO::endl;
 		file << "#up_mass = " << up_mass << IO::endl;
 		file << "#down_mass = " << down_mass << IO::endl;
-		file << "#charm_mass = " << computation.flavors.flavor_masses[Flavor::Strange + 6] << IO::endl;
+		file << "#charm_mass = " << computation.flavors.flavor_masses[Flavor::Charm + 6] << IO::endl;
 		file << "#strange_mass = " << strange_mass << IO::endl;
 		file << "#top_mass = " << top_mass << IO::endl;
 		file << "#bottom_mass = " << bottom_mass << IO::endl;
