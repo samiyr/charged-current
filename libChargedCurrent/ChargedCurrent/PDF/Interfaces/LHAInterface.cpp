@@ -162,6 +162,11 @@ class LHAInterface {
 		return pdf->q2Max();
 	}
 
+	double quark_mass(const FlavorType flavor) const {
+		activate();
+		return pdf->quarkMass(flavor);
+	}
+
 	private:
 	const bool use_multipliers;
 	const std::vector<double> multipliers;

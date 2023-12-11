@@ -136,7 +136,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	const Process process(Process::Type::NeutrinoToLepton, Constants::Particles::Proton, Constants::Particles::Neutrino);
 	const Process anti_process(Process::Type::AntiNeutrinoToAntiLepton, Constants::Particles::Proton, Constants::Particles::Neutrino);
 
-	const double charm_mass = 1.3;
 	const std::vector<double> charm_masses = {0.0, 1.2, 1.3, 1.4, 1.5};
 
 	const auto renormalization = ScaleDependence::trivial;
@@ -297,7 +296,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			measure([&] {
 				charm_dis.differential_xy_errors(
 					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					renormalization, pdf_scale,
 					out + "nutev_neutrino.csv",
@@ -306,7 +305,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 				charm_dis.differential_xy_errors(
 					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					renormalization, pdf_scale,
 					out + "ccfr_neutrino.csv",
@@ -317,7 +316,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			measure([&] {
 				anti_charm_dis.differential_xy_errors(
 					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					renormalization, pdf_scale,
 					out + "nutev_antineutrino.csv",
@@ -326,7 +325,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 				anti_charm_dis.differential_xy_errors(
 					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					renormalization, pdf_scale,
 					out + "ccfr_antineutrino.csv",
@@ -349,7 +348,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			measure([&] {
 				dis.differential_xy_errors(
 					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					renormalization, pdf_scale,
 					out + "nutev_neutrino.csv",
@@ -358,7 +357,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 				dis.differential_xy_errors(
 					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					renormalization, pdf_scale,
 					out + "ccfr_neutrino.csv",
@@ -369,7 +368,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			measure([&] {
 				anti_dis.differential_xy_errors(
 					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					renormalization, pdf_scale,
 					out + "nutev_antineutrino.csv",
@@ -378,7 +377,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 				anti_dis.differential_xy_errors(
 					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					renormalization, pdf_scale,
 					out + "ccfr_antineutrino.csv",
@@ -401,7 +400,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			measure([&] {
 				charm_dis.integrated_errors(
 					E_beam_bins, 1.00,
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					renormalization, pdf_scale,
 					out + "nomad_neutrino_100.csv",
@@ -409,7 +408,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				);
 				charm_dis.integrated_errors(
 					E_beam_bins, 1.69,
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					renormalization, pdf_scale,
 					out + "nomad_neutrino_169.csv",
@@ -417,7 +416,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				);
 				charm_dis.integrated_errors(
 					E_beam_bins, 2.25,
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					renormalization, pdf_scale,
 					out + "nomad_neutrino_225.csv",
@@ -444,7 +443,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 			measure([&] {
 				dis.x_integrated(
-					E_beams, Q2s, charm_mass, 0.0, 0.0,
+					E_beams, Q2s, pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					renormalization, pdf_scale,
 					out + "min0.csv"
@@ -466,7 +465,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			measure([&] {
 				dis.integrated_errors(
 					E_beam_bins, 1.00,
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					renormalization, pdf_scale,
 					out + "nomad_neutrino_100.csv",
@@ -474,7 +473,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				);
 				dis.integrated_errors(
 					E_beam_bins, 1.69,
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					renormalization, pdf_scale,
 					out + "nomad_neutrino_169.csv",
@@ -482,7 +481,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				);
 				dis.integrated_errors(
 					E_beam_bins, 2.25,
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					renormalization, pdf_scale,
 					out + "nomad_neutrino_225.csv",
@@ -506,7 +505,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			measure([&] {
 				charm_dis.differential_xy_scales(
 					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					0.0, 1.69 + 1e-6,
 					out + "nutev_neutrino.csv",
@@ -515,7 +514,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 				charm_dis.differential_xy_scales(
 					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					0.0, 1.69 + 1e-6,
 					out + "ccfr_neutrino.csv",
@@ -526,7 +525,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			measure([&] {
 				anti_charm_dis.differential_xy_scales(
 					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					0.0, 1.69 + 1e-6,
 					out + "nutev_antineutrino.csv",
@@ -535,7 +534,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 				anti_charm_dis.differential_xy_scales(
 					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					0.0, 1.69 + 1e-6,
 					out + "ccfr_antineutrino.csv",
@@ -558,7 +557,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			measure([&] {
 				dis.differential_xy_scales(
 					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					0.0, 1.69 + 1e-6,
 					out + "nutev_neutrino.csv",
@@ -567,7 +566,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 				dis.differential_xy_scales(
 					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					0.0, 1.69 + 1e-6,
 					out + "ccfr_neutrino.csv",
@@ -578,7 +577,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			measure([&] {
 				anti_dis.differential_xy_scales(
 					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					0.0, 1.69 + 1e-6,
 					out + "nutev_antineutrino.csv",
@@ -587,7 +586,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 				anti_dis.differential_xy_scales(
 					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					0.0, 1.69 + 1e-6,
 					out + "ccfr_antineutrino.csv",
@@ -610,7 +609,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			measure([&] {
 				charm_dis.integrated_scales(
 					E_beam_bins, 1.00,
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					0.0, 1.69 + 1e-6,
 					out + "nomad_neutrino_100.csv",
@@ -618,7 +617,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				);
 				charm_dis.integrated_scales(
 					E_beam_bins, 1.69,
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					0.0, 1.69 + 1e-6,
 					out + "nomad_neutrino_169.csv",
@@ -626,7 +625,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				);
 				charm_dis.integrated_scales(
 					E_beam_bins, 2.25,
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					0.0, 1.69 + 1e-6,
 					out + "nomad_neutrino_225.csv",
@@ -649,7 +648,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			measure([&] {
 				dis.integrated_scales(
 					E_beam_bins, 1.00,
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					0.0, 1.69 + 1e-6,
 					out + "nomad_neutrino_100.csv",
@@ -657,7 +656,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				);
 				dis.integrated_scales(
 					E_beam_bins, 1.69,
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					0.0, 1.69 + 1e-6,
 					out + "nomad_neutrino_169.csv",
@@ -665,7 +664,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				);
 				dis.integrated_scales(
 					E_beam_bins, 2.25,
-					charm_mass, 0.0, 0.0,
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
 					pdf,
 					0.0, 1.69 + 1e-6,
 					out + "nomad_neutrino_225.csv",
@@ -691,7 +690,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			measure([&] {
 				sidis.lepton_pair_xy_errors(
 					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-					PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					renormalization, pdf_scale, ff_scale,
 					out + "nutev_neutrino.csv",
@@ -699,7 +698,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				);
 				sidis.lepton_pair_xy_errors(
 					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-					PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					renormalization, pdf_scale, ff_scale,
 					out + "ccfr_neutrino.csv",
@@ -710,7 +709,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			measure([&] {
 				anti_sidis.lepton_pair_xy_errors(
 					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-					PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					renormalization, pdf_scale, ff_scale,
 					out + "nutev_antineutrino.csv",
@@ -718,7 +717,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				);
 				anti_sidis.lepton_pair_xy_errors(
 					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-					PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					renormalization, pdf_scale, ff_scale,
 					out + "ccfr_antineutrino.csv",
@@ -744,7 +743,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				sidis.lepton_pair_xy_scales(
 					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
 					ScaleVariation::All,
-					PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					0.0, 1.69 + 1e-6, 2.25 + 1e-6,
 					out + "nutev_neutrino.csv",
@@ -753,7 +752,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				sidis.lepton_pair_xy_scales(
 					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
 					ScaleVariation::All,
-					PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					0.0, 1.69 + 1e-6, 2.25 + 1e-6,
 					out + "ccfr_neutrino.csv",
@@ -765,7 +764,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				anti_sidis.lepton_pair_xy_scales(
 					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
 					ScaleVariation::All,
-					PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					0.0, 1.69 + 1e-6, 2.25 + 1e-6,
 					out + "nutev_antineutrino.csv",
@@ -774,7 +773,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				anti_sidis.lepton_pair_xy_scales(
 					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
 					ScaleVariation::All,
-					PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					0.0, 1.69 + 1e-6, 2.25 + 1e-6,
 					out + "ccfr_antineutrino.csv",
@@ -809,7 +808,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				measure([&] {
 					sidis.lepton_pair_xy_errors(
 						x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-						PerturbativeOrder::NLO, false, charm_mass, 0.0,
+						PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 						pdf, grid,
 						renormalization, pdf_scale, ff_scale,
 						out + "nutev_neutrino.csv",
@@ -817,7 +816,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					);
 					sidis.lepton_pair_xy_errors(
 						x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-						PerturbativeOrder::NLO, false, charm_mass, 0.0,
+						PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 						pdf, grid,
 						renormalization, pdf_scale, ff_scale,
 						out + "ccfr_neutrino.csv",
@@ -828,7 +827,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				measure([&] {
 					anti_sidis.lepton_pair_xy_errors(
 						x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-						PerturbativeOrder::NLO, false, charm_mass, 0.0,
+						PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 						pdf, grid,
 						renormalization, pdf_scale, ff_scale,
 						out + "nutev_antineutrino.csv",
@@ -836,7 +835,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					);
 					anti_sidis.lepton_pair_xy_errors(
 						x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-						PerturbativeOrder::NLO, false, charm_mass, 0.0,
+						PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 						pdf, grid,
 						renormalization, pdf_scale, ff_scale,
 						out + "ccfr_antineutrino.csv",
@@ -862,14 +861,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			measure([&] {
 				sidis.lepton_pair_xy(
 					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-					PerturbativeOrder::NLO, true, charm_mass, 0.0,
+					PerturbativeOrder::NLO, true, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					renormalization, pdf_scale, ff_scale,
 					out + "nutev_neutrino.csv"
 				);
 				sidis.lepton_pair_xy(
 					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-					PerturbativeOrder::NLO, true, charm_mass, 0.0,
+					PerturbativeOrder::NLO, true, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					renormalization, pdf_scale, ff_scale,
 					out + "ccfr_neutrino.csv"
@@ -879,14 +878,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			measure([&] {
 				anti_sidis.lepton_pair_xy(
 					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-					PerturbativeOrder::NLO, true, charm_mass, 0.0,
+					PerturbativeOrder::NLO, true, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					renormalization, pdf_scale, ff_scale,
 					out + "nutev_antineutrino.csv"
 				);
 				anti_sidis.lepton_pair_xy(
 					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-					PerturbativeOrder::NLO, true, charm_mass, 0.0,
+					PerturbativeOrder::NLO, true, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					renormalization, pdf_scale, ff_scale,
 					out + "ccfr_antineutrino.csv"
@@ -910,14 +909,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			measure([&] {
 				sidis.lepton_pair_xy(
 					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-					PerturbativeOrder::NNLO, false, charm_mass, 0.0,
+					PerturbativeOrder::NNLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					renormalization, pdf_scale, ff_scale,
 					out + "nutev_neutrino.csv"
 				);
 				sidis.lepton_pair_xy(
 					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-					PerturbativeOrder::NNLO, false, charm_mass, 0.0,
+					PerturbativeOrder::NNLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					renormalization, pdf_scale, ff_scale,
 					out + "ccfr_neutrino.csv"
@@ -927,14 +926,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			measure([&] {
 				anti_sidis.lepton_pair_xy(
 					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-					PerturbativeOrder::NNLO, false, charm_mass, 0.0,
+					PerturbativeOrder::NNLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					renormalization, pdf_scale, ff_scale,
 					out + "nutev_antineutrino.csv"
 				);
 				anti_sidis.lepton_pair_xy(
 					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-					PerturbativeOrder::NNLO, false, charm_mass, 0.0,
+					PerturbativeOrder::NNLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					renormalization, pdf_scale, ff_scale,
 					out + "ccfr_antineutrino.csv"
@@ -966,14 +965,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				measure([&] {
 					sidis.lepton_pair_zxy(
 						z_bins, xs, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-						PerturbativeOrder::NLO, false, charm_mass, 0.0,
+						PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 						pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 						renormalization, pdf_scale, ff_scale,
 						out + "nutev_neutrino.csv"
 					);
 					sidis.lepton_pair_zxy(
 						z_bins, xs, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-						PerturbativeOrder::NLO, false, charm_mass, 0.0,
+						PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 						pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 						renormalization, pdf_scale, ff_scale,
 						out + "ccfr_neutrino.csv"
@@ -983,14 +982,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				measure([&] {
 					anti_sidis.lepton_pair_zxy(
 						z_bins, xs, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-						PerturbativeOrder::NLO, false, charm_mass, 0.0,
+						PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 						pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 						renormalization, pdf_scale, ff_scale,
 						out + "nutev_antineutrino.csv"
 					);
 					anti_sidis.lepton_pair_zxy(
 						z_bins, xs, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-						PerturbativeOrder::NLO, false, charm_mass, 0.0,
+						PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 						pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 						renormalization, pdf_scale, ff_scale,
 						out + "ccfr_antineutrino.csv"
@@ -1020,13 +1019,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 			measure([&] {
 				sidis.x_integrated_lepton_pair(
-					E_beams, Q2s, PerturbativeOrder::NLO, false, charm_mass, min_E_massive,
+					E_beams, Q2s, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E_massive,
 					pdf, grid_fragmentation(min_E_massive, Constants::Particles::Muon),
 					renormalization, pdf_scale, ff_scale,
 					out + "massive_min0.csv"
 				);
 				sidis.x_integrated_lepton_pair(
-					E_beams, Q2s, PerturbativeOrder::NLO, false, charm_mass, min_E_massless,
+					E_beams, Q2s, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E_massless,
 					pdf, grid_fragmentation(min_E_massless, Constants::Particles::MasslessMuon),
 					renormalization, pdf_scale, ff_scale,
 					out + "massless_min0.csv"
@@ -1049,21 +1048,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 			measure([&] {
 				sidis.integrated_lepton_pair_errors(
-					E_beam_bins, 1.00, PerturbativeOrder::NLO, false, charm_mass, min_E, 
+					E_beam_bins, 1.00, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::Muon), 
 					renormalization, pdf_scale, ff_scale, 
 					out + "nomad_neutrino_100.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_errors(
-					E_beam_bins, 1.69, PerturbativeOrder::NLO, false, charm_mass, min_E, 
+					E_beam_bins, 1.69, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::Muon), 
 					renormalization, pdf_scale, ff_scale, 
 					out + "nomad_neutrino_169.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_errors(
-					E_beam_bins, 2.25, PerturbativeOrder::NLO, false, charm_mass, min_E, 
+					E_beam_bins, 2.25, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::Muon), 
 					renormalization, pdf_scale, ff_scale, 
 					out + "nomad_neutrino_225.csv",
@@ -1075,21 +1074,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 			measure([&] {
 				sidis.integrated_lepton_pair_errors(
-					E_beam_bins, 1.00, PerturbativeOrder::NLO, false, charm_mass, min_E, 
+					E_beam_bins, 1.00, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon), 
 					renormalization, pdf_scale, ff_scale, 
 					out_massless + "nomad_neutrino_100.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_errors(
-					E_beam_bins, 1.69, PerturbativeOrder::NLO, false, charm_mass, min_E, 
+					E_beam_bins, 1.69, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon), 
 					renormalization, pdf_scale, ff_scale, 
 					out_massless + "nomad_neutrino_169.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_errors(
-					E_beam_bins, 2.25, PerturbativeOrder::NLO, false, charm_mass, min_E, 
+					E_beam_bins, 2.25, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon), 
 					renormalization, pdf_scale, ff_scale, 
 					out_massless + "nomad_neutrino_225.csv",
@@ -1114,21 +1113,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 			measure([&] {
 				sidis.integrated_lepton_pair_errors(
-					E_beam_bins, 1.00, PerturbativeOrder::NLO, false, charm_mass, min_E_massive, 
+					E_beam_bins, 1.00, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E_massive, 
 					pdf, grid_fragmentation(min_E_massive, Constants::Particles::Muon), 
 					renormalization, pdf_scale, ff_scale, 
 					out + "nomad_neutrino_100.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_errors(
-					E_beam_bins, 1.69, PerturbativeOrder::NLO, false, charm_mass, min_E_massive, 
+					E_beam_bins, 1.69, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E_massive, 
 					pdf, grid_fragmentation(min_E_massive, Constants::Particles::Muon), 
 					renormalization, pdf_scale, ff_scale, 
 					out + "nomad_neutrino_169.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_errors(
-					E_beam_bins, 2.25, PerturbativeOrder::NLO, false, charm_mass, min_E_massive, 
+					E_beam_bins, 2.25, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E_massive, 
 					pdf, grid_fragmentation(min_E_massive, Constants::Particles::Muon), 
 					renormalization, pdf_scale, ff_scale, 
 					out + "nomad_neutrino_225.csv",
@@ -1140,21 +1139,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 			measure([&] {
 				sidis.integrated_lepton_pair_errors(
-					E_beam_bins, 1.00, PerturbativeOrder::NLO, false, charm_mass, min_E_massless, 
+					E_beam_bins, 1.00, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E_massless, 
 					pdf, grid_fragmentation(min_E_massless, Constants::Particles::MasslessMuon), 
 					renormalization, pdf_scale, ff_scale, 
 					out_massless + "nomad_neutrino_100.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_errors(
-					E_beam_bins, 1.69, PerturbativeOrder::NLO, false, charm_mass, min_E_massless, 
+					E_beam_bins, 1.69, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E_massless, 
 					pdf, grid_fragmentation(min_E_massless, Constants::Particles::MasslessMuon), 
 					renormalization, pdf_scale, ff_scale, 
 					out_massless + "nomad_neutrino_169.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_errors(
-					E_beam_bins, 2.25, PerturbativeOrder::NLO, false, charm_mass, min_E_massless, 
+					E_beam_bins, 2.25, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E_massless, 
 					pdf, grid_fragmentation(min_E_massless, Constants::Particles::MasslessMuon), 
 					renormalization, pdf_scale, ff_scale, 
 					out_massless + "nomad_neutrino_225.csv",
@@ -1178,21 +1177,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 			measure([&] {
 				sidis.integrated_lepton_pair_scales(
-					E_beam_bins, 1.00, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E, 
+					E_beam_bins, 1.00, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::Muon), 
 					0.0, 1.69 + 1e-6, 2.25 + 1e-6,
 					out + "nomad_neutrino_100.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_scales(
-					E_beam_bins, 1.69, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E, 
+					E_beam_bins, 1.69, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::Muon), 
 					0.0, 1.69 + 1e-6, 2.25 + 1e-6,
 					out + "nomad_neutrino_169.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_scales(
-					E_beam_bins, 2.25, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E, 
+					E_beam_bins, 2.25, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::Muon), 
 					0.0, 1.69 + 1e-6, 2.25 + 1e-6,
 					out + "nomad_neutrino_225.csv",
@@ -1204,21 +1203,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 			measure([&] {
 				sidis.integrated_lepton_pair_scales(
-					E_beam_bins, 1.00, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E, 
+					E_beam_bins, 1.00, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon), 
 					0.0, 1.69 + 1e-6, 2.25 + 1e-6,
 					out_massless + "nomad_neutrino_100.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_scales(
-					E_beam_bins, 1.69, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E, 
+					E_beam_bins, 1.69, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon), 
 					0.0, 1.69 + 1e-6, 2.25 + 1e-6,
 					out_massless + "nomad_neutrino_169.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_scales(
-					E_beam_bins, 2.25, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E, 
+					E_beam_bins, 2.25, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E, 
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon), 
 					0.0, 1.69 + 1e-6, 2.25 + 1e-6,
 					out_massless + "nomad_neutrino_225.csv",
@@ -1243,21 +1242,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 			measure([&] {
 				sidis.integrated_lepton_pair_scales(
-					E_beam_bins, 1.00, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E_massive, 
+					E_beam_bins, 1.00, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E_massive, 
 					pdf, grid_fragmentation(min_E_massive, Constants::Particles::Muon), 
 					0.0, 1.69 + 1e-6, 2.25 + 1e-6,
 					out + "nomad_neutrino_100.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_scales(
-					E_beam_bins, 1.69, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E_massive, 
+					E_beam_bins, 1.69, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E_massive, 
 					pdf, grid_fragmentation(min_E_massive, Constants::Particles::Muon), 
 					0.0, 1.69 + 1e-6, 2.25 + 1e-6,
 					out + "nomad_neutrino_169.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_scales(
-					E_beam_bins, 2.25, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E_massive, 
+					E_beam_bins, 2.25, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E_massive, 
 					pdf, grid_fragmentation(min_E_massive, Constants::Particles::Muon), 
 					0.0, 1.69 + 1e-6, 2.25 + 1e-6,
 					out + "nomad_neutrino_225.csv",
@@ -1269,21 +1268,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 			measure([&] {
 				sidis.integrated_lepton_pair_scales(
-					E_beam_bins, 1.00, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E_massless, 
+					E_beam_bins, 1.00, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E_massless, 
 					pdf, grid_fragmentation(min_E_massless, Constants::Particles::MasslessMuon), 
 					0.0, 1.69 + 1e-6, 2.25 + 1e-6,
 					out_massless + "nomad_neutrino_100.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_scales(
-					E_beam_bins, 1.69, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E_massless, 
+					E_beam_bins, 1.69, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E_massless, 
 					pdf, grid_fragmentation(min_E_massless, Constants::Particles::MasslessMuon), 
 					0.0, 1.69 + 1e-6, 2.25 + 1e-6,
 					out_massless + "nomad_neutrino_169.csv",
 					variation_range
 				);
 				sidis.integrated_lepton_pair_scales(
-					E_beam_bins, 2.25, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, charm_mass, min_E_massless, 
+					E_beam_bins, 2.25, ScaleVariation::RenormalizationFactorization, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), min_E_massless, 
 					pdf, grid_fragmentation(min_E_massless, Constants::Particles::MasslessMuon), 
 					0.0, 1.69 + 1e-6, 2.25 + 1e-6,
 					out_massless + "nomad_neutrino_225.csv",
@@ -1309,7 +1308,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			measure([&] {
 				sidis.lepton_pair_xy_errors(
 					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-					PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					renormalization, pdf_scale, ff_scale,
 					out + "nutev_neutrino.csv",
@@ -1317,7 +1316,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				);
 				sidis.lepton_pair_xy_errors(
 					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-					PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					renormalization, pdf_scale, ff_scale,
 					out + "ccfr_neutrino.csv",
@@ -1328,7 +1327,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			measure([&] {
 				anti_sidis.lepton_pair_xy_errors(
 					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-					PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					renormalization, pdf_scale, ff_scale,
 					out + "nutev_antineutrino.csv",
@@ -1336,7 +1335,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				);
 				anti_sidis.lepton_pair_xy_errors(
 					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-					PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					renormalization, pdf_scale, ff_scale,
 					out + "ccfr_antineutrino.csv",
@@ -1359,14 +1358,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			measure([&] {
 				sidis.lepton_pair_xy(
 					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-					PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, D0_grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					renormalization, pdf_scale, ff_scale,
 					out + "nutev_neutrino.csv"
 				);
 				sidis.lepton_pair_xy(
 					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-					PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, D0_grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					renormalization, pdf_scale, ff_scale,
 					out + "ccfr_neutrino.csv"
@@ -1376,14 +1375,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			measure([&] {
 				anti_sidis.lepton_pair_xy(
 					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-					PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, D0_grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					renormalization, pdf_scale, ff_scale,
 					out + "nutev_antineutrino.csv"
 				);
 				anti_sidis.lepton_pair_xy(
 					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-					PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, D0_grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					renormalization, pdf_scale, ff_scale,
 					out + "ccfr_antineutrino.csv"
@@ -1412,14 +1411,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			measure([&] {
 				sidis.lepton_pair_xy(
 					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-					PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					PerturbativeOrder::NLO, false, pdf_in.quark_mass(Flavor::Charm), 0.0,
 					pdf_in, ff_in,
 					renormalization, pdf_scale, ff_scale,
 					out + "nutev_neutrino.csv"
 				);
 				sidis.lepton_pair_xy(
 					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-					PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					PerturbativeOrder::NLO, false, pdf_in.quark_mass(Flavor::Charm), 0.0,
 					pdf_in, ff_in,
 					renormalization, pdf_scale, ff_scale,
 					out + "ccfr_neutrino.csv"
@@ -1429,14 +1428,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			measure([&] {
 				anti_sidis.lepton_pair_xy(
 					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-					PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					PerturbativeOrder::NLO, false, pdf_in.quark_mass(Flavor::Charm), 0.0,
 					pdf_in, ff_in,
 					renormalization, pdf_scale, ff_scale,
 					out + "nutev_antineutrino.csv"
 				);
 				anti_sidis.lepton_pair_xy(
 					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-					PerturbativeOrder::NLO, false, charm_mass, 0.0,
+					PerturbativeOrder::NLO, false, pdf_in.quark_mass(Flavor::Charm), 0.0,
 					pdf_in, ff_in,
 					renormalization, pdf_scale, ff_scale,
 					out + "ccfr_antineutrino.csv"
@@ -1504,14 +1503,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				measure([&] {
 					sidis.lepton_pair_xy(
 						x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-						PerturbativeOrder::NLO, false, charm_mass, 0.0,
+						PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 						pdf, fragmentation,
 						renormalization, pdf_scale, ff_scale,
 						out + "nutev_neutrino.csv"
 					);
 					sidis.lepton_pair_xy(
 						x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-						PerturbativeOrder::NLO, false, charm_mass, 0.0,
+						PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 						pdf, fragmentation,
 						renormalization, pdf_scale, ff_scale,
 						out + "ccfr_neutrino.csv"
@@ -1521,14 +1520,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				measure([&] {
 					anti_sidis.lepton_pair_xy(
 						x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-						PerturbativeOrder::NLO, false, charm_mass, 0.0,
+						PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 						pdf, fragmentation,
 						renormalization, pdf_scale, ff_scale,
 						out + "nutev_antineutrino.csv"
 					);
 					anti_sidis.lepton_pair_xy(
 						x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-						PerturbativeOrder::NLO, false, charm_mass, 0.0,
+						PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 						pdf, fragmentation,
 						renormalization, pdf_scale, ff_scale,
 						out + "ccfr_antineutrino.csv"
@@ -1682,7 +1681,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				measure([&] {
 					sidis.lepton_pair_xy_decays(
 						x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-						parametrizations, PerturbativeOrder::NLO, false, charm_mass, 0.0,
+						parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 						pdf,
 						renormalization, pdf_scale, ff_scale,
 						out + "nutev_neutrino.csv",
@@ -1690,7 +1689,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					);
 					sidis.lepton_pair_xy_decays(
 						x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-						parametrizations, PerturbativeOrder::NLO, false, charm_mass, 0.0,
+						parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 						pdf,
 						renormalization, pdf_scale, ff_scale,
 						out + "ccfr_neutrino.csv",
@@ -1701,7 +1700,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				measure([&] {
 					anti_sidis.lepton_pair_xy_decays(
 						x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-						parametrizations, PerturbativeOrder::NLO, false, charm_mass, 0.0,
+						parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 						pdf,
 						renormalization, pdf_scale, ff_scale,
 						out + "nutev_antineutrino.csv",
@@ -1709,7 +1708,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					);
 					anti_sidis.lepton_pair_xy_decays(
 						x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-						parametrizations, PerturbativeOrder::NLO, false, charm_mass, 0.0,
+						parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 						pdf,
 						renormalization, pdf_scale, ff_scale,
 						out + "ccfr_antineutrino.csv",

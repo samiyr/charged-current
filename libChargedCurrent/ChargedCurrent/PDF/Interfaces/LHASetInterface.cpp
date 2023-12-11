@@ -54,6 +54,10 @@ class LHASetInterface {
 		return this->operator[](0);
 	}
 
+	double quark_mass(const FlavorType flavor) const {
+		return central().quark_mass(flavor);
+	}
+
 	class iterator {
 		public:
 		iterator(const int member, const LHASetInterface<explicit_isospin, Extrapolator> *set) : member(member), set(set) {}
