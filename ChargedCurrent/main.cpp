@@ -1652,15 +1652,29 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 		const double min_E = 5.0;
 
-		const std::vector<DecayParametrization> &fit_set_1 = DecayParametrization::fit_set_1();
-		const std::vector<DecayParametrization> &fit_set_2 = DecayParametrization::fit_set_2();
+		const std::vector<DecayParametrization> &fit_set_1_parametrizations = DecayParametrization::fit_set_1();
+		const std::vector<DecayParametrization> &fit_set_2_parametrizations = DecayParametrization::fit_set_2();
+
+		std::vector<FragmentationConfiguration<LHAInterface<>, DecayFunctions::DecayGrid>> fit_set_1;
+		for (const DecayParametrization &parametrization : fit_set_1_parametrizations) {
+			fit_set_1.push_back(
+				grid_fragmentation(min_E, Constants::Particles::MasslessMuon, parametrization)
+			);
+		}
+		
+		std::vector<FragmentationConfiguration<LHAInterface<>, DecayFunctions::DecayGrid>> fit_set_2;
+		for (const DecayParametrization &parametrization : fit_set_2_parametrizations) {
+			fit_set_2.push_back(
+				grid_fragmentation(min_E, Constants::Particles::MasslessMuon, parametrization)
+			);
+		}
 
 		for (const auto &pdf : pdfs) {
 			std::cout << "PDF set: " << pdf.set_name << IO::endl;
 
 			for (const auto &[fit_set, current_folder] : std::views::zip(std::vector{fit_set_1, fit_set_2}, std::vector{"FitSet1", "FitSet2"})) {
 				// To fix the compiler error 'capturing a structured binding is not yet supported in OpenMP'
-				const std::vector<DecayParametrization> &parametrizations = fit_set;
+				const auto &parametrizations = fit_set;
 				const std::string folder = current_folder;
 
 				const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Differential/Decays/" + pdf.set_name + "/" + folder + "/";
@@ -1669,7 +1683,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					sidis.lepton_pair_xy_decays(
 						x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
 						parametrizations, PerturbativeOrder::NLO, false, charm_mass, 0.0,
-						pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+						pdf,
 						renormalization, pdf_scale, ff_scale,
 						out + "nutev_neutrino.csv",
 						variation_range
@@ -1677,7 +1691,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					sidis.lepton_pair_xy_decays(
 						x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
 						parametrizations, PerturbativeOrder::NLO, false, charm_mass, 0.0,
-						pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+						pdf,
 						renormalization, pdf_scale, ff_scale,
 						out + "ccfr_neutrino.csv",
 						variation_range
@@ -1688,7 +1702,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					anti_sidis.lepton_pair_xy_decays(
 						x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
 						parametrizations, PerturbativeOrder::NLO, false, charm_mass, 0.0,
-						pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+						pdf,
 						renormalization, pdf_scale, ff_scale,
 						out + "nutev_antineutrino.csv",
 						variation_range
@@ -1696,7 +1710,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					anti_sidis.lepton_pair_xy_decays(
 						x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
 						parametrizations, PerturbativeOrder::NLO, false, charm_mass, 0.0,
-						pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+						pdf,
 						renormalization, pdf_scale, ff_scale,
 						out + "ccfr_antineutrino.csv",
 						variation_range

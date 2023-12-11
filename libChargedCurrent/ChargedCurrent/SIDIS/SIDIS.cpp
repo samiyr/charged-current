@@ -580,10 +580,10 @@ struct SIDIS {
 		const std::vector<double> &xs,
 		const std::vector<double> &ys,
 		const std::vector<double> &Ebeams,
-		const std::vector<DecayParametrization> &decay_variations,
+		const auto &decay_variations,
 		const PerturbativeOrder order, const bool use_nlp_nlo,
 		const double charm_mass, const double primary_muon_min_energy,
-		const auto &pdf, const auto &ff,
+		const auto &pdf,
 		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale,
 		const std::filesystem::path base_output,
 		const std::optional<std::pair<std::size_t, std::size_t>> variation_range = std::nullopt,
@@ -595,17 +595,12 @@ struct SIDIS {
 		const std::size_t variation_end = custom_range ? (*variation_range).second + 1 : variation_count;
 
 		for (std::size_t variation_index = variation_start; variation_index < variation_end; variation_index++) {
-			const DecayParametrization parametrization = decay_variations[variation_index];
-			FragmentationConfiguration ff_variation = ff;
-
-			for (auto &decay : ff_variation.decays) {
-				decay.parametrization = parametrization;
-			}
+			const FragmentationConfiguration decay_variation = decay_variations[variation_index];
 
 			const SIDISComputation sidis = construct_computation(
 				order, use_nlp_nlo,
 				charm_mass, primary_muon_min_energy,
-				pdf, ff_variation,
+				pdf, decay_variation,
 				renormalization_scale, factorization_scale, fragmentation_scale
 			);
 
@@ -619,10 +614,10 @@ struct SIDIS {
 			IO::create_directory_tree(output);
 			std::ofstream file(output);
 
-			file << "#N = " << ff_variation.decays.front().parametrization.N << IO::endl;
-			file << "#alpha = " << ff_variation.decays.front().parametrization.alpha << IO::endl;
-			file << "#beta = " << ff_variation.decays.front().parametrization.beta << IO::endl;
-			file << "#gamma = " << ff_variation.decays.front().parametrization.gamma << IO::endl;
+			file << "#N = " << decay_variation.decays.front().parametrization.N << IO::endl;
+			file << "#alpha = " << decay_variation.decays.front().parametrization.alpha << IO::endl;
+			file << "#beta = " << decay_variation.decays.front().parametrization.beta << IO::endl;
+			file << "#gamma = " << decay_variation.decays.front().parametrization.gamma << IO::endl;
 
 			lepton_pair_xy_base(sidis, xs, ys, Ebeams, "decay", variation_index - variation_start, variation_count, file, comment);
 		}
