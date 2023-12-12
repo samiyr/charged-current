@@ -1760,7 +1760,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 		if (!custom_variation_range || start_index <= 0) {
 			generator.generate_decay_grids(
-				"DecayGrids", {1.0, 5.0, 10.0, 100.0, 300.0}, {Constants::Particles::Muon.mass}, parametrizations,
+				output_dir + "DecayGrids", {1.0, 5.0, 10.0, 100.0, 300.0}, {Constants::Particles::Muon.mass}, parametrizations,
 				{
 					Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
 				}, Constants::Particles::Proton, Constants::Particles::Muon
@@ -1769,7 +1769,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 		if (!custom_variation_range || start_index <= 1) {
 			generator.generate_decay_grids(
-				"DecayGrids", zyE_bins, {3.0, 5.0}, parametrizations,
+				output_dir + "DecayGrids", zyE_bins, {3.0, 5.0}, parametrizations,
 				{
 					Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
 				}, Constants::Particles::Proton, Constants::Particles::Muon
@@ -1778,7 +1778,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 		if (!custom_variation_range || start_index <= 2) {
 			generator.generate_decay_grids(
-				"DecayGrids", {1.0, 5.0, 10.0, 100.0, 300.0}, {Constants::Particles::MasslessMuon.mass}, parametrizations,
+				output_dir + "DecayGrids", {1.0, 5.0, 10.0, 100.0, 300.0}, {Constants::Particles::MasslessMuon.mass}, parametrizations,
 				{
 					Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
 				}, Constants::Particles::Proton, Constants::Particles::MasslessMuon
@@ -1787,7 +1787,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		
 		if (!custom_variation_range || start_index <= 3) {
 			generator.generate_decay_grids(
-				"DecayGrids", zyE_bins, {3.0, 5.0}, parametrizations,
+				output_dir + "DecayGrids", zyE_bins, {3.0, 5.0}, parametrizations,
 				{
 					Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
 				}, Constants::Particles::Proton, Constants::Particles::MasslessMuon
@@ -1796,7 +1796,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		
 		if (!custom_variation_range || start_index <= 4) {
 			generator.generate_decay_grids(
-				"DecayGrids", zyE_bins, {5.0}, DecayParametrization::fit_set_3(),
+				output_dir + "DecayGrids", zyE_bins, {5.0}, DecayParametrization::fit_set_3(),
 				{
 					Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
 				}, Constants::Particles::Proton, Constants::Particles::MasslessMuon
