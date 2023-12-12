@@ -1793,6 +1793,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				}, Constants::Particles::Proton, Constants::Particles::MasslessMuon
 			);
 		}
+		
+		if (!custom_variation_range || start_index <= 4) {
+			generator.generate_decay_grids(
+				"DecayGrids", zyE_bins, {5.0}, DecayParametrization::fit_set_3(),
+				{
+					Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
+				}, Constants::Particles::Proton, Constants::Particles::MasslessMuon
+			);
+		}
 
 		std::cout << separator << IO::endl;
 	}
