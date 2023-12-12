@@ -25,7 +25,7 @@ struct GridGenerator {
 
 	static std::string grid_filename(const double E_min, const DecayParametrization &parametrization, const Particle &resonance, const Particle &target, const Particle &lepton) {
 		return std::format(
-			"dg_E_{:.2f}_r_{:.2f}_{:.2f}_t_{:.2f}_l_{:.2f}_p_{:.2f}_{:.2f}_{:.2f}_{:.2f}.dat",
+			"dg_E_{:.2f}_r_{:.2f}_{:.2f}_t_{:.2f}_l_{:.2f}_p_{:.4f}_{:.4f}_{:.4f}_{:.4f}.dat",
 			E_min, resonance.mass, resonance.lifetime, target.mass, lepton.mass, parametrization.N, parametrization.alpha, parametrization.beta, parametrization.gamma
 		);
 	}
