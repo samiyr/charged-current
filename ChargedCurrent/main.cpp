@@ -1663,6 +1663,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 		const std::vector<DecayParametrization> &fit_set_1_parametrizations = DecayParametrization::fit_set_1();
 		const std::vector<DecayParametrization> &fit_set_2_parametrizations = DecayParametrization::fit_set_2();
+		const std::vector<DecayParametrization> &fit_set_3_parametrizations = DecayParametrization::fit_set_3();
 
 		std::vector<FragmentationConfiguration<LHAInterface<>, DecayFunctions::DecayGrid>> fit_set_1;
 		for (const DecayParametrization &parametrization : fit_set_1_parametrizations) {
@@ -1677,11 +1678,18 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				grid_fragmentation(min_E, Constants::Particles::MasslessMuon, parametrization)
 			);
 		}
+		
+		std::vector<FragmentationConfiguration<LHAInterface<>, DecayFunctions::DecayGrid>> fit_set_3;
+		for (const DecayParametrization &parametrization : fit_set_3_parametrizations) {
+			fit_set_3.push_back(
+				grid_fragmentation(min_E, Constants::Particles::MasslessMuon, parametrization)
+			);
+		}
 
 		for (const auto &pdf : pdfs) {
 			std::cout << "PDF set: " << pdf.set_name << IO::endl;
 
-			for (const auto &[fit_set, current_folder] : std::views::zip(std::vector{fit_set_1, fit_set_2}, std::vector{"FitSet1", "FitSet2"})) {
+			for (const auto &[fit_set, current_folder] : std::views::zip(std::vector{fit_set_1, fit_set_2, fit_set_3}, std::vector{"FitSet1", "FitSet2", "FitSet3"})) {
 				// To fix the compiler error 'capturing a structured binding is not yet supported in OpenMP'
 				const auto &parametrizations = fit_set;
 				const std::string folder = current_folder;
