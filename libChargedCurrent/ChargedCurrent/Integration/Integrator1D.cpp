@@ -29,6 +29,8 @@ struct Integrator1D {
 	struct Result {
 		const double value;
 		const double error;
+		const std::size_t nevals;
+		const int return_code;
 
 		friend std::ostream &operator <<(std::ostream &os, const Result &r) {
 			return os << r.value << " +- " << r.error;
@@ -53,6 +55,7 @@ struct Integrator1D {
 	Result integrate(const Integrand &integrand, const double lower, const double upper, const double epsabs, const double epsrel) const {
 		double integral = 0.0;
 		double error = 0.0;
+		std::size_t nevals = 0;
 
 		GSL1DFunctor<Integrand> functor { integrand, params };
 		gsl_function function;
@@ -60,9 +63,9 @@ struct Integrator1D {
 		function.function = &GSL1DFunctor<Integrand>::invoke;
 		function.params = &functor;
 
-		gsl_integration_cquad(&function, lower, upper, epsabs, epsrel, workspace, &integral, &error, NULL);
+		const int return_code = gsl_integration_cquad(&function, lower, upper, epsabs, epsrel, workspace, &integral, &error, &nevals);
 
-		return Result { integral, error };
+		return Result { integral, error, nevals, return_code };
 	}
 
 	private:

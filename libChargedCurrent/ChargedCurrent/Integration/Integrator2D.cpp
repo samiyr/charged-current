@@ -20,8 +20,8 @@ struct Integrator2D {
 		const double lower1, const double upper1, const double lower2, const double upper2, 
 		const double epsabs, const double epsrel
 	) const {
-		const Integrator1D x_integrator(params);
-		const Integrator1D y_integrator(params);
+		const Integrator1D x_integrator(params, interval_count);
+		const Integrator1D y_integrator(params, interval_count);
 
 		const auto x_integrand = [&](double x, void *) {
 			const auto y_integrand = [&integrand, x](double y, void *) {

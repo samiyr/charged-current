@@ -1,0 +1,6 @@
+#!/bin/bash
+
+#SBATCH --ntasks=1
+#SBATCH -o ./Output/output.%a.out
+
+srun ./ChargedCurrentDIS $1 --nthreads $SLURM_CPUS_PER_TASK --pdf $2

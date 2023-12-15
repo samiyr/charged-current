@@ -1742,7 +1742,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	if (run("utility.decay.grid")) {
 		std::cout << "============================== utility.decay.grid ==============================" << IO::endl;
 
-		const std::vector<double> zyE_bins = Math::linear_space(1.0, 300.0, 1e-1);
+		const std::vector<double> zyE_bins = Math::linear_space(1.0, 300.0, 1.0);
 
 		GridGenerator generator(number_of_threads);
 
@@ -1760,11 +1760,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		const std::size_t end_index = custom_variation_range ? (*variation_range).second : std::numeric_limits<std::size_t>::max();
 
 		if (!custom_variation_range || Math::in_interval(start_index, end_index, static_cast<std::size_t>(0))) {
-			GridGenerator slow_generator(number_of_threads);
-			slow_generator.maximum_relative_error = 1e-5;
-			slow_generator.maximum_evaluations = 100'000'000;
-
-			slow_generator.generate_decay_grids(
+			generator.generate_decay_grids(
 				output_dir + "DecayGrids", {1.0, 5.0, 10.0, 100.0, 300.0}, {Constants::Particles::MasslessMuon.mass}, {DecayParametrization::fit1()},
 				{
 					Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC

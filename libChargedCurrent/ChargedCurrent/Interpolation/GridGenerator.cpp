@@ -18,8 +18,6 @@
 struct GridGenerator {
 	const bool parallelize;
 	const unsigned int number_of_threads;
-	double maximum_relative_error = 1e-4;
-	int maximum_evaluations = 100'000'000;
 
 	GridGenerator(const unsigned int number_of_threads = Utility::get_default_thread_count() / 2) : parallelize(number_of_threads > 1), number_of_threads(number_of_threads) {}
 
@@ -187,32 +185,8 @@ struct GridGenerator {
 								},
 								0.0, 1.0,
 								-1.0, 1.0,
-								1e-12, 0
+								0, 1e-6
 							);
-							// Integrator integrator([&](double input[], size_t, void *) {
-							// 	const double rho = input[0];
-							// 	const double c = input[1];
-
-							// 	const double h0 = zyE;
-							// 	if (h0 < resonance.mass) { return 0.0; }
-							// 	const double pp0 = rho * h0;
-							// 	if (pp0 < E_min) { return 0.0; }
-
-							// 	const double mu = lepton.mass / h0;
-							// 	const double reduced_rho = sqrt(std::pow(rho, 2) - std::pow(mu, 2));
-
-							// 	const double a = std::pow(h0, 2) / std::pow(resonance.mass, 2);
-							// 	const double b = h0 * sqrt(std::pow(h0, 2) - std::pow(resonance.mass, 2)) / std::pow(resonance.mass, 2);
-
-							// 	const double cos_min = (parametrization.gamma * a * rho - 1.0) / (parametrization.gamma * b * reduced_rho);
-							// 	const double cos = cos_min + (1.0 - cos_min) * c;
-
-							// 	return (1.0 - cos_min) * DecayFunctions::differential_decay_function_integrand(rho, reduced_rho, cos, a, b, h0, parametrization, resonance);
-							// }, {0.0, 0.0}, {1.0, 1.0}, nullptr, IntegrationMethod::CubaSuave);
-							// integrator.cuba.maximum_evaluations = maximum_evaluations;
-							// integrator.cuba.maximum_relative_error = maximum_relative_error;
-
-							// const auto result = integrator.integrate();
 							const double value = result.value;
 
 							#pragma omp critical
