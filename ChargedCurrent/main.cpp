@@ -1757,17 +1757,22 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		parametrizations.insert(parametrizations.end(), fit_set_2.begin(), fit_set_2.end());
 
 		const std::size_t start_index = custom_variation_range ? (*variation_range).first : 0;
+		const std::size_t end_index = custom_variation_range ? (*variation_range).second : std::numeric_limits<std::size_t>::max();
 
-		if (!custom_variation_range || start_index <= 0) {
-			generator.generate_decay_grids(
-				output_dir + "DecayGrids", {1.0, 5.0, 10.0, 100.0, 300.0}, {Constants::Particles::Muon.mass}, parametrizations,
+		if (!custom_variation_range || Math::in_interval(start_index, end_index, static_cast<std::size_t>(0))) {
+			GridGenerator slow_generator(number_of_threads);
+			slow_generator.maximum_relative_error = 1e-5;
+			slow_generator.maximum_evaluations = 100'000'000;
+
+			slow_generator.generate_decay_grids(
+				output_dir + "DecayGrids", {1.0, 5.0, 10.0, 100.0, 300.0}, {Constants::Particles::MasslessMuon.mass}, {DecayParametrization::fit1()},
 				{
 					Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
-				}, Constants::Particles::Proton, Constants::Particles::Muon
+				}, Constants::Particles::Proton, Constants::Particles::MasslessMuon
 			);
 		}
 
-		if (!custom_variation_range || start_index <= 1) {
+		if (!custom_variation_range || Math::in_interval(start_index, end_index, static_cast<std::size_t>(1))) {
 			generator.generate_decay_grids(
 				output_dir + "DecayGrids", zyE_bins, {3.0, 5.0}, parametrizations,
 				{
@@ -1776,16 +1781,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			);
 		}
 
-		if (!custom_variation_range || start_index <= 2) {
+		if (!custom_variation_range || Math::in_interval(start_index, end_index, static_cast<std::size_t>(2))) {
 			generator.generate_decay_grids(
-				output_dir + "DecayGrids", {1.0, 5.0, 10.0, 100.0, 300.0}, {Constants::Particles::MasslessMuon.mass}, parametrizations,
+				output_dir + "DecayGrids", {1.0, 5.0, 10.0, 100.0, 300.0}, {Constants::Particles::Muon.mass}, {DecayParametrization::fit1()},
 				{
 					Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
-				}, Constants::Particles::Proton, Constants::Particles::MasslessMuon
+				}, Constants::Particles::Proton, Constants::Particles::Muon
 			);
 		}
 		
-		if (!custom_variation_range || start_index <= 3) {
+		if (!custom_variation_range || Math::in_interval(start_index, end_index, static_cast<std::size_t>(3))) {
 			generator.generate_decay_grids(
 				output_dir + "DecayGrids", zyE_bins, {3.0, 5.0}, parametrizations,
 				{
@@ -1794,7 +1799,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			);
 		}
 		
-		if (!custom_variation_range || start_index <= 4) {
+		if (!custom_variation_range || Math::in_interval(start_index, end_index, static_cast<std::size_t>(4))) {
 			generator.generate_decay_grids(
 				output_dir + "DecayGrids", zyE_bins, {5.0}, DecayParametrization::fit_set_3(),
 				{

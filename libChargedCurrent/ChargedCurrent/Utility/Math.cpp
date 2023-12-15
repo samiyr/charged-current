@@ -106,6 +106,11 @@ namespace Math {
 
 		return list;
 	}
+
+	template <typename T>
+	bool in_interval(const T min, const T max, const T value) {
+		return value >= min && value <= max;
+	}
 }
 
 #endif
