@@ -56,8 +56,8 @@ struct SIDIS {
 		const StructureFunction F, const double z, const TRFKinematics kinematics,
 		const PerturbativeOrder order, const bool use_nlp_nlo,
 		const double charm_mass, const double primary_muon_min_energy,
-		const auto &pdf, const auto &ff,
-		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale
+		const is_pdf_interface auto &pdf, const auto &ff,
+		const is_scale_dependence auto &renormalization_scale, const is_scale_dependence auto &factorization_scale, const is_scale_dependence auto &fragmentation_scale
 	) const {
 		const SIDISComputation sidis = construct_computation(
 			order, use_nlp_nlo, 
@@ -72,8 +72,8 @@ struct SIDIS {
 		const double z, const TRFKinematics kinematics,
 		const PerturbativeOrder order, const bool use_nlp_nlo,
 		const double charm_mass, const double primary_muon_min_energy,
-		const auto &pdf, const auto &ff,
-		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale
+		const is_pdf_interface auto &pdf, const auto &ff,
+		const is_scale_dependence auto &renormalization_scale, const is_scale_dependence auto &factorization_scale, const is_scale_dependence auto &fragmentation_scale
 	) const {
 		return compute_structure_function(
 			StructureFunction::F2, z, kinematics,
@@ -88,8 +88,8 @@ struct SIDIS {
 		const double z, const TRFKinematics kinematics,
 		const PerturbativeOrder order, const bool use_nlp_nlo,
 		const double charm_mass, const double primary_muon_min_energy,
-		const auto &pdf, const auto &ff,
-		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale
+		const is_pdf_interface auto &pdf, const auto &ff,
+		const is_scale_dependence auto &renormalization_scale, const is_scale_dependence auto &factorization_scale, const is_scale_dependence auto &fragmentation_scale
 	) const {
 		return compute_structure_function(
 			StructureFunction::FL, z, kinematics,
@@ -104,8 +104,8 @@ struct SIDIS {
 		const double z, const TRFKinematics kinematics,
 		const PerturbativeOrder order, const bool use_nlp_nlo,
 		const double charm_mass, const double primary_muon_min_energy,
-		const auto &pdf, const auto &ff,
-		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale
+		const is_pdf_interface auto &pdf, const auto &ff,
+		const is_scale_dependence auto &renormalization_scale, const is_scale_dependence auto &factorization_scale, const is_scale_dependence auto &fragmentation_scale
 	) const {
 		return compute_structure_function(
 			StructureFunction::F3, z, kinematics,
@@ -127,8 +127,8 @@ struct SIDIS {
 		const double z, const TRFKinematics &kinematics,
 		const PerturbativeOrder order, const bool use_nlp_nlo,
 		const double charm_mass, const double primary_muon_min_energy,
-		const auto &pdf, const auto &ff,
-		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale
+		const is_pdf_interface auto &pdf, const auto &ff,
+		const is_scale_dependence auto &renormalization_scale, const is_scale_dependence auto &factorization_scale, const is_scale_dependence auto &fragmentation_scale
 	) const {
 		const SIDISComputation sidis = construct_computation(
 			order, use_nlp_nlo, 
@@ -143,8 +143,8 @@ struct SIDIS {
 		const double z, const TRFKinematics &kinematics,
 		const PerturbativeOrder order, const bool use_nlp_nlo,
 		const double charm_mass, const double primary_muon_min_energy,
-		const auto &pdf, const auto &ff,
-		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale
+		const is_pdf_interface auto &pdf, const auto &ff,
+		const is_scale_dependence auto &renormalization_scale, const is_scale_dependence auto &factorization_scale, const is_scale_dependence auto &fragmentation_scale
 	) const {
 		const PerturbativeQuantity xQ2 = differential_xQ2(
 			z, kinematics,
@@ -161,8 +161,8 @@ struct SIDIS {
 		const TRFKinematics &kinematics, const double z,
 		const PerturbativeOrder order, const bool use_nlp_nlo,
 		const double charm_mass, const double primary_muon_min_energy,
-		const auto &pdf, const auto &ff,
-		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale
+		const is_pdf_interface auto &pdf, const auto &ff,
+		const is_scale_dependence auto &renormalization_scale, const is_scale_dependence auto &factorization_scale, const is_scale_dependence auto &fragmentation_scale
 	) const {
 		const SIDISComputation sidis = construct_computation(
 			order, use_nlp_nlo, 
@@ -177,8 +177,8 @@ struct SIDIS {
 		const TRFKinematics &kinematics, const double z,
 		const PerturbativeOrder order, const bool use_nlp_nlo,
 		const double charm_mass, const double primary_muon_min_energy,
-		const auto &pdf, const auto &ff,
-		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale
+		const is_pdf_interface auto &pdf, const auto &ff,
+		const is_scale_dependence auto &renormalization_scale, const is_scale_dependence auto &factorization_scale, const is_scale_dependence auto &fragmentation_scale
 	) const {
 		const PerturbativeQuantity xQ2 = lepton_pair_zxQ2(
 			kinematics, z,
@@ -195,8 +195,8 @@ struct SIDIS {
 		const TRFKinematics &kinematics,
 		const PerturbativeOrder order, const bool use_nlp_nlo,
 		const double charm_mass, const double primary_muon_min_energy,
-		const auto &pdf, const auto &ff,
-		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale
+		const is_pdf_interface auto &pdf, const auto &ff,
+		const is_scale_dependence auto &renormalization_scale, const is_scale_dependence auto &factorization_scale, const is_scale_dependence auto &fragmentation_scale
 	) const {
 		const SIDISComputation sidis = construct_computation(
 			order, use_nlp_nlo, 
@@ -211,8 +211,8 @@ struct SIDIS {
 		const TRFKinematics &kinematics,
 		const PerturbativeOrder order, const bool use_nlp_nlo,
 		const double charm_mass, const double primary_muon_min_energy,
-		const auto &pdf, const auto &ff,
-		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale
+		const is_pdf_interface auto &pdf, const auto &ff,
+		const is_scale_dependence auto &renormalization_scale, const is_scale_dependence auto &factorization_scale, const is_scale_dependence auto &fragmentation_scale
 	) const {
 		const PerturbativeQuantity xQ2 = lepton_pair_xQ2(
 			kinematics,
@@ -418,8 +418,8 @@ struct SIDIS {
 		const std::vector<double> &Ebeams,
 		const PerturbativeOrder order, const bool use_nlp_nlo,
 		const double charm_mass, const double primary_muon_min_energy,
-		const auto &pdf, const auto &ff,
-		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale,
+		const is_pdf_interface auto &pdf, const auto &ff,
+		const is_scale_dependence auto &renormalization_scale, const is_scale_dependence auto &factorization_scale, const is_scale_dependence auto &fragmentation_scale,
 		const std::filesystem::path output,
 		const std::string comment = ""
 	) const {
@@ -441,8 +441,8 @@ struct SIDIS {
 		const std::vector<double> &Ebeams,
 		const PerturbativeOrder order, const bool use_nlp_nlo,
 		const double charm_mass, const double primary_muon_min_energy,
-		const auto &pdf, const auto &ff,
-		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale,
+		const is_pdf_interface auto &pdf, const auto &ff,
+		const is_scale_dependence auto &renormalization_scale, const is_scale_dependence auto &factorization_scale, const is_scale_dependence auto &fragmentation_scale,
 		const std::filesystem::path output,
 		const std::string comment = ""
 	) const {
@@ -465,8 +465,8 @@ struct SIDIS {
 		const std::vector<double> &Ebeams,
 		const PerturbativeOrder order, const bool use_nlp_nlo,
 		const double charm_mass, const double primary_muon_min_energy,
-		const auto &pdf, const auto &ff,
-		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale,
+		const is_pdf_set_interface auto &pdf, const auto &ff,
+		const is_scale_dependence auto &renormalization_scale, const is_scale_dependence auto &factorization_scale, const is_scale_dependence auto &fragmentation_scale,
 		const std::filesystem::path base_output,
 		const std::optional<std::pair<std::size_t, std::size_t>> variation_range = std::nullopt,
 		const std::string comment = ""
@@ -508,8 +508,8 @@ struct SIDIS {
 		const ScaleVariation scale_variation,
 		const PerturbativeOrder order, const bool use_nlp_nlo,
 		const double charm_mass, const double primary_muon_min_energy,
-		const auto &pdf, const auto &ff,
-		const double min_renormalization_scale, const double min_factorization_scale, const double min_fragmentation_scale,
+		const is_pdf_interface auto &pdf, const auto &ff,
+		const is_scale_dependence auto &renormalization, const is_scale_dependence auto &factorization, const is_scale_dependence auto &fragmentation,
 		const std::filesystem::path base_output,
 		const std::optional<std::pair<std::size_t, std::size_t>> variation_range = std::nullopt,
 		const std::string comment = ""
@@ -547,9 +547,9 @@ struct SIDIS {
 		for (std::size_t variation_index = variation_start; variation_index < variation_end; variation_index++) {
 			const std::vector<double> scale = scales[variation_index];
 
-			const auto renormalization_scale = ScaleDependence::clamped_multiplicative(scale[0], min_renormalization_scale, std::numeric_limits<double>::max());
-			const auto factorization_scale = ScaleDependence::clamped_multiplicative(scale[1], min_factorization_scale, std::numeric_limits<double>::max());
-			const auto fragmentation_scale = ScaleDependence::clamped_multiplicative(scale[2], min_fragmentation_scale, std::numeric_limits<double>::max());
+			const auto renormalization_scale = scale[0] * renormalization;
+			const auto factorization_scale = scale[1] * factorization;
+			const auto fragmentation_scale = scale[2] * fragmentation;
 
 			const SIDISComputation sidis = construct_computation(
 				order, use_nlp_nlo,
@@ -583,8 +583,8 @@ struct SIDIS {
 		const auto &decay_variations,
 		const PerturbativeOrder order, const bool use_nlp_nlo,
 		const double charm_mass, const double primary_muon_min_energy,
-		const auto &pdf,
-		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale,
+		const is_pdf_interface auto &pdf,
+		const is_scale_dependence auto &renormalization_scale, const is_scale_dependence auto &factorization_scale, const is_scale_dependence auto &fragmentation_scale,
 		const std::filesystem::path base_output,
 		const std::optional<std::pair<std::size_t, std::size_t>> variation_range = std::nullopt,
 		const std::string comment = ""
@@ -767,8 +767,8 @@ struct SIDIS {
 		const std::vector<double> &Q2s,
 		const PerturbativeOrder order, const bool use_nlp_nlo,
 		const double charm_mass, const double primary_muon_min_energy,
-		const auto &pdf, const auto &ff,
-		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale,
+		const is_pdf_interface auto &pdf, const auto &ff,
+		const is_scale_dependence auto &renormalization_scale, const is_scale_dependence auto &factorization_scale, const is_scale_dependence auto &fragmentation_scale,
 		const std::filesystem::path output,
 		const std::string comment = ""
 	) const {
@@ -789,8 +789,8 @@ struct SIDIS {
 		const double Q2_min,
 		const PerturbativeOrder order, const bool use_nlp_nlo,
 		const double charm_mass, const double primary_muon_min_energy,
-		const auto &pdf, const auto &ff,
-		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale,
+		const is_pdf_interface auto &pdf, const auto &ff,
+		const is_scale_dependence auto &renormalization_scale, const is_scale_dependence auto &factorization_scale, const is_scale_dependence auto &fragmentation_scale,
 		const std::filesystem::path output,
 		const std::string comment = ""
 	) const {
@@ -812,8 +812,8 @@ struct SIDIS {
 		const double Q2_min,
 		const PerturbativeOrder order, const bool use_nlp_nlo,
 		const double charm_mass, const double primary_muon_min_energy,
-		const auto &pdf, const auto &ff,
-		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale,
+		const is_pdf_set_interface auto &pdf, const auto &ff,
+		const is_scale_dependence auto &renormalization_scale, const is_scale_dependence auto &factorization_scale, const is_scale_dependence auto &fragmentation_scale,
 		const std::filesystem::path base_output,
 		const std::optional<std::pair<std::size_t, std::size_t>> variation_range = std::nullopt,
 		const std::string comment = ""
@@ -854,8 +854,8 @@ struct SIDIS {
 		const ScaleVariation scale_variation,
 		const PerturbativeOrder order, const bool use_nlp_nlo,
 		const double charm_mass, const double primary_muon_min_energy,
-		const auto &pdf, const auto &ff,
-		const double min_renormalization_scale, const double min_factorization_scale, const double min_fragmentation_scale,
+		const is_pdf_interface auto &pdf, const auto &ff,
+		const is_scale_dependence auto &renormalization, const is_scale_dependence auto &factorization, const is_scale_dependence auto &fragmentation,
 		const std::filesystem::path base_output,
 		const std::optional<std::pair<std::size_t, std::size_t>> variation_range = std::nullopt,
 		const std::string comment = ""
@@ -893,9 +893,9 @@ struct SIDIS {
 		for (std::size_t variation_index = variation_start; variation_index < variation_end; variation_index++) {
 			const std::vector<double> scale = scales[variation_index];
 
-			const auto renormalization_scale = ScaleDependence::clamped_multiplicative(scale[0], min_renormalization_scale, std::numeric_limits<double>::max());
-			const auto factorization_scale = ScaleDependence::clamped_multiplicative(scale[1], min_factorization_scale, std::numeric_limits<double>::max());
-			const auto fragmentation_scale = ScaleDependence::clamped_multiplicative(scale[2], min_fragmentation_scale, std::numeric_limits<double>::max());
+			const auto renormalization_scale = scale[0] * renormalization;
+			const auto factorization_scale = scale[1] * factorization;
+			const auto fragmentation_scale = scale[2] * fragmentation;
 
 			const SIDISComputation sidis = construct_computation(
 				order, use_nlp_nlo,
@@ -929,7 +929,7 @@ struct SIDIS {
 		const double charm_mass,
 		const double primary_muon_min_energy,
 		const auto &pdf, const auto &ff,
-		const auto &renormalization_scale, const auto &factorization_scale, const auto &fragmentation_scale) const {
+		const is_scale_dependence auto &renormalization_scale, const is_scale_dependence auto &factorization_scale, const is_scale_dependence auto &fragmentation_scale) const {
 		return SIDISComputation(
 			active_flavors,
 			{

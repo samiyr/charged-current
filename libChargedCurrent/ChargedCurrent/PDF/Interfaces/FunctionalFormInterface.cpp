@@ -33,8 +33,10 @@ class FunctionalFormInterface {
 		return xf(Flavor::Gluon);
 	}
 	constexpr double alpha_s([[maybe_unused]] const double Q2) const {
-		// fix this!
-		return 1;
+		return 1.0;
+	}
+	constexpr double quark_mass(const FlavorType) const {
+		return 0.0;
 	}
 	private:
 	mutable std::vector<double> flavor_values;

@@ -295,7 +295,7 @@ struct DIS {
 		const std::vector<double> &Ebeams,
 		const double charm_mass, const double primary_muon_min_energy, const double hadronic_min_energy,
 		const auto &pdf,
-		const double min_renormalization_scale, const double min_factorization_scale,
+		const auto &renormalization, const auto &factorization,
 		const std::filesystem::path base_output,
 		const std::optional<std::pair<std::size_t, std::size_t>> variation_range = std::nullopt,
 		const std::string comment = ""
@@ -319,8 +319,8 @@ struct DIS {
 		for (std::size_t variation_index = variation_start; variation_index < variation_end; variation_index++) {
 			const std::vector<double> scale = scales[variation_index];
 
-			const auto renormalization_scale = ScaleDependence::clamped_multiplicative(scale[0], min_renormalization_scale, std::numeric_limits<double>::max());
-			const auto factorization_scale = ScaleDependence::clamped_multiplicative(scale[1], min_factorization_scale, std::numeric_limits<double>::max());
+			const auto renormalization_scale = scale[0] * renormalization;
+			const auto factorization_scale = scale[1] * factorization;
 
 			const DISComputation dis = construct_computation(
 				charm_mass, primary_muon_min_energy, hadronic_min_energy,
@@ -569,7 +569,7 @@ struct DIS {
 		const double Q2_min,
 		const double charm_mass, const double primary_muon_min_energy, const double hadronic_min_energy,
 		const auto &pdf,
-		const double min_renormalization_scale, const double min_factorization_scale,
+		const auto &renormalization, const auto &factorization,
 		const std::filesystem::path base_output,
 		const std::optional<std::pair<std::size_t, std::size_t>> variation_range = std::nullopt,
 		const std::string comment = ""
@@ -593,8 +593,8 @@ struct DIS {
 		for (std::size_t variation_index = variation_start; variation_index < variation_end; variation_index++) {
 			const std::vector<double> scale = scales[variation_index];
 
-			const auto renormalization_scale = ScaleDependence::clamped_multiplicative(scale[0], min_renormalization_scale, std::numeric_limits<double>::max());
-			const auto factorization_scale = ScaleDependence::clamped_multiplicative(scale[1], min_factorization_scale, std::numeric_limits<double>::max());
+			const auto renormalization_scale = scale[0] * renormalization;
+			const auto factorization_scale = scale[1] * factorization;
 
 			const DISComputation dis = construct_computation(
 				charm_mass, primary_muon_min_energy, hadronic_min_energy,
