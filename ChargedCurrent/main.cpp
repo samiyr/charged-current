@@ -731,6 +731,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 			const std::string out = "Data/DIS/CharmProduction/Differential/Channels/" + pdf.set_name + "/";
 
+			const auto up_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0}
+			);
+			const auto anti_up_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
+			);
+			
 			const auto down_pdf = LHAInterface(
 				pdf.set_name,
 				{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0}
@@ -740,6 +749,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				{0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
 			);
 
+			const auto charm_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0}
+			);
+			const auto anti_charm_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
+			);
+			
 			const auto strange_pdf = LHAInterface(
 				pdf.set_name,
 				{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0}
@@ -748,19 +766,34 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				pdf.set_name,
 				{0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
 			);
+			
+			const auto bottom_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0}
+			);
+			const auto anti_bottom_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
+			);
 
 			const auto gluon_pdf = LHAInterface(
 				pdf.set_name,
 				{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
 			);
 
-			run_analysis(down_pdf, output_dir + out + "d2c/");
-			run_analysis(strange_pdf, output_dir + out + "s2c/");
-			run_analysis(gluon_pdf, output_dir + out + "g2c/");
+			run_analysis(up_pdf, output_dir + out + "u/");
+			run_analysis(down_pdf, output_dir + out + "d/");
+			run_analysis(charm_pdf, output_dir + out + "c/");
+			run_analysis(strange_pdf, output_dir + out + "s/");
+			run_analysis(bottom_pdf, output_dir + out + "b/");
 
-			run_analysis(anti_down_pdf, output_dir + out + "dbar2cbar/");
-			run_analysis(anti_strange_pdf, output_dir + out + "sbar2cbar/");
-			run_analysis(gluon_pdf, output_dir + out + "g2cbar/");
+			run_analysis(gluon_pdf, output_dir + out + "g/");
+
+			run_analysis(anti_up_pdf, output_dir + out + "ubar/");
+			run_analysis(anti_down_pdf, output_dir + out + "dbar/");
+			run_analysis(anti_charm_pdf, output_dir + out + "cbar/");
+			run_analysis(anti_strange_pdf, output_dir + out + "sbar/");
+			run_analysis(anti_bottom_pdf, output_dir + out + "bbar/");
 		}
 
 		std::cout << separator << IO::endl;
@@ -811,6 +844,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 			const std::string out = "Data/DIS/TotalProduction/Differential/Channels/" + pdf.set_name + "/";
 
+			const auto up_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0}
+			);
+			const auto anti_up_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
+			);
+			
 			const auto down_pdf = LHAInterface(
 				pdf.set_name,
 				{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0}
@@ -820,6 +862,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				{0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
 			);
 
+			const auto charm_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0}
+			);
+			const auto anti_charm_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
+			);
+			
 			const auto strange_pdf = LHAInterface(
 				pdf.set_name,
 				{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0}
@@ -828,19 +879,34 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				pdf.set_name,
 				{0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
 			);
+			
+			const auto bottom_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0}
+			);
+			const auto anti_bottom_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
+			);
 
 			const auto gluon_pdf = LHAInterface(
 				pdf.set_name,
 				{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
 			);
 
-			run_analysis(down_pdf, output_dir + out + "d2c/");
-			run_analysis(strange_pdf, output_dir + out + "s2c/");
-			run_analysis(gluon_pdf, output_dir + out + "g2c/");
+			run_analysis(up_pdf, output_dir + out + "u/");
+			run_analysis(down_pdf, output_dir + out + "d/");
+			run_analysis(charm_pdf, output_dir + out + "c/");
+			run_analysis(strange_pdf, output_dir + out + "s/");
+			run_analysis(bottom_pdf, output_dir + out + "b/");
 
-			run_analysis(anti_down_pdf, output_dir + out + "dbar2cbar/");
-			run_analysis(anti_strange_pdf, output_dir + out + "sbar2cbar/");
-			run_analysis(gluon_pdf, output_dir + out + "g2cbar/");
+			run_analysis(gluon_pdf, output_dir + out + "g/");
+
+			run_analysis(anti_up_pdf, output_dir + out + "ubar/");
+			run_analysis(anti_down_pdf, output_dir + out + "dbar/");
+			run_analysis(anti_charm_pdf, output_dir + out + "cbar/");
+			run_analysis(anti_strange_pdf, output_dir + out + "sbar/");
+			run_analysis(anti_bottom_pdf, output_dir + out + "bbar/");
 		}
 
 		std::cout << separator << IO::endl;
