@@ -1423,14 +1423,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					PerturbativeOrder::NLO, false, pdf_in.quark_mass(Flavor::Charm), 0.0,
 					pdf_in, ff_in,
 					scale(pdf_in), scale(pdf_in), ff_scale,
-					output_dir + out + "nutev_neutrino.csv"
+					out + "nutev_neutrino.csv"
 				);
 				sidis.lepton_pair_xy(
 					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
 					PerturbativeOrder::NLO, false, pdf_in.quark_mass(Flavor::Charm), 0.0,
 					pdf_in, ff_in,
 					scale(pdf_in), scale(pdf_in), ff_scale,
-					output_dir + out + "ccfr_neutrino.csv"
+					out + "ccfr_neutrino.csv"
 				);
 			});
 
@@ -1440,14 +1440,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					PerturbativeOrder::NLO, false, pdf_in.quark_mass(Flavor::Charm), 0.0,
 					pdf_in, ff_in,
 					scale(pdf_in), scale(pdf_in), ff_scale,
-					output_dir + out + "nutev_antineutrino.csv"
+					out + "nutev_antineutrino.csv"
 				);
 				anti_sidis.lepton_pair_xy(
 					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
 					PerturbativeOrder::NLO, false, pdf_in.quark_mass(Flavor::Charm), 0.0,
 					pdf_in, ff_in,
 					scale(pdf_in), scale(pdf_in), ff_scale,
-					output_dir + out + "ccfr_antineutrino.csv"
+					out + "ccfr_antineutrino.csv"
 				);
 			});
 		};
@@ -1868,7 +1868,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			file << "x,y,E,Q2,NLO" << IO::endl;
 
 			for (const double x : xs) {
-				file << x << ", " << x << ", " << ", " << x << ", " << Q2 << ", " << pdf.xf_evaluate(flavor, x, Q2) << IO::endl;
+				file << x << ", " << 1 << ", " << 1 << ", " << Q2 << ", " << pdf.xf_evaluate(flavor, x, Q2) << IO::endl;
 			}
 
 			file.close();
