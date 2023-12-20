@@ -685,6 +685,166 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << separator << IO::endl;
 	}
 
+	if (run("dis.differential.charm.channels")) {
+		std::cout << "======================== dis.differential.charm.channels =======================" << IO::endl;
+
+		const auto run_analysis = [&](const auto &pdf_in, const std::string out) {
+			measure([&] {
+				charm_dis.differential_xy(
+					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
+					pdf_in.quark_mass(Flavor::Charm), 0.0, 0.0,
+					pdf_in,
+					scale(pdf_in), scale(pdf_in),
+					out + "nutev_neutrino.csv"
+				);
+
+				charm_dis.differential_xy(
+					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
+					pdf_in.quark_mass(Flavor::Charm), 0.0, 0.0,
+					pdf_in,
+					scale(pdf_in), scale(pdf_in),
+					out + "ccfr_neutrino.csv"
+				);
+			});
+
+			measure([&] {
+				anti_charm_dis.differential_xy(
+					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+					pdf_in.quark_mass(Flavor::Charm), 0.0, 0.0,
+					pdf_in,
+					scale(pdf_in), scale(pdf_in),
+					out + "nutev_antineutrino.csv"
+				);
+
+				anti_charm_dis.differential_xy(
+					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+					pdf_in.quark_mass(Flavor::Charm), 0.0, 0.0,
+					pdf_in,
+					scale(pdf_in), scale(pdf_in),
+					out + "ccfr_antineutrino.csv"
+				);
+			});
+		};
+
+		for (const auto &pdf : pdfs) {
+			std::cout << "PDF set: " << pdf.set_name << IO::endl;
+
+			const std::string out = "Data/DIS/CharmProduction/Differential/Channels/" + pdf.set_name + "/";
+
+			const auto down_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0}
+			);
+			const auto anti_down_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
+			);
+
+			const auto strange_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0}
+			);
+			const auto anti_strange_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
+			);
+
+			const auto gluon_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
+			);
+
+			run_analysis(down_pdf, output_dir + out + "d2c/");
+			run_analysis(strange_pdf, output_dir + out + "s2c/");
+			run_analysis(gluon_pdf, output_dir + out + "g2c/");
+
+			run_analysis(anti_down_pdf, output_dir + out + "dbar2cbar/");
+			run_analysis(anti_strange_pdf, output_dir + out + "sbar2cbar/");
+			run_analysis(gluon_pdf, output_dir + out + "g2cbar/");
+		}
+
+		std::cout << separator << IO::endl;
+	}
+	if (run("dis.differential.total.channels")) {
+		std::cout << "======================== dis.differential.total.channels =======================" << IO::endl;
+
+		const auto run_analysis = [&](const auto &pdf_in, const std::string out) {
+			measure([&] {
+				dis.differential_xy(
+					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
+					pdf_in.quark_mass(Flavor::Charm), 0.0, 0.0,
+					pdf_in,
+					scale(pdf_in), scale(pdf_in),
+					out + "nutev_neutrino.csv"
+				);
+
+				dis.differential_xy(
+					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
+					pdf_in.quark_mass(Flavor::Charm), 0.0, 0.0,
+					pdf_in,
+					scale(pdf_in), scale(pdf_in),
+					out + "ccfr_neutrino.csv"
+				);
+			});
+
+			measure([&] {
+				anti_dis.differential_xy(
+					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+					pdf_in.quark_mass(Flavor::Charm), 0.0, 0.0,
+					pdf_in,
+					scale(pdf_in), scale(pdf_in),
+					out + "nutev_antineutrino.csv"
+				);
+
+				anti_dis.differential_xy(
+					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+					pdf_in.quark_mass(Flavor::Charm), 0.0, 0.0,
+					pdf_in,
+					scale(pdf_in), scale(pdf_in),
+					out + "ccfr_antineutrino.csv"
+				);
+			});
+		};
+
+		for (const auto &pdf : pdfs) {
+			std::cout << "PDF set: " << pdf.set_name << IO::endl;
+
+			const std::string out = "Data/DIS/TotalProduction/Differential/Channels/" + pdf.set_name + "/";
+
+			const auto down_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0}
+			);
+			const auto anti_down_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
+			);
+
+			const auto strange_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0}
+			);
+			const auto anti_strange_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
+			);
+
+			const auto gluon_pdf = LHAInterface(
+				pdf.set_name,
+				{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
+			);
+
+			run_analysis(down_pdf, output_dir + out + "d2c/");
+			run_analysis(strange_pdf, output_dir + out + "s2c/");
+			run_analysis(gluon_pdf, output_dir + out + "g2c/");
+
+			run_analysis(anti_down_pdf, output_dir + out + "dbar2cbar/");
+			run_analysis(anti_strange_pdf, output_dir + out + "sbar2cbar/");
+			run_analysis(gluon_pdf, output_dir + out + "g2cbar/");
+		}
+
+		std::cout << separator << IO::endl;
+	}
 
 	if (run("sidis.differential.errors")) {
 		std::cout <<"=========================== sidis.differential.errors ===========================" << IO::endl;
