@@ -964,6 +964,58 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << separator << IO::endl;
 	}
 
+	if (run("sidis.differential.proton.errors")) {
+		std::cout <<"======================= sidis.differential.proton.errors ========================" << IO::endl;
+
+		const double min_E = 5.0;
+
+		for (const auto &pdf : free_pdf_errors) {
+			std::cout << "PDF set: " << pdf.set_name << IO::endl;
+
+			const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Differential/ErrorSets/" + pdf.set_name + "/";
+
+			measure([&] {
+				sidis.lepton_pair_xy_errors(
+					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+					scale(pdf), scale(pdf), ff_scale,
+					output_dir + out + "nutev_neutrino.csv",
+					variation_range
+				);
+				sidis.lepton_pair_xy_errors(
+					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+					scale(pdf), scale(pdf), ff_scale,
+					output_dir + out + "ccfr_neutrino.csv",
+					variation_range
+				);
+			});
+
+			measure([&] {
+				anti_sidis.lepton_pair_xy_errors(
+					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+					scale(pdf), scale(pdf), ff_scale,
+					output_dir + out + "nutev_antineutrino.csv",
+					variation_range
+				);
+				anti_sidis.lepton_pair_xy_errors(
+					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+					scale(pdf), scale(pdf), ff_scale,
+					output_dir + out + "ccfr_antineutrino.csv",
+					variation_range
+				);
+			});
+		}
+
+		std::cout << separator << IO::endl;
+	}
+
 	if (run("sidis.differential.scales")) {
 		std::cout <<"=========================== sidis.differential.scales ===========================" << IO::endl;
 
@@ -1182,8 +1234,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	if (run("sidis.differential.zprofile")) {
 		std::cout <<"========================== sidis.differential.zprofile ==========================" << IO::endl;
 
-		const std::vector<double> min_Es = {0.0, Constants::Particles::Muon.mass, 3.0, 5.0};
-		const std::vector<std::string> folders = {"ZeroLimit", "0_106", "3_0", "5_0"};
+		const std::vector<double> min_Es = {0.0, 3.0, 5.0};
+		const std::vector<std::string> folders = {"ZeroLimit", "3_0", "5_0"};
 
 		const std::vector<double> xs{0.01, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4};
 		const std::vector<double> z_bins = Math::linear_space(0.0, 1.0, 1e-2);
@@ -2105,6 +2157,46 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		const std::vector<std::string> flavors{"xtbar", "xbbar", "xcbar", "xsbar", "xubar", "xdbar", "xg", "xd", "xu", "xs", "xc", "xb", "xt"};
 
 		for (const auto &pdf_set : pdf_errors) {
+			for (const double Q2 : Q2s) {
+				const std::string out = "Data/PDF/" + pdf_set.set_name + "/" + std::to_string(Q2) + "/";
+
+				for (unsigned int variation_index = 0; variation_index < pdf_set.size(); variation_index++) {
+					for (FlavorType flavor = -6; flavor <= 6; flavor++) {
+						const std::string filename = IO::leading_zeroes(variation_index, 4);
+						pdf_reader(
+							pdf_set[variation_index], xs, Q2, flavor,
+							output_dir + out + flavors[static_cast<std::size_t>(flavor + 6)] + "/" + filename + ".csv"
+						);
+					}
+				}
+			}
+		}
+	}
+
+	if (run("utility.pdf.testvalues")) {
+		const auto pdf_reader = [](const auto &pdf, const std::vector<double> &xs, const double Q2, const FlavorType flavor, const std::filesystem::path output) {
+			IO::create_directory_tree(output);
+			std::ofstream file(output);
+
+			file << "x,y,E,Q2,NLO" << IO::endl;
+
+			for (const double x : xs) {
+				file << x << ", " << 1 << ", " << 1 << ", " << Q2 << ", " << pdf.xf_evaluate(flavor, x, Q2) << IO::endl;
+			}
+
+			file.close();
+		};
+
+		const std::vector<double> xs = Math::log_space(1e-6, 0.999, 1e-2);
+		const std::vector<double> Q2s{10.0};
+		const std::vector<std::string> flavors{"xtbar", "xbbar", "xcbar", "xsbar", "xubar", "xdbar", "xg", "xd", "xu", "xs", "xc", "xb", "xt"};
+
+		const auto test_sets = {
+			// LHASetInterface("EPPS21nlo_CT18Anlo_Pb208"),
+			LHASetInterface("CT18ANLO")
+		};
+
+		for (const auto &pdf_set : test_sets) {
 			for (const double Q2 : Q2s) {
 				const std::string out = "Data/PDF/" + pdf_set.set_name + "/" + std::to_string(Q2) + "/";
 
