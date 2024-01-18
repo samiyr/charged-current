@@ -964,58 +964,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		std::cout << separator << IO::endl;
 	}
 
-	if (run("sidis.differential.proton.errors")) {
-		std::cout <<"======================= sidis.differential.proton.errors ========================" << IO::endl;
-
-		const double min_E = 5.0;
-
-		for (const auto &pdf : free_pdf_errors) {
-			std::cout << "PDF set: " << pdf.set_name << IO::endl;
-
-			const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Differential/ErrorSets/" + pdf.set_name + "/";
-
-			measure([&] {
-				sidis.lepton_pair_xy_errors(
-					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "nutev_neutrino.csv",
-					variation_range
-				);
-				sidis.lepton_pair_xy_errors(
-					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "ccfr_neutrino.csv",
-					variation_range
-				);
-			});
-
-			measure([&] {
-				anti_sidis.lepton_pair_xy_errors(
-					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "nutev_antineutrino.csv",
-					variation_range
-				);
-				anti_sidis.lepton_pair_xy_errors(
-					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "ccfr_antineutrino.csv",
-					variation_range
-				);
-			});
-		}
-
-		std::cout << separator << IO::endl;
-	}
-
 	if (run("sidis.differential.scales")) {
 		std::cout <<"=========================== sidis.differential.scales ===========================" << IO::endl;
 
