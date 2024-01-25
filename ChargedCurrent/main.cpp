@@ -345,6 +345,59 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 		std::cout << separator << IO::endl;
 	}
+	if (run("dis.differential.charm.errors.fixed")) {
+		std::cout << "===================== dis.differential.charm.errors.fixed ======================" << IO::endl;
+
+		const auto constant_scale = ScaleDependence::constant(20.0);
+
+		for (const auto &pdf : pdf_errors) {
+			std::cout << "PDF set: " << pdf.set_name << IO::endl;
+
+			const std::string out = "Data/DIS/CharmProduction/Differential/ErrorSets/FixedScale/" + pdf.set_name + "/";
+
+			measure([&] {
+				charm_dis.differential_xy_errors(
+					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
+					pdf,
+					constant_scale, constant_scale,
+					output_dir + out + "nutev_neutrino.csv",
+					variation_range
+				);
+
+				charm_dis.differential_xy_errors(
+					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
+					pdf,
+					constant_scale, constant_scale,
+					output_dir + out + "ccfr_neutrino.csv",
+					variation_range
+				);
+			});
+
+			measure([&] {
+				anti_charm_dis.differential_xy_errors(
+					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
+					pdf,
+					constant_scale, constant_scale,
+					output_dir + out + "nutev_antineutrino.csv",
+					variation_range
+				);
+
+				anti_charm_dis.differential_xy_errors(
+					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+					pdf.quark_mass(Flavor::Charm), 0.0, 0.0,
+					pdf,
+					constant_scale, constant_scale,
+					output_dir + out + "ccfr_antineutrino.csv",
+					variation_range
+				);
+			});
+		}
+
+		std::cout << separator << IO::endl;
+	}
 
 	if (run("dis.differential.total.errors")) {
 		std::cout << "========================= dis.differential.total.errors ========================" << IO::endl;
@@ -955,6 +1008,60 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					scale(pdf), scale(pdf), ff_scale,
+					output_dir + out + "ccfr_antineutrino.csv",
+					variation_range
+				);
+			});
+		}
+
+		std::cout << separator << IO::endl;
+	}
+
+	if (run("sidis.differential.errors.fixed")) {
+		std::cout <<"======================== sidis.differential.errors.fixed ========================" << IO::endl;
+
+		const double min_E = 5.0;
+
+		const auto constant_scale = ScaleDependence::constant(20.0);
+
+		for (const auto &pdf : pdf_errors) {
+			std::cout << "PDF set: " << pdf.set_name << IO::endl;
+
+			const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Differential/ErrorSets/FixedScale/" + pdf.set_name + "/";
+
+			measure([&] {
+				sidis.lepton_pair_xy_errors(
+					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+					constant_scale, constant_scale, constant_scale,
+					output_dir + out + "nutev_neutrino.csv",
+					variation_range
+				);
+				sidis.lepton_pair_xy_errors(
+					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+					constant_scale, constant_scale, constant_scale,
+					output_dir + out + "ccfr_neutrino.csv",
+					variation_range
+				);
+			});
+
+			measure([&] {
+				anti_sidis.lepton_pair_xy_errors(
+					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+					constant_scale, constant_scale, constant_scale,
+					output_dir + out + "nutev_antineutrino.csv",
+					variation_range
+				);
+				anti_sidis.lepton_pair_xy_errors(
+					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+					constant_scale, constant_scale, constant_scale,
 					output_dir + out + "ccfr_antineutrino.csv",
 					variation_range
 				);
