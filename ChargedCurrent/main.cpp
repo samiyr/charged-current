@@ -2236,19 +2236,31 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			file << "x,y,E,Q2,NLO" << IO::endl;
 
 			for (const double x : xs) {
-				file << x << ", " << 1 << ", " << 1 << ", " << Q2 << ", " << pdf.xf_evaluate(flavor, x, Q2) << IO::endl;
+				pdf.evaluate(x, Q2);
+				file << x << ", " << 1 << ", " << 1 << ", " << Q2 << ", " << pdf.xf(flavor) << IO::endl;
 			}
 
 			file.close();
 		};
 
 		const std::vector<double> xs = Math::log_space(1e-6, 0.999, 1e-2);
-		const std::vector<double> Q2s{10.0};
+		const std::vector<double> Q2s{10.0, 100.0};
 		const std::vector<std::string> flavors{"xtbar", "xbbar", "xcbar", "xsbar", "xubar", "xdbar", "xg", "xd", "xu", "xs", "xc", "xb", "xt"};
+
+		auto epps_isospin_pdf = LHASetInterface<std::true_type>("CT18ANLO");
+		epps_isospin_pdf.Z = 82.0;
+		epps_isospin_pdf.A = 208.0;
+
+		auto nnnpdf_isospin_pdf = LHASetInterface<std::true_type>("nNNPDF30_nlo_as_0118_p");
+		nnnpdf_isospin_pdf.Z = 54.0;
+		nnnpdf_isospin_pdf.A = 108.0;
 
 		const auto test_sets = {
 			// LHASetInterface("EPPS21nlo_CT18Anlo_Pb208"),
-			LHASetInterface("CT18ANLO")
+			// LHASetInterface("CT18ANLO"),
+			// LHASetInterface("nNNPDF30_nlo_as_0118_A108_Z54"),
+			// isospin_pdf
+			epps_isospin_pdf
 		};
 
 		for (const auto &pdf_set : test_sets) {
