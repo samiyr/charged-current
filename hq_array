@@ -1,11 +1,13 @@
 #!/bin/bash
 #SBATCH --account=$ACCOUNT
 #SBATCH --partition=medium
-#SBATCH --nodes=3
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=128
-#SBATCH --mem=50
-#SBATCH --time=03:00:00
+#SBATCH --cpus-per-task=256
+#SBATCH --hint=multithread
+#SBATCH --mem-per-cpu=50M
+#SBATCH --time=06:00:00
+#SBATCH --output=Output/slurm-%j.out
+#SBATCH --error=Output/error-%j.out
 
 module load hyperqueue
 
@@ -18,16 +20,11 @@ hq server start &
 until hq job list &> /dev/null ; do sleep 1 ; done
 
 # Start the workers in the background
-srun --overlap --cpu-bind=none --mpi=none hq worker start \
-    --manager slurm \
-    --on-server-lost finish-running \
-    --cpus="$SLURM_CPUS_PER_TASK" &
-
-# Create a directory for output files
-mkdir -p output
+srun --overlap --cpu-bind=none --mpi=none hq worker start --manager slurm --on-server-lost finish-running --cpus=$SLURM_CPUS_PER_TASK &
+hq worker wait $SLURM_NTASKS
 
 # Submit tasks to workers
-hq submit --stdout=none --stderr=none --cpus=8 --array=0-106 ./task $1 nCTEQ15HQ_FullNuc_56_26
+hq submit --stdout=none --stderr=none --cpus=$4 --array=$3 ./hq_task $1 $4 $2
 
 # Wait for all tasks to finish
 hq job wait all

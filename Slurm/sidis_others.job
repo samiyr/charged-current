@@ -1,9 +1,0 @@
-#!/bin/bash
-
-#SBATCH --array=0-6
-#SBATCH --ntasks=1
-#SBATCH -o ./Output/output.%a.out
-
-ARGS=(sidis.differential.ffs sidis.differential.nlp sidis.differential.nnlo sidis.differential.d0 sidis.differential.channels sidis.differential.fragmentation sidis.differential.masses)
-
-srun ./ChargedCurrentDIS ${ARGS[$SLURM_ARRAY_TASK_ID]} --nthreads $SLURM_CPUS_PER_TASK --pdf $1

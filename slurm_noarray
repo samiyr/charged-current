@@ -1,0 +1,7 @@
+#!/bin/bash
+
+#SBATCH --ntasks=1
+#SBATCH --output=Output/slurm-%j-%a.out
+#SBATCH --error=Output/error-%j-%a.out
+
+srun ./ChargedCurrentDIS $1 --nthreads $SLURM_CPUS_PER_TASK --pdf $2 --output $CC_DIR

@@ -1,0 +1,2 @@
+#!/bin/bash
+./ChargedCurrentDIS $1 --nthreads $2 --pdf $3 --variation-start $HQ_TASK_ID --variation-end $HQ_TASK_ID --output $CC_DIR
