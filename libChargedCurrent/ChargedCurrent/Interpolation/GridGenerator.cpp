@@ -124,13 +124,12 @@ struct GridGenerator {
 		const std::size_t member_count = E_min_bins.size() * parametrization_bins.size() * resonance_bins.size();
 		std::size_t member_index = 0;
 
+		#pragma omp parallel for if(parallelize) num_threads(number_of_threads) collapse(3)
 		for (std::size_t parametrization_index = 0; parametrization_index < parametrization_bins.size(); parametrization_index++) {
-			const DecayParametrization &parametrization = parametrization_bins[parametrization_index];
-
 			for (std::size_t resonance_index = 0; resonance_index < resonance_bins.size(); resonance_index++) {
-				const Particle &resonance = resonance_bins[resonance_index];
-
 				for (std::size_t Emin_index = 0; Emin_index < E_min_bins.size(); Emin_index++) {
+					const Particle &resonance = resonance_bins[resonance_index];
+					const DecayParametrization &parametrization = parametrization_bins[parametrization_index];
 					const double E_min = E_min_bins[Emin_index];
 					member_index++;
 
@@ -160,54 +159,47 @@ struct GridGenerator {
 
 					std::vector<double> grid(total_count);
 
-					#pragma omp parallel if(parallelize) num_threads(number_of_threads)
-					{
-						#pragma omp for schedule(static)
-						for (std::size_t i = 0; i < zyE_count; i++) {
-							const double zyE = zyE_bins[i];
+					for (std::size_t i = 0; i < zyE_count; i++) {
+						const double zyE = zyE_bins[i];
 
-							const Integrator2D integrator;
+						const Integrator2D integrator;
 
-							const auto result = integrator.integrate(
-								[&](const double rho, const double cos) {
-									const double h0 = zyE;
-									if (h0 < resonance.mass) { return 0.0; }
-									const double pp0 = rho * h0;
-									if (pp0 < E_min) { return 0.0; }
+						const auto result = integrator.integrate(
+							[&](const double rho, const double cos) {
+								const double h0 = zyE;
+								if (h0 < resonance.mass) { return 0.0; }
+								const double pp0 = rho * h0;
+								if (pp0 < E_min) { return 0.0; }
 
-									const double mu = lepton.mass / h0;
-									const double reduced_rho = sqrt(std::pow(rho, 2) - std::pow(mu, 2));
+								const double mu = lepton.mass / h0;
+								const double reduced_rho = sqrt(std::pow(rho, 2) - std::pow(mu, 2));
 
-									const double a = std::pow(h0, 2) / std::pow(resonance.mass, 2);
-									const double b = h0 * sqrt(std::pow(h0, 2) - std::pow(resonance.mass, 2)) / std::pow(resonance.mass, 2);
+								const double a = std::pow(h0, 2) / std::pow(resonance.mass, 2);
+								const double b = h0 * sqrt(std::pow(h0, 2) - std::pow(resonance.mass, 2)) / std::pow(resonance.mass, 2);
 
-									return DecayFunctions::differential_decay_function_integrand(rho, reduced_rho, cos, a, b, h0, parametrization, resonance);
-								},
-								0.0, 1.0,
-								-1.0, 1.0,
-								0, 1e-6
-							);
-							const double value = result.value;
+								return DecayFunctions::differential_decay_function_integrand(rho, reduced_rho, cos, a, b, h0, parametrization, resonance);
+							},
+							0.0, 1.0,
+							-1.0, 1.0,
+							0, 1e-6
+						);
+						const double value = result.value;
 
-							#pragma omp critical
-							{
-								grid[i] = value;
+						grid[i] = value;
 
-								calculated_values++;
+						calculated_values++;
 
-								const int base_precision = 5;
-								const int zyE_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(zyE)));
+						const int base_precision = 5;
+						const int zyE_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(zyE)));
 
-								std::cout << std::fixed << std::setprecision(base_precision);
-								std::cout << "[grid] " << IO::leading_zeroes(calculated_values, Math::number_of_digits(total_count));
-								std::cout << " / " << total_count;
-								std::cout << " [" << "grid " << IO::leading_zeroes(member_index, Math::number_of_digits(member_count));
-								std::cout << " / " << member_count << "]";
-								std::cout << ": " << std::format("{:.8f}", value);
-								std::cout << std::setprecision(zyE_precision) << " (zyE = " << zyE << ")";
-								std::cout << "\r" << std::flush;
-							}
-						}
+						std::cout << std::fixed << std::setprecision(base_precision);
+						std::cout << "[grid] " << IO::leading_zeroes(calculated_values, Math::number_of_digits(total_count));
+						std::cout << " / " << total_count;
+						std::cout << " [" << "grid " << IO::leading_zeroes(member_index, Math::number_of_digits(member_count));
+						std::cout << " / " << member_count << "]";
+						std::cout << ": " << std::format("{:.8f}", value);
+						std::cout << std::setprecision(zyE_precision) << " (zyE = " << zyE << ")";
+						std::cout << "\r" << std::flush;
 					}
 
 					for (std::size_t i = 0; i < zyE_count; i++) {
