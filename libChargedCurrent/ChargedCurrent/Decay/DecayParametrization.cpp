@@ -106,9 +106,9 @@ struct DecayParametrization {
 	}
 
 	static std::vector<DecayParametrization> fit_set_3() {
-		std::ifstream file("fit_set_3.csv");
+		std::ifstream file("fit_set_3.dat");
 		if (!file) {
-			throw std::runtime_error("Fit set file 'fit_set_3.csv' could not be opened.");
+			throw std::runtime_error("Fit set file 'fit_set_3.dat' could not be opened.");
 		}
 
 		std::vector<std::vector<double>> parameter_set;
