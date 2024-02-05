@@ -2188,38 +2188,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				}, Constants::Particles::Proton, Constants::Particles::MasslessMuon
 			);
 		}
-		// if (!custom_variation_range || Math::in_interval(start_index, end_index, static_cast<std::size_t>(5))) {
-		// 	generator.generate_decay_grids(
-		// 		output_dir + "DecayGrids", zyE_bins, {5.0}, DecayParametrization::replica_set_2(),
-		// 		{
-		// 			Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
-		// 		}, Constants::Particles::Proton, Constants::Particles::MasslessMuon
-		// 	);
-		// }
-		// if (!custom_variation_range || Math::in_interval(start_index, end_index, static_cast<std::size_t>(6))) {
-		// 	generator.generate_decay_grids(
-		// 		output_dir + "DecayGrids", zyE_bins, {5.0}, DecayParametrization::replica_set_3(),
-		// 		{
-		// 			Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
-		// 		}, Constants::Particles::Proton, Constants::Particles::MasslessMuon
-		// 	);
-		// }
-		// if (!custom_variation_range || Math::in_interval(start_index, end_index, static_cast<std::size_t>(7))) {
-		// 	generator.generate_decay_grids(
-		// 		output_dir + "DecayGrids", zyE_bins, {5.0}, DecayParametrization::replica_set_4(),
-		// 		{
-		// 			Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
-		// 		}, Constants::Particles::Proton, Constants::Particles::MasslessMuon
-		// 	);
-		// }
-		// if (!custom_variation_range || Math::in_interval(start_index, end_index, static_cast<std::size_t>(8))) {
-		// 	generator.generate_decay_grids(
-		// 		output_dir + "DecayGrids", zyE_bins, {5.0}, DecayParametrization::replica_set_5(),
-		// 		{
-		// 			Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
-		// 		}, Constants::Particles::Proton, Constants::Particles::MasslessMuon
-		// 	);
-		// }
 
 		std::cout << separator << IO::endl;
 	}
