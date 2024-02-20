@@ -1940,7 +1940,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 		const std::vector<std::string> folders = {"1_3", "1_5"};
 
-		const auto alt_scale = [](const auto &pdf, const double charm_mass) {
+		const auto alt_scale = [](const double charm_mass) {
 			return ScaleDependence::Function([&](const TRFKinematics &kinematics) {
 				return kinematics.Q2 + std::pow(charm_mass, 2);
 			});
@@ -1957,7 +1957,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
 					mass, 0.0, 0.0,
 					pdf,
-					alt_scale(pdf, mass), alt_scale(pdf, mass),
+					alt_scale(mass), alt_scale(mass),
 					output_dir + out + "nutev_neutrino.csv",
 					variation_range
 				);
@@ -1966,7 +1966,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
 					mass, 0.0, 0.0,
 					pdf,
-					alt_scale(pdf, mass), alt_scale(pdf, mass),
+					alt_scale(mass), alt_scale(mass),
 					output_dir + out + "ccfr_neutrino.csv",
 					variation_range
 				);
@@ -1977,7 +1977,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
 					mass, 0.0, 0.0,
 					pdf,
-					alt_scale(pdf, mass), alt_scale(pdf, mass),
+					alt_scale(mass), alt_scale(mass),
 					output_dir + out + "nutev_antineutrino.csv",
 					variation_range
 				);
@@ -1986,7 +1986,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
 					mass, 0.0, 0.0,
 					pdf,
-					alt_scale(pdf, mass), alt_scale(pdf, mass),
+					alt_scale(mass), alt_scale(mass),
 					output_dir + out + "ccfr_antineutrino.csv",
 					variation_range
 				);
