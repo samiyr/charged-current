@@ -24,6 +24,8 @@
 #include "PDF/PDFConcept.cpp"
 #include "PDF/Interfaces/LHASetInterface.cpp"
 
+#include "Threading/ThreadResult.cpp"
+
 struct SIDIS {
 	const FlavorVector active_flavors;
 	const Process process;
@@ -324,7 +326,8 @@ struct SIDIS {
 			std::cout << std::setprecision(static_cast<int>(original_precision)) << IO::endl;
 		}
 	}
-	void lepton_pair_xy_base(
+	ThreadResult lepton_pair_xy_base(
+		BS::thread_pool &thread_pool,
 		const auto &sidis,
 		const std::vector<double> &xs,
 		const std::vector<double> &ys,
@@ -348,66 +351,102 @@ struct SIDIS {
 		file << "x,y,E,LO,NLO,NNLO,Q2,renormalization_scale,factorization_scale,fragmentation_scale" << IO::endl;
 		std::streamsize original_precision = std::cout.precision();
 
-		#pragma omp parallel if(parallelize()) num_threads(number_of_threads) firstprivate(sidis)
-		{
-			#pragma omp for collapse(3) schedule(guided)
-			for (std::size_t i = 0; i < x_count; i++) {
-				for (std::size_t j = 0; j < E_count; j++) {
-					for (std::size_t k = 0; k < y_count; k++) {
-						const double x = xs[i];
-						const double y = ys[k];
-						const double E_beam = Ebeams[j];
-						
-						TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, process.target.mass, process.projectile.mass);
-						const PerturbativeQuantity cross_section_xQ2 = sidis.lepton_pair_cross_section_xQ2(kinematics);
-						const double jacobian = CommonFunctions::xy_jacobian(kinematics, process);
-						const PerturbativeQuantity cross_section_xy = cross_section_xQ2 * jacobian;
+		std::vector<TRFKinematics> kinematics_list;
 
-						const double Q2 = kinematics.Q2;
-						const double renormalization_scale = sidis.renormalization_scale_function(kinematics);
-						const double factorization_scale = sidis.factorization_scale_function(kinematics);
-						const double fragmentation_scale = sidis.fragmentation_scale_function(kinematics);
-
-						#pragma omp critical
-						{
-							file << x << ", " << y << ", " << E_beam << ", " << cross_section_xy.lo << ", " << cross_section_xy.nlo << ", " << cross_section_xy.nnlo;
-							file << ", " << Q2 << ", " << renormalization_scale << ", " << factorization_scale << ", " << fragmentation_scale << IO::endl;
-							file.flush();
-
-							calculated_values++;
-
-							const int base_precision = 5;
-							const int s_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(kinematics.s)));
-							const int E_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(E_beam)));
-							const int Q2_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(kinematics.Q2)));
-
-							std::cout << std::fixed << std::setprecision(base_precision);
-							std::cout << "[SIDIS] " << IO::leading_zeroes(
-								calculated_values + x_count * y_count * E_count * variation_index, Math::number_of_digits(count)
-							);
-							std::cout << " / " << count;
-
-							if (variation) {
-								std::cout << " [" << *variation << " " << IO::leading_zeroes(variation_index + 1, Math::number_of_digits(variation_count));	
-								std::cout << " / " << variation_count << "]";
-							}
-
-							std::cout << ": " << cross_section_xy;
-							std::cout << " (x = " << x << ", y = " << y;
-							std::cout << std::setprecision(s_precision) << ", s = " << kinematics.s;
-							std::cout << std::setprecision(E_precision) << ", E_beam = " << E_beam;
-							std::cout << std::setprecision(Q2_precision) << ", Q2 = " << kinematics.Q2 << ")";
-							std::cout << "\r" << std::flush;
-						}
-					}
+		for (std::size_t i = 0; i < x_count; i++) {
+			for (std::size_t j = 0; j < E_count; j++) {
+				for (std::size_t k = 0; k < y_count; k++) {
+					const double x = xs[i];
+					const double y = ys[k];
+					const double E_beam = Ebeams[j];
+					
+					TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, process.target.mass, process.projectile.mass);
+					kinematics_list.push_back(kinematics);
 				}
 			}
 		}
-		file.close();
 
-		if (variation_index == variation_count - 1) {
-			std::cout << std::setprecision(static_cast<int>(original_precision)) << IO::endl;
-		}
+		BS::multi_future<std::string> future = thread_pool.submit_sequence<std::size_t>(0, kinematics_list.size(), [sidis, &kinematics_list, this](const std::size_t i) {
+			std::stringstream stream;
+			TRFKinematics kinematics = kinematics_list[i];
+
+			const PerturbativeQuantity cross_section_xQ2 = sidis.lepton_pair_cross_section_xQ2(kinematics);
+			const double jacobian = CommonFunctions::xy_jacobian(kinematics, process);
+			const PerturbativeQuantity cross_section_xy = cross_section_xQ2 * jacobian;
+
+			const double Q2 = kinematics.Q2;
+			const double renormalization_scale = sidis.renormalization_scale_function(kinematics);
+			const double factorization_scale = sidis.factorization_scale_function(kinematics);
+			const double fragmentation_scale = sidis.fragmentation_scale_function(kinematics);
+
+			stream << kinematics.x << ", " << kinematics.y << ", " << kinematics.E_beam << ", " << cross_section_xy.lo << ", " << cross_section_xy.nlo << ", " << cross_section_xy.nnlo;
+			stream << ", " << Q2 << ", " << renormalization_scale << ", " << factorization_scale << ", " << fragmentation_scale << IO::endl;
+
+			return stream.str();
+		});
+
+		return ThreadResult { future, file };
+
+		// #pragma omp parallel if(parallelize()) num_threads(number_of_threads) firstprivate(sidis)
+		// {
+		// 	#pragma omp for collapse(3) schedule(guided)
+		// 	for (std::size_t i = 0; i < x_count; i++) {
+		// 		for (std::size_t j = 0; j < E_count; j++) {
+		// 			for (std::size_t k = 0; k < y_count; k++) {
+		// 				const double x = xs[i];
+		// 				const double y = ys[k];
+		// 				const double E_beam = Ebeams[j];
+						
+		// 				TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, process.target.mass, process.projectile.mass);
+		// 				const PerturbativeQuantity cross_section_xQ2 = sidis.lepton_pair_cross_section_xQ2(kinematics);
+		// 				const double jacobian = CommonFunctions::xy_jacobian(kinematics, process);
+		// 				const PerturbativeQuantity cross_section_xy = cross_section_xQ2 * jacobian;
+
+		// 				const double Q2 = kinematics.Q2;
+		// 				const double renormalization_scale = sidis.renormalization_scale_function(kinematics);
+		// 				const double factorization_scale = sidis.factorization_scale_function(kinematics);
+		// 				const double fragmentation_scale = sidis.fragmentation_scale_function(kinematics);
+
+		// 				#pragma omp critical
+		// 				{
+		// 					file << x << ", " << y << ", " << E_beam << ", " << cross_section_xy.lo << ", " << cross_section_xy.nlo << ", " << cross_section_xy.nnlo;
+		// 					file << ", " << Q2 << ", " << renormalization_scale << ", " << factorization_scale << ", " << fragmentation_scale << IO::endl;
+		// 					file.flush();
+
+		// 					calculated_values++;
+
+		// 					const int base_precision = 5;
+		// 					const int s_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(kinematics.s)));
+		// 					const int E_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(E_beam)));
+		// 					const int Q2_precision = base_precision - static_cast<int>(Math::number_of_digits(static_cast<int>(kinematics.Q2)));
+
+		// 					std::cout << std::fixed << std::setprecision(base_precision);
+		// 					std::cout << "[SIDIS] " << IO::leading_zeroes(
+		// 						calculated_values + x_count * y_count * E_count * variation_index, Math::number_of_digits(count)
+		// 					);
+		// 					std::cout << " / " << count;
+
+		// 					if (variation) {
+		// 						std::cout << " [" << *variation << " " << IO::leading_zeroes(variation_index + 1, Math::number_of_digits(variation_count));	
+		// 						std::cout << " / " << variation_count << "]";
+		// 					}
+
+		// 					std::cout << ": " << cross_section_xy;
+		// 					std::cout << " (x = " << x << ", y = " << y;
+		// 					std::cout << std::setprecision(s_precision) << ", s = " << kinematics.s;
+		// 					std::cout << std::setprecision(E_precision) << ", E_beam = " << E_beam;
+		// 					std::cout << std::setprecision(Q2_precision) << ", Q2 = " << kinematics.Q2 << ")";
+		// 					std::cout << "\r" << std::flush;
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// }
+		// file.close();
+
+		// if (variation_index == variation_count - 1) {
+		// 	std::cout << std::setprecision(static_cast<int>(original_precision)) << IO::endl;
+		// }
 	}
 
 	public:
@@ -435,7 +474,8 @@ struct SIDIS {
 
 		lepton_pair_zxy_base(sidis, zs, xs, ys, Ebeams, std::nullopt, 0, 1, file, comment);
 	}
-	void lepton_pair_xy(
+	ThreadResult lepton_pair_xy(
+		BS::thread_pool &thread_pool,
 		const std::vector<double> &xs,
 		const std::vector<double> &ys,
 		const std::vector<double> &Ebeams,
@@ -456,10 +496,11 @@ struct SIDIS {
 		IO::create_directory_tree(output);
 		std::ofstream file(output);
 
-		lepton_pair_xy_base(sidis, xs, ys, Ebeams, std::nullopt, 0, 1, file, comment);
+		return lepton_pair_xy_base(thread_pool, sidis, xs, ys, Ebeams, std::nullopt, 0, 1, file, comment);
 	}
 
-	void lepton_pair_xy_errors(
+	std::vector<ThreadResult> lepton_pair_xy_errors(
+		BS::thread_pool &thread_pool,
 		const std::vector<double> &xs,
 		const std::vector<double> &ys,
 		const std::vector<double> &Ebeams,
@@ -475,6 +516,8 @@ struct SIDIS {
 		const std::size_t variation_count = custom_range ? ((*variation_range).second - (*variation_range).first + 1) : pdf.size();
 		const auto variation_start = static_cast<typename std::remove_reference_t<decltype(pdf)>::size_type>(custom_range ? (*variation_range).first : 0);
 		const auto variation_end = static_cast<typename std::remove_reference_t<decltype(pdf)>::size_type>(custom_range ? (*variation_range).second + 1 : variation_count);
+
+		std::vector<ThreadResult> results;
 
 		for (typename std::remove_reference_t<decltype(pdf)>::size_type variation_index = variation_start; variation_index < variation_end; variation_index++) {
 			const auto &pdf_member = pdf[variation_index];
@@ -497,11 +540,14 @@ struct SIDIS {
 			std::ofstream file(output);
 			file << "#pdf_member = " << variation_index << IO::endl;
 
-			lepton_pair_xy_base(sidis, xs, ys, Ebeams, "pdf set", variation_index - variation_start, variation_count, file, comment);
+			results.push_back(lepton_pair_xy_base(thread_pool, sidis, xs, ys, Ebeams, "pdf set", variation_index - variation_start, variation_count, file, comment));
 		}
+
+		return results;
 	}
 
-	void lepton_pair_xy_scales(
+	std::vector<ThreadResult> lepton_pair_xy_scales(
+		BS::thread_pool &thread_pool,
 		const std::vector<double> &xs,
 		const std::vector<double> &ys,
 		const std::vector<double> &Ebeams,
@@ -544,6 +590,8 @@ struct SIDIS {
 		const std::size_t variation_start = custom_range ? (*variation_range).first : 0;
 		const std::size_t variation_end = custom_range ? (*variation_range).second + 1 : variation_count;
 
+		std::vector<ThreadResult> results;
+
 		for (std::size_t variation_index = variation_start; variation_index < variation_end; variation_index++) {
 			const std::vector<double> scale = scales[variation_index];
 
@@ -572,11 +620,14 @@ struct SIDIS {
 			file << "#factorization_scale = " << scale[1] << IO::endl;
 			file << "#fragmentation_scale = " << scale[2] << IO::endl;
 
-			lepton_pair_xy_base(sidis, xs, ys, Ebeams, "scale", variation_index - variation_start, variation_count, file, comment);
+			results.push_back(lepton_pair_xy_base(thread_pool, sidis, xs, ys, Ebeams, "scale", variation_index - variation_start, variation_count, file, comment));
 		}
+
+		return results;
 	}
 
-	void lepton_pair_xy_decays(
+	std::vector<ThreadResult> lepton_pair_xy_decays(
+		BS::thread_pool &thread_pool,
 		const std::vector<double> &xs,
 		const std::vector<double> &ys,
 		const std::vector<double> &Ebeams,
@@ -593,6 +644,8 @@ struct SIDIS {
 		const std::size_t variation_count = custom_range ? ((*variation_range).second - (*variation_range).first + 1) : decay_variations.size();
 		const std::size_t variation_start = custom_range ? (*variation_range).first : 0;
 		const std::size_t variation_end = custom_range ? (*variation_range).second + 1 : variation_count;
+
+		std::vector<ThreadResult> results;
 
 		for (std::size_t variation_index = variation_start; variation_index < variation_end; variation_index++) {
 			const FragmentationConfiguration decay_variation = decay_variations[variation_index];
@@ -619,8 +672,10 @@ struct SIDIS {
 			file << "#beta = " << decay_variation.decays.front().parametrization.beta << IO::endl;
 			file << "#gamma = " << decay_variation.decays.front().parametrization.gamma << IO::endl;
 
-			lepton_pair_xy_base(sidis, xs, ys, Ebeams, "decay", variation_index - variation_start, variation_count, file, comment);
+			results.push_back(lepton_pair_xy_base(thread_pool, sidis, xs, ys, Ebeams, "decay", variation_index - variation_start, variation_count, file, comment));
 		}
+
+		return results;
 	}
 
 	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */

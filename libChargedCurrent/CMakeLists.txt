@@ -10,6 +10,7 @@ add_subdirectory(ChargedCurrent/Interpolation)
 add_subdirectory(ChargedCurrent/Integration)
 add_subdirectory(ChargedCurrent/PDF)
 add_subdirectory(ChargedCurrent/SIDIS)
+add_subdirectory(ChargedCurrent/Threading)
 add_subdirectory(ChargedCurrent/Utility)
 
 # Thread sanitizer

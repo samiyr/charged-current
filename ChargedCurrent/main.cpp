@@ -1,6 +1,8 @@
 #ifndef CHARGED_CURRENT_DIS_H
 #define CHARGED_CURRENT_DIS_H
 
+#define BS_THREAD_POOL_ENABLE_PAUSE
+
 #include <iostream>
 #include <array>
 #include <format>
@@ -13,6 +15,8 @@
 #include <ChargedCurrent/Common/TRFKinematics.cpp>
 #include <ChargedCurrent/Decay/DecayParametrization.cpp>
 #include <ChargedCurrent/Interpolation/GridGenerator.cpp>
+#include <ChargedCurrent/Threading/BS_thread_pool.hpp>
+#include <ChargedCurrent/Threading/ThreadResult.cpp>
 
 #include "Constants.cpp"
 
@@ -34,6 +38,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		nthreads_iterator++;
 		number_of_threads = static_cast<unsigned int>(std::stoul(*nthreads_iterator));
 	}
+
+	BS::thread_pool thread_pool(number_of_threads);
+	thread_pool.pause();
+
+	ThreadResultCollection results;
 
 	auto output_directory_iterator = std::find(arguments.begin(), arguments.end(), "--output");
 	std::filesystem::path output_path = std::filesystem::current_path();
@@ -976,46 +985,47 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Differential/ErrorSets/" + pdf.set_name + "/";
 
 			measure([&] {
-				sidis.lepton_pair_xy_errors(
+				results.add(sidis.lepton_pair_xy_errors(thread_pool,
 					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
 					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					scale(pdf), scale(pdf), ff_scale,
 					output_dir + out + "nutev_neutrino.csv",
 					variation_range
-				);
-				sidis.lepton_pair_xy_errors(
+				));
+				results.add(sidis.lepton_pair_xy_errors(thread_pool,
 					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
 					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					scale(pdf), scale(pdf), ff_scale,
 					output_dir + out + "ccfr_neutrino.csv",
 					variation_range
-				);
+				));
 			});
 
 			measure([&] {
-				anti_sidis.lepton_pair_xy_errors(
+				results.add(anti_sidis.lepton_pair_xy_errors(thread_pool,
 					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
 					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					scale(pdf), scale(pdf), ff_scale,
 					output_dir + out + "nutev_antineutrino.csv",
 					variation_range
-				);
-				anti_sidis.lepton_pair_xy_errors(
+				));
+				results.add(anti_sidis.lepton_pair_xy_errors(thread_pool,
 					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
 					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
 					scale(pdf), scale(pdf), ff_scale,
 					output_dir + out + "ccfr_antineutrino.csv",
 					variation_range
-				);
+				));
 			});
 		}
 
 		std::cout << separator << IO::endl;
 	}
+	/*
 
 	if (run("sidis.differential.errors.fixed")) {
 		std::cout <<"======================== sidis.differential.errors.fixed ========================" << IO::endl;
@@ -2232,7 +2242,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				}
 			}
 		}
-	}
+	}*/
 
 	if (run("utility.pdf.testvalues")) {
 		const auto pdf_reader = [](const auto &pdf, const std::vector<double> &xs, const double Q2, const FlavorType flavor, const std::filesystem::path output) {
@@ -2285,6 +2295,26 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			}
 		}
 	}
+
+	const auto repeat = [](std::function<void(void)> func, unsigned int interval) {
+		std::thread([func, interval]() { 
+    		while (true) { 
+      			auto x = std::chrono::steady_clock::now() + std::chrono::milliseconds(interval);
+				func();
+				std::this_thread::sleep_until(x);
+			}
+		}).detach();
+	};
+
+	std::cout << thread_pool.get_tasks_queued() << " tasks queued" << IO::endl;
+	repeat([&]() {
+		std::cout << "Running: " << thread_pool.get_tasks_running() << "\tQueued: " << thread_pool.get_tasks_queued() << IO::endl;
+	}, 1000);
+	thread_pool.unpause();
+	thread_pool.wait();
+	std::cout << "All tasks finished, writing to file" << IO::endl;
+	results.write();
+	std::cout << "All results written to file" << IO::endl;
 
 	return 0;
 }

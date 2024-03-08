@@ -1,5 +1,5 @@
 target_sources(${LIBRARY_NAME} 
-	PRIVATE 
+	PRIVATE
 		CKM.cpp
 		CommonFunctions.cpp
 		Constants.cpp
