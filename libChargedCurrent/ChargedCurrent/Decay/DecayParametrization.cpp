@@ -132,7 +132,43 @@ struct DecayParametrization {
 
 			parameter_set.push_back(parameters);
 		}
-		std::cout << "here" << IO::endl;
+
+		std::vector<DecayParametrization> parametrizations;
+
+		for (const std::vector<double> &parameters : parameter_set) {
+			std::cout << parameters[0] << IO::endl;
+			parametrizations.emplace_back(parameters[0], parameters[1], parameters[2], parameters[3]);
+		}
+
+		return parametrizations;
+	}
+	static std::vector<DecayParametrization> fit_set_4() {
+		std::ifstream file("fit_set_4.dat");
+		if (!file) {
+			throw std::runtime_error("Fit set file 'fit_set_4.dat' could not be opened.");
+		}
+
+		std::vector<std::vector<double>> parameter_set;
+
+		std::size_t current_index = 0;
+
+		std::string line;
+		while (std::getline(file, line)) {
+			current_index++;
+
+			if (current_index == 1) { continue; }
+
+			std::vector<double> parameters;
+
+			std::istringstream stream(line);
+			std::string value;
+
+			while (std::getline(stream, value, ',')) {
+				parameters.push_back(std::stod(value));
+			}
+
+			parameter_set.push_back(parameters);
+		}
 
 		std::vector<DecayParametrization> parametrizations;
 

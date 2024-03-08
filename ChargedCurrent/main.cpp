@@ -88,6 +88,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	const auto run = [&](const std::string arg) { return Collections::contains(arguments, arg) || all; };
 
 	const std::vector<double> x_bins = {
+		0.01, 0.01125, 0.0125, 0.01375, 0.015, 0.01625, 0.0175, 0.01875,
 		0.02, 0.02125, 0.0225, 0.02375, 0.025, 0.02625, 0.0275, 0.02875, 
 		0.03, 0.03125, 0.0325, 0.03375, 0.035, 0.03625, 0.0375, 0.03875, 
 		0.04, 0.04125, 0.0425, 0.04375, 0.045, 0.04625, 0.0475, 0.04875,
@@ -2129,6 +2130,67 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 		std::cout << separator << IO::endl;
 	}
+	if (run("sidis.differential.decays.fitset4")) {
+		std::cout <<"======================= sidis.differential.decays.fitset4 =======================" << IO::endl;
+
+		const double min_E = 5.0;
+
+		const std::vector<DecayParametrization> &fit_set_4_parametrizations = DecayParametrization::fit_set_4();
+		
+		std::vector<FragmentationConfiguration<LHAInterface<std::false_type, FreezeExtrapolator>, DecayFunctions::DecayGrid>> parametrizations;
+		for (const DecayParametrization &parametrization : fit_set_4_parametrizations) {
+			parametrizations.push_back(
+				grid_fragmentation(min_E, Constants::Particles::MasslessMuon, parametrization)
+			);
+		}
+
+		for (const auto &pdf : pdfs) {
+			std::cout << "PDF set: " << pdf.set_name << IO::endl;
+
+			const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Differential/Decays/" + pdf.set_name + "/" + "FitSet4" + "/";
+
+			measure([&] {
+				sidis.lepton_pair_xy_decays(
+					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
+					parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+					pdf,
+					scale(pdf), scale(pdf), ff_scale,
+					output_dir + out + "nutev_neutrino.csv",
+					variation_range
+				);
+				sidis.lepton_pair_xy_decays(
+					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
+					parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+					pdf,
+					scale(pdf), scale(pdf), ff_scale,
+					output_dir + out + "ccfr_neutrino.csv",
+					variation_range
+				);
+			});
+
+			measure([&] {
+				anti_sidis.lepton_pair_xy_decays(
+					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+					parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+					pdf,
+					scale(pdf), scale(pdf), ff_scale,
+					output_dir + out + "nutev_antineutrino.csv",
+					variation_range
+				);
+				anti_sidis.lepton_pair_xy_decays(
+					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+					parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+					pdf,
+					scale(pdf), scale(pdf), ff_scale,
+					output_dir + out + "ccfr_antineutrino.csv",
+					variation_range
+				);
+			});
+			
+		}
+
+		std::cout << separator << IO::endl;
+	}
 
 	if (run("utility.decay.grid")) {
 		std::cout << "============================== utility.decay.grid ==============================" << IO::endl;
@@ -2195,9 +2257,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			);
 		}
 
+		if (!custom_variation_range || Math::in_interval(start_index, end_index, static_cast<std::size_t>(5))) {
+			generator.generate_decay_grids(
+				output_dir + "DecayGrids", zyE_bins, {5.0}, DecayParametrization::fit_set_4(),
+				{
+					Constants::Particles::D0, Constants::Particles::Dp, Constants::Particles::Ds, Constants::Particles::LambdaC
+				}, Constants::Particles::Proton, Constants::Particles::MasslessMuon
+			);
+		}
+
 		std::cout << separator << IO::endl;
 	}
-
 
 	if (run("utility.pdf.values")) {
 		const auto pdf_reader = [](const auto &pdf, const std::vector<double> &xs, const double Q2, const FlavorType flavor, const std::filesystem::path output) {
