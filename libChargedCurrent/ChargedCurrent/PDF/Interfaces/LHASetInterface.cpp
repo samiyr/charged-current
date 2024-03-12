@@ -58,6 +58,14 @@ class LHASetInterface {
 		return central().quark_mass(flavor);
 	}
 
+	double Q2_min() const {
+		return central().Q2_min();
+	}
+	
+	double Q2_max() const {
+		return central().Q2_max();
+	}
+
 	class iterator {
 		public:
 		iterator(const int member, const LHASetInterface<explicit_isospin, Extrapolator> *set) : member(member), set(set) {}

@@ -153,7 +153,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	const auto scale = [](const auto &pdf) {
 		return ScaleDependence::Function([&](const TRFKinematics &kinematics) {
 			return kinematics.Q2;
-		}, std::pow(pdf.quark_mass(Flavor::Charm), 2));
+		}, std::pow(pdf.Q2_min(), 2));
 	};
 
 	const auto ff_scale = ScaleDependence::trivial;
