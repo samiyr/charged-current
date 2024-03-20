@@ -21,14 +21,14 @@ template <typename explicit_isospin = std::false_type, std::derived_from<LHAPDF:
 class LHAInterface {
 	public:
 	std::string set_name;
-	int set_member_number;
+	std::size_t set_member_number;
 
 	double Z = 1.0;
 	double A = 1.0;
 
 	LHAInterface(
 		const std::string _set_name, 
-		const int _set_member_number, 
+		const std::size_t _set_member_number, 
 		const bool _use_multipliers, 
 		const std::vector<double> _multipliers,
 		const bool _use_global_multiplier = false,
@@ -49,10 +49,10 @@ class LHAInterface {
 	total_hits(0),
 	cache_hits(0) { }
 
-	LHAInterface(std::string _set_name, const std::vector<double> _multipliers, int _set_member_number = 0) noexcept
+	LHAInterface(std::string _set_name, const std::vector<double> _multipliers, std::size_t _set_member_number = 0) noexcept
 	: LHAInterface(_set_name, _set_member_number, _multipliers.size() == TOTAL_FLAVORS, _multipliers) { }
 
-	LHAInterface(std::string _set_name, int _set_member_number = 0) noexcept
+	LHAInterface(std::string _set_name, std::size_t _set_member_number = 0) noexcept
 	: LHAInterface(_set_name, _set_member_number, false, {}) { }
 
 	LHAInterface(const LHAInterface &o) noexcept : LHAInterface(

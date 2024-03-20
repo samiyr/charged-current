@@ -333,9 +333,6 @@ struct SIDIS {
 		const std::vector<double> &xs,
 		const std::vector<double> &ys,
 		const std::vector<double> &E_beams,
-		const std::optional<std::string> variation,
-		const std::size_t variation_index,
-		const std::size_t variation_count,
 		const std::filesystem::path &output,
 		std::stringstream &header,
 		const std::string comment
@@ -348,7 +345,7 @@ struct SIDIS {
 		for (const double x : xs) {
 			for (const double y : ys) {
 				for (const double E_beam : E_beams) {
-					futures.push_back(thread_pool.submit_task([=] {
+					futures.push_back(thread_pool.submit_task([=, this] {
 						std::stringstream stream;
 						TRFKinematics kinematics = TRFKinematics::y_E_beam(x, y, E_beam, process.target.mass, process.projectile.mass);
 
@@ -419,7 +416,7 @@ struct SIDIS {
 
 		std::stringstream header;
 
-		return lepton_pair_xy_base(thread_pool, sidis, xs, ys, E_beams, std::nullopt, 0, 1, output, header, comment);
+		return lepton_pair_xy_base(thread_pool, sidis, xs, ys, E_beams, output, header, comment);
 	}
 
 	std::vector<ThreadResult> lepton_pair_xy_errors(
@@ -462,7 +459,7 @@ struct SIDIS {
 			std::stringstream header;
 			header << "#pdf_member = " << variation_index << IO::endl;
 
-			results.push_back(lepton_pair_xy_base(thread_pool, sidis, xs, ys, E_beams, "pdf set", variation_index - variation_start, variation_count, output, header, comment));
+			results.push_back(lepton_pair_xy_base(thread_pool, sidis, xs, ys, E_beams, output, header, comment));
 		}
 
 		return results;
@@ -541,7 +538,7 @@ struct SIDIS {
 			header << "#factorization_scale = " << scale[1] << IO::endl;
 			header << "#fragmentation_scale = " << scale[2] << IO::endl;
 
-			results.push_back(lepton_pair_xy_base(thread_pool, sidis, xs, ys, E_beams, "scale", variation_index - variation_start, variation_count, output, header, comment));
+			results.push_back(lepton_pair_xy_base(thread_pool, sidis, xs, ys, E_beams, output, header, comment));
 		}
 
 		return results;
@@ -592,7 +589,7 @@ struct SIDIS {
 			header << "#beta = " << decay_variation.decays.front().parametrization.beta << IO::endl;
 			header << "#gamma = " << decay_variation.decays.front().parametrization.gamma << IO::endl;
 
-			results.push_back(lepton_pair_xy_base(thread_pool, sidis, xs, ys, E_beams, "decay", variation_index - variation_start, variation_count, output, header, comment));
+			results.push_back(lepton_pair_xy_base(thread_pool, sidis, xs, ys, E_beams, output, header, comment));
 		}
 
 		return results;
@@ -919,7 +916,7 @@ struct SIDIS {
 		);
 	}
 
-	void output_run_info(std::iostream &file, const auto &computation, const std::string comment) const {
+	void output_run_info(auto &file, const auto &computation, const std::string comment) const {
 		file << "#timestamp = " << std::format("{:%d-%m-%Y %H:%M:%OS}", std::chrono::system_clock::now()) << IO::endl;
 		file << "#active_flavors = ";
 		for (const FlavorType flavor : computation.flavors.active_flavors) {

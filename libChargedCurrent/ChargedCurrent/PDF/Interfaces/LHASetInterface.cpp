@@ -11,7 +11,7 @@
 template <typename explicit_isospin = std::false_type, std::derived_from<LHAPDF::Extrapolator> Extrapolator = ZeroExtrapolator>
 class LHASetInterface {
 	public:
-	using size_type = unsigned int;
+	using size_type = std::size_t;
 
 	const std::string set_name;
 
@@ -43,7 +43,7 @@ class LHASetInterface {
 	: LHASetInterface(_set_name, false, {}) { }
 
 	LHAInterface<explicit_isospin, Extrapolator> operator[](const size_type member) const {
-		LHAInterface<explicit_isospin, Extrapolator> pdf_member(set_name, static_cast<int>(member), use_multipliers, multipliers, use_global_multiplier, global_multiplier);
+		LHAInterface<explicit_isospin, Extrapolator> pdf_member(set_name, member, use_multipliers, multipliers, use_global_multiplier, global_multiplier);
 		pdf_member.Z = Z;
 		pdf_member.A = A;
 
