@@ -21,6 +21,7 @@
 #include "Constants.cpp"
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
+	std::cout << "Begin initialization" << IO::endl;
 	using namespace Constants;
 
 	LHAInterface<>::disable_verbosity();
@@ -118,7 +119,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		
 		const std::chrono::duration<double> elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(stop - start);
 		
-		std::cout << "Took " << elapsed.count() << " seconds" << IO::endl;
+		// std::cout << "Took " << elapsed.count() << " seconds" << IO::endl;
     };
 
 	const std::string epps_set = "EPPS21nlo_CT18Anlo_Fe56";
@@ -302,6 +303,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 	const SIDIS sidis(flavors, process, number_of_threads);
 	const SIDIS anti_sidis(flavors, anti_process, number_of_threads);
+
+	std::cout << "Queueing tasks" << IO::endl;
 
 	if (run("dis.differential.charm.errors")) {
 		std::cout << "======================== dis.differential.charm.errors =========================" << IO::endl;
@@ -984,6 +987,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 			const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Differential/ErrorSets/" + pdf.set_name + "/";
 
+			const FunctionalFormInterface temp([](const FlavorType flavor, const double x, const double Q2) { return 1.0; });
+
 			measure([&] {
 				results.add(sidis.lepton_pair_xy_errors(thread_pool,
 					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
@@ -1003,24 +1008,24 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				));
 			});
 
-			measure([&] {
-				results.add(anti_sidis.lepton_pair_xy_errors(thread_pool,
-					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "nutev_antineutrino.csv",
-					variation_range
-				));
-				results.add(anti_sidis.lepton_pair_xy_errors(thread_pool,
-					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "ccfr_antineutrino.csv",
-					variation_range
-				));
-			});
+			// measure([&] {
+			// 	results.add(anti_sidis.lepton_pair_xy_errors(thread_pool,
+			// 		x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+			// 		PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+			// 		pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+			// 		scale(pdf), scale(pdf), ff_scale,
+			// 		output_dir + out + "nutev_antineutrino.csv",
+			// 		variation_range
+			// 	));
+			// 	results.add(anti_sidis.lepton_pair_xy_errors(thread_pool,
+			// 		x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+			// 		PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+			// 		pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+			// 		scale(pdf), scale(pdf), ff_scale,
+			// 		output_dir + out + "ccfr_antineutrino.csv",
+			// 		variation_range
+			// 	));
+			// });
 		}
 
 		std::cout << separator << IO::endl;
@@ -2306,10 +2311,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		}).detach();
 	};
 
-	std::cout << thread_pool.get_tasks_queued() << " tasks queued" << IO::endl;
+	const std::size_t total_tasks = thread_pool.get_tasks_queued();
+
+	std::cout << total_tasks << " tasks queued" << IO::endl;
 	repeat([&]() {
-		std::cout << "Running: " << thread_pool.get_tasks_running() << "\tQueued: " << thread_pool.get_tasks_queued() << IO::endl;
-	}, 1000);
+		const std::size_t queued = thread_pool.get_tasks_queued();
+		std::cout << "[" << static_cast<int>(100.0 * (1.0 - static_cast<double>(queued) / static_cast<double>(total_tasks))) << "%] ";
+		std::cout << "Running: " << thread_pool.get_tasks_running() << "\tQueued: " << queued << "\tCompleted: " << total_tasks - queued << IO::endl;
+	}, 5000);
+	std::cout << "Starting pool" << IO::endl;
 	thread_pool.unpause();
 	thread_pool.wait();
 	std::cout << "All tasks finished, writing to file" << IO::endl;

@@ -431,7 +431,6 @@ class SIDISComputation {
 									? CommonFunctions::cross_section_modified_prefactor(kinematics) 
 									: CommonFunctions::cross_section_prefactor(kinematics);
 
-		std::cout << "r = " << prefactor * result << "\n";
 		return prefactor * result;
 	}
 

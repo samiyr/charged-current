@@ -3,28 +3,36 @@
 
 #include <fstream>
 #include <iostream>
+#include <filesystem>
+
+#include "Utility/Utility.cpp"
 
 #include "Threading/BS_thread_pool.hpp"
+#include "Threading/shared_multi_future.cpp"
 
 struct ThreadResult {
-	BS::multi_future<std::string> &future;
-	std::ofstream &file;
+	shared_multi_future<std::string> future;
+	std::filesystem::path output;
+	std::string header;
 
 	std::vector<std::string> get() {
 		return future.get();
 	}
 
 	void write() {
+		IO::create_directory_tree(output);
+		std::ofstream file(output);
+
+		file << header;
+
 		for (const std::string &string : get()) {
 			file << string;
 		}
-
-		file.close();
 	}
 };
 
 struct ThreadResultCollection {
-	std::vector<std::reference_wrapper<ThreadResult>> results;
+	std::vector<ThreadResult> results;
 
 	void add(ThreadResult result) {
 		results.push_back(result);
