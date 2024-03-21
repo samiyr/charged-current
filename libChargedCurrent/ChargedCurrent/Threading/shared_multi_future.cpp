@@ -2,6 +2,7 @@
 #define SHARED_MULTI_FUTURE_H
 
 #include <future>
+#include <vector>
 
 template <typename T>
 class [[nodiscard]] shared_multi_future : public std::vector<std::shared_future<T>>
