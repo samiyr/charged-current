@@ -430,6 +430,7 @@ class SIDISComputation {
 		const double prefactor = use_modified_cross_section_prefactor 
 									? CommonFunctions::cross_section_modified_prefactor(kinematics) 
 									: CommonFunctions::cross_section_prefactor(kinematics);
+
 		return prefactor * result;
 	}
 

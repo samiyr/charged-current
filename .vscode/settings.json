@@ -103,6 +103,7 @@
 		"ranges": "cpp",
 		"stdfloat": "cpp",
 		"execution": "cpp",
-		"shared_mutex": "cpp"
+		"shared_mutex": "cpp",
+		"future": "cpp"
 	}
 }

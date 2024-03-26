@@ -1,6 +1,8 @@
 #ifndef CHARGED_CURRENT_DIS_H
 #define CHARGED_CURRENT_DIS_H
 
+#define BS_THREAD_POOL_ENABLE_PAUSE
+
 #include <iostream>
 #include <array>
 #include <format>
@@ -13,10 +15,13 @@
 #include <ChargedCurrent/Common/TRFKinematics.cpp>
 #include <ChargedCurrent/Decay/DecayParametrization.cpp>
 #include <ChargedCurrent/Interpolation/GridGenerator.cpp>
+#include <ChargedCurrent/Threading/BS_thread_pool.hpp>
+#include <ChargedCurrent/Threading/ThreadResult.cpp>
 
 #include "Constants.cpp"
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
+	std::cout << "Begin initialization" << IO::endl;
 	using namespace Constants;
 
 	LHAInterface<>::disable_verbosity();
@@ -34,6 +39,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		nthreads_iterator++;
 		number_of_threads = static_cast<unsigned int>(std::stoul(*nthreads_iterator));
 	}
+
+	BS::thread_pool thread_pool(number_of_threads);
+	thread_pool.pause();
+
+	ThreadResultCollection results;
 
 	auto output_directory_iterator = std::find(arguments.begin(), arguments.end(), "--output");
 	std::filesystem::path output_path = std::filesystem::current_path();
@@ -88,6 +98,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	const auto run = [&](const std::string arg) { return Collections::contains(arguments, arg) || all; };
 
 	const std::vector<double> x_bins = {
+		0.01, 0.01125, 0.0125, 0.01375, 0.015, 0.01625, 0.0175, 0.01875,
 		0.01, 0.01125, 0.0125, 0.01375, 0.015, 0.01625, 0.0175, 0.01875,
 		0.02, 0.02125, 0.0225, 0.02375, 0.025, 0.02625, 0.0275, 0.02875, 
 		0.03, 0.03125, 0.0325, 0.03375, 0.035, 0.03625, 0.0375, 0.03875, 
@@ -294,6 +305,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 	const SIDIS sidis(flavors, process, number_of_threads);
 	const SIDIS anti_sidis(flavors, anti_process, number_of_threads);
+
+	std::cout << "Queueing tasks" << IO::endl;
 
 	if (run("dis.differential.charm.errors")) {
 		std::cout << "======================== dis.differential.charm.errors =========================" << IO::endl;
@@ -976,43 +989,39 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 			const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Differential/ErrorSets/" + pdf.set_name + "/";
 
-			measure([&] {
-				sidis.lepton_pair_xy_errors(
-					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "nutev_neutrino.csv",
-					variation_range
-				);
-				sidis.lepton_pair_xy_errors(
-					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "ccfr_neutrino.csv",
-					variation_range
-				);
-			});
+			results.add(sidis.lepton_pair_xy_errors(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
+				PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "nutev_neutrino.csv",
+				variation_range
+			));
+			results.add(sidis.lepton_pair_xy_errors(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
+				PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "ccfr_neutrino.csv",
+				variation_range
+			));
 
-			measure([&] {
-				anti_sidis.lepton_pair_xy_errors(
-					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "nutev_antineutrino.csv",
-					variation_range
-				);
-				anti_sidis.lepton_pair_xy_errors(
-					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "ccfr_antineutrino.csv",
-					variation_range
-				);
-			});
+			results.add(anti_sidis.lepton_pair_xy_errors(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+				PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "nutev_antineutrino.csv",
+				variation_range
+			));
+			results.add(anti_sidis.lepton_pair_xy_errors(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+				PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "ccfr_antineutrino.csv",
+				variation_range
+			));
 		}
 
 		std::cout << separator << IO::endl;
@@ -1030,43 +1039,39 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 			const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Differential/ErrorSets/FixedScale/" + pdf.set_name + "/";
 
-			measure([&] {
-				sidis.lepton_pair_xy_errors(
-					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					constant_scale, constant_scale, constant_scale,
-					output_dir + out + "nutev_neutrino.csv",
-					variation_range
-				);
-				sidis.lepton_pair_xy_errors(
-					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					constant_scale, constant_scale, constant_scale,
-					output_dir + out + "ccfr_neutrino.csv",
-					variation_range
-				);
-			});
+			results.add(sidis.lepton_pair_xy_errors(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
+				PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				constant_scale, constant_scale, constant_scale,
+				output_dir + out + "nutev_neutrino.csv",
+				variation_range
+			));
+			results.add(sidis.lepton_pair_xy_errors(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
+				PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				constant_scale, constant_scale, constant_scale,
+				output_dir + out + "ccfr_neutrino.csv",
+				variation_range
+			));
 
-			measure([&] {
-				anti_sidis.lepton_pair_xy_errors(
-					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					constant_scale, constant_scale, constant_scale,
-					output_dir + out + "nutev_antineutrino.csv",
-					variation_range
-				);
-				anti_sidis.lepton_pair_xy_errors(
-					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					constant_scale, constant_scale, constant_scale,
-					output_dir + out + "ccfr_antineutrino.csv",
-					variation_range
-				);
-			});
+			results.add(anti_sidis.lepton_pair_xy_errors(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+				PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				constant_scale, constant_scale, constant_scale,
+				output_dir + out + "nutev_antineutrino.csv",
+				variation_range
+			));
+			results.add(anti_sidis.lepton_pair_xy_errors(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+				PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				constant_scale, constant_scale, constant_scale,
+				output_dir + out + "ccfr_antineutrino.csv",
+				variation_range
+			));
 		}
 
 		std::cout << separator << IO::endl;
@@ -1082,47 +1087,43 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 			const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Differential/Scales/" + pdf.set_name + "/";
 
-			measure([&] {
-				sidis.lepton_pair_xy_scales(
-					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-					ScaleVariation::All,
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "nutev_neutrino.csv",
-					variation_range
-				);
-				sidis.lepton_pair_xy_scales(
-					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-					ScaleVariation::All,
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "ccfr_neutrino.csv",
-					variation_range
-				);
-			});
+			results.add(sidis.lepton_pair_xy_scales(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
+				ScaleVariation::All,
+				PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "nutev_neutrino.csv",
+				variation_range
+			));
+			results.add(sidis.lepton_pair_xy_scales(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
+				ScaleVariation::All,
+				PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "ccfr_neutrino.csv",
+				variation_range
+			));
 
-			measure([&] {
-				anti_sidis.lepton_pair_xy_scales(
-					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-					ScaleVariation::All,
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "nutev_antineutrino.csv",
-					variation_range
-				);
-				anti_sidis.lepton_pair_xy_scales(
-					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-					ScaleVariation::All,
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "ccfr_antineutrino.csv",
-					variation_range
-				);
-			});
+			results.add(anti_sidis.lepton_pair_xy_scales(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+				ScaleVariation::All,
+				PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "nutev_antineutrino.csv",
+				variation_range
+			));
+			results.add(anti_sidis.lepton_pair_xy_scales(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+				ScaleVariation::All,
+				PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "ccfr_antineutrino.csv",
+				variation_range
+			));
 		}
 
 		std::cout << separator << IO::endl;
@@ -1148,43 +1149,39 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 				const auto grid = grid_fragmentation_set(min_E, Constants::Particles::MasslessMuon, fragmentation_set);
 
-				measure([&] {
-					sidis.lepton_pair_xy_errors(
-						x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-						PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-						pdf, grid,
-						scale(pdf), scale(pdf), ff_scale,
-						output_dir + out + "nutev_neutrino.csv",
-						variation_range
-					);
-					sidis.lepton_pair_xy_errors(
-						x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-						PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-						pdf, grid,
-						scale(pdf), scale(pdf), ff_scale,
-						output_dir + out + "ccfr_neutrino.csv",
-						variation_range
-					);
-				});
+				results.add(sidis.lepton_pair_xy_errors(thread_pool,
+					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+					pdf, grid,
+					scale(pdf), scale(pdf), ff_scale,
+					output_dir + out + "nutev_neutrino.csv",
+					variation_range
+				));
+				results.add(sidis.lepton_pair_xy_errors(thread_pool,
+					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+					pdf, grid,
+					scale(pdf), scale(pdf), ff_scale,
+					output_dir + out + "ccfr_neutrino.csv",
+					variation_range
+				));
 
-				measure([&] {
-					anti_sidis.lepton_pair_xy_errors(
-						x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-						PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-						pdf, grid,
-						scale(pdf), scale(pdf), ff_scale,
-						output_dir + out + "nutev_antineutrino.csv",
-						variation_range
-					);
-					anti_sidis.lepton_pair_xy_errors(
-						x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-						PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-						pdf, grid,
-						scale(pdf), scale(pdf), ff_scale,
-						output_dir + out + "ccfr_antineutrino.csv",
-						variation_range
-					);
-				});
+				results.add(anti_sidis.lepton_pair_xy_errors(thread_pool,
+					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+					pdf, grid,
+					scale(pdf), scale(pdf), ff_scale,
+					output_dir + out + "nutev_antineutrino.csv",
+					variation_range
+				));
+				results.add(anti_sidis.lepton_pair_xy_errors(thread_pool,
+					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+					pdf, grid,
+					scale(pdf), scale(pdf), ff_scale,
+					output_dir + out + "ccfr_antineutrino.csv",
+					variation_range
+				));
 			}
 		}
 
@@ -1201,39 +1198,35 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 			const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Differential/NLP/" + pdf.set_name + "/";
 
-			measure([&] {
-				sidis.lepton_pair_xy(
-					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-					PerturbativeOrder::NLO, true, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "nutev_neutrino.csv"
-				);
-				sidis.lepton_pair_xy(
-					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-					PerturbativeOrder::NLO, true, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "ccfr_neutrino.csv"
-				);
-			});
+			results.add(sidis.lepton_pair_xy(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
+				PerturbativeOrder::NLO, true, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "nutev_neutrino.csv"
+			));
+			results.add(sidis.lepton_pair_xy(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
+				PerturbativeOrder::NLO, true, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "ccfr_neutrino.csv"
+			));
 
-			measure([&] {
-				anti_sidis.lepton_pair_xy(
-					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-					PerturbativeOrder::NLO, true, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "nutev_antineutrino.csv"
-				);
-				anti_sidis.lepton_pair_xy(
-					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-					PerturbativeOrder::NLO, true, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "ccfr_antineutrino.csv"
-				);
-			});
+			results.add(anti_sidis.lepton_pair_xy(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+				PerturbativeOrder::NLO, true, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "nutev_antineutrino.csv"
+			));
+			results.add(anti_sidis.lepton_pair_xy(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+				PerturbativeOrder::NLO, true, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "ccfr_antineutrino.csv"
+			));
 		}
 
 		std::cout << separator << IO::endl;
@@ -1249,39 +1242,35 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 			const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Differential/NNLO/" + pdf.set_name + "/";
 
-			measure([&] {
-				sidis.lepton_pair_xy(
-					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-					PerturbativeOrder::NNLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "nutev_neutrino.csv"
-				);
-				sidis.lepton_pair_xy(
-					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-					PerturbativeOrder::NNLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "ccfr_neutrino.csv"
-				);
-			});
+			results.add(sidis.lepton_pair_xy(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
+				PerturbativeOrder::NNLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "nutev_neutrino.csv"
+			));
+			results.add(sidis.lepton_pair_xy(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
+				PerturbativeOrder::NNLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "ccfr_neutrino.csv"
+			));
 
-			measure([&] {
-				anti_sidis.lepton_pair_xy(
-					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-					PerturbativeOrder::NNLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "nutev_antineutrino.csv"
-				);
-				anti_sidis.lepton_pair_xy(
-					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-					PerturbativeOrder::NNLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "ccfr_antineutrino.csv"
-				);
-			});
+			results.add(anti_sidis.lepton_pair_xy(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+				PerturbativeOrder::NNLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "nutev_antineutrino.csv"
+			));
+			results.add(anti_sidis.lepton_pair_xy(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+				PerturbativeOrder::NNLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "ccfr_antineutrino.csv"
+			));
 		}
 
 		std::cout << separator << IO::endl;
@@ -1648,43 +1637,39 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 			const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Differential/Isospin/ErrorSets/" + pdf.set_name + "/";
 
-			measure([&] {
-				sidis.lepton_pair_xy_errors(
-					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "nutev_neutrino.csv",
-					variation_range
-				);
-				sidis.lepton_pair_xy_errors(
-					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "ccfr_neutrino.csv",
-					variation_range
-				);
-			});
+			results.add(sidis.lepton_pair_xy_errors(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
+				PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "nutev_neutrino.csv",
+				variation_range
+			));
+			results.add(sidis.lepton_pair_xy_errors(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
+				PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "ccfr_neutrino.csv",
+				variation_range
+			));
 
-			measure([&] {
-				anti_sidis.lepton_pair_xy_errors(
-					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "nutev_antineutrino.csv",
-					variation_range
-				);
-				anti_sidis.lepton_pair_xy_errors(
-					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "ccfr_antineutrino.csv",
-					variation_range
-				);
-			});
+			results.add(anti_sidis.lepton_pair_xy_errors(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+				PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "nutev_antineutrino.csv",
+				variation_range
+			));
+			results.add(anti_sidis.lepton_pair_xy_errors(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+				PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "ccfr_antineutrino.csv",
+				variation_range
+			));
 		}
 	}
 
@@ -1698,39 +1683,35 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 			const std::string out = "Data/SIDIS/MuonPairProduction/D0/Differential/" + pdf.set_name + "/";
 
-			measure([&] {
-				sidis.lepton_pair_xy(
-					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, D0_grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "nutev_neutrino.csv"
-				);
-				sidis.lepton_pair_xy(
-					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, D0_grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "ccfr_neutrino.csv"
-				);
-			});
+			results.add(sidis.lepton_pair_xy(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
+				PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, D0_grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "nutev_neutrino.csv"
+			));
+			results.add(sidis.lepton_pair_xy(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
+				PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, D0_grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "ccfr_neutrino.csv"
+			));
 
-			measure([&] {
-				anti_sidis.lepton_pair_xy(
-					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, D0_grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "nutev_antineutrino.csv"
-				);
-				anti_sidis.lepton_pair_xy(
-					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf, D0_grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "ccfr_antineutrino.csv"
-				);
-			});
+			results.add(anti_sidis.lepton_pair_xy(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+				PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, D0_grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "nutev_antineutrino.csv"
+			));
+			results.add(anti_sidis.lepton_pair_xy(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+				PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf, D0_grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "ccfr_antineutrino.csv"
+			));
 		}
 
 		std::cout << separator << IO::endl;
@@ -1751,39 +1732,35 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 		);
 
 		const auto run_analysis = [&](const auto &pdf_in, const auto &ff_in, const std::string out) {
-			measure([&] {
-				sidis.lepton_pair_xy(
-					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-					PerturbativeOrder::NLO, false, pdf_in.quark_mass(Flavor::Charm), 0.0,
-					pdf_in, ff_in,
-					scale(pdf_in), scale(pdf_in), ff_scale,
-					out + "nutev_neutrino.csv"
-				);
-				sidis.lepton_pair_xy(
-					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-					PerturbativeOrder::NLO, false, pdf_in.quark_mass(Flavor::Charm), 0.0,
-					pdf_in, ff_in,
-					scale(pdf_in), scale(pdf_in), ff_scale,
-					out + "ccfr_neutrino.csv"
-				);
-			});
+			results.add(sidis.lepton_pair_xy(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
+				PerturbativeOrder::NLO, false, pdf_in.quark_mass(Flavor::Charm), 0.0,
+				pdf_in, ff_in,
+				scale(pdf_in), scale(pdf_in), ff_scale,
+				out + "nutev_neutrino.csv"
+			));
+			results.add(sidis.lepton_pair_xy(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
+				PerturbativeOrder::NLO, false, pdf_in.quark_mass(Flavor::Charm), 0.0,
+				pdf_in, ff_in,
+				scale(pdf_in), scale(pdf_in), ff_scale,
+				out + "ccfr_neutrino.csv"
+			));
 
-			measure([&] {
-				anti_sidis.lepton_pair_xy(
-					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-					PerturbativeOrder::NLO, false, pdf_in.quark_mass(Flavor::Charm), 0.0,
-					pdf_in, ff_in,
-					scale(pdf_in), scale(pdf_in), ff_scale,
-					out + "nutev_antineutrino.csv"
-				);
-				anti_sidis.lepton_pair_xy(
-					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-					PerturbativeOrder::NLO, false, pdf_in.quark_mass(Flavor::Charm), 0.0,
-					pdf_in, ff_in,
-					scale(pdf_in), scale(pdf_in), ff_scale,
-					out + "ccfr_antineutrino.csv"
-				);
-			});
+			results.add(anti_sidis.lepton_pair_xy(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+				PerturbativeOrder::NLO, false, pdf_in.quark_mass(Flavor::Charm), 0.0,
+				pdf_in, ff_in,
+				scale(pdf_in), scale(pdf_in), ff_scale,
+				out + "nutev_antineutrino.csv"
+			));
+			results.add(anti_sidis.lepton_pair_xy(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+				PerturbativeOrder::NLO, false, pdf_in.quark_mass(Flavor::Charm), 0.0,
+				pdf_in, ff_in,
+				scale(pdf_in), scale(pdf_in), ff_scale,
+				out + "ccfr_antineutrino.csv"
+			));
 		};
 
 		for (const auto &pdf : pdfs) {
@@ -1843,39 +1820,35 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 				const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Differential/Fragmentation/" + pdf.set_name + "/" + opal_fragmentation[i] + "/";
 
-				measure([&] {
-					sidis.lepton_pair_xy(
-						x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-						PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-						pdf, fragmentation,
-						scale(pdf), scale(pdf), ff_scale,
-						output_dir + out + "nutev_neutrino.csv"
-					);
-					sidis.lepton_pair_xy(
-						x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-						PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-						pdf, fragmentation,
-						scale(pdf), scale(pdf), ff_scale,
-						output_dir + out + "ccfr_neutrino.csv"
-					);
-				});
+				results.add(sidis.lepton_pair_xy(thread_pool,
+					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+					pdf, fragmentation,
+					scale(pdf), scale(pdf), ff_scale,
+					output_dir + out + "nutev_neutrino.csv"
+				));
+				results.add(sidis.lepton_pair_xy(thread_pool,
+					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+					pdf, fragmentation,
+					scale(pdf), scale(pdf), ff_scale,
+					output_dir + out + "ccfr_neutrino.csv"
+				));
 
-				measure([&] {
-					anti_sidis.lepton_pair_xy(
-						x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-						PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-						pdf, fragmentation,
-						scale(pdf), scale(pdf), ff_scale,
-						output_dir + out + "nutev_antineutrino.csv"
-					);
-					anti_sidis.lepton_pair_xy(
-						x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-						PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-						pdf, fragmentation,
-						scale(pdf), scale(pdf), ff_scale,
-						output_dir + out + "ccfr_antineutrino.csv"
-					);
-				});
+				results.add(anti_sidis.lepton_pair_xy(thread_pool,
+					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+					pdf, fragmentation,
+					scale(pdf), scale(pdf), ff_scale,
+					output_dir + out + "nutev_antineutrino.csv"
+				));
+				results.add(anti_sidis.lepton_pair_xy(thread_pool,
+					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+					PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+					pdf, fragmentation,
+					scale(pdf), scale(pdf), ff_scale,
+					output_dir + out + "ccfr_antineutrino.csv"
+				));
 			}
 		}
 
@@ -1897,39 +1870,35 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 				// To fix the compiler error 'capturing a structured binding is not yet supported in OpenMP'
 				const double mass = current_mass;
 
-				measure([&] {
-					sidis.lepton_pair_xy(
-						x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-						PerturbativeOrder::NLO, false, mass, 0.0,
-						pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-						scale(pdf), scale(pdf), ff_scale,
-						output_dir + out + "nutev_neutrino.csv"
-					);
-					sidis.lepton_pair_xy(
-						x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-						PerturbativeOrder::NLO, false, mass, 0.0,
-						pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-						scale(pdf), scale(pdf), ff_scale,
-						output_dir + out + "ccfr_neutrino.csv"
-					);
-				});
+				results.add(sidis.lepton_pair_xy(thread_pool,
+					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
+					PerturbativeOrder::NLO, false, mass, 0.0,
+					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+					scale(pdf), scale(pdf), ff_scale,
+					output_dir + out + "nutev_neutrino.csv"
+				));
+				results.add(sidis.lepton_pair_xy(thread_pool,
+					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
+					PerturbativeOrder::NLO, false, mass, 0.0,
+					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+					scale(pdf), scale(pdf), ff_scale,
+					output_dir + out + "ccfr_neutrino.csv"
+				));
 
-				measure([&] {
-					anti_sidis.lepton_pair_xy(
-						x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-						PerturbativeOrder::NLO, false, mass, 0.0,
-						pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-						scale(pdf), scale(pdf), ff_scale,
-						output_dir + out + "nutev_antineutrino.csv"
-					);
-					anti_sidis.lepton_pair_xy(
-						x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-						PerturbativeOrder::NLO, false, mass, 0.0,
-						pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
-						scale(pdf), scale(pdf), ff_scale,
-						output_dir + out + "ccfr_antineutrino.csv"
-					);
-				});
+				results.add(anti_sidis.lepton_pair_xy(thread_pool,
+					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+					PerturbativeOrder::NLO, false, mass, 0.0,
+					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+					scale(pdf), scale(pdf), ff_scale,
+					output_dir + out + "nutev_antineutrino.csv"
+				));
+				results.add(anti_sidis.lepton_pair_xy(thread_pool,
+					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+					PerturbativeOrder::NLO, false, mass, 0.0,
+					pdf, grid_fragmentation(min_E, Constants::Particles::MasslessMuon),
+					scale(pdf), scale(pdf), ff_scale,
+					output_dir + out + "ccfr_antineutrino.csv"
+				));
 			}
 		}
 
@@ -2027,43 +1996,39 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 				const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Differential/Decays/" + pdf.set_name + "/" + folder + "/";
 
-				measure([&] {
-					sidis.lepton_pair_xy_decays(
-						x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-						parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-						pdf,
-						scale(pdf), scale(pdf), ff_scale,
-						output_dir + out + "nutev_neutrino.csv",
-						variation_range
-					);
-					sidis.lepton_pair_xy_decays(
-						x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-						parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-						pdf,
-						scale(pdf), scale(pdf), ff_scale,
-						output_dir + out + "ccfr_neutrino.csv",
-						variation_range
-					);
-				});
+				results.add(sidis.lepton_pair_xy_decays(thread_pool,
+					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
+					parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+					pdf,
+					scale(pdf), scale(pdf), ff_scale,
+					output_dir + out + "nutev_neutrino.csv",
+					variation_range
+				));
+				results.add(sidis.lepton_pair_xy_decays(thread_pool,
+					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
+					parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+					pdf,
+					scale(pdf), scale(pdf), ff_scale,
+					output_dir + out + "ccfr_neutrino.csv",
+					variation_range
+				));
 
-				measure([&] {
-					anti_sidis.lepton_pair_xy_decays(
-						x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-						parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-						pdf,
-						scale(pdf), scale(pdf), ff_scale,
-						output_dir + out + "nutev_antineutrino.csv",
-						variation_range
-					);
-					anti_sidis.lepton_pair_xy_decays(
-						x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-						parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-						pdf,
-						scale(pdf), scale(pdf), ff_scale,
-						output_dir + out + "ccfr_antineutrino.csv",
-						variation_range
-					);
-				});
+				results.add(anti_sidis.lepton_pair_xy_decays(thread_pool,
+					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+					parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+					pdf,
+					scale(pdf), scale(pdf), ff_scale,
+					output_dir + out + "nutev_antineutrino.csv",
+					variation_range
+				));
+				results.add(anti_sidis.lepton_pair_xy_decays(thread_pool,
+					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+					parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+					pdf,
+					scale(pdf), scale(pdf), ff_scale,
+					output_dir + out + "ccfr_antineutrino.csv",
+					variation_range
+				));
 			}
 		}
 
@@ -2088,44 +2053,97 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 
 			const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Differential/Decays/" + pdf.set_name + "/" + "FitSet3" + "/";
 
-			measure([&] {
-				sidis.lepton_pair_xy_decays(
-					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
-					parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf,
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "nutev_neutrino.csv",
-					variation_range
-				);
-				sidis.lepton_pair_xy_decays(
-					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
-					parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf,
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "ccfr_neutrino.csv",
-					variation_range
-				);
-			});
+			results.add(sidis.lepton_pair_xy_decays(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
+				parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf,
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "nutev_neutrino.csv",
+				variation_range
+			));
+			results.add(sidis.lepton_pair_xy_decays(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
+				parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf,
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "ccfr_neutrino.csv",
+				variation_range
+			));
 
-			measure([&] {
-				anti_sidis.lepton_pair_xy_decays(
-					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
-					parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf,
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "nutev_antineutrino.csv",
-					variation_range
-				);
-				anti_sidis.lepton_pair_xy_decays(
-					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
-					parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
-					pdf,
-					scale(pdf), scale(pdf), ff_scale,
-					output_dir + out + "ccfr_antineutrino.csv",
-					variation_range
-				);
-			});
-			
+			results.add(anti_sidis.lepton_pair_xy_decays(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+				parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf,
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "nutev_antineutrino.csv",
+				variation_range
+			));
+			results.add(anti_sidis.lepton_pair_xy_decays(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+				parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf,
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "ccfr_antineutrino.csv",
+				variation_range
+			));
+		}
+
+		std::cout << separator << IO::endl;
+	}
+		
+	if (run("sidis.differential.decays.fitset4")) {
+		std::cout <<"======================= sidis.differential.decays.fitset4 =======================" << IO::endl;
+
+		const double min_E = 5.0;
+
+		const std::vector<DecayParametrization> &fit_set_4_parametrizations = DecayParametrization::fit_set_4();
+
+		std::vector<FragmentationConfiguration<LHAInterface<std::false_type, FreezeExtrapolator>, DecayFunctions::DecayGrid>> parametrizations;
+		for (const DecayParametrization &parametrization : fit_set_4_parametrizations) {
+			parametrizations.push_back(
+				grid_fragmentation(min_E, Constants::Particles::MasslessMuon, parametrization)
+			);
+		}
+
+		for (const auto &pdf : pdfs) {
+			std::cout << "PDF set: " << pdf.set_name << IO::endl;
+
+			const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Differential/Decays/" + pdf.set_name + "/" + "FitSet4" + "/";
+
+			results.add(sidis.lepton_pair_xy_decays(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
+				parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf,
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "nutev_neutrino.csv",
+				variation_range
+			));
+			results.add(sidis.lepton_pair_xy_decays(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
+				parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf,
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "ccfr_neutrino.csv",
+				variation_range
+			));
+
+			results.add(anti_sidis.lepton_pair_xy_decays(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
+				parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf,
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "nutev_antineutrino.csv",
+				variation_range
+			));
+			results.add(anti_sidis.lepton_pair_xy_decays(thread_pool,
+				x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
+				parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
+				pdf,
+				scale(pdf), scale(pdf), ff_scale,
+				output_dir + out + "ccfr_antineutrino.csv",
+				variation_range
+			));
+
 		}
 
 		std::cout << separator << IO::endl;
@@ -2355,6 +2373,31 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			}
 		}
 	}
+
+	const auto repeat = [](std::function<void(void)> func, unsigned int interval) {
+		std::thread([func, interval]() { 
+    		while (true) { 
+      			auto x = std::chrono::steady_clock::now() + std::chrono::milliseconds(interval);
+				func();
+				std::this_thread::sleep_until(x);
+			}
+		}).detach();
+	};
+
+	const std::size_t total_tasks = thread_pool.get_tasks_queued();
+
+	std::cout << total_tasks << " tasks queued" << IO::endl;
+	repeat([&]() {
+		const std::size_t queued = thread_pool.get_tasks_queued();
+		std::cout << "[" << static_cast<int>(100.0 * (1.0 - static_cast<double>(queued) / static_cast<double>(total_tasks))) << "%] ";
+		std::cout << "Running: " << thread_pool.get_tasks_running() << "\tQueued: " << queued << "\tCompleted: " << total_tasks - queued << IO::endl;
+	}, 5000);
+	std::cout << "Starting pool" << IO::endl;
+	thread_pool.unpause();
+	thread_pool.wait();
+	std::cout << "All tasks finished, writing to file" << IO::endl;
+	results.write();
+	std::cout << "All results written to file" << IO::endl;
 
 	return 0;
 }

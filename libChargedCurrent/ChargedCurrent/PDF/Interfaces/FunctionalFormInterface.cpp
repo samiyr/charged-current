@@ -38,6 +38,11 @@ class FunctionalFormInterface {
 	constexpr double quark_mass(const FlavorType) const {
 		return 0.0;
 	}
+	auto size() const { return 1; }
+	using size_type = int;
+
+	auto operator[](int) const { return *this; }
+
 	private:
 	mutable std::vector<double> flavor_values;
 };
