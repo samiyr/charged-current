@@ -84,73 +84,7 @@ namespace SIDISFunctions {
 			.m2 = m2, .Q2 = Q2
 		});
 	}
-	// template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction, typename Signature>
-	// constexpr static double evaluate_integrand(
-	// 	const double x, 
-	// 	const double z, 
-	// 	const double xi, 
-	// 	const double xip, 
-	// 	const Parameters<PDFInterface, FFInterface, DecayFunction> &params, 
-	// 	const Signature integrand, 
-	// 	const int sign, 
-	// 	const FFInterface &ff1, 
-	// 	const FFInterface &ff2, 
-	// 	const FlavorType flavor1, 
-	// 	const FlavorType flavor2, 
-	// 	const FlavorType antiflavor1, 
-	// 	const FlavorType antiflavor2, 
-	// 	const double log1mx, 
-	// 	const double log1mz, 
-	// 	const double logxi, 
-	// 	const double logxip, 
-	// 	const double log1mxi,
-	// 	const double log1mxip,
-	// 	const double m2,
-	// 	const double Q2) {
 
-	// 	const PDFInterface &pdf1 = params.pdf1;
-	// 	const PDFInterface &pdf2 = params.pdf2;
-
-	// 	const double xg_hat = pdf2.xg();
-	// 	const double zg_hat = ff2.xg();
-
-	// 	const double xq = pdf1.xf(flavor1);
-	// 	const double zq = ff1.xf(flavor2);
-
-	// 	const double xq_hat = pdf2.xf(flavor1);
-	// 	const double zq_hat = ff2.xf(flavor2);
-
-	// 	const double anti_xq = pdf1.xf(antiflavor1);
-	// 	const double anti_zq = ff1.xf(antiflavor2);
-
-	// 	const double anti_xq_hat = pdf2.xf(antiflavor1);
-	// 	const double anti_zq_hat = ff2.xf(antiflavor2);
-
-	// 	const double xq_zq = xq * zq + sign * anti_xq * anti_zq;
-	// 	const double xq_hat_zq = xq_hat * zq + sign * anti_xq_hat * anti_zq;
-	// 	const double xq_zq_hat = xq * zq_hat + sign * anti_xq * anti_zq_hat;
-	// 	const double xq_hat_zq_hat = xq_hat * zq_hat + sign * anti_xq_hat * anti_zq_hat;
-		
-	// 	const double xq_zg_hat = xq * zg_hat + sign * anti_xq * zg_hat;
-	// 	const double xg_hat_zq = xg_hat * zq + sign * xg_hat * anti_zq;
-	// 	const double xq_hat_zg_hat = xq_hat * zg_hat + sign * anti_xq_hat * zg_hat;
-	// 	const double xg_hat_zq_hat = xg_hat * zq_hat + sign * xg_hat * anti_zq_hat;
-
-	// 	return integrand({
-	// 		.xi = xi, .xip = xip, .x = x, .z = z,
-	// 		.renormalization_scale_log = params.renormalization_scale_log,
-	// 		.factorization_scale_log = params.factorization_scale_log, .fragmentation_scale_log = params.fragmentation_scale_log,
-	// 		.xq = xq, .xq_hat = xq_hat, .xg_hat = xg_hat,
-	// 		.zq = zq, .zq_hat = zq_hat, .zg_hat = zg_hat,
-	// 		.anti_xq = anti_xq, .anti_xq_hat = anti_xq_hat,
-	// 		.anti_zq = anti_zq, .anti_zq_hat = anti_zq_hat,
-	// 		.sign = static_cast<double>(sign),
-	// 		.xq_zq = xq_zq, .xq_hat_zq = xq_hat_zq, .xq_zq_hat = xq_zq_hat, .xq_hat_zq_hat = xq_hat_zq_hat, .xq_zg_hat = xq_zg_hat,
-	// 		.xg_hat_zq = xg_hat_zq, .xq_hat_zg_hat = xq_hat_zg_hat, .xg_hat_zq_hat = xg_hat_zq_hat,
-	// 		.log1mx = log1mx, .log1mz = log1mz, .logxi = logxi, .logxip = logxip, .log1mxi = log1mxi, .log1mxip = log1mxip,
-	// 		.m2 = m2, .Q2 = Q2
-	// 	});
-	// }
 	template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction>
 	constexpr static double evaluate_integral_with_decay(
 		const double input[], 
@@ -293,40 +227,6 @@ namespace SIDISFunctions {
 
 		return sum;
 	}
-	// template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction = decltype(DecayFunctions::trivial), typename Signature>
-	// constexpr static double evaluate(
-	// 	const double input[], void *params_in, const Signature integrand, 
-	// 	const bool xi_int, const bool xip_int, const bool z_int, const int sign) {
-
-	// 	const Parameters<PDFInterface, FFInterface, DecayFunction> &params = *static_cast<Parameters<PDFInterface, FFInterface, DecayFunction> *>(params_in);
-	// 	const TRFKinematics &kinematics = params.kinematics;
-
-	// 	if (xi_int) {
-	// 		const double xi = input[0];
-	// 		const double x = kinematics.x;
-	// 		const double x_hat = x / xi;
-	// 		params.pdf2.evaluate(x_hat, params.factorization_scale);
-	// 	}
-
-	// 	const FragmentationConfiguration<FFInterface, DecayFunction> &ffs1 = params.ff1;
-	// 	const FragmentationConfiguration<FFInterface, DecayFunction> &ffs2 = params.ff2;
-
-	// 	double sum = 0.0;
-
-	// 	for (const auto &[ff1, ff2, decay] : std::views::zip(ffs1.interfaces, ffs2.interfaces, ffs1.decays)) {
-	// 		const double z_min = SIDISFunctions::Helper::compute_z_min(kinematics, decay);
-	// 		const double value = evaluate_integral_with_decay<PDFInterface, FFInterface, DecayFunction>(
-	// 			input, params, integrand, 
-	// 			xi_int, xip_int, z_int, sign, 
-	// 			ff1, ff2, decay, z_min
-	// 		);
-	// 		const double summand = value;
-
-	// 		sum += summand;
-	// 	}
-
-	// 	return sum;
-	// }
 
 	template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction>
 	constexpr static double cross_section(
@@ -345,22 +245,6 @@ namespace SIDISFunctions {
 
 		return cs;
 	}
-
-	// template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction, typename Signature>
-	// constexpr static double cross_section(
-	// 	const double input[], void *params_in, 
-	// 	const Signature F2, const Signature FL, const Signature F3, 
-	// 	const bool xi_int, const bool xip_int, const bool z_int) {
-	// 	const auto &params = *static_cast<Parameters<PDFInterface, FFInterface, DecayFunction> *>(params_in);
-		
-	// 	const double f2 = evaluate<PDFInterface, FFInterface, DecayFunction>(input, params_in, F2, xi_int, xip_int, z_int, 1);
-	// 	const double fL = evaluate<PDFInterface, FFInterface, DecayFunction>(input, params_in, FL, xi_int, xip_int, z_int, 1);
-	// 	const double f3 = evaluate<PDFInterface, FFInterface, DecayFunction>(input, params_in, F3, xi_int, xip_int, z_int, -1);
-
-	// 	const double cs = CommonFunctions::make_cross_section_variable(params.kinematics, params.process, f2, fL, f3);
-
-	// 	return cs;
-	// }
 }
 
 #endif

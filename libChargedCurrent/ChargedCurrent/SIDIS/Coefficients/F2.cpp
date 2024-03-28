@@ -8,21 +8,16 @@
 
 namespace SIDISFunctions::F2 {
 	namespace LO {
-		// constexpr double integrand(const EvaluationParameters &p) {
-
-		// 	return 2 * p.xq * p.zq / p.z;
-		// }
-
 		constexpr double quark_to_quark(const EvaluationParameters &p) {
 			return 2.0 * p.pdf * p.ff / p.z;
 		}
 
-		constexpr double quark_to_gluon(const EvaluationParameters &p) { return 0.0; }
-		constexpr double gluon_to_quark(const EvaluationParameters &p) { return 0.0; }
+		constexpr double quark_to_gluon(const EvaluationParameters &) { return 0.0; }
+		constexpr double gluon_to_quark(const EvaluationParameters &) { return 0.0; }
 	}
 
 	namespace NLO_NLP {
-		constexpr double total_integrand(const EvaluationParameters &p) {
+		constexpr double quark_to_quark(const EvaluationParameters &p) {
 			using namespace NearThreshold;
 			using namespace Constants;
 			using namespace std::numbers;
@@ -56,6 +51,9 @@ namespace SIDISFunctions::F2 {
 
 			return 2.0 * evaluate(p.pdf, p.pdf_hat, p.ff, p.ff_hat) / p.z;
 		}
+
+		constexpr double quark_to_gluon(const EvaluationParameters &) { return 0.0; }
+		constexpr double gluon_to_quark(const EvaluationParameters &) { return 0.0; }
 	}
 
 	namespace NLO {
@@ -110,83 +108,6 @@ namespace SIDISFunctions::F2 {
 			
 			return coefficient_contribution + scale_contribution;
 		}
-
-		// constexpr double delta_integrand(const EvaluationParameters &p) {
-
-		// 	const double term1 = Helper::delta_contribution(p.x, p.z, std::log(1.0 - p.x), std::log(1.0 - p.z)) * p.xq * p.zq;
-		// 	const double term2 = (p.factorization_scale_log == 0 && p.fragmentation_scale_log == 0) ? 0 : Scale::delta_integrand(p);
-		// 	return term1 + term2;
-		// }
-
-		// constexpr double xi_integrand(const EvaluationParameters &p) {
-
-		// 	const double log_term = std::log((1.0 - p.xi) / p.xi);
-
-		// 	const double term1 = (1.0 - p.xi) * (1.0 + log_term + std::log(1.0 - p.z)) - (2.0 * p.xi * std::log(p.xi)) / (1.0 - p.xi);
-		// 	const double term2 = 2.0 * (std::log(1.0 - p.xi) + std::log(1.0 - p.z));
-		// 	const double term3 = (p.xi * p.xq_hat * p.zq - p.xq * p.zq) / (1.0 - p.xi);
-
-		// 	const double quark_contribution = Constants::C_F * (p.xq_hat * p.zq * term1 + term2 * term3);
-
-		// 	const double term4 = 1.0 - (std::pow(p.xi, 2) + std::pow(1.0 - p.xi, 2)) * (1.0 - log_term);
-		// 	const double term5 = std::log(1.0 - p.z) * (1.0 - 2.0 * p.xi * (1.0 - p.xi));
-
-		// 	const double gluon_contribution = Constants::T_R * p.xg_hat * p.zq * (term4 + term5);
-
-		// 	const double coefficient_contribution = 2.0 * (quark_contribution + gluon_contribution) / p.z;
-		// 	const double scale_contribution = (p.factorization_scale_log == 0 && p.fragmentation_scale_log == 0) ? 0 : Scale::xi_integrand(p);
-
-		// 	return coefficient_contribution + scale_contribution;
-		// }
-
-		// constexpr double xip_integrand(const EvaluationParameters &p) {
-
-		// 	const double log_term = std::log(p.xip * (1.0 - p.xip));
-			
-		// 	const double term1 = (1.0 - p.xip) * (1.0 + log_term + std::log(1.0 - p.x)) + (2.0 * p.xip * std::log(p.xip)) / (1.0 - p.xip);
-		// 	const double term2 = 2.0 * (std::log(1.0 - p.xip) + std::log(1.0 - p.x));
-		// 	const double term3 = (p.xip * p.xq * p.zq_hat - p.xq * p.zq)  / (1.0 - p.xip);
-
-		// 	const double quark_contribution = Constants::C_F * (p.xq * p.zq_hat * term1 + term2 * term3);
-
-		// 	const double term4 = p.xip + log_term * (1 + std::pow(1.0 - p.xip, 2)) / p.xip;
-		// 	const double term5 = std::log(1.0 - p.x) * (p.xip + 2.0 * (1.0 - p.xip) / p.xip);
-
-		// 	const double gluon_contribution = Constants::C_F * p.xq * p.zg_hat * (term4 + term5);
-
-		// 	const double coefficient_contribution = 2.0 * (quark_contribution + gluon_contribution) / p.z;
-		// 	const double scale_contribution = (p.factorization_scale_log == 0 && p.fragmentation_scale_log == 0) ? 0 : Scale::xip_integrand(p);
-
-		// 	return coefficient_contribution + scale_contribution;
-		// }
-
-		// constexpr double xi_xip_integrand(const EvaluationParameters &p) {
-
-		// 	const double term1 = (1.0 - p.xi) / (1.0 - p.xip) * (p.xq_hat * p.zq_hat - p.xq_hat * p.zq);
-		// 	const double term2 = (1.0 - p.xip) / (1.0 - p.xi) * (p.xq_hat * p.zq_hat - p.xq * p.zq_hat);
-		// 	const double term3 = 2.0 * (p.xi * p.xip * p.xq_hat * p.zq_hat - p.xi * p.xq_hat * p.zq - p.xip * p.xq * p.zq_hat + p.xq * p.zq) / ((1.0 - p.xi) * (1.0 - p.xip));
-		// 	const double term4 = 6.0 * p.xi * p.xip * p.xq_hat * p.zq_hat;
-
-		// 	const double quark_contribution = Constants::C_F * (term1 + term2 + term3 + term4);
-
-		// 	const double term5 = p.xq_hat * p.zg_hat * (6.0 * p.xi * (1.0 - p.xip) + (1.0 - p.xi) / p.xip);
-		// 	const double term6 = (p.xq_hat * p.zg_hat * (p.xip + 2.0 * p.xi * (1.0 - p.xip) / p.xip) - p.xq * p.zg_hat * (p.xip + 2.0 * (1.0 - p.xip) / p.xip)) / (1.0 - p.xi);
-		// 	const double gluon_contribution_1 = Constants::C_F * (term5 + term6);
-
-		// 	const double term7 = p.xg_hat * p.zq_hat * (12.0 * p.xi * (1.0 - p.xi) + (1.0 - p.xip) / p.xip);
-		// 	const double term8 = (p.xg_hat * p.zq_hat * (p.xip - 2.0 * p.xi * (1.0 - p.xi) / p.xip) - p.xg_hat * p.zq * (1.0 - 2.0 * p.xi * (1.0 - p.xi))) / (1.0 - p.xip);
-
-		// 	const double gluon_contribution_2 = Constants::T_R * (term7 + term8);
-
-		// 	return 2.0 * (quark_contribution + gluon_contribution_1 + gluon_contribution_2) / p.z;
-		// }
-
-		// constexpr double total_integrand(const EvaluationParameters &p) {
-		// 	return Helper::make_nlo_integrand(
-		// 		F2::NLO::delta_integrand, F2::NLO::xi_integrand, F2::NLO::xip_integrand, F2::NLO::xi_xip_integrand, 
-		// 		p
-		// 	);
-		// }
 	}
 
 	namespace NNLO_NLP {
@@ -307,7 +228,7 @@ namespace SIDISFunctions::F2 {
 			return 2.0 * evaluate(p.pdf, p.pdf_hat, p.ff, p.ff_hat) / p.z;
 		}
 
-		constexpr double total_integrand(const EvaluationParameters &p) {
+		constexpr double quark_to_quark(const EvaluationParameters &p) {
 			const double CF = LP_CF(p) + NLP_CF(p);
 			const double CA = LP_CA(p);
 			const double Nf = LP_Nf(p);
@@ -319,6 +240,9 @@ namespace SIDISFunctions::F2 {
 
 			return LP + NLP;
 		}
+
+		constexpr double quark_to_gluon(const EvaluationParameters &) { return 0.0; }
+		constexpr double gluon_to_quark(const EvaluationParameters &) { return 0.0; }
 	}
 }
 
