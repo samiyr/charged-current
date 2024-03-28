@@ -104,6 +104,7 @@
 		"stdfloat": "cpp",
 		"execution": "cpp",
 		"shared_mutex": "cpp",
-		"future": "cpp"
+		"future": "cpp",
+		"*.ipp": "cpp"
 	}
 }

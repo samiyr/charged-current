@@ -77,16 +77,11 @@ namespace SIDISFunctions {
 
 		return integrand({
 			.xi = xi, .xip = xip, .x = x, .z = z,
+			.pdf = pdf, .pdf_hat = pdf_hat,
+			.ff = ff, .ff_hat = ff_hat,
 			.renormalization_scale_log = params.renormalization_scale_log,
 			.factorization_scale_log = params.factorization_scale_log, .fragmentation_scale_log = params.fragmentation_scale_log,
-			.xq = 0.0, .xq_hat = 0.0, .xg_hat = 0.0,
-			.zq = 0.0, .zq_hat = 0.0, .zg_hat = 0.0,
-			.anti_xq = 0.0, .anti_xq_hat = 0.0,
-			.anti_zq = 0.0, .anti_zq_hat = 0.0,
-			.sign = 0,
-			.m2 = m2, .Q2 = Q2,
-			.pdf = pdf, .pdf_hat = pdf_hat,
-			.ff = ff, .ff_hat = ff_hat
+			.m2 = m2, .Q2 = Q2
 		});
 	}
 	// template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction, typename Signature>

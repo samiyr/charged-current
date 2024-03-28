@@ -182,6 +182,8 @@ class SIDISComputation {
 	// }
 
 	PerturbativeQuantity differential_cross_section_xQ2(const double z, const TRFKinematics &kinematics) const {
+		using namespace SIDISFunctions;
+		
 		const double Q2 = kinematics.Q2;
 		const double x = kinematics.x;
 
@@ -211,7 +213,9 @@ class SIDISComputation {
 		};
 
 		const double lo = SIDISFunctions::cross_section<PDFInterface, FFInterface, DecayFunction>({}, &params, 
-			SIDISFunctions::F2::LO::integrand, SIDISFunctions::FL::LO::integrand, SIDISFunctions::F3::LO::integrand,
+			F2::LO::quark_to_quark, F2::LO::quark_to_gluon, F2::LO::gluon_to_quark, 
+			FL::LO::quark_to_quark, FL::LO::quark_to_gluon, FL::LO::gluon_to_quark, 
+			F3::LO::quark_to_quark, F3::LO::quark_to_gluon, F3::LO::gluon_to_quark, 
 			false, false, false
 		);
 
@@ -219,9 +223,12 @@ class SIDISComputation {
 		if (order >= PerturbativeOrder::NLO) {
 			Integrator nlo_integrator([this](double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
 				return SIDISFunctions::cross_section<PDFInterface, FFInterface, DecayFunction>(input, params_in, 
-					use_nlp_nlo ? SIDISFunctions::F2::NLO_NLP::total_integrand : SIDISFunctions::F2::NLO::total_integrand, 
-					use_nlp_nlo ? SIDISFunctions::FL::NLO_NLP::total_integrand : SIDISFunctions::FL::NLO::total_integrand, 
-					use_nlp_nlo ? SIDISFunctions::F3::NLO_NLP::total_integrand : SIDISFunctions::F3::NLO::total_integrand,
+					// use_nlp_nlo ? SIDISFunctions::F2::NLO_NLP::total_integrand : SIDISFunctions::F2::NLO::total_integrand, 
+					// use_nlp_nlo ? SIDISFunctions::FL::NLO_NLP::total_integrand : SIDISFunctions::FL::NLO::total_integrand, 
+					// use_nlp_nlo ? SIDISFunctions::F3::NLO_NLP::total_integrand : SIDISFunctions::F3::NLO::total_integrand,
+					F2::NLO::quark_to_quark, F2::NLO::quark_to_gluon, F2::NLO::gluon_to_quark, 
+					FL::NLO::quark_to_quark, FL::NLO::quark_to_gluon, FL::NLO::gluon_to_quark, 
+					F3::NLO::quark_to_quark, F3::NLO::quark_to_gluon, F3::NLO::gluon_to_quark, 
 					true, true, false
 				);
 			}, {x, z}, {1, 1}, integration_parameters, &params);
@@ -232,19 +239,18 @@ class SIDISComputation {
 		}
 
 		double nnlo = 0.0;
-		if (order >= PerturbativeOrder::NNLO) {
-			Integrator nnlo_integrator([](double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
-				return SIDISFunctions::cross_section<PDFInterface, FFInterface, DecayFunction>(input, params_in, 
-					SIDISFunctions::F2::NNLO_NLP::total_integrand, SIDISFunctions::FL::NNLO_NLP::total_integrand, SIDISFunctions::F3::NNLO_NLP::total_integrand,
-					true, true, false
-				);
-			}, {x, z}, {1, 1}, integration_parameters, &params);
-			const auto nnlo_result = nnlo_integrator.integrate();
-			const double nnlo_integral = nnlo_result.value;
+		// if (order >= PerturbativeOrder::NNLO) {
+		// 	Integrator nnlo_integrator([](double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
+		// 		return SIDISFunctions::cross_section<PDFInterface, FFInterface, DecayFunction>(input, params_in, 
+		// 			SIDISFunctions::F2::NNLO_NLP::total_integrand, SIDISFunctions::FL::NNLO_NLP::total_integrand, SIDISFunctions::F3::NNLO_NLP::total_integrand,
+		// 			true, true, false
+		// 		);
+		// 	}, {x, z}, {1, 1}, integration_parameters, &params);
+		// 	const auto nnlo_result = nnlo_integrator.integrate();
+		// 	const double nnlo_integral = nnlo_result.value;
 
-			nnlo = nnlo_coefficient * nnlo_integral;
-		}
-
+		// 	nnlo = nnlo_coefficient * nnlo_integral;
+		// }
 
 		const PerturbativeQuantity result = PerturbativeQuantity {lo, lo + nlo, lo + nlo + nnlo};
 		const double prefactor = use_modified_cross_section_prefactor 
