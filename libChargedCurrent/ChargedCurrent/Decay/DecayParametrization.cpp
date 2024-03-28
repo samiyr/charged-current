@@ -11,7 +11,7 @@
 
 struct DecayParametrization {
 	constexpr static DecayParametrization fit1() noexcept {
-		return DecayParametrization(3.1574, 1.00882, 1.79948, 2.1012);
+		return DecayParametrization(3.1561790889845995, 1.0087668366926346, 1.7993246621566206, 2.100989529372037);
 	}
 	constexpr static DecayParametrization fit2() noexcept {
 		return DecayParametrization(7.365, 1.4, 2.276, 2.04);
