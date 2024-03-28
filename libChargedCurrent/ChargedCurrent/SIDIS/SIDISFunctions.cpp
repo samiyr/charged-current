@@ -59,70 +59,108 @@ namespace SIDISFunctions {
 		const double xip, 
 		const Parameters<PDFInterface, FFInterface, DecayFunction> &params, 
 		const Signature integrand, 
-		const int sign, 
 		const FFInterface &ff1, 
 		const FFInterface &ff2, 
-		const FlavorType flavor1, 
-		const FlavorType flavor2, 
-		const FlavorType antiflavor1, 
-		const FlavorType antiflavor2, 
-		const double log1mx, 
-		const double log1mz, 
-		const double logxi, 
-		const double logxip, 
-		const double log1mxi,
-		const double log1mxip,
+		const FlavorType incoming, 
+		const FlavorType outgoing, 
 		const double m2,
 		const double Q2) {
 
 		const PDFInterface &pdf1 = params.pdf1;
 		const PDFInterface &pdf2 = params.pdf2;
 
-		const double xg_hat = pdf2.xg();
-		const double zg_hat = ff2.xg();
+		const double pdf = pdf1.xf(incoming);
+		const double pdf_hat = pdf2.xf(incoming);
 
-		const double xq = pdf1.xf(flavor1);
-		const double zq = ff1.xf(flavor2);
-
-		const double xq_hat = pdf2.xf(flavor1);
-		const double zq_hat = ff2.xf(flavor2);
-
-		const double anti_xq = pdf1.xf(antiflavor1);
-		const double anti_zq = ff1.xf(antiflavor2);
-
-		const double anti_xq_hat = pdf2.xf(antiflavor1);
-		const double anti_zq_hat = ff2.xf(antiflavor2);
-
-		const double xq_zq = xq * zq + sign * anti_xq * anti_zq;
-		const double xq_hat_zq = xq_hat * zq + sign * anti_xq_hat * anti_zq;
-		const double xq_zq_hat = xq * zq_hat + sign * anti_xq * anti_zq_hat;
-		const double xq_hat_zq_hat = xq_hat * zq_hat + sign * anti_xq_hat * anti_zq_hat;
-		
-		const double xq_zg_hat = xq * zg_hat + sign * anti_xq * zg_hat;
-		const double xg_hat_zq = xg_hat * zq + sign * xg_hat * anti_zq;
-		const double xq_hat_zg_hat = xq_hat * zg_hat + sign * anti_xq_hat * zg_hat;
-		const double xg_hat_zq_hat = xg_hat * zq_hat + sign * xg_hat * anti_zq_hat;
+		const double ff = ff1.xf(outgoing);
+		const double ff_hat = ff2.xf(outgoing);
 
 		return integrand({
 			.xi = xi, .xip = xip, .x = x, .z = z,
 			.renormalization_scale_log = params.renormalization_scale_log,
 			.factorization_scale_log = params.factorization_scale_log, .fragmentation_scale_log = params.fragmentation_scale_log,
-			.xq = xq, .xq_hat = xq_hat, .xg_hat = xg_hat,
-			.zq = zq, .zq_hat = zq_hat, .zg_hat = zg_hat,
-			.anti_xq = anti_xq, .anti_xq_hat = anti_xq_hat,
-			.anti_zq = anti_zq, .anti_zq_hat = anti_zq_hat,
-			.sign = static_cast<double>(sign),
-			.xq_zq = xq_zq, .xq_hat_zq = xq_hat_zq, .xq_zq_hat = xq_zq_hat, .xq_hat_zq_hat = xq_hat_zq_hat, .xq_zg_hat = xq_zg_hat,
-			.xg_hat_zq = xg_hat_zq, .xq_hat_zg_hat = xq_hat_zg_hat, .xg_hat_zq_hat = xg_hat_zq_hat,
-			.log1mx = log1mx, .log1mz = log1mz, .logxi = logxi, .logxip = logxip, .log1mxi = log1mxi, .log1mxip = log1mxip,
-			.m2 = m2, .Q2 = Q2
+			.xq = 0.0, .xq_hat = 0.0, .xg_hat = 0.0,
+			.zq = 0.0, .zq_hat = 0.0, .zg_hat = 0.0,
+			.anti_xq = 0.0, .anti_xq_hat = 0.0,
+			.anti_zq = 0.0, .anti_zq_hat = 0.0,
+			.sign = 0,
+			.m2 = m2, .Q2 = Q2,
+			.pdf = pdf, .pdf_hat = pdf_hat,
+			.ff = ff, .ff_hat = ff_hat
 		});
 	}
-	template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction, typename Signature>
+	// template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction, typename Signature>
+	// constexpr static double evaluate_integrand(
+	// 	const double x, 
+	// 	const double z, 
+	// 	const double xi, 
+	// 	const double xip, 
+	// 	const Parameters<PDFInterface, FFInterface, DecayFunction> &params, 
+	// 	const Signature integrand, 
+	// 	const int sign, 
+	// 	const FFInterface &ff1, 
+	// 	const FFInterface &ff2, 
+	// 	const FlavorType flavor1, 
+	// 	const FlavorType flavor2, 
+	// 	const FlavorType antiflavor1, 
+	// 	const FlavorType antiflavor2, 
+	// 	const double log1mx, 
+	// 	const double log1mz, 
+	// 	const double logxi, 
+	// 	const double logxip, 
+	// 	const double log1mxi,
+	// 	const double log1mxip,
+	// 	const double m2,
+	// 	const double Q2) {
+
+	// 	const PDFInterface &pdf1 = params.pdf1;
+	// 	const PDFInterface &pdf2 = params.pdf2;
+
+	// 	const double xg_hat = pdf2.xg();
+	// 	const double zg_hat = ff2.xg();
+
+	// 	const double xq = pdf1.xf(flavor1);
+	// 	const double zq = ff1.xf(flavor2);
+
+	// 	const double xq_hat = pdf2.xf(flavor1);
+	// 	const double zq_hat = ff2.xf(flavor2);
+
+	// 	const double anti_xq = pdf1.xf(antiflavor1);
+	// 	const double anti_zq = ff1.xf(antiflavor2);
+
+	// 	const double anti_xq_hat = pdf2.xf(antiflavor1);
+	// 	const double anti_zq_hat = ff2.xf(antiflavor2);
+
+	// 	const double xq_zq = xq * zq + sign * anti_xq * anti_zq;
+	// 	const double xq_hat_zq = xq_hat * zq + sign * anti_xq_hat * anti_zq;
+	// 	const double xq_zq_hat = xq * zq_hat + sign * anti_xq * anti_zq_hat;
+	// 	const double xq_hat_zq_hat = xq_hat * zq_hat + sign * anti_xq_hat * anti_zq_hat;
+		
+	// 	const double xq_zg_hat = xq * zg_hat + sign * anti_xq * zg_hat;
+	// 	const double xg_hat_zq = xg_hat * zq + sign * xg_hat * anti_zq;
+	// 	const double xq_hat_zg_hat = xq_hat * zg_hat + sign * anti_xq_hat * zg_hat;
+	// 	const double xg_hat_zq_hat = xg_hat * zq_hat + sign * xg_hat * anti_zq_hat;
+
+	// 	return integrand({
+	// 		.xi = xi, .xip = xip, .x = x, .z = z,
+	// 		.renormalization_scale_log = params.renormalization_scale_log,
+	// 		.factorization_scale_log = params.factorization_scale_log, .fragmentation_scale_log = params.fragmentation_scale_log,
+	// 		.xq = xq, .xq_hat = xq_hat, .xg_hat = xg_hat,
+	// 		.zq = zq, .zq_hat = zq_hat, .zg_hat = zg_hat,
+	// 		.anti_xq = anti_xq, .anti_xq_hat = anti_xq_hat,
+	// 		.anti_zq = anti_zq, .anti_zq_hat = anti_zq_hat,
+	// 		.sign = static_cast<double>(sign),
+	// 		.xq_zq = xq_zq, .xq_hat_zq = xq_hat_zq, .xq_zq_hat = xq_zq_hat, .xq_hat_zq_hat = xq_hat_zq_hat, .xq_zg_hat = xq_zg_hat,
+	// 		.xg_hat_zq = xg_hat_zq, .xq_hat_zg_hat = xq_hat_zg_hat, .xg_hat_zq_hat = xg_hat_zq_hat,
+	// 		.log1mx = log1mx, .log1mz = log1mz, .logxi = logxi, .logxip = logxip, .log1mxi = log1mxi, .log1mxip = log1mxip,
+	// 		.m2 = m2, .Q2 = Q2
+	// 	});
+	// }
+	template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction>
 	constexpr static double evaluate_integral_with_decay(
 		const double input[], 
 		const Parameters<PDFInterface, FFInterface, DecayFunction> &params, 
-		const Signature signature, 
+		const auto &&quark_to_quark, const auto &&quark_to_gluon, const auto &&gluon_to_quark,
 		const bool xi_int, const bool xip_int, const bool z_int, const int sign, 
 		const FFInterface &ff1, const FFInterface &ff2, 
 		const Decay<DecayFunction> &decay, const double z_min) {
@@ -169,57 +207,65 @@ namespace SIDISFunctions {
 		const Process &process = params.process;
 		const bool positive_W = process.positive_W();
 
-		const FlavorVector &flavors1 = positive_W ? flavors.lower_flavors : flavors.upper_flavors;
-		const FlavorVector &flavors2 = positive_W ? flavors.upper_flavors : flavors.lower_flavors;
+		const FlavorVector &incoming_quark_flavors = positive_W ? flavors.lower_flavors : flavors.upper_flavors;
+		const FlavorVector &outgoing_quark_flavors = positive_W ? flavors.upper_flavors : flavors.lower_flavors;
+
+		const FlavorVector &incoming_antiquark_flavors = positive_W ? flavors.upper_antiflavors : flavors.lower_antiflavors;
+		const FlavorVector &outgoing_antiquark_flavors = positive_W ? flavors.lower_antiflavors : flavors.upper_antiflavors;
 
 		const PDFInterface &pdf1 = params.pdf1;
 		const PDFInterface &pdf2 = params.pdf2;
 
-		const double log1mz = Math::log1m(z);
-		
-		const double logxi = std::log(xi);
-		const double logxip = std::log(xip);
+		const auto evaluate_channel = [&](const FlavorType incoming, const FlavorType outgoing, const auto &&integrand) {
+			const double incoming_mass = flavors.mass(incoming);
+			const double outgoing_mass = flavors.mass(outgoing);
 
-		const double log1mxi = Math::log1m(xi);
-		const double log1mxip = Math::log1m(xip);
+			const double mass = std::max(incoming_mass, outgoing_mass);
+			const double chi = CommonFunctions::compute_momentum_fraction_mass_correction(x, Q2, mass, 0.0);
+
+			if (xi_int && xi < chi) { return 0.0; }
+
+			pdf1.evaluate(chi, factorization_scale);
+			pdf2.evaluate(chi / xi, factorization_scale);
+
+			return evaluate_integrand(
+				chi, z, xi, xip,
+				params, integrand, ff1, ff2,
+				incoming, outgoing, std::pow(mass, 2), Q2
+			);
+		};
 
 		double sum = 0.0;
-		for (const FlavorType outgoing : flavors2) {
-			const FlavorType anti_incoming = Flavor::conjugate_flavor(outgoing);
-			for (const FlavorType incoming : flavors1) {
-				const FlavorType anti_outgoing = Flavor::conjugate_flavor(incoming);
 
-				const double mass = flavors.mass(positive_W ? outgoing : anti_outgoing);
-				const double x_mass = CommonFunctions::compute_momentum_fraction_mass_correction(x, Q2, mass, 0.0);
+		for (const FlavorType incoming : incoming_quark_flavors) {
+			for (const FlavorType outgoing: outgoing_quark_flavors) {
+				const double qq = evaluate_channel(incoming, outgoing, quark_to_quark);
+				const double gq = evaluate_channel(incoming, Flavor::Gluon, quark_to_gluon);
+				const double qg = evaluate_channel(Flavor::Gluon, outgoing, gluon_to_quark);
 
-				if (xi_int && xi < x_mass) { continue; }
-				pdf1.evaluate(x_mass, factorization_scale);
-				pdf2.evaluate(x_mass / xi, factorization_scale);
-
-				const double log1mx = Math::log1m(x_mass);
-
-				const double V_ckm = CKM::squared(incoming, outgoing);
-				const double total_value = evaluate_integrand(
-					x_mass, z, xi, xip, 
-					params, signature, sign, ff1, ff2, 
-					incoming, outgoing, anti_incoming, anti_outgoing, 
-					log1mx, log1mz, logxi, logxip, log1mxi, log1mxip,
-					std::pow(mass, 2), Q2
-				);
-				const double summand = V_ckm * total_value;
-
-				sum += summand;
+				sum += CKM::squared(incoming, outgoing) * (qq + gq + qg);
 			}
 		}
+
+		for (const FlavorType incoming : incoming_antiquark_flavors) {
+			for (const FlavorType outgoing: outgoing_antiquark_flavors) {
+				const double qq = evaluate_channel(incoming, outgoing, quark_to_quark);
+				const double gq = evaluate_channel(incoming, Flavor::Gluon, quark_to_gluon);
+				const double qg = evaluate_channel(Flavor::Gluon, outgoing, gluon_to_quark);
+
+				sum += static_cast<double>(sign) * CKM::squared(incoming, outgoing) * (qq + gq + qg);
+			}
+		}
+
 		const double decay_value = decay(x, z, Q2, z_min);
 		sum *= decay_value;
 
 		return sum;
 	}
 
-	template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction = decltype(DecayFunctions::trivial), typename Signature>
+	template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction = decltype(DecayFunctions::trivial)>
 	constexpr static double evaluate(
-		const double input[], void *params_in, const Signature integrand, 
+		const double input[], void *params_in, const auto &&quark_to_quark, const auto &&quark_to_gluon, const auto &&gluon_to_quark, 
 		const bool xi_int, const bool xip_int, const bool z_int, const int sign) {
 
 		const Parameters<PDFInterface, FFInterface, DecayFunction> &params = *static_cast<Parameters<PDFInterface, FFInterface, DecayFunction> *>(params_in);
@@ -240,7 +286,8 @@ namespace SIDISFunctions {
 		for (const auto &[ff1, ff2, decay] : std::views::zip(ffs1.interfaces, ffs2.interfaces, ffs1.decays)) {
 			const double z_min = SIDISFunctions::Helper::compute_z_min(kinematics, decay);
 			const double value = evaluate_integral_with_decay<PDFInterface, FFInterface, DecayFunction>(
-				input, params, integrand, 
+				input, params,
+				quark_to_quark, quark_to_gluon, gluon_to_quark, 
 				xi_int, xip_int, z_int, sign, 
 				ff1, ff2, decay, z_min
 			);
@@ -251,22 +298,74 @@ namespace SIDISFunctions {
 
 		return sum;
 	}
+	// template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction = decltype(DecayFunctions::trivial), typename Signature>
+	// constexpr static double evaluate(
+	// 	const double input[], void *params_in, const Signature integrand, 
+	// 	const bool xi_int, const bool xip_int, const bool z_int, const int sign) {
 
-	template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction, typename Signature>
+	// 	const Parameters<PDFInterface, FFInterface, DecayFunction> &params = *static_cast<Parameters<PDFInterface, FFInterface, DecayFunction> *>(params_in);
+	// 	const TRFKinematics &kinematics = params.kinematics;
+
+	// 	if (xi_int) {
+	// 		const double xi = input[0];
+	// 		const double x = kinematics.x;
+	// 		const double x_hat = x / xi;
+	// 		params.pdf2.evaluate(x_hat, params.factorization_scale);
+	// 	}
+
+	// 	const FragmentationConfiguration<FFInterface, DecayFunction> &ffs1 = params.ff1;
+	// 	const FragmentationConfiguration<FFInterface, DecayFunction> &ffs2 = params.ff2;
+
+	// 	double sum = 0.0;
+
+	// 	for (const auto &[ff1, ff2, decay] : std::views::zip(ffs1.interfaces, ffs2.interfaces, ffs1.decays)) {
+	// 		const double z_min = SIDISFunctions::Helper::compute_z_min(kinematics, decay);
+	// 		const double value = evaluate_integral_with_decay<PDFInterface, FFInterface, DecayFunction>(
+	// 			input, params, integrand, 
+	// 			xi_int, xip_int, z_int, sign, 
+	// 			ff1, ff2, decay, z_min
+	// 		);
+	// 		const double summand = value;
+
+	// 		sum += summand;
+	// 	}
+
+	// 	return sum;
+	// }
+
+	template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction>
 	constexpr static double cross_section(
 		const double input[], void *params_in, 
-		const Signature F2, const Signature FL, const Signature F3, 
+		const auto &&F2_qq, const auto &&F2_gq, const auto &&F2_qg,
+		const auto &&FL_qq, const auto &&FL_gq, const auto &&FL_qg,
+		const auto &&F3_qq, const auto &&F3_gq, const auto &&F3_qg,
 		const bool xi_int, const bool xip_int, const bool z_int) {
 		const auto &params = *static_cast<Parameters<PDFInterface, FFInterface, DecayFunction> *>(params_in);
 		
-		const double f2 = evaluate<PDFInterface, FFInterface, DecayFunction>(input, params_in, F2, xi_int, xip_int, z_int, 1);
-		const double fL = evaluate<PDFInterface, FFInterface, DecayFunction>(input, params_in, FL, xi_int, xip_int, z_int, 1);
-		const double f3 = evaluate<PDFInterface, FFInterface, DecayFunction>(input, params_in, F3, xi_int, xip_int, z_int, -1);
+		const double f2 = evaluate<PDFInterface, FFInterface, DecayFunction>(input, params_in, F2_qq, F2_gq, F2_qg, xi_int, xip_int, z_int, 1);
+		const double fL = evaluate<PDFInterface, FFInterface, DecayFunction>(input, params_in, FL_qq, FL_gq, FL_qg, xi_int, xip_int, z_int, 1);
+		const double f3 = evaluate<PDFInterface, FFInterface, DecayFunction>(input, params_in, F3_qq, F3_gq, F3_qg, xi_int, xip_int, z_int, -1);
 
 		const double cs = CommonFunctions::make_cross_section_variable(params.kinematics, params.process, f2, fL, f3);
 
 		return cs;
 	}
+
+	// template <is_pdf_interface PDFInterface, is_pdf_interface FFInterface, is_decay_function DecayFunction, typename Signature>
+	// constexpr static double cross_section(
+	// 	const double input[], void *params_in, 
+	// 	const Signature F2, const Signature FL, const Signature F3, 
+	// 	const bool xi_int, const bool xip_int, const bool z_int) {
+	// 	const auto &params = *static_cast<Parameters<PDFInterface, FFInterface, DecayFunction> *>(params_in);
+		
+	// 	const double f2 = evaluate<PDFInterface, FFInterface, DecayFunction>(input, params_in, F2, xi_int, xip_int, z_int, 1);
+	// 	const double fL = evaluate<PDFInterface, FFInterface, DecayFunction>(input, params_in, FL, xi_int, xip_int, z_int, 1);
+	// 	const double f3 = evaluate<PDFInterface, FFInterface, DecayFunction>(input, params_in, F3, xi_int, xip_int, z_int, -1);
+
+	// 	const double cs = CommonFunctions::make_cross_section_variable(params.kinematics, params.process, f2, fL, f3);
+
+	// 	return cs;
+	// }
 }
 
 #endif

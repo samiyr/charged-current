@@ -10,8 +10,15 @@ namespace SIDISFunctions::F2 {
 	namespace LO {
 		constexpr double integrand(const EvaluationParameters &p) {
 
-			return 2 * p.xq_zq / p.z;
+			return 2 * p.xq * p.zq / p.z;
 		}
+
+		constexpr double quark_to_quark(const EvaluationParameters &p) {
+			return 2.0 * p.pdf * p.ff / p.z;
+		}
+
+		constexpr double quark_to_gluon(const EvaluationParameters &p) { return 0.0; }
+		constexpr double gluon_to_quark(const EvaluationParameters &p) { return 0.0; }
 	}
 
 	namespace NLO_NLP {
@@ -55,27 +62,67 @@ namespace SIDISFunctions::F2 {
 	}
 
 	namespace NLO {
+		constexpr double quark_to_quark(const EvaluationParameters &p) {
+			const double term1_delta = p.pdf * p.ff * (std::pow(std::log(1.0 - p.x) + std::log(1.0 - p.z), 2) - 8.0);
+
+			const double term2_xi = p.pdf_hat * p.ff * ((1.0 - p.xi) * (1.0 + std::log((1.0 - p.xi) / p.xi) + std::log(1.0 - p.z)) - (2.0 * p.xi * std::log(p.xi)) / (1.0 - p.xi));
+			const double term3_xi = (2.0 * (std::log(1.0 - p.xi) + std::log(1.0 - p.z))) * ((p.xi * p.pdf_hat * p.ff - p.pdf * p.ff) / (1.0 - p.xi));
+
+			const double term4_xip = p.pdf * p.ff_hat * ((1.0 - p.xip) * (1.0 + std::log(p.xip * (1.0 - p.xip)) + std::log(1.0 - p.x)) + (2.0 * p.xip * std::log(p.xip)) / (1.0 - p.xip));
+			const double term5_xip = (2.0 * (std::log(1.0 - p.xip) + std::log(1.0 - p.x))) * ((p.xip * p.pdf * p.ff_hat - p.pdf * p.ff) / (1.0 - p.xip));
+
+			const double term6_xi_xip = (1.0 - p.xi) / (1.0 - p.xip) * (p.pdf_hat * p.ff_hat - p.pdf_hat * p.ff);
+			const double term7_xi_xip = (1.0 - p.xip) / (1.0 - p.xi) * (p.pdf_hat * p.ff_hat - p.pdf * p.ff_hat);
+			const double term8_xi_xip = 2.0 * (p.xi * p.xip * p.pdf_hat * p.ff_hat - p.xi * p.pdf_hat * p.ff - p.xip * p.pdf * p.ff_hat + p.pdf * p.ff) / ((1.0 - p.xi) * (1.0 - p.xip));
+			const double term9_xi_xip = 6.0 * p.xi * p.xip * p.pdf_hat * p.ff_hat;
+
+			const double result = term1_delta / ((1.0 - p.x) * (1.0 - p.z)) + (term2_xi + term3_xi) / (1.0 - p.z) + (term4_xip + term5_xip) / (1.0 - p.x) + (term6_xi_xip + term7_xi_xip + term8_xi_xip + term9_xi_xip);
+			return 2.0 * Constants::C_F * result / p.z;
+		}
+
+		constexpr double quark_to_gluon(const EvaluationParameters &p) {
+			const double term1_xip = p.pdf * p.ff_hat * (p.xip + std::log(p.xip * (1.0 - p.xip)) * (1 + std::pow(1.0 - p.xip, 2)) / p.xip);
+			const double term2_xip = p.pdf * p.ff_hat * (std::log(1.0 - p.x) * (p.xip + 2.0 * (1.0 - p.xip) / p.xip));
+
+			const double term3_xi_xip = p.pdf_hat * p.ff_hat * (6.0 * p.xi * (1.0 - p.xip) + (1.0 - p.xi) / p.xip);
+			const double term4_xi_xip = (p.pdf_hat * p.ff_hat * (p.xip + 2.0 * p.xi * (1.0 - p.xip) / p.xip) - p.pdf * p.ff_hat * (p.xip + 2.0 * (1.0 - p.xip) / p.xip)) / (1.0 - p.xi);
+
+			const double result = (term1_xip + term2_xip) / (1.0 - p.x) + (term3_xi_xip + term4_xi_xip);
+			return 2.0 * Constants::C_F * result / p.z;
+		}
+
+		constexpr double gluon_to_quark(const EvaluationParameters &p) {
+			const double term1_xi = p.pdf_hat * p.ff * (1.0 - (std::pow(p.xi, 2) + std::pow(1.0 - p.xi, 2)) * (1.0 - std::log((1.0 - p.xi) / p.xi)));
+			const double term2_xi = p.pdf_hat * p.ff * (std::log(1.0 - p.z) * (1.0 - 2.0 * p.xi * (1.0 - p.xi)));
+
+			const double term3_xi_xip = p.pdf_hat * p.ff_hat * (12.0 * p.xi * (1.0 - p.xi) + (1.0 - p.xip) / p.xip);
+			const double term4_xi_xip = (p.pdf_hat * p.ff_hat * (p.xip - 2.0 * p.xi * (1.0 - p.xi) / p.xip) - p.pdf_hat * p.ff * (1.0 - 2.0 * p.xi * (1.0 - p.xi))) / (1.0 - p.xip);
+
+			const double result = (term1_xi + term2_xi) / (1.0 - p.z) + (term3_xi_xip + term4_xi_xip);
+			return 2.0 * Constants::T_R * result / p.z;
+		}
+
 		constexpr double delta_integrand(const EvaluationParameters &p) {
 
-			const double term1 = Helper::delta_contribution(p.x, p.z, p.log1mx, p.log1mz) * p.xq_zq;
+			const double term1 = Helper::delta_contribution(p.x, p.z, std::log(1.0 - p.x), std::log(1.0 - p.z)) * p.xq * p.zq;
 			const double term2 = (p.factorization_scale_log == 0 && p.fragmentation_scale_log == 0) ? 0 : Scale::delta_integrand(p);
 			return term1 + term2;
 		}
 
 		constexpr double xi_integrand(const EvaluationParameters &p) {
 
-			const double log_term = p.log1mxi - p.logxi; // std::log((1 - xi) / xi);
+			const double log_term = std::log((1.0 - p.xi) / p.xi);
 
-			const double term1 = (1.0 - p.xi) * (1.0 + log_term + p.log1mz) - (2.0 * p.xi * p.logxi) / (1.0 - p.xi);
-			const double term2 = 2.0 * (p.log1mxi + p.log1mz);
-			const double term3 = (p.xi * p.xq_hat_zq - p.xq_zq)  / (1.0 - p.xi);
+			const double term1 = (1.0 - p.xi) * (1.0 + log_term + std::log(1.0 - p.z)) - (2.0 * p.xi * std::log(p.xi)) / (1.0 - p.xi);
+			const double term2 = 2.0 * (std::log(1.0 - p.xi) + std::log(1.0 - p.z));
+			const double term3 = (p.xi * p.xq_hat * p.zq - p.xq * p.zq) / (1.0 - p.xi);
 
-			const double quark_contribution = Constants::C_F * (p.xq_hat_zq * term1 + term2 * term3);
+			const double quark_contribution = Constants::C_F * (p.xq_hat * p.zq * term1 + term2 * term3);
 
 			const double term4 = 1.0 - (std::pow(p.xi, 2) + std::pow(1.0 - p.xi, 2)) * (1.0 - log_term);
-			const double term5 = p.log1mz * (1.0 - 2.0 * p.xi * (1.0 - p.xi));
+			const double term5 = std::log(1.0 - p.z) * (1.0 - 2.0 * p.xi * (1.0 - p.xi));
 
-			const double gluon_contribution = Constants::T_R * p.xg_hat_zq * (term4 + term5);
+			const double gluon_contribution = Constants::T_R * p.xg_hat * p.zq * (term4 + term5);
 
 			const double coefficient_contribution = 2.0 * (quark_contribution + gluon_contribution) / p.z;
 			const double scale_contribution = (p.factorization_scale_log == 0 && p.fragmentation_scale_log == 0) ? 0 : Scale::xi_integrand(p);
@@ -85,18 +132,18 @@ namespace SIDISFunctions::F2 {
 
 		constexpr double xip_integrand(const EvaluationParameters &p) {
 
-			const double log_term = p.logxip + p.log1mxip; // std::log(xip * (1 - xip));
+			const double log_term = std::log(p.xip * (1.0 - p.xip));
 			
-			const double term1 = (1.0 - p.xip) * (1.0 + log_term + p.log1mx) + (2.0 * p.xip * p.logxip) / (1.0 - p.xip);
-			const double term2 = 2.0 * (p.log1mxip + p.log1mx);
-			const double term3 = (p.xip * p.xq_zq_hat - p.xq_zq)  / (1.0 - p.xip);
+			const double term1 = (1.0 - p.xip) * (1.0 + log_term + std::log(1.0 - p.x)) + (2.0 * p.xip * std::log(p.xip)) / (1.0 - p.xip);
+			const double term2 = 2.0 * (std::log(1.0 - p.xip) + std::log(1.0 - p.x));
+			const double term3 = (p.xip * p.xq * p.zq_hat - p.xq * p.zq)  / (1.0 - p.xip);
 
-			const double quark_contribution = Constants::C_F * (p.xq_zq_hat * term1 + term2 * term3);
+			const double quark_contribution = Constants::C_F * (p.xq * p.zq_hat * term1 + term2 * term3);
 
 			const double term4 = p.xip + log_term * (1 + std::pow(1.0 - p.xip, 2)) / p.xip;
-			const double term5 = p.log1mx * (p.xip + 2.0 * (1.0 - p.xip) / p.xip);
+			const double term5 = std::log(1.0 - p.x) * (p.xip + 2.0 * (1.0 - p.xip) / p.xip);
 
-			const double gluon_contribution = Constants::C_F * p.xq_zg_hat * (term4 + term5);
+			const double gluon_contribution = Constants::C_F * p.xq * p.zg_hat * (term4 + term5);
 
 			const double coefficient_contribution = 2.0 * (quark_contribution + gluon_contribution) / p.z;
 			const double scale_contribution = (p.factorization_scale_log == 0 && p.fragmentation_scale_log == 0) ? 0 : Scale::xip_integrand(p);
@@ -106,19 +153,19 @@ namespace SIDISFunctions::F2 {
 
 		constexpr double xi_xip_integrand(const EvaluationParameters &p) {
 
-			const double term1 = (1.0 - p.xi) / (1.0 - p.xip) * (p.xq_hat_zq_hat - p.xq_hat_zq);
-			const double term2 = (1.0 - p.xip) / (1.0 - p.xi) * (p.xq_hat_zq_hat - p.xq_zq_hat);
-			const double term3 = 2.0 * (p.xi * p.xip * p.xq_hat_zq_hat - p.xi * p.xq_hat_zq - p.xip * p.xq_zq_hat + p.xq_zq) / ((1.0 - p.xi) * (1.0 - p.xip));
-			const double term4 = 6.0 * p.xi * p.xip * p.xq_hat_zq_hat;
+			const double term1 = (1.0 - p.xi) / (1.0 - p.xip) * (p.xq_hat * p.zq_hat - p.xq_hat * p.zq);
+			const double term2 = (1.0 - p.xip) / (1.0 - p.xi) * (p.xq_hat * p.zq_hat - p.xq * p.zq_hat);
+			const double term3 = 2.0 * (p.xi * p.xip * p.xq_hat * p.zq_hat - p.xi * p.xq_hat * p.zq - p.xip * p.xq * p.zq_hat + p.xq * p.zq) / ((1.0 - p.xi) * (1.0 - p.xip));
+			const double term4 = 6.0 * p.xi * p.xip * p.xq_hat * p.zq_hat;
 
 			const double quark_contribution = Constants::C_F * (term1 + term2 + term3 + term4);
 
-			const double term5 = p.xq_hat_zg_hat * (6.0 * p.xi * (1.0 - p.xip) + (1.0 - p.xi) / p.xip);
-			const double term6 = (p.xq_hat_zg_hat * (p.xip + 2.0 * p.xi * (1.0 - p.xip) / p.xip) - p.xq_zg_hat * (p.xip + 2.0 * (1.0 - p.xip) / p.xip)) / (1.0 - p.xi);
+			const double term5 = p.xq_hat * p.zg_hat * (6.0 * p.xi * (1.0 - p.xip) + (1.0 - p.xi) / p.xip);
+			const double term6 = (p.xq_hat * p.zg_hat * (p.xip + 2.0 * p.xi * (1.0 - p.xip) / p.xip) - p.xq * p.zg_hat * (p.xip + 2.0 * (1.0 - p.xip) / p.xip)) / (1.0 - p.xi);
 			const double gluon_contribution_1 = Constants::C_F * (term5 + term6);
 
-			const double term7 = p.xg_hat_zq_hat * (12.0 * p.xi * (1.0 - p.xi) + (1.0 - p.xip) / p.xip);
-			const double term8 = (p.xg_hat_zq_hat * (p.xip - 2.0 * p.xi * (1.0 - p.xi) / p.xip) - p.xg_hat_zq * (1.0 - 2.0 * p.xi * (1.0 - p.xi))) / (1.0 - p.xip);
+			const double term7 = p.xg_hat * p.zq_hat * (12.0 * p.xi * (1.0 - p.xi) + (1.0 - p.xip) / p.xip);
+			const double term8 = (p.xg_hat * p.zq_hat * (p.xip - 2.0 * p.xi * (1.0 - p.xi) / p.xip) - p.xg_hat * p.zq * (1.0 - 2.0 * p.xi * (1.0 - p.xi))) / (1.0 - p.xip);
 
 			const double gluon_contribution_2 = Constants::T_R * (term7 + term8);
 

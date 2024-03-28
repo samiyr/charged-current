@@ -8,8 +8,15 @@
 namespace SIDISFunctions::F3 {
 	namespace LO {
 		constexpr double integrand(const EvaluationParameters &p) {
-			return 2.0 * p.xq_zq / (p.x * p.z);
+			return 2.0 * p.xq * p.zq / (p.x * p.z);
 		}
+
+		constexpr double quark_to_quark(const EvaluationParameters &p) {
+			return 2.0 * p.pdf * p.ff / (p.x * p.z);
+		}
+
+		constexpr double quark_to_gluon(const EvaluationParameters &p) { return 0.0; }
+		constexpr double gluon_to_quark(const EvaluationParameters &p) { return 0.0; }
 	}
 
 	namespace NLO_NLP {
@@ -19,6 +26,24 @@ namespace SIDISFunctions::F3 {
 	}
 
 	namespace NLO {
+		constexpr double quark_to_quark(const EvaluationParameters &p) {
+			const double F2_value = SIDISFunctions::F2::NLO::quark_to_quark(p);
+			const double F3_term = Constants::C_F * p.pdf_hat * p.ff_hat * (6.0 * p.xi * p.xip + 2.0 * (1.0 - p.xi - p.xip));
+			return F2_value / p.x - 2.0 * F3_term / (p.x * p.z);
+		}
+
+		constexpr double quark_to_gluon(const EvaluationParameters &p) {
+			const double F2_value = SIDISFunctions::F2::NLO::quark_to_gluon(p);
+			const double F3_term = Constants::C_F * p.pdf_hat * p.ff_hat * (4.0 * p.xi * (1.0 - p.xip) + 2.0 * (1.0 - p.xi) * p.xip);
+			return F2_value / p.x - 2.0 * F3_term / (p.x * p.z);
+		}
+
+		constexpr double gluon_to_quark(const EvaluationParameters &p) {
+			const double F2_value = SIDISFunctions::F2::NLO::gluon_to_quark(p);
+			const double F3_term = Constants::T_R * p.pdf_hat * p.ff_hat * (12.0 * p.xi * (1.0 - p.xi) + 2.0 * (1.0 - 2.0 * p.xi * (1.0 - p.xi)) / p.xip - 2.0);
+			return F2_value / p.x - 2.0 * F3_term / (p.x * p.z);
+		}
+
 		constexpr double delta_integrand(const EvaluationParameters &p) {
 			return F2::NLO::delta_integrand(p) / p.x;
 		}
@@ -34,9 +59,9 @@ namespace SIDISFunctions::F3 {
 		constexpr double xi_xip_integrand(const EvaluationParameters &p) {
 			const double F2_value = F2::NLO::xi_xip_integrand(p);
 
-			const double term1 = Constants::C_F * p.xq_hat_zq_hat * (6.0 * p.xi * p.xip + 2.0 * (1.0 - p.xi - p.xip));
-			const double term2 = Constants::C_F * p.xq_hat_zg_hat * (4.0 * p.xi * (1.0 - p.xip) + 2.0 * (1.0 - p.xi) * p.xip);
-			const double term3 = Constants::T_R * p.xg_hat_zq_hat * (12.0 * p.xi * (1.0 - p.xi) + 2.0 * (1.0 - 2.0 * p.xi * (1.0 - p.xi)) / p.xip - 2.0);
+			const double term1 = Constants::C_F * p.xq_hat * p.zq_hat * (6.0 * p.xi * p.xip + 2.0 * (1.0 - p.xi - p.xip));
+			const double term2 = Constants::C_F * p.xq_hat * p.zg_hat * (4.0 * p.xi * (1.0 - p.xip) + 2.0 * (1.0 - p.xi) * p.xip);
+			const double term3 = Constants::T_R * p.xg_hat * p.zq_hat * (12.0 * p.xi * (1.0 - p.xi) + 2.0 * (1.0 - 2.0 * p.xi * (1.0 - p.xi)) / p.xip - 2.0);
 
 			const double value = F2_value / p.x - 2.0 * (term1 + term2 + term3) / (p.x * p.z);
 

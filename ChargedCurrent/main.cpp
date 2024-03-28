@@ -98,15 +98,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	const auto run = [&](const std::string arg) { return Collections::contains(arguments, arg) || all; };
 
 	const std::vector<double> x_bins = {
-		0.01, 0.01125, 0.0125, 0.01375, 0.015, 0.01625, 0.0175, 0.01875,
-		0.01, 0.01125, 0.0125, 0.01375, 0.015, 0.01625, 0.0175, 0.01875,
-		0.02, 0.02125, 0.0225, 0.02375, 0.025, 0.02625, 0.0275, 0.02875, 
-		0.03, 0.03125, 0.0325, 0.03375, 0.035, 0.03625, 0.0375, 0.03875, 
-		0.04, 0.04125, 0.0425, 0.04375, 0.045, 0.04625, 0.0475, 0.04875,
-		0.05, 0.0625, 0.075, 0.0875, 
-		0.1, 0.125, 0.15, 0.175, 
-		0.2, 0.225, 0.25, 0.275, 
-		0.3, 0.325, 0.35, 0.375, 
+		// 0.01, 0.01125, 0.0125, 0.01375, 0.015, 0.01625, 0.0175, 0.01875,
+		// 0.01, 0.01125, 0.0125, 0.01375, 0.015, 0.01625, 0.0175, 0.01875,
+		// 0.02, 0.02125, 0.0225, 0.02375, 0.025, 0.02625, 0.0275, 0.02875, 
+		// 0.03, 0.03125, 0.0325, 0.03375, 0.035, 0.03625, 0.0375, 0.03875, 
+		// 0.04, 0.04125, 0.0425, 0.04375, 0.045, 0.04625, 0.0475, 0.04875,
+		// 0.05, 0.0625, 0.075, 0.0875, 
+		// 0.1, 0.125, 0.15, 0.175, 
+		// 0.2, 0.225, 0.25, 0.275, 
+		// 0.3, 0.325, 0.35, 0.375, 
 		0.4
 	};
 
@@ -164,7 +164,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	const auto scale = [](const auto &pdf) {
 		return ScaleDependence::Function([&](const TRFKinematics &kinematics) {
 			return kinematics.Q2;
-		}, std::pow(pdf.Q2_min(), 2));
+		}, pdf.Q2_min());
 	};
 
 	const auto ff_scale = ScaleDependence::trivial;
@@ -2168,41 +2168,41 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 			const std::string out = "Data/SIDIS/MuonPairProduction/CharmedHadrons/Differential/Decays/" + pdf.set_name + "/" + "FitSet4" + "/";
 
 			measure([&] {
-				sidis.lepton_pair_xy_decays(
+				results.add(sidis.lepton_pair_xy_decays(thread_pool,
 					x_bins, get_y_bins(AnalysisSet::NuTeV, process), get_E_bins(AnalysisSet::NuTeV, process),
 					parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf,
 					scale(pdf), scale(pdf), ff_scale,
 					output_dir + out + "nutev_neutrino.csv",
 					variation_range
-				);
-				sidis.lepton_pair_xy_decays(
+				));
+				results.add(sidis.lepton_pair_xy_decays(thread_pool,
 					x_bins, get_y_bins(AnalysisSet::CCFR, process), get_E_bins(AnalysisSet::CCFR, process),
 					parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf,
 					scale(pdf), scale(pdf), ff_scale,
 					output_dir + out + "ccfr_neutrino.csv",
 					variation_range
-				);
+				));
 			});
 
 			measure([&] {
-				anti_sidis.lepton_pair_xy_decays(
+				results.add(anti_sidis.lepton_pair_xy_decays(thread_pool,
 					x_bins, get_y_bins(AnalysisSet::NuTeV, anti_process), get_E_bins(AnalysisSet::NuTeV, anti_process),
 					parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf,
 					scale(pdf), scale(pdf), ff_scale,
 					output_dir + out + "nutev_antineutrino.csv",
 					variation_range
-				);
-				anti_sidis.lepton_pair_xy_decays(
+				));
+				results.add(anti_sidis.lepton_pair_xy_decays(thread_pool,
 					x_bins, get_y_bins(AnalysisSet::CCFR, anti_process), get_E_bins(AnalysisSet::CCFR, anti_process),
 					parametrizations, PerturbativeOrder::NLO, false, pdf.quark_mass(Flavor::Charm), 0.0,
 					pdf,
 					scale(pdf), scale(pdf), ff_scale,
 					output_dir + out + "ccfr_antineutrino.csv",
 					variation_range
-				);
+				));
 			});
 			
 		}
@@ -2389,8 +2389,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
 	std::cout << total_tasks << " tasks queued" << IO::endl;
 	repeat([&]() {
 		const std::size_t queued = thread_pool.get_tasks_queued();
-		std::cout << "[" << static_cast<int>(100.0 * (1.0 - static_cast<double>(queued) / static_cast<double>(total_tasks))) << "%] ";
-		std::cout << "Running: " << thread_pool.get_tasks_running() << "\tQueued: " << queued << "\tCompleted: " << total_tasks - queued << IO::endl;
+		const std::size_t running = thread_pool.get_tasks_running();
+		const std::size_t completed = total_tasks - queued - running;
+		std::cout << "[" << static_cast<int>(100.0 * static_cast<double>(completed) / static_cast<double>(total_tasks)) << "%]\t";
+		std::cout << "Running: " << running << "\tQueued: " << queued << "\tCompleted: " << completed << IO::endl;
 	}, 5000);
 	std::cout << "Starting pool" << IO::endl;
 	thread_pool.unpause();

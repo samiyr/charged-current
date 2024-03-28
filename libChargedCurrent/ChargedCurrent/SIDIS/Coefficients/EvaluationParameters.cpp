@@ -28,24 +28,30 @@ namespace SIDISFunctions {
 
 		const double sign;
 
-		const double xq_zq;
-		const double xq_hat_zq; 
-		const double xq_zq_hat;
-		const double xq_hat_zq_hat;
-		const double xq_zg_hat;
-		const double xg_hat_zq;
-		const double xq_hat_zg_hat;
-		const double xg_hat_zq_hat;
+		// const double xq_zq;
+		// const double xq_hat_zq; 
+		// const double xq_zq_hat;
+		// const double xq_hat_zq_hat;
+		// const double xq_zg_hat;
+		// const double xg_hat_zq;
+		// const double xq_hat_zg_hat;
+		// const double xg_hat_zq_hat;
 
-		const double log1mx;
-		const double log1mz;
-		const double logxi;
-		const double logxip;
-		const double log1mxi;
-		const double log1mxip;
+		// const double log1mx;
+		// const double log1mz;
+		// const double logxi;
+		// const double logxip;
+		// const double log1mxi;
+		// const double log1mxip;
 
 		const double m2;
 		const double Q2;
+
+		const double pdf;
+		const double pdf_hat;
+
+		const double ff;
+		const double ff_hat;
 	};
 }
 

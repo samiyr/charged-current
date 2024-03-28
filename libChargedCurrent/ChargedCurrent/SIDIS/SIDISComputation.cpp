@@ -89,97 +89,97 @@ class SIDISComputation {
 		return pdf1.alpha_s(renormalization_scale);
 	}
 	
-	PerturbativeQuantity structure_function(
-		const double z, const TRFKinematics &kinematics, const auto &lo_integrand, const auto &nlo_integrand, const auto &nnlo_integrand, const int sign) const {
-		const double Q2 = kinematics.Q2;
-		const double x = kinematics.x;
+	// PerturbativeQuantity structure_function(
+	// 	const double z, const TRFKinematics &kinematics, const auto &lo_integrand, const auto &nlo_integrand, const auto &nnlo_integrand, const int sign) const {
+	// 	const double Q2 = kinematics.Q2;
+	// 	const double x = kinematics.x;
 
-		double alpha_s = compute_alpha_s(kinematics);
-		double nlo_coefficient = alpha_s / (2 * std::numbers::pi);
-		double nnlo_coefficient = std::pow(nlo_coefficient, 2);
+	// 	double alpha_s = compute_alpha_s(kinematics);
+	// 	double nlo_coefficient = alpha_s / (2 * std::numbers::pi);
+	// 	double nnlo_coefficient = std::pow(nlo_coefficient, 2);
 
-		const double renormalization_scale = renormalization_scale_function(kinematics);
-		const double factorization_scale = factorization_scale_function(kinematics);
-		const double fragmentation_scale = fragmentation_scale_function(kinematics);
+	// 	const double renormalization_scale = renormalization_scale_function(kinematics);
+	// 	const double factorization_scale = factorization_scale_function(kinematics);
+	// 	const double fragmentation_scale = fragmentation_scale_function(kinematics);
 
-		const double renormalization_scale_log = renormalization_scale == Q2 ? 0 : std::log(Q2 / renormalization_scale);
-		const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
-		const double fragmentation_scale_log = fragmentation_scale == Q2 ? 0 : std::log(Q2 / fragmentation_scale);
+	// 	const double renormalization_scale_log = renormalization_scale == Q2 ? 0 : std::log(Q2 / renormalization_scale);
+	// 	const double factorization_scale_log = factorization_scale == Q2 ? 0 : std::log(Q2 / factorization_scale);
+	// 	const double fragmentation_scale_log = fragmentation_scale == Q2 ? 0 : std::log(Q2 / fragmentation_scale);
 
-		pdf1.evaluate(x, factorization_scale);
-		ff1.evaluate(z, fragmentation_scale);
+	// 	pdf1.evaluate(x, factorization_scale);
+	// 	ff1.evaluate(z, fragmentation_scale);
 
-		SIDISFunctions::Parameters<PDFInterface, FFInterface, DecayFunction> params {
-			pdf1, ff1, pdf2, ff2,
-			flavors,
-			nlo_coefficient,
-			process, kinematics,
-			z,
-			renormalization_scale, factorization_scale, fragmentation_scale,
-			renormalization_scale_log, factorization_scale_log, fragmentation_scale_log
-		};
+	// 	SIDISFunctions::Parameters<PDFInterface, FFInterface, DecayFunction> params {
+	// 		pdf1, ff1, pdf2, ff2,
+	// 		flavors,
+	// 		nlo_coefficient,
+	// 		process, kinematics,
+	// 		z,
+	// 		renormalization_scale, factorization_scale, fragmentation_scale,
+	// 		renormalization_scale_log, factorization_scale_log, fragmentation_scale_log
+	// 	};
 
-		const double lo = SIDISFunctions::evaluate<PDFInterface, FFInterface>({}, &params, lo_integrand, false, false, false, sign);
+	// 	const double lo = SIDISFunctions::evaluate<PDFInterface, FFInterface>({}, &params, lo_integrand, false, false, false, sign);
 
-		double nlo = 0.0;
-		if (order >= PerturbativeOrder::NLO) {
-			Integrator nlo_integrator([nlo_integrand, sign](double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
-				return SIDISFunctions::evaluate<PDFInterface, FFInterface>(input, params_in, nlo_integrand, true, true, false, sign);
-			}, {x, z}, {1, 1}, integration_parameters, &params);
-			const auto nlo_result = nlo_integrator.integrate();
-			const double nlo_value = nlo_result.value;
+	// 	double nlo = 0.0;
+	// 	if (order >= PerturbativeOrder::NLO) {
+	// 		Integrator nlo_integrator([nlo_integrand, sign](double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
+	// 			return SIDISFunctions::evaluate<PDFInterface, FFInterface>(input, params_in, nlo_integrand, true, true, false, sign);
+	// 		}, {x, z}, {1, 1}, integration_parameters, &params);
+	// 		const auto nlo_result = nlo_integrator.integrate();
+	// 		const double nlo_value = nlo_result.value;
 
-			nlo = nlo_coefficient * nlo_value;
-		}
+	// 		nlo = nlo_coefficient * nlo_value;
+	// 	}
 
-		double nnlo = 0.0;
-		if (order >= PerturbativeOrder::NNLO) {
-			Integrator nnlo_integrator([nnlo_integrand, sign](double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
-				return SIDISFunctions::evaluate<PDFInterface, FFInterface>(input, params_in, nnlo_integrand, true, true, false, sign);
-			}, {x, z}, {1, 1}, integration_parameters, &params);
-			const auto nnlo_result = nnlo_integrator.integrate();
-			const double nnlo_value = nnlo_result.value;
+	// 	double nnlo = 0.0;
+	// 	if (order >= PerturbativeOrder::NNLO) {
+	// 		Integrator nnlo_integrator([nnlo_integrand, sign](double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
+	// 			return SIDISFunctions::evaluate<PDFInterface, FFInterface>(input, params_in, nnlo_integrand, true, true, false, sign);
+	// 		}, {x, z}, {1, 1}, integration_parameters, &params);
+	// 		const auto nnlo_result = nnlo_integrator.integrate();
+	// 		const double nnlo_value = nnlo_result.value;
 
-			nnlo = nnlo_coefficient * nnlo_value;
-		}
+	// 		nnlo = nnlo_coefficient * nnlo_value;
+	// 	}
 
-		return PerturbativeQuantity {lo, lo + nlo, lo + nlo + nnlo};
-	}
+	// 	return PerturbativeQuantity {lo, lo + nlo, lo + nlo + nnlo};
+	// }
 
-	PerturbativeQuantity F2(const double z, const TRFKinematics &kinematics) const {
-		return structure_function(
-			z, kinematics, 
-			SIDISFunctions::F2::LO::integrand, 
-			use_nlp_nlo ? SIDISFunctions::F2::NLO_NLP::total_integrand : SIDISFunctions::F2::NLO::total_integrand, 
-			SIDISFunctions::F2::NNLO_NLP::total_integrand, 1
-		);
-	}
-	PerturbativeQuantity FL(const double z, const TRFKinematics &kinematics) const {
-		return structure_function(
-			z, kinematics, 
-			SIDISFunctions::FL::LO::integrand, 
-			use_nlp_nlo ? SIDISFunctions::FL::NLO_NLP::total_integrand : SIDISFunctions::FL::NLO::total_integrand, 
-			SIDISFunctions::FL::NNLO_NLP::total_integrand, 1
-		);
-	}
-	PerturbativeQuantity F3(const double z, const TRFKinematics &kinematics) const {
-		return structure_function(
-			z, kinematics, 
-			SIDISFunctions::F3::LO::integrand, 
-			use_nlp_nlo ? SIDISFunctions::F3::NLO_NLP::total_integrand : SIDISFunctions::F3::NLO::total_integrand, 
-			SIDISFunctions::F3::NNLO_NLP::total_integrand, -1
-		);
-	}
+	// PerturbativeQuantity F2(const double z, const TRFKinematics &kinematics) const {
+	// 	return structure_function(
+	// 		z, kinematics, 
+	// 		SIDISFunctions::F2::LO::integrand, 
+	// 		use_nlp_nlo ? SIDISFunctions::F2::NLO_NLP::total_integrand : SIDISFunctions::F2::NLO::total_integrand, 
+	// 		SIDISFunctions::F2::NNLO_NLP::total_integrand, 1
+	// 	);
+	// }
+	// PerturbativeQuantity FL(const double z, const TRFKinematics &kinematics) const {
+	// 	return structure_function(
+	// 		z, kinematics, 
+	// 		SIDISFunctions::FL::LO::integrand, 
+	// 		use_nlp_nlo ? SIDISFunctions::FL::NLO_NLP::total_integrand : SIDISFunctions::FL::NLO::total_integrand, 
+	// 		SIDISFunctions::FL::NNLO_NLP::total_integrand, 1
+	// 	);
+	// }
+	// PerturbativeQuantity F3(const double z, const TRFKinematics &kinematics) const {
+	// 	return structure_function(
+	// 		z, kinematics, 
+	// 		SIDISFunctions::F3::LO::integrand, 
+	// 		use_nlp_nlo ? SIDISFunctions::F3::NLO_NLP::total_integrand : SIDISFunctions::F3::NLO::total_integrand, 
+	// 		SIDISFunctions::F3::NNLO_NLP::total_integrand, -1
+	// 	);
+	// }
 
-	PerturbativeQuantity compute_structure_function(
-		const StructureFunction structure_function, const double z, const TRFKinematics &kinematics) const {
-		switch (structure_function) {
-		case StructureFunction::F2: return F2(z, kinematics);
-		case StructureFunction::FL: return FL(z, kinematics);
-		case StructureFunction::F3: return F3(z, kinematics);
-		default: return PerturbativeQuantity{0.0, 0.0};
-		}
-	}
+	// PerturbativeQuantity compute_structure_function(
+	// 	const StructureFunction structure_function, const double z, const TRFKinematics &kinematics) const {
+	// 	switch (structure_function) {
+	// 	case StructureFunction::F2: return F2(z, kinematics);
+	// 	case StructureFunction::FL: return FL(z, kinematics);
+	// 	case StructureFunction::F3: return F3(z, kinematics);
+	// 	default: return PerturbativeQuantity{0.0, 0.0};
+	// 	}
+	// }
 
 	PerturbativeQuantity differential_cross_section_xQ2(const double z, const TRFKinematics &kinematics) const {
 		const double Q2 = kinematics.Q2;
@@ -254,6 +254,8 @@ class SIDISComputation {
 	}
 
 	PerturbativeQuantity lepton_pair_cross_section_zxQ2(const TRFKinematics &kinematics, const double z) const {
+		using namespace SIDISFunctions;
+
 		const double x = kinematics.x;
 		const double Q2 = kinematics.Q2;
 
@@ -292,7 +294,9 @@ class SIDISComputation {
 		const std::vector<double> lo_input = {z};
 
 		const double lo = SIDISFunctions::cross_section<PDFInterface, FFInterface, DecayFunction>(lo_input.data(), &params, 
-			SIDISFunctions::F2::LO::integrand, SIDISFunctions::FL::LO::integrand, SIDISFunctions::F3::LO::integrand,
+			F2::LO::quark_to_quark, F2::LO::quark_to_gluon, F2::LO::gluon_to_quark, 
+			FL::LO::quark_to_quark, FL::LO::quark_to_gluon, FL::LO::gluon_to_quark, 
+			F3::LO::quark_to_quark, F3::LO::quark_to_gluon, F3::LO::gluon_to_quark, 
 			false, false, true
 		);
 
@@ -305,9 +309,12 @@ class SIDISComputation {
 				total_input[2] = z;
 
 				const double value = SIDISFunctions::cross_section<PDFInterface, FFInterface, DecayFunction>(total_input, params_in, 
-					use_nlp_nlo ? SIDISFunctions::F2::NLO_NLP::total_integrand : SIDISFunctions::F2::NLO::total_integrand, 
-					use_nlp_nlo ? SIDISFunctions::FL::NLO_NLP::total_integrand : SIDISFunctions::FL::NLO::total_integrand, 
-					use_nlp_nlo ? SIDISFunctions::F3::NLO_NLP::total_integrand : SIDISFunctions::F3::NLO::total_integrand,
+					// use_nlp_nlo ? SIDISFunctions::F2::NLO_NLP::total_integrand : SIDISFunctions::F2::NLO::total_integrand, 
+					// use_nlp_nlo ? SIDISFunctions::FL::NLO_NLP::total_integrand : SIDISFunctions::FL::NLO::total_integrand, 
+					// use_nlp_nlo ? SIDISFunctions::F3::NLO_NLP::total_integrand : SIDISFunctions::F3::NLO::total_integrand,
+					F2::NLO::quark_to_quark, F2::NLO::quark_to_gluon, F2::NLO::gluon_to_quark, 
+					FL::NLO::quark_to_quark, FL::NLO::quark_to_gluon, FL::NLO::gluon_to_quark, 
+					F3::NLO::quark_to_quark, F3::NLO::quark_to_gluon, F3::NLO::gluon_to_quark, 
 					true, true, true
 				);
 
@@ -322,27 +329,27 @@ class SIDISComputation {
 		}
 
 		double nnlo = 0.0;
-		if (order >= PerturbativeOrder::NNLO) {
-			Integrator nnlo_integrator([&](double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
-				double *total_input = new double[3];
-				total_input[0] = input[0];
-				total_input[1] = input[1];
-				total_input[2] = z;
+		// if (order >= PerturbativeOrder::NNLO) {
+		// 	Integrator nnlo_integrator([&](double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
+		// 		double *total_input = new double[3];
+		// 		total_input[0] = input[0];
+		// 		total_input[1] = input[1];
+		// 		total_input[2] = z;
 
-				const double value = SIDISFunctions::cross_section<PDFInterface, FFInterface, DecayFunction>(total_input, params_in, 
-					SIDISFunctions::F2::NNLO_NLP::total_integrand, SIDISFunctions::FL::NNLO_NLP::total_integrand, SIDISFunctions::F3::NNLO_NLP::total_integrand,
-					true, true, true
-				);
+		// 		const double value = SIDISFunctions::cross_section<PDFInterface, FFInterface, DecayFunction>(total_input, params_in, 
+		// 			SIDISFunctions::F2::NNLO_NLP::total_integrand, SIDISFunctions::FL::NNLO_NLP::total_integrand, SIDISFunctions::F3::NNLO_NLP::total_integrand,
+		// 			true, true, true
+		// 		);
 
-				delete[] total_input;
+		// 		delete[] total_input;
 
-				return value;
-			}, {x, z_min}, {1.0, 1.0}, integration_parameters, &params);
-			const auto nnlo_result = nnlo_integrator.integrate();
-			const double nnlo_integral = nnlo_result.value;
+		// 		return value;
+		// 	}, {x, z_min}, {1.0, 1.0}, integration_parameters, &params);
+		// 	const auto nnlo_result = nnlo_integrator.integrate();
+		// 	const double nnlo_integral = nnlo_result.value;
 
-			nnlo = nnlo_coefficient * nnlo_integral;
-		}
+		// 	nnlo = nnlo_coefficient * nnlo_integral;
+		// }
 
 		const PerturbativeQuantity result = PerturbativeQuantity {lo, lo + nlo, lo + nlo + nnlo};
 		const double prefactor = use_modified_cross_section_prefactor 
@@ -352,12 +359,14 @@ class SIDISComputation {
 	}
 
 	PerturbativeQuantity lepton_pair_cross_section_xQ2(const TRFKinematics &kinematics) const {
+		using namespace SIDISFunctions;
+
 		const double x = kinematics.x;
 		const double Q2 = kinematics.Q2;
 
 		std::vector<double> z_mins(ff1.decays.size());
 		std::transform(ff1.decays.begin(), ff1.decays.end(), z_mins.begin(), [&kinematics](const auto &decay) {
-			return SIDISFunctions::Helper::compute_z_min(kinematics, decay);
+			return Helper::compute_z_min(kinematics, decay);
 		});
 		const double z_min = *std::min_element(z_mins.begin(), z_mins.end());
 
@@ -377,7 +386,7 @@ class SIDISComputation {
 
 		pdf1.evaluate(x, factorization_scale);
 
-		SIDISFunctions::Parameters<PDFInterface, FFInterface, DecayFunction> params {
+		Parameters<PDFInterface, FFInterface, DecayFunction> params {
 			pdf1, ff1, pdf2, ff2,
 			flavors,
 			nlo_coefficient,
@@ -389,7 +398,9 @@ class SIDISComputation {
 
 		Integrator lo_integrator([&](double input[], [[maybe_unused]] std::size_t dim, void* params_in) {
 			return SIDISFunctions::cross_section<PDFInterface, FFInterface, DecayFunction>(input, params_in, 
-				SIDISFunctions::F2::LO::integrand, SIDISFunctions::FL::LO::integrand, SIDISFunctions::F3::LO::integrand,
+				F2::LO::quark_to_quark, F2::LO::quark_to_gluon, F2::LO::gluon_to_quark,
+				FL::LO::quark_to_quark, FL::LO::quark_to_gluon, FL::LO::gluon_to_quark, 
+				F3::LO::quark_to_quark, F3::LO::quark_to_gluon, F3::LO::gluon_to_quark,
 				false, false, true
 			);
 		}, {z_min}, {1}, integration_parameters, &params);
@@ -400,9 +411,13 @@ class SIDISComputation {
 		if (order >= PerturbativeOrder::NLO) {
 			Integrator nlo_integrator([&](double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
 				return SIDISFunctions::cross_section<PDFInterface, FFInterface, DecayFunction>(input, params_in, 
-					use_nlp_nlo ? SIDISFunctions::F2::NLO_NLP::total_integrand : SIDISFunctions::F2::NLO::total_integrand, 
-					use_nlp_nlo ? SIDISFunctions::FL::NLO_NLP::total_integrand : SIDISFunctions::FL::NLO::total_integrand, 
-					use_nlp_nlo ? SIDISFunctions::F3::NLO_NLP::total_integrand : SIDISFunctions::F3::NLO::total_integrand,
+					// use_nlp_nlo ? SIDISFunctions::F2::NLO_NLP::total_integrand : SIDISFunctions::F2::NLO::total_integrand, 
+					// use_nlp_nlo ? SIDISFunctions::FL::NLO_NLP::total_integrand : SIDISFunctions::FL::NLO::total_integrand, 
+					// use_nlp_nlo ? SIDISFunctions::F3::NLO_NLP::total_integrand : SIDISFunctions::F3::NLO::total_integrand,
+					F2::NLO::quark_to_quark, F2::NLO::quark_to_gluon, F2::NLO::gluon_to_quark,
+					FL::NLO::quark_to_quark, FL::NLO::quark_to_gluon, FL::NLO::gluon_to_quark, 
+					F3::NLO::quark_to_quark, F3::NLO::quark_to_gluon, F3::NLO::gluon_to_quark,
+
 					true, true, true
 				);
 			}, {x, z_min, z_min}, {1.0, 1.0, 1.0}, integration_parameters, &params);
@@ -413,18 +428,18 @@ class SIDISComputation {
 		}
 
 		double nnlo = 0.0;
-		if (order >= PerturbativeOrder::NNLO) {
-			Integrator nnlo_integrator([&](double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
-				return SIDISFunctions::cross_section<PDFInterface, FFInterface, DecayFunction>(input, params_in, 
-					SIDISFunctions::F2::NNLO_NLP::total_integrand, SIDISFunctions::FL::NNLO_NLP::total_integrand, SIDISFunctions::F3::NNLO_NLP::total_integrand,
-					true, true, true
-				);
-			}, {x, z_min, z_min}, {1.0, 1.0, 1.0}, integration_parameters, &params);
-			const auto nnlo_result = nnlo_integrator.integrate();
-			const double nnlo_integral = nnlo_result.value;
+		// if (order >= PerturbativeOrder::NNLO) {
+		// 	Integrator nnlo_integrator([&](double input[], [[maybe_unused]] std::size_t dim, void *params_in) {
+		// 		return SIDISFunctions::cross_section<PDFInterface, FFInterface, DecayFunction>(input, params_in, 
+		// 			SIDISFunctions::F2::NNLO_NLP::total_integrand, SIDISFunctions::FL::NNLO_NLP::total_integrand, SIDISFunctions::F3::NNLO_NLP::total_integrand,
+		// 			true, true, true
+		// 		);
+		// 	}, {x, z_min, z_min}, {1.0, 1.0, 1.0}, integration_parameters, &params);
+		// 	const auto nnlo_result = nnlo_integrator.integrate();
+		// 	const double nnlo_integral = nnlo_result.value;
 
-			nnlo = nnlo_coefficient * nnlo_integral;
-		}
+		// 	nnlo = nnlo_coefficient * nnlo_integral;
+		// }
 
 		const PerturbativeQuantity result = PerturbativeQuantity {lo, lo + nlo, lo + nlo + nnlo};
 		const double prefactor = use_modified_cross_section_prefactor 
@@ -435,6 +450,8 @@ class SIDISComputation {
 	}
 
 	PerturbativeQuantity x_integrated_lepton_pair_cross_section(const TRFKinematics &placeholder_kinematics, const double Q2) const {
+		using namespace SIDISFunctions;
+
 		// input = [z, x]
 		const auto lo_integrand = [&](double input[]) {
 			const double x = input[1];
@@ -477,7 +494,9 @@ class SIDISComputation {
 			};
 
 			const double differential_cross_section = SIDISFunctions::cross_section<PDFInterface, FFInterface, DecayFunction>(input, &params, 
-				SIDISFunctions::F2::LO::integrand, SIDISFunctions::FL::LO::integrand, SIDISFunctions::F3::LO::integrand,
+				F2::LO::quark_to_quark, F2::LO::quark_to_gluon, F2::LO::gluon_to_quark,
+				FL::LO::quark_to_quark, FL::LO::quark_to_gluon, FL::LO::gluon_to_quark,
+				F3::LO::quark_to_quark, F3::LO::quark_to_gluon, F3::LO::gluon_to_quark,
 				false, false, true
 			);
 
@@ -533,9 +552,12 @@ class SIDISComputation {
 			};
 
 			const double differential_cross_section = SIDISFunctions::cross_section<PDFInterface, FFInterface, DecayFunction>(input, &params, 
-				use_nlp_nlo ? SIDISFunctions::F2::NLO_NLP::total_integrand : SIDISFunctions::F2::NLO::total_integrand, 
-				use_nlp_nlo ? SIDISFunctions::FL::NLO_NLP::total_integrand : SIDISFunctions::FL::NLO::total_integrand, 
-				use_nlp_nlo ? SIDISFunctions::F3::NLO_NLP::total_integrand : SIDISFunctions::F3::NLO::total_integrand,
+				// use_nlp_nlo ? SIDISFunctions::F2::NLO_NLP::total_integrand : SIDISFunctions::F2::NLO::total_integrand, 
+				// use_nlp_nlo ? SIDISFunctions::FL::NLO_NLP::total_integrand : SIDISFunctions::FL::NLO::total_integrand, 
+				// use_nlp_nlo ? SIDISFunctions::F3::NLO_NLP::total_integrand : SIDISFunctions::F3::NLO::total_integrand,
+				F2::NLO::quark_to_quark, F2::NLO::quark_to_gluon, F2::NLO::gluon_to_quark,
+				FL::NLO::quark_to_quark, FL::NLO::quark_to_gluon, FL::NLO::gluon_to_quark,
+				F3::NLO::quark_to_quark, F3::NLO::quark_to_gluon, F3::NLO::gluon_to_quark,
 				true, true, true
 			);
 
@@ -590,10 +612,11 @@ class SIDISComputation {
 				renormalization_scale_log, factorization_scale_log, fragmentation_scale_log
 			};
 
-			const double differential_cross_section = SIDISFunctions::cross_section<PDFInterface, FFInterface, DecayFunction>(input, &params, 
-				SIDISFunctions::F2::NNLO_NLP::total_integrand, SIDISFunctions::FL::NNLO_NLP::total_integrand, SIDISFunctions::F3::NNLO_NLP::total_integrand,
-				true, true, true
-			);
+			// const double differential_cross_section = SIDISFunctions::cross_section<PDFInterface, FFInterface, DecayFunction>(input, &params, 
+			// 	SIDISFunctions::F2::NNLO_NLP::total_integrand, SIDISFunctions::FL::NNLO_NLP::total_integrand, SIDISFunctions::F3::NNLO_NLP::total_integrand,
+			// 	true, true, true
+			// );
+			const double differential_cross_section = 0.0;
 
 			const double prefactor = use_modified_cross_section_prefactor 
 							? CommonFunctions::cross_section_modified_prefactor(kinematics) 
@@ -668,6 +691,8 @@ class SIDISComputation {
 		return result;
 	}
 	PerturbativeQuantity integrated_lepton_pair_cross_section(const TRFKinematics &placeholder_kinematics, const double Q2_min) const {
+		using namespace SIDISFunctions;
+
 		// input = [z, x, Q2]
 		const auto lo_integrand = [&](double input[]) {
 			const double x = input[1];
@@ -711,7 +736,9 @@ class SIDISComputation {
 			};
 
 			const double differential_cross_section = SIDISFunctions::cross_section<PDFInterface, FFInterface, DecayFunction>(input, &params, 
-				SIDISFunctions::F2::LO::integrand, SIDISFunctions::FL::LO::integrand, SIDISFunctions::F3::LO::integrand,
+				F2::LO::quark_to_quark, F2::LO::quark_to_gluon, F2::LO::gluon_to_quark,
+				FL::LO::quark_to_quark, FL::LO::quark_to_gluon, FL::LO::gluon_to_quark,
+				F3::LO::quark_to_quark, F3::LO::quark_to_gluon, F3::LO::gluon_to_quark,
 				false, false, true
 			);
 
@@ -768,9 +795,12 @@ class SIDISComputation {
 			};
 
 			const double differential_cross_section = SIDISFunctions::cross_section<PDFInterface, FFInterface, DecayFunction>(input, &params, 
-				use_nlp_nlo ? SIDISFunctions::F2::NLO_NLP::total_integrand : SIDISFunctions::F2::NLO::total_integrand, 
-				use_nlp_nlo ? SIDISFunctions::FL::NLO_NLP::total_integrand : SIDISFunctions::FL::NLO::total_integrand, 
-				use_nlp_nlo ? SIDISFunctions::F3::NLO_NLP::total_integrand : SIDISFunctions::F3::NLO::total_integrand,
+				// use_nlp_nlo ? SIDISFunctions::F2::NLO_NLP::total_integrand : SIDISFunctions::F2::NLO::total_integrand, 
+				// use_nlp_nlo ? SIDISFunctions::FL::NLO_NLP::total_integrand : SIDISFunctions::FL::NLO::total_integrand, 
+				// use_nlp_nlo ? SIDISFunctions::F3::NLO_NLP::total_integrand : SIDISFunctions::F3::NLO::total_integrand,
+				F2::NLO::quark_to_quark, F2::NLO::quark_to_gluon, F2::NLO::gluon_to_quark,
+				FL::NLO::quark_to_quark, FL::NLO::quark_to_gluon, FL::NLO::gluon_to_quark,
+				F3::NLO::quark_to_quark, F3::NLO::quark_to_gluon, F3::NLO::gluon_to_quark,
 				true, true, true
 			);
 
@@ -826,10 +856,11 @@ class SIDISComputation {
 				renormalization_scale_log, factorization_scale_log, fragmentation_scale_log
 			};
 
-			const double differential_cross_section = SIDISFunctions::cross_section<PDFInterface, FFInterface, DecayFunction>(input, &params, 
-				SIDISFunctions::F2::NNLO_NLP::total_integrand, SIDISFunctions::FL::NNLO_NLP::total_integrand, SIDISFunctions::F3::NNLO_NLP::total_integrand,
-				true, true, true
-			);
+			// const double differential_cross_section = SIDISFunctions::cross_section<PDFInterface, FFInterface, DecayFunction>(input, &params, 
+			// 	SIDISFunctions::F2::NNLO_NLP::total_integrand, SIDISFunctions::FL::NNLO_NLP::total_integrand, SIDISFunctions::F3::NNLO_NLP::total_integrand,
+			// 	true, true, true
+			// );
+			const double differential_cross_section = 0.0;
 
 			const double prefactor = use_modified_cross_section_prefactor 
 							? CommonFunctions::cross_section_modified_prefactor(kinematics) 
